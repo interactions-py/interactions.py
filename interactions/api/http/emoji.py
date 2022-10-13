@@ -1,6 +1,9 @@
 from typing import List, Optional
 
 from ...api.cache import Cache
+from ..models.emoji import Emoji
+from ..models.guild import Guild
+from ..models.misc import Snowflake
 from .request import _Request
 from .route import Route
 
@@ -22,7 +25,11 @@ class EmojiRequest:
         :param guild_id: Guild ID snowflake.
         :return: A list of emojis.
         """
-        return await self._req.request(Route("GET", f"/guilds/{guild_id}/emojis"))
+        res = await self._req.request(Route("GET", f"/guilds/{guild_id}/emojis"))
+        self.cache[Guild].get(Snowflake(guild_id)).emojis = [
+            Emoji(**_res, _client=self) for _res in res
+        ]
+        return res
 
     async def get_guild_emoji(self, guild_id: int, emoji_id: int) -> dict:
         """
@@ -32,7 +39,20 @@ class EmojiRequest:
         :param emoji_id: Emoji ID snowflake.
         :return: Emoji object
         """
-        return await self._req.request(Route("GET", f"/guilds/{guild_id}/emojis/{emoji_id}"))
+        res = await self._req.request(Route("GET", f"/guilds/{guild_id}/emojis/{emoji_id}"))
+        emoji = Emoji(**res, _client=self)
+        guild = self.cache[Guild].get(Snowflake(guild_id))
+        if guild.emojis is None:
+            guild.emojis = [emoji]
+        else:
+            for index, _emoji in enumerate(guild.emojis):
+                if _emoji.id == emoji.id:
+                    guild.emojis[index] = emoji
+                    break
+            else:
+                guild.emojis.append(emoji)
+        self.cache[Guild].add(guild)  # yes it should just be overwritten
+        return res
 
     async def create_guild_emoji(
         self, guild_id: int, payload: dict, reason: Optional[str] = None

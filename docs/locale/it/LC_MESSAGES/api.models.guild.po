@@ -7,16 +7,16 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-09-26 11:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../api.models.guild.rst:4
 msgid "Guild Models"
@@ -24,6 +24,33 @@ msgstr ""
 
 #: interactions.api.models.guild.VerificationLevel:1 of
 msgid "An enumerable object representing the verification level of a guild."
+msgstr ""
+
+#: interactions.api.models.guild.DefaultMessageNotificationLevel
+#: interactions.api.models.guild.EntityType
+#: interactions.api.models.guild.EventStatus
+#: interactions.api.models.guild.ExplicitContentFilterLevel
+#: interactions.api.models.guild.InviteTargetType
+#: interactions.api.models.guild.VerificationLevel of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.api.models.guild.DefaultMessageNotificationLevel:1
+#: interactions.api.models.guild.EntityType:1
+#: interactions.api.models.guild.EventStatus:1
+#: interactions.api.models.guild.ExplicitContentFilterLevel:1
+#: interactions.api.models.guild.InviteTargetType:1
+#: interactions.api.models.guild.VerificationLevel:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.api.models.guild.DefaultMessageNotificationLevel:1
+#: interactions.api.models.guild.EntityType:1
+#: interactions.api.models.guild.EventStatus:1
+#: interactions.api.models.guild.ExplicitContentFilterLevel:1
+#: interactions.api.models.guild.InviteTargetType:1
+#: interactions.api.models.guild.VerificationLevel:1 of
+msgid "Valid values are as follows:"
 msgstr ""
 
 #: interactions.api.models.guild.EntityType:1 of
@@ -56,6 +83,78 @@ msgstr ""
 
 #: interactions.api.models.guild.EventMetadata:3 of
 msgid "The location of the event, if any."
+msgstr ""
+
+#: interactions.api.models.guild.AsyncMembersIterator
+#: interactions.api.models.guild.EventMetadata
+#: interactions.api.models.guild.Guild
+#: interactions.api.models.guild.Guild.add_member_role
+#: interactions.api.models.guild.Guild.ban
+#: interactions.api.models.guild.Guild.clone_channel
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule
+#: interactions.api.models.guild.Guild.create_channel
+#: interactions.api.models.guild.Guild.create_emoji
+#: interactions.api.models.guild.Guild.create_role
+#: interactions.api.models.guild.Guild.create_scheduled_event
+#: interactions.api.models.guild.Guild.create_sticker
+#: interactions.api.models.guild.Guild.create_thread
+#: interactions.api.models.guild.Guild.delete_channel
+#: interactions.api.models.guild.Guild.delete_emoji
+#: interactions.api.models.guild.Guild.delete_role
+#: interactions.api.models.guild.Guild.delete_scheduled_event
+#: interactions.api.models.guild.Guild.delete_sticker
+#: interactions.api.models.guild.Guild.get_audit_logs
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule
+#: interactions.api.models.guild.Guild.get_bans
+#: interactions.api.models.guild.Guild.get_emoji
+#: interactions.api.models.guild.Guild.get_full_audit_logs
+#: interactions.api.models.guild.Guild.get_latest_audit_log_action
+#: interactions.api.models.guild.Guild.get_list_of_members
+#: interactions.api.models.guild.Guild.get_member
+#: interactions.api.models.guild.Guild.get_members
+#: interactions.api.models.guild.Guild.get_prune_count
+#: interactions.api.models.guild.Guild.get_role
+#: interactions.api.models.guild.Guild.get_scheduled_events
+#: interactions.api.models.guild.Guild.kick
+#: interactions.api.models.guild.Guild.modify
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule
+#: interactions.api.models.guild.Guild.modify_channel
+#: interactions.api.models.guild.Guild.modify_member
+#: interactions.api.models.guild.Guild.modify_role
+#: interactions.api.models.guild.Guild.modify_role_position
+#: interactions.api.models.guild.Guild.modify_role_positions
+#: interactions.api.models.guild.Guild.modify_scheduled_event
+#: interactions.api.models.guild.Guild.modify_sticker
+#: interactions.api.models.guild.Guild.prune
+#: interactions.api.models.guild.Guild.remove_ban
+#: interactions.api.models.guild.Guild.remove_member_role
+#: interactions.api.models.guild.Guild.search_members
+#: interactions.api.models.guild.Guild.set_afk_channel
+#: interactions.api.models.guild.Guild.set_afk_timeout
+#: interactions.api.models.guild.Guild.set_banner
+#: interactions.api.models.guild.Guild.set_default_message_notifications
+#: interactions.api.models.guild.Guild.set_description
+#: interactions.api.models.guild.Guild.set_discovery_splash
+#: interactions.api.models.guild.Guild.set_explicit_content_filter
+#: interactions.api.models.guild.Guild.set_icon
+#: interactions.api.models.guild.Guild.set_name
+#: interactions.api.models.guild.Guild.set_preferred_locale
+#: interactions.api.models.guild.Guild.set_premium_progress_bar_enabled
+#: interactions.api.models.guild.Guild.set_public_updates_channel
+#: interactions.api.models.guild.Guild.set_rules_channel
+#: interactions.api.models.guild.Guild.set_splash
+#: interactions.api.models.guild.Guild.set_system_channel
+#: interactions.api.models.guild.Guild.set_verification_level
+#: interactions.api.models.guild.GuildPreview
+#: interactions.api.models.guild.GuildTemplate
+#: interactions.api.models.guild.Integration
+#: interactions.api.models.guild.Invite
+#: interactions.api.models.guild.ScheduledEvents
+#: interactions.api.models.guild.StageInstance
+#: interactions.api.models.guild.UnavailableGuild
+#: interactions.api.models.guild.WelcomeChannels
+#: interactions.api.models.guild.WelcomeScreen of
+msgid "Parameters"
 msgstr ""
 
 #: interactions.api.models.guild.EventStatus:1 of
@@ -579,31 +678,79 @@ msgstr ""
 msgid "Bans a member from the guild."
 msgstr ""
 
+#: interactions.api.models.guild.Guild.ban:3 of
+msgid "The id of the member to ban"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.ban:5 of
+msgid "Number of seconds to delete messages, from 0 to 604800. Defaults to 0"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.ban:7 of
+msgid "Number of minutes to delete messages, from 0 to 10080"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.ban:9 of
+msgid "Number of hours to delete messages, from 0 to 168"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.ban:11 of
+msgid "Number of days to delete messages, from 0 to 7"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.ban:13 of
+msgid "The reason of the ban"
+msgstr ""
+
+#: interactions.api.models.guild.AsyncMembersIterator.flatten
 #: interactions.api.models.guild.Guild.add_member_role
 #: interactions.api.models.guild.Guild.ban
 #: interactions.api.models.guild.Guild.clone_channel
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule
 #: interactions.api.models.guild.Guild.create_channel
 #: interactions.api.models.guild.Guild.create_emoji
 #: interactions.api.models.guild.Guild.create_role
 #: interactions.api.models.guild.Guild.create_scheduled_event
+#: interactions.api.models.guild.Guild.create_sticker
 #: interactions.api.models.guild.Guild.create_thread
 #: interactions.api.models.guild.Guild.delete_channel
 #: interactions.api.models.guild.Guild.delete_emoji
 #: interactions.api.models.guild.Guild.delete_role
 #: interactions.api.models.guild.Guild.delete_scheduled_event
+#: interactions.api.models.guild.Guild.get_all_active_threads
+#: interactions.api.models.guild.Guild.get_all_bans
+#: interactions.api.models.guild.Guild.get_all_channels
+#: interactions.api.models.guild.Guild.get_all_emoji
+#: interactions.api.models.guild.Guild.get_all_members
+#: interactions.api.models.guild.Guild.get_all_roles
+#: interactions.api.models.guild.Guild.get_audit_logs
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule
 #: interactions.api.models.guild.Guild.get_bans
 #: interactions.api.models.guild.Guild.get_emoji
+#: interactions.api.models.guild.Guild.get_full_audit_logs
+#: interactions.api.models.guild.Guild.get_latest_audit_log_action
 #: interactions.api.models.guild.Guild.get_list_of_members
 #: interactions.api.models.guild.Guild.get_member
+#: interactions.api.models.guild.Guild.get_members
+#: interactions.api.models.guild.Guild.get_nitro_sticker_packs
+#: interactions.api.models.guild.Guild.get_preview
+#: interactions.api.models.guild.Guild.get_prune_count
 #: interactions.api.models.guild.Guild.get_role
+#: interactions.api.models.guild.Guild.get_scheduled_events
+#: interactions.api.models.guild.Guild.get_stickers
 #: interactions.api.models.guild.Guild.kick
+#: interactions.api.models.guild.Guild.leave
+#: interactions.api.models.guild.Guild.list_auto_moderation_rules
 #: interactions.api.models.guild.Guild.modify
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule
 #: interactions.api.models.guild.Guild.modify_channel
 #: interactions.api.models.guild.Guild.modify_member
 #: interactions.api.models.guild.Guild.modify_role
 #: interactions.api.models.guild.Guild.modify_role_position
 #: interactions.api.models.guild.Guild.modify_role_positions
 #: interactions.api.models.guild.Guild.modify_scheduled_event
+#: interactions.api.models.guild.Guild.modify_sticker
+#: interactions.api.models.guild.Guild.prune
 #: interactions.api.models.guild.Guild.remove_ban
 #: interactions.api.models.guild.Guild.remove_member_role
 #: interactions.api.models.guild.Guild.search_members
@@ -622,20 +769,9 @@ msgstr ""
 #: interactions.api.models.guild.Guild.set_rules_channel
 #: interactions.api.models.guild.Guild.set_splash
 #: interactions.api.models.guild.Guild.set_system_channel
-#: interactions.api.models.guild.Guild.set_verification_level of
-msgid "Parameters"
-msgstr ""
-
-#: interactions.api.models.guild.Guild.ban:3 of
-msgid "The id of the member to ban"
-msgstr ""
-
-#: interactions.api.models.guild.Guild.ban:5 of
-msgid "The reason of the ban"
-msgstr ""
-
-#: interactions.api.models.guild.Guild.ban:7 of
-msgid "Number of days to delete messages, from 0 to 7. Defaults to 0"
+#: interactions.api.models.guild.Guild.set_verification_level
+#: interactions.api.models.guild.Invite.delete of
+msgid "Return type"
 msgstr ""
 
 #: interactions.api.models.guild.Guild.remove_ban:1 of
@@ -672,9 +808,10 @@ msgstr ""
 
 #: interactions.api.models.guild.Guild.add_member_role:4 of
 msgid ""
-":type role Union[Role, int] :param member_id: The id of the member to add"
-" the roles to :type member_id: int :param reason?: The reason why the "
-"roles are added :type reason: Optional[str]"
+":type role  Union[Role, int, Snowflake] :param member_id: The id of the "
+"member to add the roles to :type member_id: Union[Member, int, Snowflake]"
+" :param reason?: The reason why the roles are added :type reason?: "
+"Optional[str]"
 msgstr ""
 
 #: interactions.api.models.guild.Guild.remove_member_role:1 of
@@ -734,61 +871,49 @@ msgid "The reason why the role is created, default ``None``"
 msgstr ""
 
 #: interactions.api.models.guild.Guild.clone_channel
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule
 #: interactions.api.models.guild.Guild.create_channel
 #: interactions.api.models.guild.Guild.create_role
 #: interactions.api.models.guild.Guild.create_scheduled_event
+#: interactions.api.models.guild.Guild.create_sticker
 #: interactions.api.models.guild.Guild.create_thread
+#: interactions.api.models.guild.Guild.get_all_active_threads
 #: interactions.api.models.guild.Guild.get_all_bans
 #: interactions.api.models.guild.Guild.get_all_channels
 #: interactions.api.models.guild.Guild.get_all_emoji
 #: interactions.api.models.guild.Guild.get_all_members
 #: interactions.api.models.guild.Guild.get_all_roles
+#: interactions.api.models.guild.Guild.get_audit_logs
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule
 #: interactions.api.models.guild.Guild.get_bans
 #: interactions.api.models.guild.Guild.get_emoji
+#: interactions.api.models.guild.Guild.get_full_audit_logs
+#: interactions.api.models.guild.Guild.get_latest_audit_log_action
 #: interactions.api.models.guild.Guild.get_list_of_members
 #: interactions.api.models.guild.Guild.get_member
+#: interactions.api.models.guild.Guild.get_members
+#: interactions.api.models.guild.Guild.get_nitro_sticker_packs
 #: interactions.api.models.guild.Guild.get_preview
+#: interactions.api.models.guild.Guild.get_prune_count
 #: interactions.api.models.guild.Guild.get_role
+#: interactions.api.models.guild.Guild.get_scheduled_events
+#: interactions.api.models.guild.Guild.get_stickers
 #: interactions.api.models.guild.Guild.modify
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule
 #: interactions.api.models.guild.Guild.modify_channel
 #: interactions.api.models.guild.Guild.modify_member
 #: interactions.api.models.guild.Guild.modify_role
 #: interactions.api.models.guild.Guild.modify_role_position
 #: interactions.api.models.guild.Guild.modify_role_positions
 #: interactions.api.models.guild.Guild.modify_scheduled_event
+#: interactions.api.models.guild.Guild.modify_sticker
+#: interactions.api.models.guild.Guild.prune
 #: interactions.api.models.guild.Guild.search_members of
 msgid "Returns"
 msgstr ""
 
 #: interactions.api.models.guild.Guild.create_role:19 of
 msgid "The created Role"
-msgstr ""
-
-#: interactions.api.models.guild.Guild.clone_channel
-#: interactions.api.models.guild.Guild.create_channel
-#: interactions.api.models.guild.Guild.create_role
-#: interactions.api.models.guild.Guild.create_scheduled_event
-#: interactions.api.models.guild.Guild.create_thread
-#: interactions.api.models.guild.Guild.get_all_bans
-#: interactions.api.models.guild.Guild.get_all_channels
-#: interactions.api.models.guild.Guild.get_all_emoji
-#: interactions.api.models.guild.Guild.get_all_members
-#: interactions.api.models.guild.Guild.get_all_roles
-#: interactions.api.models.guild.Guild.get_bans
-#: interactions.api.models.guild.Guild.get_emoji
-#: interactions.api.models.guild.Guild.get_list_of_members
-#: interactions.api.models.guild.Guild.get_member
-#: interactions.api.models.guild.Guild.get_preview
-#: interactions.api.models.guild.Guild.get_role
-#: interactions.api.models.guild.Guild.modify
-#: interactions.api.models.guild.Guild.modify_channel
-#: interactions.api.models.guild.Guild.modify_member
-#: interactions.api.models.guild.Guild.modify_role
-#: interactions.api.models.guild.Guild.modify_role_position
-#: interactions.api.models.guild.Guild.modify_role_positions
-#: interactions.api.models.guild.Guild.modify_scheduled_event
-#: interactions.api.models.guild.Guild.search_members of
-msgid "Return type"
 msgstr ""
 
 #: interactions.api.models.guild.Guild.get_member:1 of
@@ -1429,6 +1554,20 @@ msgstr ""
 msgid "The created event"
 msgstr ""
 
+#: interactions.api.models.guild.Guild.get_scheduled_events:1 of
+msgid "Gets all scheduled events of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_scheduled_events:3 of
+msgid ""
+"A boolean to include number of users subscribed to the associated event, "
+"if given."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_scheduled_events:5 of
+msgid "The sheduled events of the guild."
+msgstr ""
+
 #: interactions.api.models.guild.Guild.modify_scheduled_event:1 of
 msgid "Edits a scheduled event of the guild."
 msgstr ""
@@ -1455,6 +1594,14 @@ msgstr ""
 
 #: interactions.api.models.guild.Guild.get_all_channels:3 of
 msgid "The channels of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_active_threads:1 of
+msgid "Gets all active threads of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_all_active_threads:3 of
+msgid "The threads of the guild."
 msgstr ""
 
 #: interactions.api.models.guild.Guild.get_all_roles:1 of
@@ -1527,6 +1674,40 @@ msgstr ""
 msgid "Gets all bans of the guild."
 msgstr ""
 
+#: interactions.api.models.guild.Guild.prune:1 of
+msgid "Begins a prune operation."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_prune_count:3
+#: interactions.api.models.guild.Guild.prune:3 of
+msgid "Number of days to count, minimum 1, maximum 30. Defaults to 7."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.prune:4 of
+msgid ""
+"Whether the returned \"pruned\" dict contains the computed prune count or"
+" None."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_prune_count:4
+#: interactions.api.models.guild.Guild.prune:5 of
+msgid "Role IDs to include, if given."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.prune:6 of
+msgid ""
+"The number of pruned members, if compute_prune_count is not false. "
+"Otherwise returns None."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_prune_count:1 of
+msgid "Returns the number of members that would be removed in a prune operation."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_prune_count:5 of
+msgid "The number of members that would be pruned."
+msgstr ""
+
 #: interactions.api.models.guild.Guild.get_emoji:1 of
 msgid "Gets an emoji of the guild and returns it."
 msgstr ""
@@ -1563,7 +1744,9 @@ msgstr ""
 msgid "Roles allowed to use this emoji"
 msgstr ""
 
-#: interactions.api.models.guild.Guild.create_emoji:9 of
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:17
+#: interactions.api.models.guild.Guild.create_emoji:9
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:19 of
 msgid "The reason of the creation"
 msgstr ""
 
@@ -1573,6 +1756,77 @@ msgstr ""
 
 #: interactions.api.models.guild.Guild.delete_emoji:3 of
 msgid "The emoji or the id of the emoji to delete"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_stickers:1 of
+msgid "Get the stickers for a guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_stickers:3 of
+msgid "List of stickers of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_nitro_sticker_packs:1 of
+msgid "Gets the list of sticker packs available to Nitro subscribers."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_nitro_sticker_packs:3 of
+msgid "List of sticker packs."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_sticker:1 of
+msgid "Creates a new sticker for the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_sticker:3 of
+msgid "The file of the sticker."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_sticker:5 of
+msgid "The tags of the sticker."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_sticker:7
+#: interactions.api.models.guild.Guild.modify_sticker:5 of
+msgid "The name of the sticker."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_sticker:9
+#: interactions.api.models.guild.Guild.modify_sticker:7 of
+msgid "The description of the sticker."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_sticker:11 of
+msgid "The reason of the creation."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_sticker:13 of
+msgid "Created sticker for the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_sticker:1 of
+msgid "Modifies the sticker of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_sticker:3
+#: interactions.api.models.guild.Guild.modify_sticker:3 of
+msgid "The sticker or ID of the sticker."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_sticker:9 of
+msgid "The reason of the modification."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_sticker:11 of
+msgid "Modified sticker."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_sticker:1 of
+msgid "Deletes the sticker of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.delete_sticker:5 of
+msgid "The reason of the deletion."
 msgstr ""
 
 #: interactions.api.models.guild.Guild.get_list_of_members:1 of
@@ -1619,6 +1873,146 @@ msgstr ""
 
 #: interactions.api.models.guild.Guild.get_all_members:5 of
 msgid "Returns a list of all members of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_members:1 of
+msgid "The message to begin getting the history from"
+msgstr ""
+
+#: interactions.api.models.guild.AsyncMembersIterator:11
+#: interactions.api.models.guild.Guild.get_members:3 of
+msgid "A set maximum of members to get before stopping the iteration"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_members:5 of
+msgid "A custom check to ignore certain members"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_members:8 of
+msgid "An asynchronous iterator over the members of the guild"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.list_auto_moderation_rules:1 of
+msgid "Lists all AutoMod rules"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule:1 of
+msgid "Gets a AutoMod rule from its ID"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule:3 of
+msgid "The ID of the rule to get"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_auto_moderation_rule:5 of
+msgid "A AutoMod rule"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:1 of
+msgid "Creates an AutoMod rule"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:3
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:5 of
+msgid "The name of the new rule."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:5
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:7 of
+msgid "The trigger type of the new rule."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:7
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:9 of
+msgid ""
+"The trigger metadata payload representation. This can be omitted based on"
+" the trigger type."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:9
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:11 of
+msgid "The actions that will execute when the rule is triggered."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:11
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:13 of
+msgid "Whether the rule will be enabled upon creation. False by default."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:13
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:15 of
+msgid ""
+"The role IDs that are whitelisted by the rule, if given. The maximum is "
+"20."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:15
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:17 of
+msgid ""
+"The channel IDs that are whitelisted by the rule, if given. The maximum "
+"is 20"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.create_auto_moderation_rule:19
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:21 of
+msgid "The new AutoMod rule"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:1 of
+msgid "Edits an AutoMod rule"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.modify_auto_moderation_rule:3 of
+msgid "The rule to modify"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_audit_logs:1 of
+msgid "Gets the audit logs of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_audit_logs:3 of
+msgid "How many entries to get, default 100"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_audit_logs:5
+#: interactions.api.models.guild.Guild.get_full_audit_logs:3 of
+msgid "User ID snowflake. filter the log for actions made by a user."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_audit_logs:7 of
+msgid "The Type of the audit log action."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_audit_logs:9 of
+msgid "filter the log before a certain entry id."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_audit_logs:11 of
+msgid "The guild audit logs"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_latest_audit_log_action:1 of
+msgid "Gets the latest audit log action of either a user or an action type"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_latest_audit_log_action:3 of
+msgid "The user, user id or action type to look for"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_latest_audit_log_action:5 of
+msgid "The latest AuditLog action that applies to the ``of`` parameter"
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_full_audit_logs:1 of
+msgid "Gets the full audit log of the guild."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_full_audit_logs:5 of
+msgid "The type of the audit log action."
+msgstr ""
+
+#: interactions.api.models.guild.Guild.get_full_audit_logs:7 of
+msgid "The full AuditLog of the guild"
 msgstr ""
 
 #: interactions.api.models.guild.Guild.icon_url:1 of
@@ -1734,3 +2128,32 @@ msgstr ""
 #: interactions.api.models.guild.Invite.delete:1 of
 msgid "Deletes the invite"
 msgstr ""
+
+#: interactions.api.models.guild.AsyncMembersIterator:1 of
+msgid "A class object that allows iterating through a channel's history."
+msgstr ""
+
+#: interactions.api.models.guild.AsyncMembersIterator:3 of
+msgid "The HTTPClient of the bot"
+msgstr ""
+
+#: interactions.api.models.guild.AsyncMembersIterator:5 of
+msgid "The guild to get the members from"
+msgstr ""
+
+#: interactions.api.models.guild.AsyncMembersIterator:7 of
+msgid ""
+"The member ID to start getting members from (gets all members after that "
+"member)"
+msgstr ""
+
+#: interactions.api.models.guild.AsyncMembersIterator:9 of
+msgid "A check to ignore certain members"
+msgstr ""
+
+#: interactions.api.models.guild.AsyncMembersIterator.flatten:1 of
+msgid "returns all remaining items as list"
+msgstr ""
+
+#~ msgid "Number of days to delete messages, from 0 to 7. Defaults to 0"
+#~ msgstr ""

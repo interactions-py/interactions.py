@@ -7,16 +7,16 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-09-26 11:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../api.models.webhook.rst:4
 msgid "Webhook Models"
@@ -86,15 +86,16 @@ msgid ""
 "flow)"
 msgstr ""
 
-#: interactions.api.models.webhook.Webhook.create:1 of
-msgid "Creates a webhook in a channel."
-msgstr ""
-
+#: interactions.api.models.webhook.Webhook
 #: interactions.api.models.webhook.Webhook.create
 #: interactions.api.models.webhook.Webhook.execute
 #: interactions.api.models.webhook.Webhook.get
 #: interactions.api.models.webhook.Webhook.modify of
 msgid "Parameters"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.create:1 of
+msgid "Creates a webhook in a channel."
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.create:3
@@ -128,6 +129,7 @@ msgstr ""
 
 #: interactions.api.models.webhook.Webhook.avatar_url
 #: interactions.api.models.webhook.Webhook.create
+#: interactions.api.models.webhook.Webhook.delete
 #: interactions.api.models.webhook.Webhook.execute
 #: interactions.api.models.webhook.Webhook.get
 #: interactions.api.models.webhook.Webhook.modify of
@@ -197,28 +199,34 @@ msgid "true if this is a TTS message"
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.execute:14 of
-msgid "embedded ``rich`` content"
+msgid ""
+"The attachments to attach to the message. Needs to be uploaded to the CDN"
+" first"
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.execute:16 of
-msgid "allowed mentions for the message"
+msgid "embedded ``rich`` content"
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.execute:18 of
-msgid "the components to include with the message"
+msgid "The allowed mentions for the message."
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.execute:20 of
-msgid "The files to attach to the message"
+msgid "the components to include with the message"
 msgstr ""
 
 #: interactions.api.models.webhook.Webhook.execute:22 of
+msgid "The files to attach to the message"
+msgstr ""
+
+#: interactions.api.models.webhook.Webhook.execute:24 of
 msgid ""
 "Send a message to a specified thread within a webhook's channel. The "
 "thread will automatically be unarchived"
 msgstr ""
 
-#: interactions.api.models.webhook.Webhook.execute:24 of
+#: interactions.api.models.webhook.Webhook.execute:26 of
 msgid "The sent message, if present"
 msgstr ""
 
@@ -237,3 +245,18 @@ msgstr ""
 #: interactions.api.models.webhook.WebhookType:1 of
 msgid "An enumeration."
 msgstr ""
+
+#: interactions.api.models.webhook.WebhookType of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.api.models.webhook.WebhookType:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.api.models.webhook.WebhookType:1 of
+msgid "Valid values are as follows:"
+msgstr ""
+
+#~ msgid "allowed mentions for the message"
+#~ msgstr ""

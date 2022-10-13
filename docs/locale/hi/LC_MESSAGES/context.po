@@ -7,16 +7,16 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-09-26 11:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../context.rst:4
 msgid "Event Context"
@@ -55,6 +55,25 @@ msgstr ""
 msgid "The guild data model."
 msgstr ""
 
+#: interactions.client.context.CommandContext
+#: interactions.client.context.CommandContext.defer
+#: interactions.client.context.CommandContext.edit
+#: interactions.client.context.CommandContext.populate
+#: interactions.client.context.CommandContext.send
+#: interactions.client.context.ComponentContext
+#: interactions.client.context.ComponentContext.defer
+#: interactions.client.context.ComponentContext.disable_all_components
+#: interactions.client.context.ComponentContext.edit
+#: interactions.client.context.ComponentContext.send
+#: interactions.client.context._Context
+#: interactions.client.context._Context.edit
+#: interactions.client.context._Context.has_permissions
+#: interactions.client.context._Context.popup
+#: interactions.client.context._Context.send
+#: interactions.utils.attrs_utils.DictSerializerMixin.update of
+msgid "Parameters"
+msgstr ""
+
 #: interactions.client.context._Context.get_channel:1 of
 msgid "This gets the channel the context was invoked in."
 msgstr ""
@@ -62,11 +81,13 @@ msgstr ""
 #: interactions.client.context.CommandContext.edit
 #: interactions.client.context.CommandContext.populate
 #: interactions.client.context.CommandContext.send
+#: interactions.client.context.ComponentContext.disable_all_components
 #: interactions.client.context.ComponentContext.edit
 #: interactions.client.context.ComponentContext.send
 #: interactions.client.context._Context.edit
 #: interactions.client.context._Context.get_channel
 #: interactions.client.context._Context.get_guild
+#: interactions.client.context._Context.has_permissions
 #: interactions.client.context._Context.send of
 msgid "Returns"
 msgstr ""
@@ -75,14 +96,20 @@ msgstr ""
 msgid "The channel as object"
 msgstr ""
 
+#: interactions.client.context.CommandContext.defer
+#: interactions.client.context.CommandContext.delete
 #: interactions.client.context.CommandContext.edit
 #: interactions.client.context.CommandContext.populate
 #: interactions.client.context.CommandContext.send
+#: interactions.client.context.ComponentContext.defer
+#: interactions.client.context.ComponentContext.disable_all_components
 #: interactions.client.context.ComponentContext.edit
 #: interactions.client.context.ComponentContext.send
 #: interactions.client.context._Context.edit
 #: interactions.client.context._Context.get_channel
 #: interactions.client.context._Context.get_guild
+#: interactions.client.context._Context.has_permissions
+#: interactions.client.context._Context.popup
 #: interactions.client.context._Context.send of
 msgid "Return type"
 msgstr ""
@@ -103,17 +130,6 @@ msgid ""
 "interaction response."
 msgstr ""
 
-#: interactions.api.models.attrs_utils.DictSerializerMixin.update
-#: interactions.client.context.CommandContext.defer
-#: interactions.client.context.CommandContext.populate
-#: interactions.client.context.CommandContext.send
-#: interactions.client.context.ComponentContext.defer
-#: interactions.client.context.ComponentContext.send
-#: interactions.client.context._Context.popup
-#: interactions.client.context._Context.send of
-msgid "Parameters"
-msgstr ""
-
 #: interactions.client.context.CommandContext.send:4
 #: interactions.client.context.ComponentContext.send:4
 #: interactions.client.context._Context.send:4 of
@@ -129,30 +145,44 @@ msgstr ""
 #: interactions.client.context.CommandContext.send:8
 #: interactions.client.context.ComponentContext.send:8
 #: interactions.client.context._Context.send:8 of
-msgid "An embed, or list of embeds for the message."
+msgid ""
+"The attachments to attach to the message. Needs to be uploaded to the CDN"
+" first"
 msgstr ""
 
 #: interactions.client.context.CommandContext.send:10
 #: interactions.client.context.ComponentContext.send:10
 #: interactions.client.context._Context.send:10 of
-msgid "The message interactions/mention limits that the message can refer to."
+msgid "An embed, or list of embeds for the message."
 msgstr ""
 
 #: interactions.client.context.CommandContext.send:12
 #: interactions.client.context.ComponentContext.send:12
 #: interactions.client.context._Context.send:12 of
-msgid "A component, or list of components for the message."
+msgid "The allowed mentions for the message."
 msgstr ""
 
 #: interactions.client.context.CommandContext.send:14
 #: interactions.client.context.ComponentContext.send:14
 #: interactions.client.context._Context.send:14 of
-msgid "Whether the response is hidden or not."
+msgid "A component, or list of components for the message."
 msgstr ""
 
 #: interactions.client.context.CommandContext.send:16
 #: interactions.client.context.ComponentContext.send:16
 #: interactions.client.context._Context.send:16 of
+msgid "Whether the response is hidden or not."
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:18
+#: interactions.client.context.ComponentContext.send:18
+#: interactions.client.context._Context.send:18 of
+msgid "Whether embeds are not shown in the message."
+msgstr ""
+
+#: interactions.client.context.CommandContext.send:20
+#: interactions.client.context.ComponentContext.send:20
+#: interactions.client.context._Context.send:20 of
 msgid "The sent message as an object."
 msgstr ""
 
@@ -179,13 +209,39 @@ msgstr ""
 msgid "The components you wish to show."
 msgstr ""
 
-#: interactions.api.models.attrs_utils.DictSerializerMixin.update:1 of
+#: interactions.client.context._Context.has_permissions:1 of
+msgid ""
+"Returns whether the author of the interaction has the permissions in the "
+"given context."
+msgstr ""
+
+#: interactions.client.context._Context.has_permissions:3 of
+msgid "The list of permissions"
+msgstr ""
+
+#: interactions.client.context._Context.has_permissions:5 of
+msgid ""
+"The operator to use to calculate permissions. Possible values: `and`, "
+"`or`. Defaults to `and`."
+msgstr ""
+
+#: interactions.client.context._Context.has_permissions:7 of
+msgid "Whether the author has the permissions"
+msgstr ""
+
+#: ../../docstring interactions.client.context.CommandContext._extras:1
+#: interactions.client.context.ComponentContext._extras:1
+#: interactions.client.context._Context._extras:1 of
+msgid "A dict containing values that were not serialized from Discord."
+msgstr ""
+
+#: interactions.utils.attrs_utils.DictSerializerMixin.update:1 of
 msgid ""
 "Update an object with new attributes. All data will be converted, and any"
 " extra attributes will be put in _extras"
 msgstr ""
 
-#: interactions.api.models.attrs_utils.DictSerializerMixin.update:4 of
+#: interactions.utils.attrs_utils.DictSerializerMixin.update:4 of
 msgid "The dictionary to update from"
 msgstr ""
 
@@ -262,6 +318,24 @@ msgstr ""
 msgid "The guild's preferred language, if invoked in a guild."
 msgstr ""
 
+#: interactions.client.context.CommandContext:29 of
+msgid ""
+"Bitwise set of permissions the bot has within the channel the interaction"
+" was sent from."
+msgstr ""
+
+#: interactions.client.context.CommandContext:30 of
+msgid "The client instance that the command belongs to."
+msgstr ""
+
+#: interactions.client.context.CommandContext:31 of
+msgid "The command object that is being invoked."
+msgstr ""
+
+#: interactions.client.context.CommandContext:32 of
+msgid "The extension the command belongs to."
+msgstr ""
+
 #: interactions.client.context.CommandContext.defer:1 of
 msgid ""
 "This \"defers\" an interaction response, allowing up to a 15-minute delay"
@@ -318,3 +392,31 @@ msgstr ""
 #: interactions.client.context.ComponentContext.defer:6 of
 msgid "Whether you want to edit the original message or send a followup message"
 msgstr ""
+
+#: interactions.client.context.ComponentContext.disable_all_components:1 of
+msgid "Disables all components of the message."
+msgstr ""
+
+#: interactions.client.context.ComponentContext.disable_all_components:3 of
+msgid ""
+"Whether the components should be disabled in an interaction response, "
+"default True"
+msgstr ""
+
+#: interactions.client.context.ComponentContext.disable_all_components:5 of
+msgid ""
+"Additional keyword-arguments to pass to the edit method. This only works "
+"when this method is used as interaction response and takes the same "
+"arguments as :meth:`interactions.client.context._Context:edit()`"
+msgstr ""
+
+#: interactions.client.context.ComponentContext.disable_all_components:8 of
+msgid "The modified Message"
+msgstr ""
+
+#: interactions.client.context.ComponentContext.label:1 of
+msgid "The label of the interacted button. :rtype: Optional[str]"
+msgstr ""
+
+#~ msgid "The message interactions/mention limits that the message can refer to."
+#~ msgstr ""

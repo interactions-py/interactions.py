@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-07-16 17:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,6 +74,39 @@ msgstr ""
 #: interactions.client.enums.InteractionType:6
 #: interactions.client.enums.OptionType:6 of
 msgid "4"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType
+#: interactions.client.enums.ButtonStyle
+#: interactions.client.enums.ComponentType
+#: interactions.client.enums.InteractionCallbackType
+#: interactions.client.enums.InteractionType interactions.client.enums.Locale
+#: interactions.client.enums.OptionType
+#: interactions.client.enums.PermissionType
+#: interactions.client.enums.TextStyleType of
+msgid "Member Type"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType:1
+#: interactions.client.enums.ButtonStyle:1
+#: interactions.client.enums.ComponentType:1
+#: interactions.client.enums.InteractionCallbackType:1
+#: interactions.client.enums.InteractionType:1
+#: interactions.client.enums.OptionType:1
+#: interactions.client.enums.PermissionType:1
+#: interactions.client.enums.TextStyleType:1 of
+msgid ":py:class:`int`"
+msgstr ""
+
+#: interactions.client.enums.ApplicationCommandType:1
+#: interactions.client.enums.ButtonStyle:1
+#: interactions.client.enums.ComponentType:1
+#: interactions.client.enums.InteractionCallbackType:1
+#: interactions.client.enums.InteractionType:1
+#: interactions.client.enums.Locale:1 interactions.client.enums.OptionType:1
+#: interactions.client.enums.PermissionType:1
+#: interactions.client.enums.TextStyleType:1 of
+msgid "Valid values are as follows:"
 msgstr ""
 
 #: interactions.client.enums.InteractionType:1 of
@@ -147,6 +180,14 @@ msgstr ""
 
 #: interactions.client.enums.Locale:1 of
 msgid "An enumerable object representing Discord locales."
+msgstr ""
+
+#: interactions.client.enums.Locale:1 of
+msgid ":py:class:`str`"
+msgstr ""
+
+#: interactions.client.enums.Locale:1 of
+msgid "The :class:`~enum.Enum` and its members also have the following methods:"
 msgstr ""
 
 #: enum.Enum._generate_next_value_:1 of

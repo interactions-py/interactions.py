@@ -1,7 +1,12 @@
-from typing import Any, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
-from .attrs_utils import MISSING, ClientSerializerMixin, DictSerializerMixin, define, field
-from .misc import Image, Snowflake
+from ...utils.attrs_utils import ClientSerializerMixin, DictSerializerMixin, define, field
+from ...utils.missing import MISSING
+from ..error import LibraryException
+from .misc import IDMixin, Image, Snowflake
+
+if TYPE_CHECKING:
+    from .guild import Guild
 
 __all__ = (
     "Role",
@@ -27,7 +32,7 @@ class RoleTags(DictSerializerMixin):
 
 
 @define()
-class Role(ClientSerializerMixin):
+class Role(ClientSerializerMixin, IDMixin):
     """
     A class object representing a role.
 
@@ -48,7 +53,7 @@ class Role(ClientSerializerMixin):
     name: str = field()
     color: int = field()
     hoist: bool = field()
-    icon: Optional[str] = field(default=None)
+    icon: Optional[str] = field(default=None, repr=False)
     unicode_emoji: Optional[str] = field(default=None)
     position: int = field()
     permissions: str = field()
@@ -68,7 +73,7 @@ class Role(ClientSerializerMixin):
 
     async def delete(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -80,14 +85,17 @@ class Role(ClientSerializerMixin):
         :type reason: Optional[str]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
         await self._client.delete_guild_role(
-            guild_id=guild_id, role_id=int(self.id), reason=reason
-        ),
+            guild_id=_guild_id, role_id=int(self.id), reason=reason
+        )
 
     async def modify(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],
         name: Optional[str] = MISSING,
         permissions: Optional[int] = MISSING,
         color: Optional[int] = MISSING,
@@ -103,26 +111,26 @@ class Role(ClientSerializerMixin):
         :param guild_id: The id of the guild to edit the role on
         :type guild_id: int
         :param name?: The name of the role, defaults to the current value of the role
-        :type name: Optional[str]
+        :type name?: Optional[str]
         :param color?: RGB color value as integer, defaults to the current value of the role
-        :type color: Optional[int]
-         :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
-        :type permissions: Optional[int]
+        :type color?: Optional[int]
+        :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
+        :type permissions?: Optional[int]
         :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
-        :type hoist: Optional[bool]
+        :type hoist?: Optional[bool]
         :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
-        :type icon: Optional[Image]
+        :type icon?: Optional[Image]
         :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
-        :type unicode_emoji: Optional[str]
+        :type unicode_emoji?: Optional[str]
         :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
-        :type mentionable: Optional[bool]
+        :type mentionable?: Optional[bool]
         :param reason?: The reason why the role is edited, default ``None``
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: The modified role object
         :rtype: Role
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
         _name = self.name if name is MISSING else name
         _color = self.color if color is MISSING else color
         _hoist = self.hoist if hoist is MISSING else hoist
@@ -130,6 +138,7 @@ class Role(ClientSerializerMixin):
         _permissions = self.permissions if permissions is MISSING else permissions
         _icon = self.icon if icon is MISSING else icon
         _unicode_emoji = self.unicode_emoji if unicode_emoji is MISSING else unicode_emoji
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
 
         payload = dict(
             name=_name,
@@ -142,7 +151,7 @@ class Role(ClientSerializerMixin):
         )
 
         res = await self._client.modify_guild_role(
-            guild_id=guild_id,
+            guild_id=_guild_id,
             role_id=int(self.id),
             payload=payload,
             reason=reason,
@@ -154,7 +163,7 @@ class Role(ClientSerializerMixin):
 
     async def modify_position(
         self,
-        guild_id: int,
+        guild_id: Union[int, Snowflake, "Guild"],
         position: int,
         reason: Optional[str] = None,
     ) -> List["Role"]:
@@ -166,14 +175,17 @@ class Role(ClientSerializerMixin):
         :param position: The new position of the role
         :type position: int
         :param reason?: The reason for the modifying
-        :type reason: Optional[str]
+        :type reason?: Optional[str]
         :return: List of guild roles with updated hierarchy
         :rtype: List[Role]
         """
         if not self._client:
-            raise AttributeError("HTTPClient not found!")
+            raise LibraryException(code=13)
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
         res = await self._client.modify_guild_role_positions(
-            guild_id=guild_id,
+            guild_id=_guild_id,
             payload=[{"position": position, "id": int(self.id)}],
             reason=reason,
         )

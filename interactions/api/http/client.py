@@ -1,8 +1,6 @@
 from typing import Any, Optional, Tuple
 
-import interactions.api.cache
-
-from ...api.cache import Cache
+from ...api.cache import Cache, ref_cache
 from .channel import ChannelRequest
 from .emoji import EmojiRequest
 from .guild import GuildRequest
@@ -58,7 +56,7 @@ class HTTPClient(
     def __init__(self, token: str):
         self.token = token
         self._req = _Request(self.token)
-        self.cache = interactions.api.cache.ref_cache
+        self.cache = ref_cache
         UserRequest.__init__(self)
         MessageRequest.__init__(self)
         GuildRequest.__init__(self)
@@ -83,9 +81,9 @@ class HTTPClient(
             Route("GET", "/gateway")
         )  # typehinting Any because pycharm yells
         try:
-            _url = f'{url["url"]}?v=10&encoding=json'
+            _url = f'{url["url"]}?v=10&encoding=json&compress=zlib-stream'
         except TypeError:  # seen a few times
-            _url = "wss://gateway.discord.gg?v=10&encoding=json"
+            _url = "wss://gateway.discord.gg?v=10&encoding=json&compress=zlib-stream"
         return _url
 
     async def get_bot_gateway(self) -> Tuple[int, str]:
@@ -97,9 +95,9 @@ class HTTPClient(
 
         data: Any = await self._req.request(Route("GET", "/gateway/bot"))
         try:
-            _url = f'{data["url"]}?v=10&encoding=json'
+            _url = f'{data["url"]}?v=10&encoding=json&compress=zlib-stream'
         except TypeError:  # seen a few times
-            _url = "wss://gateway.discord.gg?v=10&encoding=json"
+            _url = "wss://gateway.discord.gg?v=10&encoding=json&compress=zlib-stream"
         return data["shards"], _url
 
     async def login(self) -> Optional[dict]:

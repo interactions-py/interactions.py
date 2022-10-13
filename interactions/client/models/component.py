@@ -1,8 +1,10 @@
-from typing import List, Optional
+import contextlib
+from typing import List, Optional, Union
 
-from ...api.error import InteractionException
-from ...api.models.attrs_utils import MISSING, DictSerializerMixin, convert_list, define, field
-from ...api.models.message import Emoji
+from ...api.error import LibraryException
+from ...api.models.emoji import Emoji
+from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.missing import MISSING
 from ..enums import ButtonStyle, ComponentType, TextStyleType
 
 __all__ = (
@@ -26,12 +28,12 @@ class ComponentMixin(DictSerializerMixin):
 
     def __setattr__(self, key, value) -> None:
         super().__setattr__(key, value)
-        if key != "_json" and (key not in self._json or value != self._json.get(key)):
+        if key not in {"_json", "_extras"} and (
+            key not in self._json or value != self._json.get(key)
+        ):
             if value is not None and value is not MISSING:
-                try:
+                with contextlib.suppress(AttributeError):
                     value = [val._json for val in value] if isinstance(value, list) else value._json
-                except AttributeError:
-                    pass
                 self._json.update({key: value})
             elif value is None and key in self._json.keys():
                 del self._json[key]
@@ -232,7 +234,6 @@ class TextInput(ComponentMixin):
 class Modal(ComponentMixin):
     """
     A class object representing a modal.
-
     The structure for a modal: ::
         interactions.Modal(
             title="Application Form",
@@ -246,7 +247,7 @@ class Modal(ComponentMixin):
     """
 
     custom_id: str = field()
-    title: str = field
+    title: str = field()
     components: List[Component] = field(converter=convert_list(Component))
 
     def __attrs_post_init__(self):
@@ -269,7 +270,8 @@ class ActionRow(ComponentMixin):
         An ActionRow may also support only 1 text input component
         only.
 
-    The structure for an action row: ::
+    The structure for an action row:
+    ..code-block:: python
         # "..." represents a component object.
         # Method 1:
         interactions.ActionRow(...)
@@ -302,6 +304,18 @@ class ActionRow(ComponentMixin):
         self._json.update({"type": self.type.value})
         if self._json.get("components"):
             self._json["components"] = [component._json for component in self.components]
+
+    @classmethod
+    def new(cls, *components: Union[Button, SelectMenu, TextInput]) -> "ActionRow":
+        r"""
+        A class method for creating a new ``ActionRow``.
+
+        :param \*components: The components to add to the ``ActionRow``.
+        :type \*components: Union[Button, SelectMenu, TextInput]
+        :return: A new ``ActionRow``.
+        :rtype: ActionRow
+        """
+        return cls(components=list(components))
 
 
 def _build_components(components) -> List[dict]:
@@ -415,9 +429,12 @@ def _build_components(components) -> List[dict]:
             )
             return _components
         else:
-            raise InteractionException(
+            raise LibraryException(
                 11, message="The specified components are invalid and could not be created!"
             )
+
+    if not components:
+        return components
 
     _components = __check_action_row()
 

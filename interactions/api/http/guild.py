@@ -1,10 +1,9 @@
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote
 
-from ...api.cache import Cache, Item
+from ...api.cache import Cache
 from ..models.channel import Channel
 from ..models.guild import Guild
-from ..models.member import Member
 from ..models.role import Role
 from .request import _Request
 from .route import Route
@@ -30,19 +29,22 @@ class GuildRequest:
 
         for guild in request:
             if guild.get("id"):
-                self.cache.self_guilds.add(Item(id=guild["id"], value=Guild(**guild, _client=self)))
+                self.cache[Guild].merge(Guild(**guild, _client=self))
 
         return request
 
-    async def get_guild(self, guild_id: int) -> dict:
+    async def get_guild(self, guild_id: int, with_counts: bool = False) -> dict:
         """
         Requests an individual guild from the API.
 
         :param guild_id: The guild snowflake ID associated.
+        :param with_counts: Whether the approximate member count should be included
         :return: The guild object associated, if any.
         """
-        request = await self._req.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id))
-        self.cache.guilds.add(Item(id=str(guild_id), value=Guild(**request, _client=self)))
+        request = await self._req.request(
+            Route("GET", f"/guilds/{guild_id}{f'?{with_counts=}' if with_counts else ''}")
+        )
+        self.cache[Guild].merge(Guild(**request, _client=self))
 
         return request
 
@@ -366,9 +368,7 @@ class GuildRequest:
 
         for channel in request:
             if channel.get("id"):
-                self.cache.channels.add(
-                    Item(id=channel["id"], value=Channel(**channel, _client=self))
-                )
+                self.cache[Channel].merge(Channel(**channel, _client=self))
 
         return request
 
@@ -385,7 +385,7 @@ class GuildRequest:
 
         for role in request:
             if role.get("id"):
-                self.cache.roles.add(Item(id=role["id"], value=Role(**role)))
+                self.cache[Role].merge(Role(**role))
 
         return request
 
@@ -403,8 +403,6 @@ class GuildRequest:
         request = await self._req.request(
             Route("POST", f"/guilds/{guild_id}/roles"), json=payload, reason=reason
         )
-        if request.get("id"):
-            self.cache.roles.add(Item(id=request["id"], value=Role(**request)))
 
         return request
 
@@ -475,7 +473,7 @@ class GuildRequest:
         self,
         guild_id: int,
         user_id: int,
-        delete_message_days: Optional[int] = 0,
+        delete_message_seconds: Optional[int] = 0,
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -483,13 +481,13 @@ class GuildRequest:
 
         :param guild_id: Guild ID snowflake
         :param user_id: User ID snowflake
-        :param delete_message_days: Number of days to delete messages, from 0 to 7. Defaults to 0
+        :param delete_message_seconds: Number of seconds to delete messages for, between 0 and 604800. Default to 0
         :param reason: Optional reason to ban.
         """
 
         return await self._req.request(
             Route("PUT", f"/guilds/{guild_id}/bans/{user_id}"),
-            json={"delete_message_days": delete_message_days},
+            json={"delete_message_seconds": delete_message_seconds},
             reason=reason,
         )
 
@@ -587,8 +585,6 @@ class GuildRequest:
             },
         )
 
-        self.cache.members.add(Item(id=str(user_id), value=Member(**request)))
-
         return request
 
     async def remove_guild_member(
@@ -605,6 +601,32 @@ class GuildRequest:
             Route("DELETE", f"/guilds/{guild_id}/members/{user_id}"), reason=reason
         )
 
+    async def begin_guild_prune(
+        self,
+        guild_id: int,
+        days: int = 7,
+        compute_prune_count: bool = True,
+        include_roles: Optional[List[int]] = None,
+    ) -> dict:
+        """
+        Begins a prune operation.
+
+        :param guild_id: Guild ID snowflake
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
+        :param compute_prune_count: Whether the returned "pruned" dict contains the computed prune count or None.
+        :param include_roles: Role IDs to include, if given.
+        :return: A dict containing `{"pruned": int}` or `{"pruned": None}`
+        """
+
+        payload = {
+            "days": days,
+            "compute_prune_count": compute_prune_count,
+        }
+        if include_roles:
+            payload["include_roles"] = ", ".join(str(x) for x in include_roles)
+
+        return await self._req.request(Route("POST", f"/guilds/{guild_id}/prune"), json=payload)
+
     async def get_guild_prune_count(
         self, guild_id: int, days: int = 7, include_roles: Optional[List[int]] = None
     ) -> dict:
@@ -612,7 +634,7 @@ class GuildRequest:
         Retrieves a dict from an API that results in how many members would be pruned given the amount of days.
 
         :param guild_id: Guild ID snowflake.
-        :param days:  Number of days to count. Defaults to ``7``.
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
         :param include_roles: Role IDs to include, if given.
         :return: A dict denoting `{"pruned": int}`
         """
@@ -651,4 +673,141 @@ class GuildRequest:
 
         return await self._req.request(
             Route("GET", f"/guilds/{guild_id}/audit-logs"), params=payload
+        )
+
+    async def list_auto_moderation_rules(self, guild_id: int) -> List[dict]:
+        """
+        Returns a list of all AutoMod rules in a guild.
+        :poram guild_id: Guild ID snowflake.
+        :return: A list of dictionaries containing the automod rules.
+        """
+
+        return await self._req.request(Route("GET", f"/guilds/{guild_id}/auto-moderation/rules"))
+
+    async def get_auto_moderation_rule(self, guild_id: int, rule_id: int) -> dict:
+        """
+        Get a single AutoMod rule in a guild.
+        :param guild_id: Guild ID snowflake.
+        :param rule_id: Rule ID snowflake.
+        :return: A dictionary containing the automod rule.
+        """
+
+        return await self._req.request(
+            Route("GET", f"/guilds/{guild_id}/auto-moderation/rules/{rule_id}")
+        )
+
+    async def create_auto_moderation_rule(
+        self,
+        guild_id: int,
+        name: str,
+        event_type: int,
+        trigger_type: int,
+        actions: List[dict],
+        trigger_metadata: Optional[dict] = None,
+        enabled: Optional[bool] = False,
+        exempt_roles: Optional[List[str]] = None,
+        exempt_channels: Optional[List[str]] = None,
+        reason: Optional[str] = None,
+    ) -> dict:
+        """
+        Create a new AutoMod rule in a guild.
+
+        :param guild_id: Guild ID snowflake.
+        :param name: The name of the new rule.
+        :param event_type: The event type of the new rule.
+        :param trigger_type: The trigger type of the new rule.
+        :param trigger_metadata: The trigger metadata payload representation. This can be omitted based on the trigger type.
+        :param actions: The actions that will execute when the rule is triggered.
+        :param enabled: Whether the rule will be enabled upon creation. False by default.
+        :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
+        :param exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
+        :param reason: Reason to send to audit log, if any.
+        :return: A dictionary containing the new automod rule.
+        """
+
+        params = {
+            "name": name,
+            "event_type": event_type,
+            "trigger_type": trigger_type,
+            "actions": actions,
+            "enabled": enabled,
+        }
+        if trigger_metadata:
+            params["trigger_metadata"] = trigger_metadata
+        if exempt_roles:
+            params["exempt_roles"] = exempt_roles
+        if exempt_channels:
+            params["exempt_channels"] = exempt_channels
+
+        return await self._req.request(
+            Route(
+                "POST", f"/guilds/{guild_id}/auto-moderation/rules/", params=params, reason=reason
+            )
+        )
+
+    async def modify_auto_moderation_rule(
+        self,
+        guild_id: int,
+        rule_id: int,
+        name: Optional[str] = None,
+        event_type: Optional[int] = None,
+        trigger_metadata: Optional[dict] = None,
+        actions: Optional[List[dict]] = None,
+        enabled: Optional[bool] = None,
+        exempt_roles: Optional[List[str]] = None,
+        exempt_channels: Optional[List[str]] = None,
+        reason: Optional[str] = None,
+    ) -> dict:
+        """
+        Modify an existing AutoMod rule in a guild.
+
+        .. note ::
+            All parameters besides guild and rule ID are optional.
+
+        :param guild_id: Guild ID snowflake.
+        :param rule_id: Rule ID snowflake.
+        :param name: The new name of the rule.
+        :param event_type: The new event type of the rule.
+        :param trigger_metadata: The new trigger metadata payload representation. This can be omitted based on the trigger type.
+        :param actions: The new actions that will execute when the rule is triggered.
+        :param enabled: Whether the rule will be enabled upon creation.
+        :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
+        :param exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
+        :param reason: Reason to send to audit log, if any.
+        :return: A dictionary containing the updated automod rule.
+        """
+        payload = {}
+        if name:
+            payload["name"] = name
+        if event_type:
+            payload["event_type"] = event_type
+        if trigger_metadata:
+            payload["trigger_metadata"] = trigger_metadata
+        if actions:
+            payload["actions"] = actions
+        if enabled:
+            payload["enabled"] = enabled
+        if exempt_roles:
+            payload["exempt_roles"] = exempt_roles
+        if exempt_channels:
+            payload["exempt_channels"] = exempt_channels
+
+        return await self._req.request(
+            Route("PATCH", f"/guilds/{guild_id}/auto-moderation/rules/{rule_id}"),
+            json=payload,
+            reason=reason,
+        )
+
+    async def delete_auto_moderation_rule(
+        self, guild_id: int, rule_id: int, reason: Optional[str] = None
+    ) -> None:
+        """
+        Deletes an AutoMod rule.
+        :param guild_id: Guild ID snowflake.
+        :param rule_id: Rule ID snowflake.
+        :param reason: Reason to send to audit log, if any.
+        """
+
+        return await self._req.request(
+            Route("DELETE", f"/guilds/{guild_id}/auto-moderation/rules/{rule_id}"), reason=reason
         )

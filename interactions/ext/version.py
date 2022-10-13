@@ -44,11 +44,11 @@ class VersionAuthor:
         :param name: The name of the author.
         :type name: str
         :param shared?: The author's relationship as the main or co-author. Defaults to ``False``.
-        :type shared: Optional[bool]
+        :type shared?: Optional[bool]
         :param active?: The author's state of activity. Defaults to ``True``.
-        :type active: Optional[bool]
+        :type active?: Optional[bool]
         :param email?: The author's email address or point of contact. Defaults to ``None``.
-        :type email: Optional[str]
+        :type email?: Optional[str]
         """
         self.name = name
         self._co_author = shared
@@ -94,13 +94,13 @@ class Version:
     def __init__(self, **kwargs) -> None:
         """
         :param major?: The major version. If not specified, ``version`` will be read from.
-        :type major: Optional[Union[str, int]]
+        :type major?: Optional[Union[str, int]]
         :param minor?: The minor version. If not specified, ``version`` will be read from.
-        :type minor: Optional[Union[str, int]]
+        :type minor?: Optional[Union[str, int]]
         :param patch?: The patch version. If not specified, ``version`` will be read from.
-        :type patch: Optional[Union[str, int]]
+        :type patch?: Optional[Union[str, int]]
         :param version?: The overall version. Must be used if ``major``, ``minor`` or ``patch`` are not.
-        :type version: Optional[str]
+        :type version?: Optional[str]
         """
         self._major = int(kwargs.get("major") or kwargs.get("version", "0.0.0").split(".")[0])
         self._minor = int(kwargs.get("minor") or kwargs.get("version", "0.0.0").split(".")[1])

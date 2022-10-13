@@ -1,8 +1,8 @@
 from typing import Any, Dict, List, Optional, Union
 
-from ..api.models.attrs_utils import MISSING
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
+from ..utils.missing import MISSING
 from .enums import ApplicationCommandType, Locale
 from .models.command import ApplicationCommand, Option
 from .models.component import Button, Component, SelectMenu
@@ -21,7 +21,7 @@ def command(
     description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
     dm_permission: Optional[bool] = MISSING
-) -> Union[List[dict], dict]:
+) -> Union[List[dict], dict]:  # sourcery skip: low-code-quality
     """
     A wrapper designed to interpret the client-facing API for
     how a command is to be created and used.

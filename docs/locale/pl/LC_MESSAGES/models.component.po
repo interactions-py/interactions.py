@@ -7,16 +7,16 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: interactions.py 4.2\n"
+"Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-07 21:27-0400\n"
+"POT-Creation-Date: 2022-09-26 11:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../models.component.rst:4
 msgid "Component Models"
@@ -56,6 +56,17 @@ msgstr ""
 
 #: interactions.client.models.component.SelectOption:12 of
 msgid "Whether the select option is the default for the select menu."
+msgstr ""
+
+#: interactions.client.models.component.ActionRow
+#: interactions.client.models.component.ActionRow.new
+#: interactions.client.models.component.Button
+#: interactions.client.models.component.Component
+#: interactions.client.models.component.Modal
+#: interactions.client.models.component.SelectMenu
+#: interactions.client.models.component.SelectOption
+#: interactions.client.models.component.TextInput of
+msgid "Parameters"
 msgstr ""
 
 #: interactions.client.models.component.SelectMenu:1 of
@@ -246,36 +257,18 @@ msgid "The maximum length of the input."
 msgstr ""
 
 #: interactions.client.models.component.Modal:1 of
-msgid "A class object representing a modal."
+msgid "A class object representing a modal. The structure for a modal: ::"
 msgstr ""
 
-#: interactions.client.models.component.Modal:8 of
-msgid "The structure for a modal: ::"
-msgstr ""
-
-#: interactions.client.models.component.Modal:6 of
-msgid "interactions.Modal("
-msgstr ""
-
-#: interactions.client.models.component.Modal:5 of
-msgid ""
-"title=\"Application Form\", custom_id=\"mod_app_form\", "
-"components=[interactions.TextInput(...)],"
-msgstr ""
-
-#: interactions.client.models.component.Modal:8 of
-msgid ")"
-msgstr ""
-
-#: interactions.client.models.component.Modal:10 of
+#: interactions.client.models.component.Modal:9 of
 msgid "The custom ID of the modal."
 msgstr ""
 
-#: interactions.client.models.component.Modal:11 of
+#: interactions.client.models.component.Modal:10 of
 msgid "The title of the modal."
 msgstr ""
 
-#: interactions.client.models.component.Modal:12 of
+#: interactions.client.models.component.Modal:11 of
 msgid "The components of the modal."
 msgstr ""
 
@@ -291,21 +284,61 @@ msgid ""
 " also support only 1 text input component only."
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:13 of
-msgid "The structure for an action row: ::"
+#: interactions.client.models.component.ActionRow:8 of
+msgid "The structure for an action row: ..code-block:: python"
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:9 of
+#: interactions.client.models.component.ActionRow:10 of
 msgid ""
 "# \"...\" represents a component object. # Method 1: "
 "interactions.ActionRow(...) # Method 2: "
 "interactions.ActionRow(components=[...])"
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:15 of
+#: interactions.client.models.component.ActionRow:16 of
 msgid "The type of component. Always defaults to ``1``."
 msgstr ""
 
-#: interactions.client.models.component.ActionRow:16 of
+#: interactions.client.models.component.ActionRow:17 of
 msgid "A list of components the ActionRow has, if any."
 msgstr ""
+
+#: interactions.client.models.component.ActionRow.new:1 of
+msgid "A class method for creating a new ``ActionRow``."
+msgstr ""
+
+#: interactions.client.models.component.ActionRow.new:3 of
+msgid "The components to add to the ``ActionRow``."
+msgstr ""
+
+#: interactions.client.models.component.ActionRow.new of
+msgid "Returns"
+msgstr ""
+
+#: interactions.client.models.component.ActionRow.new:5 of
+msgid "A new ``ActionRow``."
+msgstr ""
+
+#: interactions.client.models.component.ActionRow.new of
+msgid "Return type"
+msgstr ""
+
+#~ msgid "A class object representing a modal."
+#~ msgstr ""
+
+#~ msgid "The structure for a modal: ::"
+#~ msgstr ""
+
+#~ msgid "interactions.Modal("
+#~ msgstr ""
+
+#~ msgid ""
+#~ "title=\"Application Form\", custom_id=\"mod_app_form\","
+#~ " components=[interactions.TextInput(...)],"
+#~ msgstr ""
+
+#~ msgid ")"
+#~ msgstr ""
+
+#~ msgid "The structure for an action row: ::"
+#~ msgstr ""

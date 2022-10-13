@@ -2,10 +2,10 @@ from typing import List, Optional, Union
 
 from aiohttp import MultipartWriter
 
-from ...api.cache import Cache, Item
-from ..models.attrs_utils import MISSING
-from ..models.message import Embed, Message
-from ..models.misc import File, Snowflake
+from ...api.cache import Cache
+from ...utils.missing import MISSING
+from ..models.message import Embed, Message, Sticker
+from ..models.misc import AllowedMentions, File, Snowflake
 from .request import _Request
 from .route import Route
 
@@ -13,7 +13,6 @@ __all__ = ("MessageRequest",)
 
 
 class MessageRequest:
-
     _req: _Request
     cache: Cache
 
@@ -27,8 +26,9 @@ class MessageRequest:
         tts: bool = False,
         embeds: Optional[List[Embed]] = None,
         nonce: Union[int, str] = None,
-        allowed_mentions=None,  # don't know type
+        allowed_mentions: Optional[Union[AllowedMentions, dict]] = None,
         message_reference: Optional[Message] = None,
+        stickers: Optional[List[Sticker]] = None,
     ) -> dict:
         """
         A higher level implementation of :meth:`create_message()` that handles the payload dict internally.
@@ -49,10 +49,17 @@ class MessageRequest:
             payload["nonce"] = nonce
 
         if allowed_mentions:
-            payload["allowed_mentions"] = allowed_mentions
+            payload["allowed_mentions"] = (
+                allowed_mentions._json
+                if isinstance(allowed_mentions, AllowedMentions)
+                else allowed_mentions
+            )
 
         if message_reference:
             payload["message_reference"] = message_reference
+
+        if stickers:
+            payload["sticker_ids"] = [str(sticker.id) for sticker in stickers]
 
         # TODO: post-v4. add attachments to payload.
 
@@ -95,7 +102,7 @@ class MessageRequest:
             data=data,
         )
         if request.get("id"):
-            self.cache.messages.add(Item(id=request["id"], value=Message(**request, _client=self)))
+            self.cache[Message].add(Message(**request, _client=self))
 
         return request
 
@@ -107,9 +114,11 @@ class MessageRequest:
         :param message_id: the id of the message
         :return: message if it exists.
         """
-        return await self._req.request(
-            Route("GET", f"/channels/{channel_id}/messages/{message_id}")
-        )
+        res = await self._req.request(Route("GET", f"/channels/{channel_id}/messages/{message_id}"))
+
+        self.cache[Message].merge(Message(**res, _client=self))
+
+        return res
 
     async def delete_message(
         self, channel_id: int, message_id: int, reason: Optional[str] = None
@@ -172,7 +181,7 @@ class MessageRequest:
                     file._fp,
                 )
                 part.set_content_disposition(
-                    "form-data", name="files[" + str(id) + "]", filename=file._filename
+                    "form-data", name=f"files[{str(id)}]", filename=file._filename
                 )
 
         return await self._req.request(
