@@ -24,7 +24,7 @@ from zlib import decompressobj
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 
 from ...base import __version__, get_logger
-from ...client.enums import InteractionType, OptionType
+from ...client.enums import ComponentType, InteractionType, OptionType
 from ...client.models import Option
 from ...utils.missing import MISSING
 from ..dispatch import Listener
@@ -379,7 +379,14 @@ class WebSocketClient:
                     _name = f"component_{_context.data.custom_id}"
 
                     if _context.data._json.get("values"):
-                        __args.append(_context.data.values)
+                        if _context.data.component_type.value not in {5, 6, 7, 8}:
+                            __args.append(_context.data.values)
+                        else:
+                            for value in _context.data._json.get("values"):
+                                _data = self.__select_option_type_context(
+                                    _context, _context.data.component_type.value
+                                )  # resolved.
+                                __args.append(_data[value])
 
                     self._dispatch.dispatch("on_component", _context)
                 elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
@@ -839,6 +846,40 @@ class WebSocketClient:
             _resolved = {
                 **(_members if _members is not None else {}),
                 **_roles,
+            }
+        return _resolved
+
+    def __select_option_type_context(self, context: "_Context", type: int) -> dict:
+        """
+        Looks up the type of select menu respective to the existing option types. This is applicable for non-string
+        select menus.
+
+        :param context: The context to refer types from.
+        :type context: object
+        :param type: The option type.
+        :type type: int
+        :return: The select menu type context.
+        :rtype: dict
+        """
+
+        _resolved = {}
+
+        if type == ComponentType.USER_SELECT.value:
+            _resolved = (
+                context.data.resolved.members if context.guild_id else context.data.resolved.users
+            )
+        elif type == ComponentType.CHANNEL_SELECT.value:
+            _resolved = context.data.resolved.channels
+        elif type == ComponentType.ROLE_SELECT.value:
+            _resolved = context.data.resolved.roles
+        elif type == ComponentType.MENTIONABLE_SELECT.value:
+            _resolved = {
+                **(
+                    context.data.resolved.members
+                    if context.guild_id
+                    else context.data.resolved.users
+                ),
+                **context.data.resolved.roles,
             }
         return _resolved
 
