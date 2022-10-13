@@ -100,7 +100,8 @@ class SelectMenu(ComponentMixin):
 
     def __attrs_post_init__(self) -> None:
         self._json.update({"type": self.type.value})
-        self._json.update({"options": [option._json for option in self.options]})
+        if self.options:
+            self._json.update({"options": [option._json for option in self.options]})
 
 
 @define()

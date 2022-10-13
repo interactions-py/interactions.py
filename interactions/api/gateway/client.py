@@ -24,7 +24,7 @@ from zlib import decompressobj
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 
 from ...base import __version__, get_logger
-from ...client.enums import InteractionType, OptionType
+from ...client.enums import ComponentType, InteractionType, OptionType
 from ...client.models import Option
 from ...utils.missing import MISSING
 from ..dispatch import Listener
@@ -843,9 +843,10 @@ class WebSocketClient:
             }
         return _resolved
 
-    def __select_option_type_context(self, context: object, type: int) -> dict:
+    def __select_option_type_context(self, context: "_Context", type: int) -> dict:
         """
-        Looks up the type of select menu respective to the existing option types.
+        Looks up the type of select menu respective to the existing option types. This is applicable for non-string
+        select menus.
 
         :param context: The context to refer types from.
         :type context: object
@@ -854,8 +855,6 @@ class WebSocketClient:
         :return: The select menu type context.
         :rtype: dict
         """
-
-        from interactions import ComponentType
 
         _resolved = {}
 
