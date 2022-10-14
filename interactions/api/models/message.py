@@ -800,6 +800,9 @@ class Message(ClientSerializerMixin, IDMixin):
             if self.guild_id:
                 self.member._extras["guild_id"] = self.guild_id
 
+        if self.author and self.member:
+            self.member.user = self.author
+
     async def get_channel(self) -> Channel:
         """
         Gets the channel where the message was sent.
