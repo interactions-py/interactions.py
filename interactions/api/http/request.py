@@ -149,8 +149,9 @@ class _Request:
                     if response.content_type == "application/json":
                         data = await response.json()
                         __import__("pprint").pprint(data)
-                        message: str = data.get("message")
-                        code: int = data.get("code")
+                        if isinstance(data, dict):
+                            message: str = data.get("message")
+                            code: int = data.get("code")
                     else:
                         data, message, code = None, None, response.status
 
