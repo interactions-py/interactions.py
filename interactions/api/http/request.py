@@ -146,7 +146,6 @@ class _Request:
                 async with self._session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
-                    breakpoint()
                     if response.content_type == "application/json":
                         data = await response.json()
                         message: str = data.get("message")
@@ -188,6 +187,9 @@ class _Request:
                             severity=50,
                         )
                     if code == 429:
+                        log.warning(
+                            f"{LibraryException.lookup(429)} Locking down future requests for {reset_after} seconds."
+                        )
                         if is_global:
                             self._global_lock.reset_after = reset_after
                             self._loop.call_later(
@@ -197,9 +199,6 @@ class _Request:
                             _limiter.reset_after = reset_after
                             await asyncio.sleep(_limiter.reset_after)
                             continue
-                        log.warning(
-                            f"{LibraryException.lookup(429)} Locking down future requests for {reset_after} seconds."
-                        )
                     if remaining is not None and int(remaining) == 0:
                         log.warning(
                             f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
