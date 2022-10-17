@@ -148,8 +148,9 @@ class _Request:
                 ) as response:
                     if response.content_type == "application/json":
                         data = await response.json()
+                        message: str = data.get("message")
                     else:
-                        data = None
+                        data, message = None, None
 
                     reset_after: float = float(
                         response.headers.get(
@@ -160,7 +161,6 @@ class _Request:
                     _bucket: str = response.headers.get("X-RateLimit-Bucket")
                     is_global: bool = response.headers.get("X-RateLimit-Global", False)
                     code: int = response.status
-                    message: str = data.get("message")
 
                     log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
 
