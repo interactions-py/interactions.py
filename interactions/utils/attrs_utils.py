@@ -1,6 +1,8 @@
 from copy import deepcopy
+from datetime import datetime
+from enum import Enum
 from functools import wraps
-from typing import Dict, Mapping, Optional, Tuple
+from typing import Any, Dict, Mapping, Optional, Tuple
 
 import attrs
 
@@ -14,7 +16,6 @@ __all__ = (
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 class DictSerializerMixin:
-    _json: dict = attrs.field(init=False, repr=False)
     _extras: dict = attrs.field(init=False, repr=False)
     """A dict containing values that were not serialized from Discord."""
 
@@ -29,7 +30,6 @@ class DictSerializerMixin:
         if self.__deepcopy_kwargs__:
             kwargs = deepcopy(kwargs)
 
-        self._json = kwargs.copy()
         passed_kwargs = {}
 
         attribs: Tuple[attrs.Attribute, ...] = self.__attrs_attrs__  # type: ignore
@@ -63,14 +63,6 @@ class DictSerializerMixin:
                             elif isinstance(value, DictSerializerMixin):
                                 value._client = client
 
-                    # make sure json is recursively handled
-                    if isinstance(value, list):
-                        self._json[attrib_name] = [
-                            i._json if isinstance(i, DictSerializerMixin) else i for i in value
-                        ]
-                    elif isinstance(value, DictSerializerMixin):
-                        self._json[attrib_name] = value._json  # type: ignore
-
                     passed_kwargs[attrib_name] = value
 
                 elif attrib.default is not attrs.NOTHING:
@@ -87,6 +79,25 @@ class DictSerializerMixin:
 
         self._extras = kwargs
         self.__attrs_init__(**passed_kwargs)  # type: ignore
+
+    @property
+    def _json(self) -> dict:
+        """Returns the json data of the object"""
+        from ..api.models.misc import Snowflake
+
+        def _filter(attrib: attrs.Attribute, value: Any):
+            return not attrib.name.startswith("_") and value
+
+        def _serializer(obj: Any, attrib: attrs.Attribute, value: Any):
+            if isinstance(value, Snowflake):
+                return str(value)
+            if isinstance(value, Enum):
+                return value.value
+            if isinstance(value, datetime):
+                return value.isoformat()
+            return value
+
+        return attrs.asdict(self, filter=_filter, value_serializer=_serializer)
 
     def update(self, kwargs_dict: dict = None, /, **other_kwargs):
         """
@@ -112,7 +123,6 @@ class DictSerializerMixin:
             if value is None:
                 continue
 
-            self._json[name] = value
             setattr(
                 self, name, converter(value) if (converter := attribs[name].converter) else value
             )

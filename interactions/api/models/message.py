@@ -230,17 +230,6 @@ class EmbedImageStruct(DictSerializerMixin):
     height: Optional[int] = field(default=None)
     width: Optional[int] = field(default=None)
 
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-        if key not in {"_json", "_extras"} and (
-            key not in self._json or value != self._json.get(key)
-        ):
-            if value is not None and value is not MISSING:
-                self._json.update({key: value})
-
-            elif value is None and key in self._json.keys():
-                del self._json[key]
-
 
 @define()
 class EmbedProvider(DictSerializerMixin):
@@ -253,17 +242,6 @@ class EmbedProvider(DictSerializerMixin):
 
     name: Optional[str] = field(default=None)
     url: Optional[str] = field(default=None)
-
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-        if key not in {"_json", "_extras"} and (
-            key not in self._json or value != self._json.get(key)
-        ):
-            if value is not None and value is not MISSING:
-                self._json.update({key: value})
-
-            elif value is None and key in self._json.keys():
-                del self._json[key]
 
 
 @define()
@@ -290,17 +268,6 @@ class EmbedAuthor(DictSerializerMixin):
     icon_url: Optional[str] = field(default=None)
     proxy_icon_url: Optional[str] = field(default=None)
 
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-        if key not in {"_json", "_extras"} and (
-            key not in self._json or value != self._json.get(key)
-        ):
-            if value is not None and value is not MISSING:
-                self._json.update({key: value})
-
-            elif value is None and key in self._json.keys():
-                del self._json[key]
-
 
 @define()
 class EmbedFooter(DictSerializerMixin):
@@ -323,17 +290,6 @@ class EmbedFooter(DictSerializerMixin):
     text: str = field()
     icon_url: Optional[str] = field(default=None)
     proxy_icon_url: Optional[str] = field(default=None)
-
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-        if key not in {"_json", "_extras"} and (
-            key not in self._json or value != self._json.get(key)
-        ):
-            if value is not None and value is not MISSING:
-                self._json.update({key: value})
-
-            elif value is None and key in self._json.keys():
-                del self._json[key]
 
 
 @define()
@@ -359,17 +315,6 @@ class EmbedField(DictSerializerMixin):
     name: str = field()
     inline: Optional[bool] = field(default=None)
     value: str = field()
-
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-        if key not in {"_json", "_extras"} and (
-            key not in self._json or value != self._json.get(key)
-        ):
-            if value is not None and value is not MISSING:
-                self._json.update({key: value})
-
-            elif value is None and key in self._json.keys():
-                del self._json[key]
 
 
 @define()
@@ -423,28 +368,6 @@ class Embed(DictSerializerMixin):
     author: Optional[EmbedAuthor] = field(converter=EmbedAuthor, default=None)
     fields: Optional[List[EmbedField]] = field(converter=convert_list(EmbedField), default=None)
 
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-
-        if key not in {"_json", "_extras"} and (
-            key not in self._json
-            or (
-                value != self._json.get(key)
-                or not isinstance(value, dict)
-                # we don't need this instance check in components because serialisation works for them
-            )
-        ):
-            if value is not None and value is not MISSING:
-                try:
-                    value = [val._json for val in value] if isinstance(value, list) else value._json
-                except AttributeError:
-                    if isinstance(value, datetime):
-                        value = value.isoformat()
-                self._json.update({key: value})
-
-            elif value is None and key in self._json.keys():
-                del self._json[key]
-
     def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
         """
         Adds a field to the embed
@@ -457,13 +380,10 @@ class Embed(DictSerializerMixin):
         :type inline?: Optional[bool]
         """
 
-        fields = self.fields or []
-        fields.append(EmbedField(name=name, value=value, inline=inline))
+        if self.fields is None:
+            self.fields = []
 
-        self.fields = fields
-        # We must use "=" here to call __setattr__. Append does not call any magic, making it impossible to modify the
-        # json when using it, so the object what would be sent wouldn't be modified.
-        # Imo this is still better than doing a `self._json.update({"fields": [field._json for ...]})`
+        self.fields.append(EmbedField(name=name, value=value, inline=inline))
 
     def clear_fields(self) -> None:
         """
@@ -488,13 +408,10 @@ class Embed(DictSerializerMixin):
         :type inline?: Optional[bool]
         """
 
-        try:
-            fields = self.fields
-            fields.insert(index, EmbedField(name=name, value=value, inline=inline))
-            self.fields = fields
+        if self.fields is None:
+            self.fields = []
 
-        except AttributeError as e:
-            raise AttributeError("No fields found in Embed") from e
+        self.fields.insert(index, EmbedField(name=name, value=value, inline=inline))
 
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
@@ -512,14 +429,11 @@ class Embed(DictSerializerMixin):
         :type inline?: Optional[bool]
         """
 
+        if self.fields is None:
+            self.fields = []
+
         try:
-            fields = self.fields
-            fields[index] = EmbedField(name=name, value=value, inline=inline)
-            self.fields = fields
-
-        except AttributeError as e:
-            raise AttributeError("No fields found in Embed") from e
-
+            self.fields[index] = EmbedField(name=name, value=value, inline=inline)
         except IndexError as e:
             raise IndexError("No fields at this index") from e
 
@@ -531,14 +445,11 @@ class Embed(DictSerializerMixin):
         :type index: int
         """
 
+        if self.fields is None:
+            self.fields = []
+
         try:
-            fields = self.fields
-            fields.pop(index)
-            self.fields = fields
-
-        except AttributeError as e:
-            raise AttributeError("No fields found in Embed") from e
-
+            self.fields.pop(index)
         except IndexError as e:
             raise IndexError("Field not Found at index") from e
 
