@@ -148,6 +148,7 @@ class _Request:
                 ) as response:
                     if response.content_type == "application/json":
                         data = await response.json()
+                        __import__("pprint").pprint(data)
                         message: str = data.get("message")
                         code: int = data.get("code")
                     else:
