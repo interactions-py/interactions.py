@@ -146,14 +146,21 @@ class _Request:
                 async with self._session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
+                    if response.content_type == "application/json":
+                        data = await response.json()
+                    else:
+                        data = None
 
-                    data = await response.json(content_type=None)
                     reset_after: float = float(
-                        response.headers.get("X-RateLimit-Reset-After", "0.0")
+                        response.headers.get(
+                            "X-RateLimit-Reset-After", response.headers.get("Retry-After", "0.0")
+                        )
                     )
                     remaining: str = response.headers.get("X-RateLimit-Remaining")
                     _bucket: str = response.headers.get("X-RateLimit-Bucket")
                     is_global: bool = response.headers.get("X-RateLimit-Global", False)
+                    code: int = response.status
+                    message: str = data.get("message")
 
                     log.debug(f"{route.method}: {route.__api__ + route.path}: {kwargs}")
 
@@ -161,28 +168,21 @@ class _Request:
                         self.buckets[route.endpoint] = _bucket
                         # real-time replacement/update/add if needed.
                     if isinstance(data, dict) and (
-                        data.get("errors")
-                        or ((code := data.get("code")) and code != 429 and data.get("message"))
+                        data.get("errors") or (code and code != 429 and message)
                     ):
-                        log.debug(
-                            f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
-                        )
+                        log.debug(f"RETURN {code}: {dumps(data, indent=4, sort_keys=True)}")
+                        # This "redundant" debug line is for debug use and tracing back the error codes.
+
+                        raise LibraryException(message=message, code=code, severity=40, data=data)
+                    elif isinstance(data, dict) and code == 0 and message:
+                        log.debug(f"RETURN {code}: {dumps(data, indent=4, sort_keys=True)}")
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
                         raise LibraryException(
-                            message=data["message"], code=data["code"], severity=40, data=data
-                        )
-                    elif isinstance(data, dict) and data.get("code") == 0 and data.get("message"):
-                        log.debug(
-                            f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
-                        )
-                        # This "redundant" debug line is for debug use and tracing back the error codes.
-
-                        raise LibraryException(
-                            message=f"'{data['message']}'. Make sure that your token is set properly.",
+                            message=f"'{message}'. Make sure that your token is set properly.",
                             severity=50,
                         )
-                    if response.status == 429:
+                    if code == 429:
                         if is_global:
                             log.warning(
                                 f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
