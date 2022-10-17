@@ -2,6 +2,7 @@ import asyncio
 import traceback
 from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop, new_event_loop
 from contextlib import suppress
+from datetime import timedelta
 from json import dumps
 from logging import Logger
 from sys import version_info
@@ -187,12 +188,14 @@ class _Request:
                             severity=50,
                         )
                     if code == 429:
+                        amount = dict(
+                            hours=reset_after // 3600,
+                            minutes=(reset_after % 3600) // 60,
+                            seconds=reset_after % 60,
+                        )
                         log.warning(
                             f"(429) {LibraryException.lookup(429)} Locking down future requests for "
-                            + f"{reset_after if reset_after < 60 else reset_after // 60} "
-                            + f"{'seconds' if reset_after < 60 else 'minutes'}"
-                            + f" {reset_after % 60 if reset_after > 60 else ''}"
-                            + f"{' seconds' if reset_after > 60 else ''}."
+                            + f"{amount['hours']} hours {amount['minutes']} minutes {amount['seconds']} seconds."
                         )
                         if is_global:
                             self._global_lock.reset_after = reset_after
