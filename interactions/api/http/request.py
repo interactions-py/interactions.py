@@ -146,6 +146,7 @@ class _Request:
                 async with self._session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
+                    breakpoint()
                     if response.content_type == "application/json":
                         data = await response.json()
                         message: str = data.get("message")
