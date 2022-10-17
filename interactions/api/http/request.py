@@ -2,7 +2,6 @@ import asyncio
 import traceback
 from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop, new_event_loop
 from contextlib import suppress
-from datetime import timedelta
 from json import dumps
 from logging import Logger
 from sys import version_info
