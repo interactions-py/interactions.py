@@ -727,8 +727,8 @@ class Client:
 
         :param coro: The coroutine of the event.
         :type coro: Optional[Callable[..., Coroutine]]
-        :param name(?): The name of the event. If not given, this defaults to the coroutine's name.
-        :type name: Optional[str]
+        :param name?: The name of the event. If not given, this defaults to the coroutine's name.
+        :type name?: Optional[str]
         :return: A callable response.
         :rtype: Callable[..., Any]
         """
