@@ -188,7 +188,11 @@ class _Request:
                         )
                     if code == 429:
                         log.warning(
-                            f"{LibraryException.lookup(429)} Locking down future requests for {reset_after} seconds."
+                            f"(429) {LibraryException.lookup(429)} Locking down future requests for "
+                            + f"{reset_after if reset_after < 60 else reset_after // 60} "
+                            + f"{'seconds' if reset_after < 60 else 'minutes'}"
+                            + f" {reset_after % 60 if reset_after > 60 else ''}"
+                            + f"{' seconds' if reset_after > 60 else ''}."
                         )
                         if is_global:
                             self._global_lock.reset_after = reset_after
