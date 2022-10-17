@@ -187,14 +187,14 @@ class _Request:
                             severity=50,
                         )
                     if code == 429:
-                        amount = dict(
-                            hours=int(reset_after // 3600),
-                            minutes=int((reset_after % 3600) // 60),
-                            seconds=int(reset_after % 60),
-                        )
+                        hours = int(reset_after // 3600)
+                        minutes = int((reset_after % 3600) // 60)
+                        seconds = int(reset_after % 60)
                         log.warning(
                             f"(429) {LibraryException.lookup(429)} Locking down future requests for "
-                            + f"{amount['hours']} hours {amount['minutes']} minutes {amount['seconds']} seconds."
+                            + f"{f'{hours} hours ' if hours else ''}"
+                            + f"{f'{minutes} minutes ' if minutes else ''}"
+                            + f"{f'{seconds} seconds ' if seconds else ''}"
                         )
                         if is_global:
                             self._global_lock.reset_after = reset_after
