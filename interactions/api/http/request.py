@@ -189,9 +189,9 @@ class _Request:
                         )
                     if code == 429:
                         amount = dict(
-                            hours=reset_after // 3600,
-                            minutes=(reset_after % 3600) // 60,
-                            seconds=reset_after % 60,
+                            hours=int(reset_after // 3600),
+                            minutes=int((reset_after % 3600) // 60),
+                            seconds=int(reset_after % 60),
                         )
                         log.warning(
                             f"(429) {LibraryException.lookup(429)} Locking down future requests for "
