@@ -174,7 +174,7 @@ class _Request:
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
                         raise LibraryException(message=message, code=code, severity=40, data=data)
-                    elif isinstance(data, dict) and code == 0 and message:
+                    elif isinstance(data, dict) and code in (0, 403) and message:
                         log.debug(f"RETURN {code}: {dumps(data, indent=4, sort_keys=True)}")
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
@@ -184,20 +184,17 @@ class _Request:
                         )
                     if code == 429:
                         if is_global:
-                            log.warning(
-                                f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
-                            )
                             self._global_lock.reset_after = reset_after
                             self._loop.call_later(
                                 self._global_lock.reset_after, self._global_lock.lock.release
                             )
                         else:
-                            log.warning(
-                                f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
-                            )
                             _limiter.reset_after = reset_after
                             await asyncio.sleep(_limiter.reset_after)
                             continue
+                        log.warning(
+                            f"{LibraryException.lookup(429)} Locking down future requests for {reset_after} seconds."
+                        )
                     if remaining is not None and int(remaining) == 0:
                         log.warning(
                             f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
