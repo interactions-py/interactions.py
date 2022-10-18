@@ -721,9 +721,7 @@ class WebSocketClient:
 
             return context(**data)
 
-    def __sub_command_context(
-        self, data: Option, context: "_Context"
-    ) -> Union[Tuple[str], dict]:
+    def __sub_command_context(self, data: Option, context: "_Context") -> Union[Tuple[str], dict]:
         """
         Checks if an application command schema has sub commands
         needed for argument collection.
@@ -753,7 +751,8 @@ class WebSocketClient:
                 for sub_option in _data["options"]:
                     _check = _check_auto(sub_option)
                     _type = self.__option_type_context(
-                        context, sub_option.type.value,
+                        context,
+                        sub_option.type.value,
                     )
 
                     if _type:
