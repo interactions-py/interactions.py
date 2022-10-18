@@ -151,7 +151,9 @@ class _Request:
                         __import__("pprint").pprint(data)
                         if isinstance(data, dict):
                             message: str = data.get("message")
-                            code: int = data.get("code")
+                            code: int = data.get("code", response.status)
+                        else:
+                            message, code = None, response.status
                     else:
                         data, message, code = None, None, response.status
 
