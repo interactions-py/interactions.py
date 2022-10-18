@@ -92,7 +92,7 @@ class DictSerializerMixin:
                 not in {
                     "converter",
                 }
-                and value
+                and value is not None
             )
 
         def _serializer(obj: Any, attrib: attrs.Attribute, value: Any):
