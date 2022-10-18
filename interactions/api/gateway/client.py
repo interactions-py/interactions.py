@@ -358,19 +358,15 @@ class WebSocketClient:
                 if data["type"] == InteractionType.APPLICATION_COMMAND:
                     _name = f"command_{_context.data.name}"
 
-                    if _context.data._json.get("options"):
-                        for option in _context.data.options:
+                    if options := _context.data.options:
+                        for option in options:
                             _type = self.__option_type_context(
                                 _context,
-                                (option["type"] if isinstance(option, dict) else option.type.value),
+                                option.type.value,
                             )
                             if _type:
-                                if isinstance(option, dict):
-                                    _type[option["value"]]._client = self._http
-                                    option.update({"value": _type[option["value"]]})
-                                else:
-                                    _type[option.value]._client = self._http
-                                    option._json.update({"value": _type[option.value]})
+                                _type[option.value]._client = self._http
+                                option.value = _type[option.value]  # TODO: uhh
                             _option = self.__sub_command_context(option, _context)
                             __kwargs.update(_option)
 
@@ -378,12 +374,12 @@ class WebSocketClient:
                 elif data["type"] == InteractionType.MESSAGE_COMPONENT:
                     _name = f"component_{_context.data.custom_id}"
 
-                    if _context.data._json.get("values"):
+                    if values := _context.data.values:
                         if _context.data.component_type.value not in {5, 6, 7, 8}:
-                            __args.append(_context.data.values)
+                            __args.append(values)
                         else:
                             _list = []  # temp storage for items
-                            for value in _context.data._json.get("values"):
+                            for value in values:
                                 _data = self.__select_option_type_context(
                                     _context, _context.data.component_type.value
                                 )  # resolved.
@@ -394,10 +390,8 @@ class WebSocketClient:
                 elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
                     _name = f"autocomplete_{_context.data.name}"
 
-                    if _context.data._json.get("options"):
+                    if _context.data.options:
                         for option in _context.data.options:
-                            if isinstance(option, dict):
-                                option = Option(**option)
                             if option.type not in (
                                 OptionType.SUB_COMMAND,
                                 OptionType.SUB_COMMAND_GROUP,
@@ -411,8 +405,6 @@ class WebSocketClient:
 
                             elif option.type == OptionType.SUB_COMMAND:
                                 for _option in option.options:
-                                    if isinstance(_option, dict):
-                                        _option = Option(**_option)
                                     if _option.focused:
                                         __name, _value = self.__sub_command_context(
                                             _option, _context
@@ -424,11 +416,7 @@ class WebSocketClient:
 
                             elif option.type == OptionType.SUB_COMMAND_GROUP:
                                 for _option in option.options:
-                                    if isinstance(_option, dict):
-                                        _option = Option(**_option)
                                     for __option in _option.options:
-                                        if isinstance(__option, dict):
-                                            __option = Option(**__option)
                                         if __option.focused:
                                             __name, _value = self.__sub_command_context(
                                                 __option, _context
@@ -524,7 +512,7 @@ class WebSocketClient:
                     old_obj = _cache.get(id)
                     if old_obj:
                         before = model(**old_obj._json)
-                        old_obj.update(**obj._json)
+                        old_obj.update(**data)  # TODO: are you sure?
                     else:
                         before = None
                         old_obj = obj
@@ -734,7 +722,7 @@ class WebSocketClient:
             return context(**data)
 
     def __sub_command_context(
-        self, data: Union[dict, Option], context: "_Context"
+        self, data: Option, context: "_Context"
     ) -> Union[Tuple[str], dict]:
         """
         Checks if an application command schema has sub commands
@@ -747,8 +735,9 @@ class WebSocketClient:
         :return: A dictionary of the collected options, if any.
         :rtype: Union[Tuple[str], dict]
         """
+        # TODO: uhhhhhhhhhhhhhhhhhh
         __kwargs: dict = {}
-        _data: dict = data._json if isinstance(data, Option) else data
+        _data: dict = data._json
 
         def _check_auto(option: dict) -> Optional[Tuple[str]]:
             return (option["name"], option["value"]) if option.get("focused") else None
@@ -764,12 +753,7 @@ class WebSocketClient:
                 for sub_option in _data["options"]:
                     _check = _check_auto(sub_option)
                     _type = self.__option_type_context(
-                        context,
-                        (
-                            sub_option["type"]
-                            if isinstance(sub_option, dict)
-                            else sub_option.type.value
-                        ),
+                        context, sub_option.type.value,
                     )
 
                     if _type:
@@ -1129,9 +1113,10 @@ class WebSocketClient:
         :param presence: The presence to change the bot to on identify.
         :type presence: ClientPresence
         """
-        payload: dict = {"op": OpCodeType.PRESENCE.value, "d": presence._json}
+        _presence = presence._json
+        payload: dict = {"op": OpCodeType.PRESENCE.value, "d": _presence}
         await self._send_packet(payload)
-        log.debug(f"UPDATE_PRESENCE: {presence._json}")
+        log.debug(f"UPDATE_PRESENCE: {_presence}")
         self.__presence = presence
 
     async def request_guild_members(
