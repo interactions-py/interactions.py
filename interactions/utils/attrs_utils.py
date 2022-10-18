@@ -86,7 +86,14 @@ class DictSerializerMixin:
         from ..api.models.misc import Snowflake
 
         def _filter(attrib: attrs.Attribute, value: Any):
-            return not attrib.name.startswith("_") and attrib.name not in {"converter", } and value
+            return (
+                not attrib.name.startswith("_")
+                and attrib.name
+                not in {
+                    "converter",
+                }
+                and value
+            )
 
         def _serializer(obj: Any, attrib: attrs.Attribute, value: Any):
             if isinstance(value, Snowflake):
