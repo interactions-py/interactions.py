@@ -1728,8 +1728,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         elif isinstance(content, Message):
             if content.attachments and any(attach.id is None for attach in content.attachments):
-                del content._json["attachments"]
-
+                # TODO: wat
                 for attach in content.attachments:
                     _data = await attach.download()
 
