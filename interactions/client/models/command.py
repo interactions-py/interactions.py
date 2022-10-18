@@ -598,7 +598,6 @@ class Command(DictSerializerMixin):
                         if int(option.type) == 2 and option.name == _group:
                             break
                 self.options[i].options.append(subcommand)
-                self.options[i]._json["options"].append(subcommand._json)
                 self.coroutines[f"{_group} {_name}"] = self.__wrap_coro(coro)
                 self.num_options[f"{_group} {_name}"] = len(
                     {opt for opt in _options if int(opt.type) > 2}
