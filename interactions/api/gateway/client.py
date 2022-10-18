@@ -366,7 +366,6 @@ class WebSocketClient:
                             )
                             if _type:
                                 _type[option.value]._client = self._http
-                                option.value = _type[option.value]  # TODO: uhh
                             _option = self.__sub_command_context(option, _context)
                             __kwargs.update(_option)
 
@@ -721,13 +720,13 @@ class WebSocketClient:
 
             return context(**data)
 
-    def __sub_command_context(self, data: Option, context: "_Context") -> Union[Tuple[str], dict]:
+    def __sub_command_context(self, option: Option, context: "_Context") -> Union[Tuple[str], dict]:
         """
         Checks if an application command schema has sub commands
         needed for argument collection.
 
-        :param data: The data structure of the option.
-        :type data: Union[dict, Option]
+        :param option: The option object.
+        :type option: Option
         :param context: The context to refer subcommands from.
         :type context: object
         :return: A dictionary of the collected options, if any.
@@ -735,33 +734,30 @@ class WebSocketClient:
         """
         # TODO: uhhhhhhhhhhhhhhhhhh
         __kwargs: dict = {}
-        _data: dict = data._json
+        _data: dict = option._json
 
-        def _check_auto(option: dict) -> Optional[Tuple[str]]:
-            return (option["name"], option["value"]) if option.get("focused") else None
+        def _check_auto(_option: dict) -> Optional[Tuple[str]]:
+            print(_option)
+            return (_option["name"], _option["value"]) if _option.get("focused") else None
 
         check = _check_auto(_data)
 
         if check:
             return check
-        if _data.get("options"):
+        if options := _data.get("options"):
             if _data["type"] == OptionType.SUB_COMMAND:
                 __kwargs["sub_command"] = _data["name"]
 
-                for sub_option in _data["options"]:
+                for sub_option in options:
                     _check = _check_auto(sub_option)
                     _type = self.__option_type_context(
                         context,
-                        sub_option.type.value,
+                        sub_option["type"],
                     )
 
                     if _type:
-                        if isinstance(sub_option, dict):
-                            _type[sub_option["value"]]._client = self._http
-                            sub_option.update({"value": _type[sub_option["value"]]})
-                        else:
-                            _type[sub_option.value]._client = self._http
-                            sub_option._json.update({"value": _type[sub_option.value]})
+                        _type[sub_option["value"]]._client = self._http
+                        sub_option.update({"value": _type[sub_option["value"]]})
                     if _check:
                         return _check
 
@@ -776,31 +772,23 @@ class WebSocketClient:
                         _check = _check_auto(sub_option)
                         _type = self.__option_type_context(
                             context,
-                            (
-                                sub_option["type"]
-                                if isinstance(sub_option, dict)
-                                else sub_option.type.value
-                            ),
+                            sub_option["type"],
                         )
 
                         if _type:
-                            if isinstance(sub_option, dict):
-                                _type[sub_option["value"]]._client = self._http
-                                sub_option.update({"value": _type[sub_option["value"]]})
-                            else:
-                                _type[sub_option.value]._client = self._http
-                                sub_option._json.update({"value": _type[sub_option.value]})
+                            _type[sub_option["value"]]._client = self._http
+                            sub_option.update({"value": _type[sub_option["value"]]})
                         if _check:
                             return _check
 
                         __kwargs[sub_option["name"]] = sub_option["value"]
 
-        elif _data.get("type") and _data["type"] == OptionType.SUB_COMMAND:
+        elif _data.get("type") == OptionType.SUB_COMMAND:
             # sub_command_groups must have options so there is no extra check needed for those
             __kwargs["sub_command"] = _data["name"]
 
-        elif _data.get("value") is not None and _data.get("name") is not None:
-            __kwargs[_data["name"]] = _data["value"]
+        elif (name := _data.get("name")) is not None and (value := _data.get("value")) is not None:
+            __kwargs[name] = value
 
         return __kwargs
 
