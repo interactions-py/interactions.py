@@ -64,9 +64,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
         from .guild import Guild
 
         self.source_guild = (
-            Guild(**self.source_guild, _client=self._client)
-            if self.source_guild
-            else None
+            Guild(**self.source_guild, _client=self._client) if self.source_guild else None
         )
         self.source_channel = (
             Channel(**self.source_channel, _client=self._client) if self.source_channel else None
