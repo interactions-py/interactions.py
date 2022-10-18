@@ -11,6 +11,8 @@ if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
     from ..http import HTTPClient
     from .message import Attachment, Embed, Message
+    from .channel import Channel
+    from .guild import Guild
 
 __all__ = (
     "Webhook",
@@ -52,8 +54,8 @@ class Webhook(ClientSerializerMixin, IDMixin):
     avatar: str = field(repr=False)
     token: Optional[str] = field(default=None)
     application_id: Snowflake = field(converter=Snowflake)
-    source_guild: Optional[Any] = field(default=None)
-    source_channel: Optional[Any] = field(default=None)
+    source_guild: Optional["Guild"] = field(default=None)
+    source_channel: Optional["Channel"] = field(default=None)
     url: Optional[str] = field(default=None)
 
     def __attrs_post_init__(self):
@@ -63,12 +65,12 @@ class Webhook(ClientSerializerMixin, IDMixin):
 
         self.source_guild = (
             Guild(**self.source_guild, _client=self._client)
-            if self._json.get("source_guild")
+            if self.source_guild  # TODO: is it dict?
             else None
         )
         self.source_channel = (
             Channel(**self.source_channel, _client=self._client)
-            if self._json.get("source_channel")
+            if self.source_channel
             else None
         )
 
