@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from ...utils.attrs_utils import ClientSerializerMixin, define, field
 from ...utils.missing import MISSING
