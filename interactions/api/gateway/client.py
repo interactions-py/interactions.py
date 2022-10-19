@@ -366,6 +366,8 @@ class WebSocketClient:
                             )
                             if _type:
                                 _type[option.value]._client = self._http
+                                # I'm not sure about line below because its doesn't affect anything
+                                option.value = _type[option.value]
                             _option = self.__sub_command_context(option, _context)
                             __kwargs.update(_option)
 
@@ -733,59 +735,58 @@ class WebSocketClient:
         :rtype: Union[Tuple[str], dict]
         """
         __kwargs: dict = {}
-        _data: dict = option._json
 
-        def _check_auto(_option: dict) -> Optional[Tuple[str]]:
-            return (_option["name"], _option["value"]) if _option.get("focused") else None
+        def _check_auto(_option: Option) -> Optional[Tuple[str]]:
+            return (_option.name, _option.value) if _option.focused else None
 
-        check = _check_auto(_data)
+        check = _check_auto(option)
 
         if check:
             return check
-        if options := _data.get("options"):
-            if _data["type"] == OptionType.SUB_COMMAND:
-                __kwargs["sub_command"] = _data["name"]
+        if options := option.options:
+            if option.type == OptionType.SUB_COMMAND:
+                __kwargs["sub_command"] = option.name
 
                 for sub_option in options:
                     _check = _check_auto(sub_option)
                     _type = self.__option_type_context(
                         context,
-                        sub_option["type"],
+                        sub_option.type,
                     )
 
                     if _type:
-                        _type[sub_option["value"]]._client = self._http
-                        sub_option.update({"value": _type[sub_option["value"]]})
+                        _type[sub_option.value]._client = self._http
+                        sub_option.value = _type[sub_option.value] # ? uh?
                     if _check:
                         return _check
 
-                    __kwargs[sub_option["name"]] = sub_option["value"]
-            elif _data["type"] == OptionType.SUB_COMMAND_GROUP:
-                __kwargs["sub_command_group"] = _data["name"]
-                for _group_option in _data["options"]:
+                    __kwargs[sub_option.name] = sub_option.value
+            elif option.type == OptionType.SUB_COMMAND_GROUP:
+                __kwargs["sub_command_group"] = option.name
+                for _group_option in option.options:
                     _check_auto(_group_option)
-                    __kwargs["sub_command"] = _group_option["name"]
+                    __kwargs["sub_command"] = _group_option.name
 
-                    for sub_option in _group_option["options"]:
+                    for sub_option in _group_option.options:
                         _check = _check_auto(sub_option)
                         _type = self.__option_type_context(
                             context,
-                            sub_option["type"],
+                            sub_option.type,
                         )
 
                         if _type:
-                            _type[sub_option["value"]]._client = self._http
-                            sub_option.update({"value": _type[sub_option["value"]]})
+                            _type[sub_option.value]._client = self._http
+                            sub_option.value = _type[sub_option.value] # ? uh?
                         if _check:
                             return _check
 
-                        __kwargs[sub_option["name"]] = sub_option["value"]
+                        __kwargs[sub_option.name] = sub_option.value
 
-        elif _data.get("type") == OptionType.SUB_COMMAND:
+        elif option.type == OptionType.SUB_COMMAND:
             # sub_command_groups must have options so there is no extra check needed for those
-            __kwargs["sub_command"] = _data["name"]
+            __kwargs["sub_command"] = option.name
 
-        elif (name := _data.get("name")) is not None and (value := _data.get("value")) is not None:
+        elif (name := option.name) is not None and (value := option.value) is not None:
             __kwargs[name] = value
 
         return __kwargs
