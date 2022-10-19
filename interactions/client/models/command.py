@@ -58,7 +58,6 @@ class Choice(DictSerializerMixin):
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
 
     def __attrs_post_init__(self):
-        # TODO: test it
         if self.name_localizations:
             self.name_localizations = {
                 k if isinstance(k, Locale) else Locale(k): v
