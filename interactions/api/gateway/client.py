@@ -511,7 +511,7 @@ class WebSocketClient:
                     old_obj = _cache.get(id)
                     if old_obj:
                         before = model(**old_obj._json)
-                        old_obj.update(**data)  # TODO: are you sure?
+                        old_obj.update(**data)
                     else:
                         before = None
                         old_obj = obj
@@ -732,12 +732,10 @@ class WebSocketClient:
         :return: A dictionary of the collected options, if any.
         :rtype: Union[Tuple[str], dict]
         """
-        # TODO: uhhhhhhhhhhhhhhhhhh
         __kwargs: dict = {}
         _data: dict = option._json
 
         def _check_auto(_option: dict) -> Optional[Tuple[str]]:
-            print(_option)
             return (_option["name"], _option["value"]) if _option.get("focused") else None
 
         check = _check_auto(_data)
