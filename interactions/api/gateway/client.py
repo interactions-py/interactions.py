@@ -756,7 +756,7 @@ class WebSocketClient:
 
                     if _type:
                         _type[sub_option.value]._client = self._http
-                        sub_option.value = _type[sub_option.value]  # ? uh?
+                        sub_option.value = _type[sub_option.value]
                     if _check:
                         return _check
 
@@ -776,7 +776,7 @@ class WebSocketClient:
 
                         if _type:
                             _type[sub_option.value]._client = self._http
-                            sub_option.value = _type[sub_option.value]  # ? uh?
+                            sub_option.value = _type[sub_option.value]
                         if _check:
                             return _check
 
