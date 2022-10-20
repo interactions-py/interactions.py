@@ -1,6 +1,5 @@
-from typing import Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
-from ...api.cache import Cache
 from ..error import LibraryException
 from ..models.channel import Channel
 from ..models.message import Message
@@ -8,12 +7,15 @@ from ..models.misc import Snowflake
 from .request import _Request
 from .route import Route
 
+if TYPE_CHECKING:
+    from ...api.cache import Cache
+
 __all__ = ("ChannelRequest",)
 
 
 class ChannelRequest:
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass

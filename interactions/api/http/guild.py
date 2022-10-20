@@ -1,20 +1,21 @@
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from urllib.parse import quote
 
-from ...api.cache import Cache
 from ..models.channel import Channel
 from ..models.guild import Guild
 from ..models.role import Role
 from .request import _Request
 from .route import Route
 
+if TYPE_CHECKING:
+    from ...api.cache import Cache
+
 __all__ = ("GuildRequest",)
 
 
 class GuildRequest:
-
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass

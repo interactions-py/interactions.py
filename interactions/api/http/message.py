@@ -1,20 +1,22 @@
-from typing import List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from aiohttp import MultipartWriter
 
-from ...api.cache import Cache
 from ...utils.missing import MISSING
 from ..models.message import Embed, Message, Sticker
 from ..models.misc import AllowedMentions, File, Snowflake
 from .request import _Request
 from .route import Route
 
+if TYPE_CHECKING:
+    from ...api.cache import Cache
+
 __all__ = ("MessageRequest",)
 
 
 class MessageRequest:
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass

@@ -12,6 +12,8 @@ from typing import (
     overload,
 )
 
+import interactions
+
 if TYPE_CHECKING:
     from .models import Snowflake
 
@@ -38,8 +40,13 @@ class Storage(Generic[_T]):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object containing {len(self.values)} items.>"
 
-    def __init__(self) -> None:
-        self.values: Dict["Key", _T] = {}
+    def __init__(self, limit: Optional[int] = float("inf")) -> None:
+        """
+
+        :param limit: The maximum number of items to store
+        :type limit: Optional[int]
+        """
+        self.values: interactions.LRUDict["Key", _T] = interactions.LRUDict(max_items=limit)
 
     def merge(self, item: _T, id: Optional["Key"] = None) -> None:
         """
@@ -158,13 +165,14 @@ class Cache:
     :ivar defaultdict[Type, Storage] storages: A dictionary denoting the Type and the objects that correspond to the Type.
     """
 
-    __slots__ = "storages"
+    __slots__ = ("storages", "config")
 
-    def __init__(self) -> None:
-        self.storages: defaultdict[Type[_T], Storage[_T]] = defaultdict(Storage)
+    def __init__(self, config: Dict[Type[_T], int] = None) -> None:
+        self.storages: Dict[Type[_T], Storage[_T]] = defaultdict(Storage)
+
+        if config is not None:
+            for type_, limit in config.items():
+                self.storages[type_] = Storage(limit)
 
     def __getitem__(self, item: Type[_T]) -> Storage[_T]:
         return self.storages[item]
-
-
-ref_cache = Cache()  # noqa

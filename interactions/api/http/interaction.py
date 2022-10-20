@@ -1,17 +1,18 @@
-from typing import List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
-from ...api.cache import Cache
 from ..models import Snowflake
 from .request import _Request
 from .route import Route
+
+if TYPE_CHECKING:
+    from ...api.cache import Cache
 
 __all__ = ("InteractionRequest",)
 
 
 class InteractionRequest:
-
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass

@@ -11,6 +11,7 @@ from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 from ..api import WebSocketClient as WSClient
+from ..api.cache import Cache
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents, Permissions
@@ -75,21 +76,33 @@ class Client:
     def __init__(
         self,
         token: str,
+        cache_limits: Optional[Dict[type, int]] = None,
+        intents: Intents = Intents.DEFAULT,
+        shards: Optional[List[Tuple[int]]] = None,
+        default_scope=None,  # todo typehint
+        presence: Optional[ClientPresence] = None,
+        _logging: Union[bool, int] = None,
+        disable_sync: bool = False,
         **kwargs,
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
-        self._http: HTTPClient = token
-        self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
-        self._shards: List[Tuple[int]] = kwargs.get("shards", [])
+        self._http: HTTPClient = token  # noqa
+        self._cache: Cache = Cache(cache_limits)
+        self._intents: Intents = intents
+        self._shards: List[Tuple[int]] = shards or []
         self._commands: List[Command] = []
-        self._default_scope = kwargs.get("default_scope")
-        self._presence = kwargs.get("presence")
+        self._default_scope = default_scope
+        self._presence = presence
         self._websocket: WSClient = WSClient(
-            token=token, intents=self._intents, shards=self._shards, presence=self._presence
+            token=token,
+            cache=self._cache,
+            intents=self._intents,
+            shards=self._shards,
+            presence=self._presence,
         )
         self._token = token
         self._extensions = {}
-        self._scopes = set([])
+        self._scopes = set()
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
@@ -106,7 +119,8 @@ class Client:
                 ]
         self._default_scope = convert_list(int)(self._default_scope)
 
-        if _logging := kwargs.get("logging"):
+        _logging = kwargs.get("logging", _logging)
+        if _logging:
 
             # thx i0 for posting this on the retux Discord
 
@@ -121,7 +135,7 @@ class Client:
 
             logging.basicConfig(format=_format, level=_logging)
 
-        if kwargs.get("disable_sync"):
+        if disable_sync:
             self._automate_sync = False
             log.warning(
                 "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."
@@ -372,7 +386,7 @@ class Client:
         ready: bool = False
 
         if isinstance(self._http, str):
-            self._http = HTTPClient(self._http)
+            self._http = HTTPClient(self._http, self._cache)
 
         data = await self._http.get_current_bot_information()
         self.me = Application(**data, _client=self._http)
