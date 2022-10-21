@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=63", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [tool.black]
 exclude = '/(\.eggs|\.git|\.mypy_cache|\.venv.*|_build|build|dist)/'
 line-length = 100

@@ -21,8 +21,9 @@ def read_requirements(filename):
 extras = {
     "lint": read_requirements("requirements-lint.txt"),
     "readthedocs": read_requirements("requirements-docs.txt"),
+    "testing": read_requirements("requirements-testing.txt"),
 }
-extras["dev"] = extras["lint"] + extras["readthedocs"]
+extras["dev"] = extras["lint"] + extras["readthedocs"] + extras["testing"]
 requirements = read_requirements("requirements.txt")
 setup(
     name="discord-py-interactions",
