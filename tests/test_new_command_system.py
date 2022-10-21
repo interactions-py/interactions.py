@@ -40,7 +40,7 @@ def test_basic_command_with_required_option_with_read_from_kwargs(fake_client):
                 "description": "hi",
                 "name": "option",
                 "required": True,
-                "type": interactions.OptionType.USER,
+                "type": interactions.OptionType.STRING,
             }
         ],
         "type": 1,
