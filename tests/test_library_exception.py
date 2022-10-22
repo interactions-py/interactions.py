@@ -227,7 +227,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -235,7 +235,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -243,7 +243,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -251,7 +251,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -259,7 +259,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -267,7 +267,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -275,7 +275,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -283,7 +283,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -291,7 +291,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -299,7 +299,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -307,7 +307,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -315,7 +315,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -323,7 +323,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -331,7 +331,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -339,7 +339,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -347,7 +347,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -355,7 +355,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -363,7 +363,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -371,7 +371,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -379,7 +379,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -387,7 +387,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -395,7 +395,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -403,7 +403,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -411,7 +411,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -419,7 +419,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -427,7 +427,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -435,7 +435,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -443,7 +443,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -451,7 +451,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -459,7 +459,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -467,7 +467,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -475,7 +475,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -483,7 +483,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -491,7 +491,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -499,7 +499,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -507,7 +507,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -515,7 +515,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -523,7 +523,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -531,7 +531,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -539,7 +539,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -547,7 +547,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -555,7 +555,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -563,7 +563,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -571,7 +571,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -579,7 +579,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -587,7 +587,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -595,7 +595,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -603,7 +603,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -611,7 +611,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -619,7 +619,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -627,7 +627,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -635,7 +635,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -643,7 +643,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -651,7 +651,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -659,7 +659,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -667,7 +667,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -675,7 +675,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -683,7 +683,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -691,7 +691,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -699,7 +699,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -707,7 +707,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -715,7 +715,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -723,7 +723,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -731,7 +731,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -739,7 +739,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -747,7 +747,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -755,7 +755,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -763,7 +763,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -771,7 +771,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -779,7 +779,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -787,7 +787,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -795,7 +795,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -803,7 +803,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -811,7 +811,7 @@ data = {
                         "_errors": [
                             {
                                 "code": "BASE_TYPE_REQUIRED",
-                                "message": "This " "field " "is " "required",
+                                "message": "This field is required",
                             }
                         ]
                     },
@@ -851,7 +851,7 @@ def test_library_exception_simple():
                 )
             else:
                 _flag: bool = e.message.lower() in e.lookup(e.code).lower()  # creativity is hard
-
+                print(e)
                 assert str(e) == (
                     "\n"
                     f"  Error {e.code} | {e.message if _flag else e.lookup(e.code)}\n"
