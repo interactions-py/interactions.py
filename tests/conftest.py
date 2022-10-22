@@ -1,3 +1,5 @@
+from string import printable
+
 import pytest
 
 import interactions
@@ -14,3 +16,11 @@ def fake_client():
 @pytest.fixture(autouse=True)
 def clear_commands(fake_client):
     fake_client._commands = []
+
+
+@pytest.fixture(autouse=True)
+def ensure_no_stdout(capfd):
+    yield
+    out, _ = capfd.readouterr()
+    _printable = printable.replace(".", "")
+    assert all(letter not in out for letter in _printable)
