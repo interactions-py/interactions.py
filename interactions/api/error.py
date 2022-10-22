@@ -302,6 +302,7 @@ class LibraryException(Exception):
         self.severity: int = severity
         self.data: dict = kwargs.pop("data", None)
         self.message: str = message or self.lookup(self.code)
+        self._fmt: str = None
         _fmt_error: List[tuple] = []
 
         if (
@@ -319,7 +320,7 @@ class LibraryException(Exception):
                 self.message.lower() in self.lookup(self.code).lower()
             )  # creativity is hard
 
-            _fmt = "\n".join(
+            self._fmt = "\n".join(
                 [
                     f"Error at {e[2]}: {e[0]} - {e[1] if e[1].endswith('.') else f'{e[1]}.'}"
                     for e in _fmt_error
@@ -329,8 +330,8 @@ class LibraryException(Exception):
             super().__init__(
                 "\n"
                 f"  Error {self.code} | {self.message if _flag else self.lookup(self.code)}\n"
-                f"  {_fmt if _flag else self.message}\n"
-                f"  {f'Severity {self.severity}.' if _flag else _fmt}\n"
+                f"  {self._fmt if _flag else self.message}\n"
+                f"  {f'Severity {self.severity}.' if _flag else self._fmt}\n"
                 f"  {'' if _flag else f'Severity {self.severity}.'}"
             )
         else:
