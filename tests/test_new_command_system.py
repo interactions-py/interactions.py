@@ -2,8 +2,6 @@ import pytest
 
 import interactions
 
-# done
-
 
 def test_basic_command(fake_client):
     @fake_client.command()
@@ -510,6 +508,15 @@ def test_basic_invalid_command_failure(fake_client):
     @fake_client.command(name="HI")
     async def command(ctx):
         """Hello!"""
+
+    with pytest.raises(interactions.LibraryException):
+        fake_client._Client__resolve_commands()
+
+
+def test_basic_invalid_command_failure_2(fake_client):
+    @fake_client.command(description="s" * 200)
+    async def command(ctx):
+        ...
 
     with pytest.raises(interactions.LibraryException):
         fake_client._Client__resolve_commands()
