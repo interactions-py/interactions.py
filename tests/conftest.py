@@ -22,5 +22,4 @@ def clear_commands(fake_client):
 def ensure_no_stdout(capfd):
     yield
     out, _ = capfd.readouterr()
-    _printable = printable.replace(".", "")
-    assert all(letter not in out for letter in _printable)
+    assert all(letter not in out for letter in printable)
