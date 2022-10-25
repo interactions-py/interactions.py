@@ -75,3 +75,67 @@ async def test_channel_send_embeds_and_components(channel):
 async def test_channel_modify_not_a_thread_failure(channel):
     with pytest.raises(interactions.LibraryException):
         await channel.archive(True)
+    with pytest.raises(interactions.LibraryException):
+        await channel.lock(True)
+    with pytest.raises(interactions.LibraryException):
+        await channel.set_auto_archive_duration(25)
+    with pytest.raises(interactions.LibraryException):
+        await channel.add_member(24320875439028)
+    with pytest.raises(interactions.LibraryException):
+        await channel.remove_member(24320875439028)
+
+
+async def test_channel_set_name(channel):
+    await channel.set_name("hello!")
+    assert channel._json["name"] == "hello!" and channel.name == "hello!"
+    await channel.modify(name="nya~")
+    assert channel._json["name"] == "nya~" and channel.name == "nya~"
+
+
+async def test_channel_set_topic(channel):
+    await channel.set_topic("hello!")
+    assert channel._json["topic"] == "hello!" and channel.topic == "hello!"
+    await channel.modify(topic="nya~")
+    assert channel._json["topic"] == "nya~" and channel.topic == "nya~"
+
+
+async def test_set_bitrate_fail(channel):
+    with pytest.raises(interactions.LibraryException):
+        await channel.set_bitrate(1)
+
+
+async def test_set_user_limit_fail(channel):
+    with pytest.raises(interactions.LibraryException):
+        await channel.set_user_limit(3)
+
+
+async def test_set_ratelimit_per_user(channel):
+    await channel.set_rate_limit_per_user(1000)
+    assert channel._json["rate_limit_per_user"] == 1000 and channel.rate_limit_per_user == 1000
+    await channel.modify(rate_limit_per_user=2160)
+    assert channel._json["rate_limit_per_user"] == 2160 and channel.rate_limit_per_user == 2160
+
+
+async def test_set_position(channel):
+    await channel.set_position(82)
+    assert channel._json["position"] == 82 and channel.position == 82
+    await channel.modify(position=2160)
+    assert channel._json["position"] == 2160 and channel.position == 2160
+
+
+async def test_set_parent_id(channel):
+    await channel.set_parent_id(82)
+    assert channel._json["parent_id"] == 82 and channel.parent_id == 82
+    await channel.modify(parent_id=223784)
+    assert channel._json["parent_id"] == 223784 and channel.parent_id == 223784
+
+
+async def test_set_nsfw(channel):
+    await channel.set_nsfw(True)
+    assert channel._json["nsfw"] is True and channel.nsfw is True
+    await channel.modify(nsfw=False)
+    assert channel._json["nsfw"] is False and channel.nsfw is False
+
+
+async def test_create_thread(channel):
+    assert True
