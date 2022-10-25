@@ -1,2 +1,2 @@
 pytest
-pytest-aycnio
+pytest-asyncio
