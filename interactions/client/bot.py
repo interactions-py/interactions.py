@@ -509,7 +509,7 @@ class Client:
             This is an internal method. Do not call it unless you know what you are doing!
         """
         for cmd in self._commands:
-            if cmd.resolved:
+            if cmd.coro.__qualname__ in [Cmd.__qualname__ for Cmd in self.__command_coroutines]:
                 continue
 
             cmd.listener = self._websocket._dispatch
@@ -555,7 +555,6 @@ class Client:
                     self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
 
             self.event(coro, name=f"command_{cmd.name}")
-            cmd.resolved = True
 
     async def __sync(self) -> None:  # sourcery no-metrics
         """

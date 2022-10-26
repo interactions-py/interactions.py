@@ -411,7 +411,6 @@ class Command(DictSerializerMixin):
     :ivar Dict[str, int] num_options: The dictionary of the number of options per subcommand.
     :ivar Dict[str, Union[Callable[..., Awaitable], str]] autocompletions: The dictionary of autocompletions for the command.
     :ivar Optional[str] recent_group: The name of the group most recently utilized.
-    :ivar bool resolved: Whether the command is synced. Defaults to ``False``.
     :ivar Optional[Extension] extension: The extension that the command belongs to, if any.
     :ivar Client client: The client that the command belongs to.
     :ivar Optional[Listener] listener: The listener, used for dispatching command errors.
@@ -436,7 +435,6 @@ class Command(DictSerializerMixin):
     )
     recent_group: Optional[str] = field(default=None, init=False)
     error_callback: Optional[Callable[..., Awaitable]] = field(default=None, init=False)
-    resolved: bool = field(default=False, init=False)
     extension: Optional["Extension"] = field(default=None, init=False)
     client: "Client" = field(default=None, init=False)
     listener: Optional["Listener"] = field(default=None, init=False)
@@ -862,7 +860,8 @@ class Command(DictSerializerMixin):
             if has_args:  # foo(ctx, ..., *args, ..., **kwargs) OR foo(ctx, *args, ...)
                 return await _coro(
                     ctx,
-                    *(kwargs[opt] for opt in par_opts if opt in kwargs),  # pos before *args
+                    # pos before *args
+                    *(kwargs[opt] for opt in par_opts if opt in kwargs),
                     *args,
                     *(
                         kwargs[opt]
