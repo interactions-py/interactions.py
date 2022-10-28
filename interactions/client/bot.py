@@ -80,7 +80,7 @@ class Client:
         cache_limits: Optional[Dict[type, int]] = None,
         intents: Intents = Intents.DEFAULT,
         shards: Optional[List[Tuple[int]]] = None,
-        default_scope: Union[int, Snowflake, List[int, Snowflake]] = None,
+        default_scope: Union[int, Snowflake, List[Union[int, Snowflake]]] = None,
         presence: Optional[ClientPresence] = None,
         _logging: Union[bool, int] = None,
         disable_sync: bool = False,
