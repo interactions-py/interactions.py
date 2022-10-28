@@ -16,6 +16,7 @@ from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
+from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
@@ -87,19 +88,11 @@ class Client:
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
         self._http: HTTPClient = token  # noqa
-        self._cache: Cache = Cache(cache_limits)
         self._intents: Intents = intents
         self._shards: List[Tuple[int]] = shards or []
         self._commands: List[Command] = []
         self._default_scope = default_scope
         self._presence = presence
-        self._websocket: WSClient = WSClient(
-            token=token,
-            cache=self._cache,
-            intents=self._intents,
-            shards=self._shards,
-            presence=self._presence,
-        )
         self._token = token
         self._extensions = {}
         self._scopes = set()
@@ -118,6 +111,21 @@ class Client:
                     for scope in self._default_scope
                 ]
         self._default_scope = convert_list(int)(self._default_scope)
+
+        if cache_limits is None:
+            # Messages have the most explosive growth, but more limits can be added as needed
+            cache_limits = {
+                Message: 1000,  # Most users won't need to cache many messages
+            }
+
+        self._cache: Cache = Cache(cache_limits)
+        self._websocket: WSClient = WSClient(
+            token=token,
+            cache=self._cache,
+            intents=self._intents,
+            shards=self._shards,
+            presence=self._presence,
+        )
 
         _logging = kwargs.get("logging", _logging)
         if _logging:
