@@ -64,7 +64,7 @@ class Client:
     :type logging?: Optional[Union[bool, logging.DEBUG, logging.INFO, logging.NOTSET, logging.WARNING, logging.ERROR, logging.CRITICAL]]
 
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
-    :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
+    :ivar Union[str, HTTPClient] _http: The user-facing HTTP connection to the Web API, as its own separate client.
     :ivar WebSocketClient _websocket: An object-orientation of a websocket server connection to the Gateway.
     :ivar Intents _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
     :ivar Optional[List[Tuple[int]]] _shard: The list of bucketed shards for the application's connection.
@@ -87,7 +87,7 @@ class Client:
         **kwargs,
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
-        self._http: HTTPClient = token  # noqa
+        self._http: Union[str, HTTPClient] = token
         self._intents: Intents = intents
         self._shards: List[Tuple[int]] = shards or []
         self._commands: List[Command] = []
