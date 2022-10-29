@@ -23,7 +23,7 @@ from ..api.models.user import User
 from ..base import get_logger
 from ..utils.attrs_utils import convert_list
 from ..utils.missing import MISSING
-from .context import ComponentContext
+from .context import CommandContext, ComponentContext
 from .decor import component as _component
 from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Choice, Command, Option
@@ -1650,10 +1650,52 @@ class Client:
 
         return await self.wait_for("on_component", check=_check, timeout=timeout)
 
-    def wait_for_modal(
+    async def wait_for_modal(
         self,
+        modals: Union[Modal, str, List[Union[Modal, str]]],
+        check: Optional[Callable[[CommandContext], bool]] = None,
+        timeout: Optional[float] = None,
     ):
-        ...
+        """
+        Waits for a modal to be interacted with, and returns the resulting context.
+
+        :param Union[Modal, str, List[Modal, str]] modals: The modal(s) to wait for
+        :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param Optional[float] timeout: How long to wait for the event before raising an error
+        :return: The context of the modal
+        :rtype: CommandContext
+        """
+        ids: List[str] = []
+
+        if isinstance(modals, Modal):
+            ids = [str(modals.custom_id)]
+        elif isinstance(modals, str):
+            ids = [modals]
+        elif isinstance(modals, list):
+            for modal in modals:
+                if isinstance(modal, Modal):
+                    ids.append(str(modal.custom_id))
+                elif isinstance(modal, str):
+                    modals.append(modal)
+
+        if not all(isinstance(id, str) for id in ids):
+            raise TypeError("No modals were passed!")
+
+        def _check(ctx: CommandContext):
+            if ids and ctx.data.custom_id not in ids:
+                return False
+            return check(ctx) if check else True
+
+        ctx: CommandContext = await self.wait_for("on_modal", check=_check, timeout=timeout)
+
+        # Ed requested that it returns a result similar to the decorator
+        fields: List[str] = []
+        for actionrow in ctx.data.components:  # discord is weird with this
+            if actionrow.components:
+                data = actionrow.components[0].value
+                fields.append(data)
+
+        return ctx, *fields
 
 
 # TODO: Implement the rest of cog behaviour when possible.
