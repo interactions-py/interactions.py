@@ -28,12 +28,9 @@ class Listener:
         r"""
         Dispatches an event given out by the gateway.
 
-        :param name: The name of the event to dispatch.
-        :type name: str
-        :param *args: Multiple arguments of the coroutine.
-        :type *args: list[Any]
-        :param **kwargs: Keyword-only arguments of the coroutine.
-        :type **kwargs: dict
+        :param str name: The name of the event to dispatch.
+        :param list[Any] \*args: Multiple arguments of the coroutine.
+        :param dict \**kwargs: Keyword-only arguments of the coroutine.
         """
         for event in self.events.get(name, []):
             converters: dict
