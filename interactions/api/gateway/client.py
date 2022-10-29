@@ -90,6 +90,7 @@ class WebSocketClient:
     __slots__ = (
         "_loop",
         "_dispatch",
+        "__unavailable_guilds",
         "_ratelimiter",
         "_http",
         "_client",
@@ -144,6 +145,7 @@ class WebSocketClient:
         except RuntimeError:
             self._loop = new_event_loop()
         self._dispatch: Listener = Listener()
+        self.__unavailable_guilds = []
 
         self._ratelimiter = (
             WSRateLimit(loop=self._loop) if version_info < (3, 10) else WSRateLimit()
