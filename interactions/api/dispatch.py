@@ -86,8 +86,7 @@ class Listener:
         """
         Returns a Future that will resolve whenever the supplied event is dispatched
 
-        :param name: The event to listen for
-        :type name: str
+        :param str name: The event to listen for
         :return: A future that will be resolved on the next event dispatch with the data given
         :rtype: asyncio.Future
         """
