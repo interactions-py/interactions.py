@@ -223,10 +223,7 @@ class _Request:
             except Exception as e:
                 with suppress(RuntimeError):
                     _limiter.lock.release()
-                if isinstance(e, LibraryException):
-                    raise
-                log.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
-                break
+                raise
 
     async def close(self) -> None:
         """Closes the current session."""
