@@ -12,8 +12,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        fail-fast: false
         os: [ubuntu-latest, windows-latest]
-        python-version: ["3.8.6", "3.9", "3.10"]#, "3.11"]  # surely this will be released when I'm done with this.
+        python-version: ["3.8.6", "3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v2

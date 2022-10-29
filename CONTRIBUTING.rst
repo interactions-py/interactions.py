@@ -67,6 +67,7 @@ A pull request must additionally adhere to these following requirements:
 - The pull request must be up-to-date with ``unstable`` before requesting a review.
 - A ``pre-commit`` commit must exist and pass *all* checks before requesting a review.
 - A review must be requested from at least one developer. Please target ``@interactions-py/core`` for this.
+- Your code must pass all checks on all Python versions from 3.8.6 onwards on Linux and Windows.
 
 Recognizing contributors
 ------------------------

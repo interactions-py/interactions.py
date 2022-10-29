@@ -1,3 +1,5 @@
+import warnings
+
 import pytest
 
 import interactions
@@ -72,7 +74,7 @@ async def test_channel_send_embeds_and_components(channel):
     )
 
 
-async def test_channel_modify_not_a_thread_failure(channel):
+async def test_not_a_thread_failure(channel):
     with pytest.raises(interactions.LibraryException):
         await channel.archive(True)
     with pytest.raises(interactions.LibraryException):
@@ -83,6 +85,12 @@ async def test_channel_modify_not_a_thread_failure(channel):
         await channel.add_member(24320875439028)
     with pytest.raises(interactions.LibraryException):
         await channel.remove_member(24320875439028)
+    with pytest.raises(interactions.LibraryException):
+        await channel.join()
+    with pytest.raises(interactions.LibraryException):
+        await channel.leave()
+    with pytest.raises(interactions.LibraryException):
+        await channel.get_members()
 
 
 async def test_channel_set_name(channel):
@@ -138,4 +146,45 @@ async def test_set_nsfw(channel):
 
 
 async def test_create_thread(channel):
-    assert True
+    thread = await channel.create_thread(name="OwO", message_id=12345, auto_archive_duration=13882)
+    assert isinstance(thread, interactions.Channel)
+    # can't really assert json here /shrug
+
+
+async def test_channel_url(channel):
+    assert channel.url == "https://discord.com/channels/987654321/123456789"
+
+
+async def test_warning_on_get_history(channel):
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        with pytest.raises(interactions.LibraryException):
+            client = channel._client
+            channel._client = None
+            await channel.get_history()
+        channel._client = client
+        warning = w[0]
+        assert (
+            str(warning.message)
+            == "This method has been deprecated in favour of the 'history' method."
+            and warning.category == DeprecationWarning
+        )
+
+
+async def test_create_tag(channel):
+    with pytest.raises(interactions.LibraryException):
+        await channel.create_tag(name="hi")
+
+    type = channel.type
+    channel.type = interactions.ChannelType.GUILD_FORUM
+
+    tag1 = await channel.create_tag(name="hi", emoji_name="d", moderated=False)
+    tag2 = await channel.create_tag(name="hi", emoji_id=12298430293, moderated=True)
+
+    with pytest.raises(interactions.LibraryException):
+        await channel.create_tag(emoji_id=12334, name="Hi", emoji_name="nya~")
+
+    assert isinstance(tag1, interactions.Tags) and isinstance(tag2, interactions.Tags)
+    print(tag1._json, tag2._json)
+
+    channel.type = type

@@ -1711,6 +1711,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         name: str,
         emoji_id: Optional[int] = MISSING,
         emoji_name: Optional[str] = MISSING,
+        moderated: Optional[bool] = MISSING,
+        reason: Optional[str] = None,
     ) -> Tags:
         """
         .. versionadded:: 4.3.2
@@ -1724,6 +1726,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param str name: The name of the tag
         :param Optional[int] emoji_id: The ID of the emoji to use for the tag
         :param Optional[str] emoji_name: The name of the emoji to use for the tag
+        :param Optional[bool] moderated: Whether the tag can only be assigned to moderators or not. Defaults to ``False``
+        :param Optional[str] reason: The reason for the action
         :return: The create tag object
         :rtype: Tags
         """
@@ -1745,8 +1749,10 @@ class Channel(ClientSerializerMixin, IDMixin):
             payload["emoji_id"] = emoji_id
         if emoji_name is not MISSING:
             payload["emoji_name"] = emoji_name
+        if moderated is not MISSING:
+            payload["moderated"] = moderated
 
-        data = await self._client.create_tag(int(self.id), **payload)
+        data = await self._client.create_tag(int(self.id), **payload, reason=reason)
 
         return Tags(**data)
 

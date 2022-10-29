@@ -47,4 +47,10 @@ def ensure_no_stdout(capfd):
 
 @pytest.fixture(scope="session")
 def channel(fake_client):
-    return interactions.Channel(id=123456789, _client=fake_client._http)
+    ch = interactions.Channel(id=123456789, guild_id=987654321, _client=fake_client._http)
+    ch.available_tags = []
+    fake_client._http.cache[interactions.Channel].add(ch)
+    return ch
+
+
+# todo test get func
