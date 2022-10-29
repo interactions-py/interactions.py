@@ -1552,12 +1552,9 @@ class Client:
 
         Unlike event decorators, this is not persistent, and can be used to only proceed in a command once an event happens.
 
-        :param name: The event to wait for
-        :type name: str
-        :param check: A function or coroutine to call, which should return a truthy value if the data should be returned
-        :type check: Callable
-        :param timeout: How long to wait for the event before raising an error
-        :type timeout: float
+        :param str name: The event to wait for
+        :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param float timeout: How long to wait for the event before raising an error
         :return: The value of the dispatched event
         :rtype: Any
         """
