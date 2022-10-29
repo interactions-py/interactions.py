@@ -94,7 +94,7 @@ class Listener:
         :return: A future that will be resolved on the next event dispatch with the data given
         :rtype: asyncio.Future
         """
-        fut = get_event_loop().create_future()
+        fut = self.loop.create_future()
         futures = self.extra_events.get(name, [])
         futures.append(fut)
         self.extra_events[name] = futures
