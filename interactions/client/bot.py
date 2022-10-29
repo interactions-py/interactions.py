@@ -2,19 +2,20 @@ import contextlib
 import logging
 import re
 import sys
-from asyncio import AbstractEventLoop, CancelledError, get_event_loop, iscoroutinefunction
+from asyncio import AbstractEventLoop, CancelledError, get_event_loop, iscoroutinefunction, wait_for
 from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
-from inspect import getmembers
+from inspect import getmembers, isawaitable
 from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
+from typing import Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
+from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.team import Application
@@ -22,10 +23,11 @@ from ..api.models.user import User
 from ..base import get_logger
 from ..utils.attrs_utils import convert_list
 from ..utils.missing import MISSING
+from .context import ComponentContext
 from .decor import component as _component
 from .enums import ApplicationCommandType, Locale, OptionType
 from .models.command import ApplicationCommand, Choice, Command, Option
-from .models.component import Button, Modal, SelectMenu
+from .models.component import ActionRow, Button, Modal, SelectMenu
 
 log: logging.Logger = get_logger("client")
 
@@ -1538,6 +1540,121 @@ class Client:
     async def _logout(self) -> None:
         await self._websocket.close()
         await self._http._req.close()
+
+    async def wait_for(
+        self,
+        name: str,
+        check: Optional[Callable[..., Union[bool, Awaitable[bool]]]] = None,
+        timeout: Optional[float] = None,
+    ) -> Any:
+        """
+        Waits for an event once, and returns the result.
+
+        Unlike event decorators, this is not persistent, and can be used to only proceed in a command once an event happens.
+
+        :param name: The event to wait for
+        :type name: str
+        :param check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :type check: Callable
+        :param timeout: How long to wait for the event before raising an error
+        :type timeout: float
+        :return: The value of the dispatched event
+        :rtype: Any
+        """
+        while True:
+            fut = self._websocket._dispatch.add(name=name)
+            try:
+                # asyncio's wait_for
+                res: tuple = await wait_for(fut, timeout=timeout)
+            except TimeoutError:
+                with contextlib.suppress(ValueError):
+                    self._websocket._dispatch.extra_events[name].remove(fut)
+                raise
+
+            if check:
+                checked = check(*res)
+                if isawaitable(checked):
+                    checked = await checked
+                if checked:
+                    break
+                else:
+                    # The check failed, so try again next time
+                    log.info(f"A check failed waiting for the {name} event")
+
+        if res:
+            return res[0] if len(res) == 1 else res
+
+    async def wait_for_component(
+        self,
+        components: Union[
+            Union[str, Button, SelectMenu],
+            List[Union[str, Button, SelectMenu]],
+        ] = None,
+        messages: Union[Message, int, List[Union[Message, int]]] = None,
+        check: Optional[Callable[..., Union[bool, Awaitable[bool]]]] = None,
+        timeout: Optional[float] = None,
+    ):
+        """
+        Waits for a component to be interacted with, and returns the resulting context.
+
+        :param components: The component(s) to wait for
+        :type components: Union[str, interactions.Button, interactions.SelectMenu, List[Union[str, interactions.Button, interactions.SelectMenu]]]
+        :param messages: The message(s) to check for
+        :type messages: Union[interactions.Message, int, List[Union[interactions.Message, int]]]
+        :param check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :type check: Callable
+        :param timeout: How long to wait for the event before raising an error
+        :type timeout: float
+        :return: The ComponentContext of the dispatched event
+        :rtype: interactions.ComponentContext
+        """
+        custom_ids: List[str] = []
+        messages_ids: List[int] = []
+
+        if components:
+            if isinstance(components, list):
+                for component in components:
+                    if isinstance(component, (Button, SelectMenu)):
+                        custom_ids.append(component.custom_id)
+                    elif isinstance(component, ActionRow):
+                        custom_ids.extend([c.custom_id for c in component.components])
+                    elif isinstance(component, list):
+                        for c in component:
+                            if isinstance(c, (Button, SelectMenu)):
+                                custom_ids.append(c.custom_id)
+                            elif isinstance(c, ActionRow):
+                                custom_ids.extend([b.custom_id for b in c.components])
+                            elif isinstance(c, str):
+                                custom_ids.append(c)
+                    elif isinstance(component, str):
+                        custom_ids.append(component)
+            elif isinstance(components, (Button, SelectMenu)):
+                custom_ids.append(components.custom_id)
+            elif isinstance(components, ActionRow):
+                custom_ids.extend([c.custom_id for c in components.components])  # noqa
+            elif isinstance(components, str):
+                custom_ids.append(components)
+
+        if messages:
+            if isinstance(messages, Message):
+                messages_ids.append(int(messages.id))
+            elif isinstance(messages, list):
+                for message in messages:
+                    if isinstance(message, Message):
+                        messages_ids.append(int(message.id))
+                    else:
+                        messages_ids.append(int(message))
+            else:  # account for plain ints, string, or Snowflakes
+                messages_ids.append(int(messages))
+
+        def _check(ctx: ComponentContext) -> bool:
+            if custom_ids and ctx.data.custom_id not in custom_ids:
+                return False
+            if messages_ids and int(ctx.message.id) not in messages_ids:
+                return False
+            return check(ctx) if check else True
+
+        return await self.wait_for("on_component", check=_check, timeout=timeout)
 
 
 # TODO: Implement the rest of cog behaviour when possible.
