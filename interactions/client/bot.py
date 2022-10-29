@@ -1594,14 +1594,10 @@ class Client:
         """
         Waits for a component to be interacted with, and returns the resulting context.
 
-        :param components: The component(s) to wait for
-        :type components: Union[str, interactions.Button, interactions.SelectMenu, List[Union[str, interactions.Button, interactions.SelectMenu]]]
-        :param messages: The message(s) to check for
-        :type messages: Union[interactions.Message, int, List[Union[interactions.Message, int]]]
-        :param check: A function or coroutine to call, which should return a truthy value if the data should be returned
-        :type check: Callable
-        :param timeout: How long to wait for the event before raising an error
-        :type timeout: float
+        :param Union[str, interactions.Button, interactions.SelectMenu, List[Union[str, interactions.Button, interactions.SelectMenu]]] components: The component(s) to wait for
+        :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
+        :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param float timeout: How long to wait for the event before raising an error
         :return: The ComponentContext of the dispatched event
         :rtype: interactions.ComponentContext
         """
