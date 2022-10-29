@@ -43,8 +43,7 @@ class Storage(Generic[_T]):
     def __init__(self, limit: Optional[int] = float("inf")) -> None:
         """
 
-        :param limit: The maximum number of items to store
-        :type limit: Optional[int]
+        :param Optional[int] limit: The maximum number of items to store
         """
         self.values: interactions.LRUDict["Key", _T] = interactions.LRUDict(max_items=limit)
 
