@@ -1568,15 +1568,16 @@ class Client:
                     self._websocket._dispatch.extra_events[name].remove(fut)
                 raise
 
-            if check:
-                checked = check(*res)
-                if isawaitable(checked):
-                    checked = await checked
-                if checked:
-                    break
-                else:
-                    # The check failed, so try again next time
-                    log.info(f"A check failed waiting for the {name} event")
+            if not check:
+                break
+            checked = check(*res)
+            if isawaitable(checked):
+                checked = await checked
+            if checked:
+                break
+            else:
+                # The check failed, so try again next time
+                log.info(f"A check failed waiting for the {name} event")
 
         if res:
             return res[0] if len(res) == 1 else res
@@ -1648,6 +1649,11 @@ class Client:
             return check(ctx) if check else True
 
         return await self.wait_for("on_component", check=_check, timeout=timeout)
+
+    def wait_for_modal(
+        self,
+    ):
+        ...
 
 
 # TODO: Implement the rest of cog behaviour when possible.
