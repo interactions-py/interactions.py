@@ -24,7 +24,7 @@ from zlib import decompressobj
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 
 from ...base import __version__, get_logger
-from ...client.enums import InteractionType, OptionType
+from ...client.enums import InteractionType,ComponentType, OptionType
 from ...client.models import Option
 from ...utils.missing import MISSING
 from ..dispatch import Listener
@@ -90,6 +90,7 @@ class WebSocketClient:
     __slots__ = (
         "_loop",
         "_dispatch",
+        "__unavailable_guilds",
         "_ratelimiter",
         "_http",
         "_client",
@@ -122,6 +123,8 @@ class WebSocketClient:
         intents: Intents,
         session_id: Optional[str] = MISSING,
         sequence: Optional[int] = MISSING,
+        shards: Optional[List[Tuple[int]]] = MISSING,
+        presence: Optional[ClientPresence] = MISSING,
     ) -> None:
         """
         :param token: The token of the application for connecting to the Gateway.
@@ -132,12 +135,17 @@ class WebSocketClient:
         :type session_id?: Optional[str]
         :param sequence?: The identifier sequence if trying to reconnect. Defaults to ``None``.
         :type sequence?: Optional[int]
+        :param shards?: The list of shards for the application's initial connection, if provided. Defaults to ``None``.
+        :type shards?: Optional[List[Tuple[int]]]
+        :param presence?: The presence shown on an application once first connected. Defaults to ``None``.
+        :type presence?: Optional[ClientPresence]
         """
         try:
             self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
         except RuntimeError:
             self._loop = new_event_loop()
         self._dispatch: Listener = Listener()
+        self.__unavailable_guilds = []
 
         self._ratelimiter = (
             WSRateLimit(loop=self._loop) if version_info < (3, 10) else WSRateLimit()
@@ -161,8 +169,8 @@ class WebSocketClient:
         }
 
         self._intents: Intents = intents
-        self.__shard: Optional[List[Tuple[int]]] = None
-        self.__presence: Optional[ClientPresence] = None
+        self.__shard: Optional[List[Tuple[int]]] = None if shards is MISSING else shards
+        self.__presence: Optional[ClientPresence] = None if presence is MISSING else presence
 
         self._task: Optional[Task] = None
         self.__heartbeat_event = Event(loop=self._loop) if version_info < (3, 10) else Event()
@@ -316,6 +324,7 @@ class WebSocketClient:
             self.ready.set()
             self._dispatch.dispatch("on_ready")
             self._ready = data
+            self.__unavailable_guilds = [i["id"] for i in data["guilds"]]
             self.session_id = data["session_id"]
             self.resume_url = data["resume_gateway_url"]
             if not self.__started:
