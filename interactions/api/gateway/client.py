@@ -396,15 +396,16 @@ class WebSocketClient:
             _name = f"component_{_context.data.custom_id}"
 
             if _context.data._json.get("values"):
-                __args.append(_context.data.values)
-            else:
-                _list = []  # temp storage for items
-                for value in _context.data._json.get("values"):
-                    _data = self.__select_option_type_context(
-                        _context, _context.data.component_type.value
-                    )  # resolved.
-                    _list.append(_data[value])
-                __args.append(_list)
+                if _context.data.component_type.value not in {5, 6, 7, 8}:
+                    __args.append(_context.data.values)
+                else:
+                    _list = []  # temp storage for items
+                    for value in _context.data._json.get("values"):
+                        _data = self.__select_option_type_context(
+                            _context, _context.data.component_type.value
+                        )  # resolved.
+                        _list.append(_data[value])
+                    __args.append(_list)
 
             self._dispatch.dispatch("on_component", _context)
         elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
