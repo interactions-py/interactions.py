@@ -908,9 +908,9 @@ class WebSocketClient:
             _resolved = context.data.resolved.roles
         elif type == ComponentType.MENTIONABLE_SELECT.value:
             if (
-                    users := context.data.resolved.members
-                    if context.guild_id
-                    else context.data.resolved.users
+                users := context.data.resolved.members
+                if context.guild_id
+                else context.data.resolved.users
             ):
                 _resolved.update(**users)
             if roles := context.data.resolved.roles:
