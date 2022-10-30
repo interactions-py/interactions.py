@@ -883,6 +883,40 @@ class WebSocketClient:
             }
         return _resolved
 
+    def __select_option_type_context(self, context: "_Context", type: int) -> dict:
+        """
+        Looks up the type of select menu respective to the existing option types. This is applicable for non-string
+        select menus.
+        :param context: The context to refer types from.
+        :type context: object
+        :param type: The option type.
+        :type type: int
+        :return: The select menu type context.
+        :rtype: dict
+        """
+
+        _resolved = {}
+
+        if type == ComponentType.USER_SELECT.value:
+            _resolved = (
+                context.data.resolved.members if context.guild_id else context.data.resolved.users
+            )
+        elif type == ComponentType.CHANNEL_SELECT.value:
+            _resolved = context.data.resolved.channels
+        elif type == ComponentType.ROLE_SELECT.value:
+            _resolved = context.data.resolved.roles
+        elif type == ComponentType.MENTIONABLE_SELECT.value:
+            if (
+                    users := context.data.resolved.members
+                    if context.guild_id
+                    else context.data.resolved.users
+            ):
+                _resolved.update(**users)
+            if roles := context.data.resolved.roles:
+                _resolved.update(**roles)
+
+        return _resolved
+
     async def _reconnect(self, to_resume: bool, code: Optional[int] = 1012) -> None:
         """
         Restarts the client's connection and heartbeat with the Gateway.
