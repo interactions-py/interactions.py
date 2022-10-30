@@ -887,6 +887,7 @@ class WebSocketClient:
         """
         Looks up the type of select menu respective to the existing option types. This is applicable for non-string
         select menus.
+
         :param context: The context to refer types from.
         :type context: object
         :param type: The option type.
