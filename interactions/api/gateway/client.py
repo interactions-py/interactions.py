@@ -24,7 +24,7 @@ from zlib import decompressobj
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 
 from ...base import __version__, get_logger
-from ...client.enums import InteractionType,ComponentType, OptionType
+from ...client.enums import ComponentType, InteractionType, OptionType
 from ...client.models import Option
 from ...utils.missing import MISSING
 from ..dispatch import Listener
