@@ -1600,7 +1600,7 @@ class Client:
         :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param float timeout: How long to wait for the event before raising an error
         :return: The ComponentContext of the dispatched event
-        :rtype: interactions.ComponentContext
+        :rtype: ComponentContext
         """
         custom_ids: List[str] = []
         messages_ids: List[int] = []
