@@ -1591,7 +1591,7 @@ class Client:
         messages: Union[Message, int, List[Union[Message, int]]] = None,
         check: Optional[Callable[..., Union[bool, Awaitable[bool]]]] = None,
         timeout: Optional[float] = None,
-    ):
+    ) -> ComponentContext:
         """
         Waits for a component to be interacted with, and returns the resulting context.
 
