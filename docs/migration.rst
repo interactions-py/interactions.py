@@ -227,3 +227,8 @@ your option name! Example:
         ctx, opt1: str, hi: int, opt3: interactions.Channel = None
     ):
         ...
+
+4.3.4 → 4.4.0
+~~~~~~~~~~~~~~~
+
+The ``Color`` class was refactored into an enum. You may now access its contents via ``interactions.Color.COLOR``.

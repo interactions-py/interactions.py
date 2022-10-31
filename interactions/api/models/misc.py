@@ -260,10 +260,9 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     mention_total_limit: Optional[int] = field(default=None)
 
 
-class Color:
+class Color(IntEnum):
     """
     An object representing Discord branding colors.
-
     .. note::
         This object only intends to cover the branding colors
         and no others. The main reason behind this is due to
@@ -271,44 +270,13 @@ class Color:
         custom-defined colors.
     """
 
-    @staticmethod
-    def blurple() -> int:
-        """Returns a hexadecimal value of the blurple color."""
-        return 0x5865F2
-
-    @staticmethod
-    def green() -> int:
-        """Returns a hexadecimal value of the green color."""
-        return 0x57F287
-
-    @staticmethod
-    def yellow() -> int:
-        """Returns a hexadecimal value of the yellow color."""
-        return 0xFEE75C
-
-    @staticmethod
-    def fuchsia() -> int:
-        """Returns a hexadecimal value of the fuchsia color."""
-        return 0xEB459E
-
-    @staticmethod
-    def red() -> int:
-        """Returns a hexadecimal value of the red color."""
-        return 0xED4245
-
-    # I can't imagine any bot developers actually using these.
-    # If they don't know white is ff and black is 00, something's seriously
-    # wrong.
-
-    @staticmethod
-    def white() -> int:
-        """Returns a hexadecimal value of the white color."""
-        return 0xFFFFFF
-
-    @staticmethod
-    def black() -> int:
-        """Returns a hexadecimal value of the black color."""
-        return 0x000000
+    BLURPLE = 0x5865F2
+    GREEN = 0x57F287
+    YELLOW = 0xFEE75C
+    FUCHSIA = 0xEB459E
+    RED = 0xED4245
+    WHITE = 0xFFFFFF
+    BLACK = 0x000000
 
 
 class File:

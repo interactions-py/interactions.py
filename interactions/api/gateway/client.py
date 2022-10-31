@@ -90,6 +90,7 @@ class WebSocketClient:
     __slots__ = (
         "_loop",
         "_dispatch",
+        "__unavailable_guilds",
         "_ratelimiter",
         "_http",
         "_client",
@@ -138,6 +139,7 @@ class WebSocketClient:
         except RuntimeError:
             self._loop = new_event_loop()
         self._dispatch: Listener = Listener()
+        self.__unavailable_guilds = []
 
         self._ratelimiter = (
             WSRateLimit(loop=self._loop) if version_info < (3, 10) else WSRateLimit()
@@ -315,6 +317,7 @@ class WebSocketClient:
             self.ready.set()
             self._dispatch.dispatch("on_ready")
             self._ready = data
+            self.__unavailable_guilds = [i["id"] for i in data["guilds"]]
             self.session_id = data["session_id"]
             self.resume_url = data["resume_gateway_url"]
             if not self.__started:
@@ -373,11 +376,13 @@ class WebSocketClient:
                         if _context.data.component_type.value not in {5, 6, 7, 8}:
                             __args.append(_context.data.values)
                         else:
+                            _list = []  # temp storage for items
                             for value in _context.data._json.get("values"):
                                 _data = self.__select_option_type_context(
                                     _context, _context.data.component_type.value
                                 )  # resolved.
-                                __args.append(_data[value])
+                                _list.append(_data[value])
+                            __args.append(_list)
 
                     self._dispatch.dispatch("on_component", _context)
                 elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
@@ -458,7 +463,11 @@ class WebSocketClient:
 
                 guild_obj = guild_model = None
                 if model is GuildRole:
-                    guild_obj = Role(**role_data) if (role_data := data.get("role")) else None
+                    guild_obj = (
+                        Role(**role_data, _client=self._http)
+                        if (role_data := data.get("role"))
+                        else None
+                    )
                     guild_model = Role
                 elif model is GuildMember:
                     guild_obj = Member(**data)
@@ -473,6 +482,12 @@ class WebSocketClient:
                     ids = self.__get_object_ids(obj, model)
 
                 if "_create" in name or "_add" in name:
+                    if name == "guild_create":
+                        if id and str(id) in self.__unavailable_guilds:
+                            self.__unavailable_guilds.remove(str(id))
+                        else:
+                            self._dispatch.dispatch("on_guild_join", obj)
+
                     self._dispatch.dispatch(f"on_{name}", obj)
 
                     if id:
@@ -850,14 +865,15 @@ class WebSocketClient:
         elif type == ComponentType.ROLE_SELECT.value:
             _resolved = context.data.resolved.roles
         elif type == ComponentType.MENTIONABLE_SELECT.value:
-            _resolved = {
-                **(
-                    context.data.resolved.members
-                    if context.guild_id
-                    else context.data.resolved.users
-                ),
-                **context.data.resolved.roles,
-            }
+            if (
+                users := context.data.resolved.members
+                if context.guild_id
+                else context.data.resolved.users
+            ):
+                _resolved.update(**users)
+            if roles := context.data.resolved.roles:
+                _resolved.update(**roles)
+
         return _resolved
 
     async def _reconnect(self, to_resume: bool, code: Optional[int] = 1012) -> None:

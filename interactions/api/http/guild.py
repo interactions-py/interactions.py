@@ -277,7 +277,8 @@ class GuildRequest:
         if icon:
             payload["icon"] = icon
         return await self._req.request(
-            Route("POST", f"/guilds/templates/{template_code}", json=payload)
+            Route("POST", f"/guilds/templates/{template_code}"),
+            json=payload,
         )
 
     async def get_guild_templates(self, guild_id: int) -> List[dict]:
