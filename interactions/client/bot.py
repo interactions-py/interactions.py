@@ -1386,6 +1386,7 @@ class Client:
         else:
             log.debug(f"Loaded extension {name}.")
             self._extensions[_name] = module
+            del sys.modules[name]
             return extension
 
     def remove(
