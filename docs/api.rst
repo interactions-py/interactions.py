@@ -37,6 +37,12 @@ This page outlines the API reference of interactions.py.
 
 .. toctree::
     :maxdepth: 1
+    :caption: HTTP
+
+    api.http.rst
+
+.. toctree::
+    :maxdepth: 1
     :caption: External Framework
 
     ext.rst

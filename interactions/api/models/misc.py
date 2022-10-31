@@ -263,6 +263,7 @@ class AutoModTriggerMetadata(DictSerializerMixin):
 class Color(IntEnum):
     """
     An object representing Discord branding colors.
+
     .. note::
         This object only intends to cover the branding colors
         and no others. The main reason behind this is due to

@@ -1,3 +1,5 @@
+:nosearch:
+
 .. currentmodule:: interactions
 
 HTTP
