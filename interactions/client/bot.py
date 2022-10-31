@@ -1655,15 +1655,15 @@ class Client:
         modals: Union[Modal, str, List[Union[Modal, str]]],
         check: Optional[Callable[[CommandContext], bool]] = None,
         timeout: Optional[float] = None,
-    ):
+    ) -> Tuple[CommandContext, List[str]]:
         """
         Waits for a modal to be interacted with, and returns the resulting context.
 
         :param Union[Modal, str, List[Modal, str]] modals: The modal(s) to wait for
         :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param Optional[float] timeout: How long to wait for the event before raising an error
-        :return: The context of the modal
-        :rtype: CommandContext
+        :return: The context of the modal, followed by the data the user inputted
+        :rtype: tuple[CommandContext, list[str]]
         """
         ids: List[str] = []
 
@@ -1695,7 +1695,7 @@ class Client:
                 data = actionrow.components[0].value
                 fields.append(data)
 
-        return ctx, *fields
+        return ctx, fields
 
 
 # TODO: Implement the rest of cog behaviour when possible.
