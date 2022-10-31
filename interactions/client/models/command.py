@@ -860,8 +860,7 @@ class Command(DictSerializerMixin):
             if has_args:  # foo(ctx, ..., *args, ..., **kwargs) OR foo(ctx, *args, ...)
                 return await _coro(
                     ctx,
-                    # pos before *args
-                    *(kwargs[opt] for opt in par_opts if opt in kwargs),
+                    *(kwargs[opt] for opt in par_opts if opt in kwargs),  # pos before *args
                     *args,
                     *(
                         kwargs[opt]
