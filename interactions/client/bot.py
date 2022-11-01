@@ -1595,6 +1595,9 @@ class Client:
         """
         Waits for a component to be interacted with, and returns the resulting context.
 
+        .. note::
+            If you are waiting for a select menu, you can find the selected values in ``ctx.data.values``
+
         :param Union[str, interactions.Button, interactions.SelectMenu, List[Union[str, interactions.Button, interactions.SelectMenu]]] components: The component(s) to wait for
         :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
         :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
@@ -1657,7 +1660,15 @@ class Client:
         timeout: Optional[float] = None,
     ) -> Tuple[CommandContext, List[str]]:
         """
-        Waits for a modal to be interacted with, and returns the resulting context.
+        Waits for a modal to be interacted with, and returns the resulting context and submitted data.
+
+        .. note::
+            This function returns both the context of the modal and the data the user input.
+            The recommended way to use it is to do:
+            ``modal_ctx, fields = await bot.wait_for_modal(...)``
+
+            Alternatively, to get the fields immediately, you can do:
+            ``modal_ctx, (field1, field2, ...) = await bot.wait_for_modal(...)``
 
         :param Union[Modal, str, List[Modal, str]] modals: The modal(s) to wait for
         :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
