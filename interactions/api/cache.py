@@ -40,10 +40,12 @@ class Storage(Generic[_T]):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object containing {len(self.values)} items.>"
 
-    def __init__(self, limit: Optional[int] = float("inf")) -> None:
+    def __init__(self, limit: Optional[int] = None) -> None:
         """
         :param Optional[int] limit: The maximum number of items to store
         """
+        if not limit:
+            limit = float("inf")
         self.values: interactions.LRUDict["Key", _T] = interactions.LRUDict(max_items=limit)
 
     def merge(self, item: _T, id: Optional["Key"] = None) -> None:
