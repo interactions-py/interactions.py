@@ -1599,9 +1599,17 @@ class Client:
         Waits for a component to be interacted with, and returns the resulting context.
 
         .. note::
-            If you are waiting for a select menu, you can find the selected values in ``ctx.data.values``
+            If you are waiting for a select menu, you can find the selected values in ``ctx.data.values``.
+            Another possibility is using the meth:`self.wait_for_select` method like this:
 
-        :param Union[str, interactions.Button, interactions.SelectMenu, List[Union[str, interactions.Button, interactions.SelectMenu]]] components: The component(s) to wait for
+            .. code-block:: python
+                ctx, values = await bot.wait_for_select(custom_id)
+
+            In this case ``ctx`` will be your normal context and ``values`` will be a list of :class:`str`, :class:`Member`, :class:`User`, :class:`Channel` or :class:`Role`
+            depending on which select type you reveived.
+
+
+        :param Union[str, Button, SelectMenu, List[Union[str, Button, SelectMenu]]] components: The component(s) to wait for
         :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
         :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param float timeout: How long to wait for the event before raising an error
@@ -1659,8 +1667,8 @@ class Client:
     async def wait_for_select(
         self,
         components: Union[
-            Union[str, Button],
-            List[Union[str, Button]],
+            Union[str, SelectMenu],
+            List[Union[str, SelectMenu]],
         ] = None,
         messages: Union[Message, int, List[Union[Message, int]]] = None,
         check: Optional[Callable[..., Union[bool, Awaitable[bool]]]] = None,
@@ -1670,7 +1678,7 @@ class Client:
         Waits for a select menu to be interacted with, and returns the resulting context and a list of the selected values.
 
 
-        :param Union[str, interactions.SelectMenu, List[Union[str, interactions.SelectMenu]]] components: The component(s) to wait for
+        :param Union[str, SelectMenu, List[Union[str, SelectMenu]]] components: The component(s) to wait for
         :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
         :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param float timeout: How long to wait for the event before raising an error
