@@ -91,6 +91,8 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if not self._client:
             raise LibraryException(code=13)
+            
+        from .guild import Guild
 
         if self.roles:
             for guild in self._client.cache[Guild].values.values():
