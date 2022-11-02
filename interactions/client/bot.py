@@ -1600,16 +1600,7 @@ class Client:
 
         .. note::
             If you are waiting for a select menu, you can find the selected values in ``ctx.data.values``.
-            Another possibility is using the :meth:`self.wait_for_select` method like this:
-
-            .. code-block:: python
-
-                ctx, values = await bot.wait_for_select(custom_id)
-
-
-            In this case ``ctx`` will be your normal context and ``values`` will be a list of :class:`str`, :class:`Member`, :class:`User`, :class:`Channel` or :class:`Role` objects,
-            depending on which select type you received.
-
+            Another possibility is using the :meth:`.Client.wait_for_select` method.
 
         :param Union[str, Button, SelectMenu, List[Union[str, Button, SelectMenu]]] components: The component(s) to wait for
         :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
@@ -1678,6 +1669,15 @@ class Client:
     ) -> Tuple[ComponentContext, List[Union[str, Member, User, Role, Channel]]]:
         """
         Waits for a select menu to be interacted with, and returns the resulting context and a list of the selected values.
+
+        The method can be used like this:
+
+        .. code-block:: python
+
+            ctx, values = await bot.wait_for_select(custom_id)
+
+        In this case ``ctx`` will be your normal context and ``values`` will be a list of :class:`str`, :class:`.Member`, :class:`.User`, :class:`.Channel` or :class:`.Role` objects,
+        depending on which select type you received.
 
 
         :param Union[str, SelectMenu, List[Union[str, SelectMenu]]] components: The component(s) to wait for
