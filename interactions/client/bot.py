@@ -1608,7 +1608,7 @@ class Client:
 
 
             In this case ``ctx`` will be your normal context and ``values`` will be a list of :class:`str`, :class:`Member`, :class:`User`, :class:`Channel` or :class:`Role` objects,
-            depending on which select type you reveived.
+            depending on which select type you received.
 
 
         :param Union[str, Button, SelectMenu, List[Union[str, Button, SelectMenu]]] components: The component(s) to wait for
