@@ -1685,66 +1685,26 @@ class Client:
         :return: The ComponentContext and list of selections of the dispatched event
         :rtype: Tuple[ComponentContext, Union[List[str], List[Member], List[User], List[Channel], List[Role]]]
         """
-        custom_ids: List[str] = []
-        messages_ids: List[int] = []
-
-        if components:
-            if isinstance(components, list):
-                for component in components:
-                    if isinstance(component, SelectMenu):
-                        custom_ids.append(component.custom_id)
-                    elif isinstance(component, ActionRow):
-                        custom_ids.extend([c.custom_id for c in component.components])
-                    elif isinstance(component, list):
-                        for c in component:
-                            if isinstance(c, SelectMenu):
-                                custom_ids.append(c.custom_id)
-                            elif isinstance(c, ActionRow):
-                                custom_ids.extend([s.custom_id for s in c.components])
-                            elif isinstance(c, str):
-                                custom_ids.append(c)
-                    elif isinstance(component, str):
-                        custom_ids.append(component)
-            elif isinstance(components, SelectMenu):
-                custom_ids.append(components.custom_id)
-            elif isinstance(components, ActionRow):
-                custom_ids.extend([c.custom_id for c in components.components])  # noqa
-            elif isinstance(components, str):
-                custom_ids.append(components)
-
-        if messages:
-            if isinstance(messages, Message):
-                messages_ids.append(int(messages.id))
-            elif isinstance(messages, list):
-                for message in messages:
-                    if isinstance(message, Message):
-                        messages_ids.append(int(message.id))
-                    else:
-                        messages_ids.append(int(message))
-            else:  # account for plain ints, string, or Snowflakes
-                messages_ids.append(int(messages))
 
         def _check(_ctx: ComponentContext) -> bool:
-            if custom_ids and _ctx.data.custom_id not in custom_ids:
-                return False
-            if messages_ids and int(_ctx.message.id) not in messages_ids:
-                return False
             if _ctx.data.component_type.value not in {4, 5, 6, 7, 8}:
                 return False
             return check(_ctx) if check else True
 
-        ctx: ComponentContext = await self.wait_for("on_component", check=_check, timeout=timeout)
+        ctx: ComponentContext = await self.wait_for_component(
+            components, messages, check=_check, timeout=timeout
+        )
 
         if ctx.data.component_type == 4:
             return ctx, ctx.data.values
-        else:
-            _list = []  # temp storage for items
-            _data = self._websocket._WebSocketClient__select_option_type_context(
-                ctx, ctx.data.component_type.value
-            )  # resolved.
-            for value in ctx.data.values:
-                _list.append(_data[value])
-            return ctx, _list
+
+        _list = []  # temp storage for items
+        _data = self._websocket._WebSocketClient__select_option_type_context(
+            ctx, ctx.data.component_type.value
+        )  # resolved.
+        for value in ctx.data.values:
+            _list.append(_data[value])
+        return ctx, _list
 
     async def wait_for_modal(
         self,
