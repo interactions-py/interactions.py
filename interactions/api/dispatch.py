@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, get_event_loop
+from asyncio import AbstractEventLoop, Future, get_event_loop
 from logging import Logger
 from typing import Callable, Coroutine, Dict, List, Optional
 
@@ -17,24 +17,22 @@ class Listener:
     :ivar dict events: A list of events being dispatched.
     """
 
-    __slots__ = ("loop", "events")
+    __slots__ = ("loop", "events", "extra_events")
 
     def __init__(self) -> None:
         self.loop: AbstractEventLoop = get_event_loop()
         self.events: Dict[str, List[Callable[..., Coroutine]]] = {}
+        self.extra_events: Dict[str, List[Future]] = {}  # used in `Client.wait_for`
 
-    def dispatch(self, __name: str, *args, **kwargs) -> None:
+    def dispatch(self, name: str, /, *args, **kwargs) -> None:
         r"""
         Dispatches an event given out by the gateway.
 
-        :param __name: The name of the event to dispatch.
-        :type __name: str
-        :param *args: Multiple arguments of the coroutine.
-        :type *args: list[Any]
-        :param **kwargs: Keyword-only arguments of the coroutine.
-        :type **kwargs: dict
+        :param str name: The name of the event to dispatch.
+        :param list[Any] \*args: Multiple arguments of the coroutine.
+        :param dict \**kwargs: Keyword-only arguments of the coroutine.
         """
-        for event in self.events.get(__name, []):
+        for event in self.events.get(name, []):
             converters: dict
             if converters := getattr(event, "_converters", None):
                 _kwargs = kwargs.copy()
@@ -46,6 +44,23 @@ class Listener:
 
             self.loop.create_task(event(*args, **kwargs))
             log.debug(f"DISPATCH: {event}")
+
+        # wait_for events
+        futs = self.extra_events.get(name, [])
+        if not futs:
+            return
+
+        log.debug(f"Resolving {len(futs)} futures")
+
+        for fut in futs:
+            if fut.done():
+                log.debug(
+                    f"A future for the {name} event was already {'cancelled' if fut.cancelled() else 'resolved'}"
+                )
+            else:
+                fut.set_result(args)
+
+        self.extra_events[name] = []
 
     def register(self, coro: Callable[..., Coroutine], name: Optional[str] = None) -> None:
         """
@@ -66,3 +81,17 @@ class Listener:
 
         self.events[_name] = event
         log.debug(f"REGISTER: {self.events[_name]}")
+
+    def add(self, name: str) -> Future:
+        """
+        Returns a Future that will resolve whenever the supplied event is dispatched
+
+        :param str name: The event to listen for
+        :return: A future that will be resolved on the next event dispatch with the data given
+        :rtype: asyncio.Future
+        """
+        fut = self.loop.create_future()
+        futures = self.extra_events.get(name, [])
+        futures.append(fut)
+        self.extra_events[name] = futures
+        return fut
