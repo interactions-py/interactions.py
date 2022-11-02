@@ -1605,7 +1605,7 @@ class Client:
             .. code-block:: python
                 ctx, values = await bot.wait_for_select(custom_id)
 
-            In this case ``ctx`` will be your normal context and ``values`` will be a list of :class:`str`, :class:`Member`, :class:`User`, :class:`Channel` or :class:`Role`
+            In this case ``ctx`` will be your normal context and ``values`` will be a list of :class:`str`, :class:`Member`, :class:`User`, :class:`Channel` or :class:`Role` objects,
             depending on which select type you reveived.
 
 
