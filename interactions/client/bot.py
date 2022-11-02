@@ -1600,7 +1600,7 @@ class Client:
 
         .. note::
             If you are waiting for a select menu, you can find the selected values in ``ctx.data.values``.
-            Another possibility is using the meth:`self.wait_for_select` method like this:
+            Another possibility is using the :meth:`self.wait_for_select` method like this:
 
             .. code-block:: python
                 ctx, values = await bot.wait_for_select(custom_id)
