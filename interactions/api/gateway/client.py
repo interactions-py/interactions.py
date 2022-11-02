@@ -386,10 +386,10 @@ class WebSocketClient:
                             __args.append(_context.data.values)
                         else:
                             _list = []  # temp storage for items
+                            _data = self.__select_option_type_context(
+                                _context, _context.data.component_type.value
+                            )  # resolved.
                             for value in _context.data._json.get("values"):
-                                _data = self.__select_option_type_context(
-                                    _context, _context.data.component_type.value
-                                )  # resolved.
                                 _list.append(_data[value])
                             __args.append(_list)
 
