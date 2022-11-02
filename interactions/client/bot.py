@@ -13,11 +13,14 @@ from typing import Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Tu
 from ..api import WebSocketClient as WSClient
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
+from ..api.models.channel import Channel
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
+from ..api.models.member import Member
 from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
+from ..api.models.role import Role
 from ..api.models.team import Application
 from ..api.models.user import User
 from ..base import get_logger
@@ -1596,9 +1599,10 @@ class Client:
         Waits for a component to be interacted with, and returns the resulting context.
 
         .. note::
-            If you are waiting for a select menu, you can find the selected values in ``ctx.data.values``
+            If you are waiting for a select menu, you can find the selected values in ``ctx.data.values``.
+            Another possibility is using the :meth:`.Client.wait_for_select` method.
 
-        :param Union[str, interactions.Button, interactions.SelectMenu, List[Union[str, interactions.Button, interactions.SelectMenu]]] components: The component(s) to wait for
+        :param Union[str, Button, SelectMenu, List[Union[str, Button, SelectMenu]]] components: The component(s) to wait for
         :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
         :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param float timeout: How long to wait for the event before raising an error
@@ -1652,6 +1656,57 @@ class Client:
             return check(ctx) if check else True
 
         return await self.wait_for("on_component", check=_check, timeout=timeout)
+
+    async def wait_for_select(
+        self,
+        components: Union[
+            Union[str, SelectMenu],
+            List[Union[str, SelectMenu]],
+        ] = None,
+        messages: Union[Message, int, List[Union[Message, int]]] = None,
+        check: Optional[Callable[..., Union[bool, Awaitable[bool]]]] = None,
+        timeout: Optional[float] = None,
+    ) -> Tuple[ComponentContext, List[Union[str, Member, User, Role, Channel]]]:
+        """
+        Waits for a select menu to be interacted with, and returns the resulting context and a list of the selected values.
+
+        The method can be used like this:
+
+        .. code-block:: python
+
+            ctx, values = await bot.wait_for_select(custom_id)
+
+        In this case ``ctx`` will be your normal context and ``values`` will be a list of :class:`str`, :class:`.Member`, :class:`.User`, :class:`.Channel` or :class:`.Role` objects,
+        depending on which select type you received.
+
+
+        :param Union[str, SelectMenu, List[Union[str, SelectMenu]]] components: The component(s) to wait for
+        :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
+        :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param float timeout: How long to wait for the event before raising an error
+        :return: The ComponentContext and list of selections of the dispatched event
+        :rtype: Tuple[ComponentContext, Union[List[str], List[Member], List[User], List[Channel], List[Role]]]
+        """
+
+        def _check(_ctx: ComponentContext) -> bool:
+            if _ctx.data.component_type.value not in {4, 5, 6, 7, 8}:
+                return False
+            return check(_ctx) if check else True
+
+        ctx: ComponentContext = await self.wait_for_component(
+            components, messages, check=_check, timeout=timeout
+        )
+
+        if ctx.data.component_type == 4:
+            return ctx, ctx.data.values
+
+        _list = []  # temp storage for items
+        _data = self._websocket._WebSocketClient__select_option_type_context(
+            ctx, ctx.data.component_type.value
+        )  # resolved.
+        for value in ctx.data.values:
+            _list.append(_data[value])
+        return ctx, _list
 
     async def wait_for_modal(
         self,
