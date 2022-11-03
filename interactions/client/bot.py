@@ -1839,8 +1839,8 @@ class Extension:
                 for args, kwargs in all_args_kwargs:
                     func = client.autocomplete(*args, **kwargs)(func)
 
-                    name = kwargs.get("name") or args[0]
-                    _command = kwargs.get("command") or args[1]
+                    _command = kwargs.get("command") or args[0]
+                    name = kwargs.get("name") or args[1]
 
                     _command: Union[Snowflake, int] = (
                         _command.id if isinstance(_command, ApplicationCommand) else _command
