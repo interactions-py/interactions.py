@@ -2701,7 +2701,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         """
 
         _user_id = (
-            (user_id.id if isinstance(user_id, User) else user_id)
+            int(user_id.id if isinstance(user_id, User) else user_id)
             if user_id is not MISSING
             else None
         )
@@ -2745,7 +2745,7 @@ class Guild(ClientSerializerMixin, IDMixin):
                     "is the user ID and the second is the action type!",
                 )
 
-            _user = of[0].id if isinstance(of[0], (Member, User)) else of[0]
+            _user = int(of[0].id if isinstance(of[0], (Member, User)) else of[0])
             res = await self._client.get_guild_auditlog(
                 guild_id=int(self.id), user_id=_user, action_type=of[1]
             )
@@ -2758,7 +2758,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         else:
             if isinstance(of, (Member, User)):
                 of = of.id
-            res = await self._client.get_guild_auditlog(guild_id=int(self.id), user_id=of, limit=1)
+            res = await self._client.get_guild_auditlog(
+                guild_id=int(self.id), user_id=int(of), limit=1
+            )
 
         return AuditLogs(**res)
 
@@ -2780,7 +2782,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         _action_type = action_type if action_type is not MISSING else None
         _user_id = (
-            (user_id.id if isinstance(user_id, User) else user_id)
+            int(user_id.id if isinstance(user_id, User) else user_id)
             if user_id is not MISSING
             else None
         )

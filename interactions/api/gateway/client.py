@@ -90,6 +90,7 @@ class WebSocketClient:
     __slots__ = (
         "_loop",
         "_dispatch",
+        "__unavailable_guilds",
         "_ratelimiter",
         "_http",
         "_client",
@@ -146,6 +147,7 @@ class WebSocketClient:
         except RuntimeError:
             self._loop = new_event_loop()
         self._dispatch: Listener = Listener()
+        self.__unavailable_guilds = []
 
         self._ratelimiter = (
             WSRateLimit(loop=self._loop) if version_info < (3, 10) else WSRateLimit()
@@ -325,6 +327,7 @@ class WebSocketClient:
             self.ready.set()
             self._dispatch.dispatch("on_ready")
             self._ready = data
+            self.__unavailable_guilds = [i["id"] for i in data["guilds"]]
             self.session_id = data["session_id"]
             self.resume_url = data["resume_gateway_url"]
             if not self.__started:
@@ -386,10 +389,10 @@ class WebSocketClient:
                             __args.append(_context.data.values)
                         else:
                             _list = []  # temp storage for items
+                            _data = self.__select_option_type_context(
+                                _context, _context.data.component_type.value
+                            )  # resolved.
                             for value in _context.data._json.get("values"):
-                                _data = self.__select_option_type_context(
-                                    _context, _context.data.component_type.value
-                                )  # resolved.
                                 _list.append(_data[value])
                             __args.append(_list)
 
@@ -491,6 +494,12 @@ class WebSocketClient:
                     ids = self.__get_object_ids(obj, model)
 
                 if "_create" in name or "_add" in name:
+                    if name == "guild_create":
+                        if id and str(id) in self.__unavailable_guilds:
+                            self.__unavailable_guilds.remove(str(id))
+                        else:
+                            self._dispatch.dispatch("on_guild_join", obj)
+
                     self._dispatch.dispatch(f"on_{name}", obj)
 
                     if id:
