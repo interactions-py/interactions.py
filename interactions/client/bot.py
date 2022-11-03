@@ -1806,34 +1806,37 @@ class Extension:
         for name, func in getmembers(self, predicate=iscoroutinefunction):
             # TODO we can make these all share the same list, might make it easier to load/unload
             if hasattr(func, "__listener_name__"):  # set by extension_listener
-                func = client.event(
-                    func, name=func.__listener_name__
-                )  # capture the return value for friendlier ext-ing
+                all_listener_names: List[str] = func.__listener_name__
+                for listener_name in all_listener_names:
+                    func = client.event(
+                        func, name=listener_name
+                    )  # capture the return value for friendlier ext-ing
 
-                listeners = self._listeners.get(func.__listener_name__, [])
-                listeners.append(func)
-                self._listeners[func.__listener_name__] = listeners
+                    listeners = self._listeners.get(listener_name, [])
+                    listeners.append(func)
+                    self._listeners[listener_name] = listeners
 
             if hasattr(func, "__component_data__"):
-                args, kwargs = func.__component_data__
-                func = client.component(*args, **kwargs)(func)
+                if hasattr(func, "__component_data__"):
+                    all_component_data: List[Tuple[tuple, dict]] = func.__component_data__
+                    for args, kwargs in all_component_data:
+                        func = client.component(*args, **kwargs)(func)
 
-                component = kwargs.get("component") or args[0]
-                comp_name = (
-                    _component(component).custom_id
-                    if isinstance(component, (Button, SelectMenu))
-                    else component
-                )
-                comp_name = f"component_{comp_name}"
+                        component = kwargs.get("component") or args[0]
+                        comp_name = (
+                            _component(component).custom_id
+                            if isinstance(component, (Button, SelectMenu))
+                            else component
+                        )
+                        comp_name = f"component_{comp_name}"
 
-                listeners = self._listeners.get(comp_name, [])
-                listeners.append(func)
-                self._listeners[comp_name] = listeners
+                        listeners = self._listeners.get(comp_name, [])
+                        listeners.append(func)
+                        self._listeners[comp_name] = listeners
 
             if hasattr(func, "__autocomplete_data__"):
                 all_args_kwargs = func.__autocomplete_data__
-                for _ in all_args_kwargs:
-                    args, kwargs = _[0], _[1]
+                for args, kwargs in all_args_kwargs:
                     func = client.autocomplete(*args, **kwargs)(func)
 
                     name = kwargs.get("name") or args[0]
@@ -1850,16 +1853,17 @@ class Extension:
                     self._listeners[auto_name] = listeners
 
             if hasattr(func, "__modal_data__"):
-                args, kwargs = func.__modal_data__
-                func = client.modal(*args, **kwargs)(func)
+                all_modal_data: List[Tuple[tuple, dict]] = func.__modal_data__
+                for args, kwargs in all_modal_data:
+                    func = client.modal(*args, **kwargs)(func)
 
-                modal = kwargs.get("modal") or args[0]
-                _modal_id: str = modal.custom_id if isinstance(modal, Modal) else modal
-                modal_name = f"modal_{_modal_id}"
+                    modal = kwargs.get("modal") or args[0]
+                    _modal_id: str = modal.custom_id if isinstance(modal, Modal) else modal
+                    modal_name = f"modal_{_modal_id}"
 
-                listeners = self._listeners.get(modal_name, [])
-                listeners.append(func)
-                self._listeners[modal_name] = listeners
+                    listeners = self._listeners.get(modal_name, [])
+                    listeners.append(func)
+                    self._listeners[modal_name] = listeners
 
         for _, cmd in getmembers(self, predicate=lambda command: isinstance(command, Command)):
             cmd: Command
@@ -1923,14 +1927,15 @@ def extension_command(**kwargs) -> Callable[[Callable[..., Coroutine]], Command]
 
 def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = None):
     def decorator(func: Coroutine):
-        func.__listener_name__ = name or func.__name__
+        if not hasattr(func, "__listener_name__"):
+            func.__listener_name__ = []
+        func.__listener_name__.append(name or func.__name__)
 
         return func
 
     if func:
         # allows omitting `()` on `@listener`
-        func.__listener_name__ = name or func.__name__
-        return func
+        return decorator(func)
 
     return decorator
 
@@ -1938,7 +1943,10 @@ def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = N
 @wraps(Client.component)
 def extension_component(*args, **kwargs):
     def decorator(func):
-        func.__component_data__ = (args, kwargs)
+        if not hasattr(func, "__component_data__"):
+            func.__component_data__ = []
+        func.__component_data__.append((args, kwargs))
+
         return func
 
     return decorator
@@ -1947,13 +1955,11 @@ def extension_component(*args, **kwargs):
 @wraps(Client.autocomplete)
 def extension_autocomplete(*args, **kwargs):
     def decorator(func):
-        try:
-            if getattr(func, "__autocomplete_data__"):
-                func.__autocomplete_data__.append((args, kwargs))
-        except AttributeError:
-            func.__autocomplete_data__ = [(args, kwargs)]
-        finally:
-            return func
+        if not hasattr(func, "__autocomplete_data__"):
+            func.__autocomplete_data__ = []
+        func.__autocomplete_data__.append((args, kwargs))
+
+        return func
 
     return decorator
 
@@ -1961,7 +1967,10 @@ def extension_autocomplete(*args, **kwargs):
 @wraps(Client.modal)
 def extension_modal(*args, **kwargs):
     def decorator(func):
-        func.__modal_data__ = (args, kwargs)
+        if not hasattr(func, "__modal_data__"):
+            func.__modal_data__ = []
+        func.__modal_data__.append((args, kwargs))
+
         return func
 
     return decorator
