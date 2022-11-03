@@ -400,10 +400,10 @@ class WebSocketClient:
                     __args.append(_context.data.values)
                 else:
                     _list = []  # temp storage for items
+                    _data = self.__select_option_type_context(
+                        _context, _context.data.component_type.value
+                    )  # resolved.
                     for value in _context.data._json.get("values"):
-                        _data = self.__select_option_type_context(
-                            _context, _context.data.component_type.value
-                        )  # resolved.
                         _list.append(_data[value])
                     __args.append(_list)
 
@@ -431,7 +431,9 @@ class WebSocketClient:
                             if isinstance(_option, dict):
                                 _option = Option(**_option)
                             if _option.focused:
-                                __name, _value = self.__sub_command_context(_option, _context)
+                                __name, _value = self.__sub_command_context(
+                                    _option, _context
+                                )
                                 _name += f"_{__name}" if __name else ""
                                 if _value:
                                     __args.append(_value)
@@ -445,7 +447,9 @@ class WebSocketClient:
                                 if isinstance(__option, dict):
                                     __option = Option(**__option)
                                 if __option.focused:
-                                    __name, _value = self.__sub_command_context(__option, _context)
+                                    __name, _value = self.__sub_command_context(
+                                        __option, _context
+                                    )
                                     _name += f"_{__name}" if __name else ""
                                     if _value:
                                         __args.append(_value)
