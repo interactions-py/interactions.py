@@ -516,7 +516,6 @@ class WebSocketClient:
                     self._dispatch.dispatch(f"on_raw_{name}", obj)
 
                     if not id and ids is None:
-                        print("hi")
                         return self._dispatch.dispatch(f"on_{name}", obj)
 
                     self.__modify_guild_cache(
