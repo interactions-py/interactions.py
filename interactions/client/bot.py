@@ -11,6 +11,7 @@ from types import ModuleType
 from typing import Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 from ..api import WebSocketClient as WSClient
+from ..api.cache import Cache
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
 from ..api.models.channel import Channel
@@ -67,7 +68,7 @@ class Client:
     :type logging?: Optional[Union[bool, logging.DEBUG, logging.INFO, logging.NOTSET, logging.WARNING, logging.ERROR, logging.CRITICAL]]
 
     :ivar AbstractEventLoop _loop: The asynchronous event loop of the client.
-    :ivar HTTPClient _http: The user-facing HTTP connection to the Web API, as its own separate client.
+    :ivar Union[str, HTTPClient] _http: The user-facing HTTP connection to the Web API, as its own separate client.
     :ivar WebSocketClient _websocket: An object-orientation of a websocket server connection to the Gateway.
     :ivar Intents _intents: The Gateway intents of the application. Defaults to ``Intents.DEFAULT``.
     :ivar Optional[List[Tuple[int]]] _shard: The list of bucketed shards for the application's connection.
@@ -80,21 +81,25 @@ class Client:
     def __init__(
         self,
         token: str,
+        cache_limits: Optional[Dict[type, int]] = None,
+        intents: Intents = Intents.DEFAULT,
+        shards: Optional[List[Tuple[int]]] = None,
+        default_scope: Optional[Union[int, Snowflake, List[Union[int, Snowflake]]]] = None,
+        presence: Optional[ClientPresence] = None,
+        _logging: Union[bool, int] = None,
+        disable_sync: bool = False,
         **kwargs,
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
-        self._http: HTTPClient = token
-        self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
-        self._shards: List[Tuple[int]] = kwargs.get("shards", [])
+        self._http: Union[str, HTTPClient] = token
+        self._intents: Intents = intents
+        self._shards: List[Tuple[int]] = shards or []
         self._commands: List[Command] = []
-        self._default_scope = kwargs.get("default_scope")
-        self._presence = kwargs.get("presence")
-        self._websocket: WSClient = WSClient(
-            token=token, intents=self._intents, shards=self._shards, presence=self._presence
-        )
+        self._default_scope = default_scope
+        self._presence = presence
         self._token = token
         self._extensions = {}
-        self._scopes = set([])
+        self._scopes = set()
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
@@ -111,7 +116,23 @@ class Client:
                 ]
         self._default_scope = convert_list(int)(self._default_scope)
 
-        if _logging := kwargs.get("logging"):
+        if cache_limits is None:
+            # Messages have the most explosive growth, but more limits can be added as needed
+            cache_limits = {
+                Message: 1000,  # Most users won't need to cache many messages
+            }
+
+        self._cache: Cache = Cache(cache_limits)
+        self._websocket: WSClient = WSClient(
+            token=token,
+            cache=self._cache,
+            intents=self._intents,
+            shards=self._shards,
+            presence=self._presence,
+        )
+
+        _logging = kwargs.get("logging", _logging)
+        if _logging:
 
             # thx i0 for posting this on the retux Discord
 
@@ -126,7 +147,7 @@ class Client:
 
             logging.basicConfig(format=_format, level=_logging)
 
-        if kwargs.get("disable_sync"):
+        if disable_sync:
             self._automate_sync = False
             log.warning(
                 "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."
@@ -377,7 +398,7 @@ class Client:
         ready: bool = False
 
         if isinstance(self._http, str):
-            self._http = HTTPClient(self._http)
+            self._http = HTTPClient(self._http, self._cache)
 
         data = await self._http.get_current_bot_information()
         self.me = Application(**data, _client=self._http)

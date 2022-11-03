@@ -44,7 +44,7 @@ from .ratelimit import WSRateLimit
 
 if TYPE_CHECKING:
     from ...client.context import _Context
-    from ..cache import Storage
+    from ..cache import Cache, Storage
     from ..models.gw import GuildMembers
 
 log = get_logger("gateway")
@@ -94,6 +94,7 @@ class WebSocketClient:
         "_ratelimiter",
         "_http",
         "_client",
+        "_cache",
         "__closed",  # placeholder to work with variables atm. its event variant of "_closed"
         "_options",
         "_intents",
@@ -121,6 +122,7 @@ class WebSocketClient:
         self,
         token: str,
         intents: Intents,
+        cache: "Cache",
         session_id: Optional[str] = MISSING,
         sequence: Optional[int] = MISSING,
         shards: Optional[List[Tuple[int]]] = MISSING,
@@ -154,6 +156,7 @@ class WebSocketClient:
             loop=self._loop if version_info < (3, 10) else None
         )
         self._http: HTTPClient = token
+        self._cache: "Cache" = cache
 
         self._client: Optional["ClientWebSocketResponse"] = None
 
@@ -245,7 +248,7 @@ class WebSocketClient:
         """
 
         if isinstance(self._http, str):
-            self._http = HTTPClient(self._http)
+            self._http = HTTPClient(self._http, self._cache)
 
         url = await self._http.get_gateway()
         self.ws_url = url
