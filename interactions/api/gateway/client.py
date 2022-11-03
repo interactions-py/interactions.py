@@ -431,9 +431,7 @@ class WebSocketClient:
                             if isinstance(_option, dict):
                                 _option = Option(**_option)
                             if _option.focused:
-                                __name, _value = self.__sub_command_context(
-                                    _option, _context
-                                )
+                                __name, _value = self.__sub_command_context(_option, _context)
                                 _name += f"_{__name}" if __name else ""
                                 if _value:
                                     __args.append(_value)
@@ -447,9 +445,7 @@ class WebSocketClient:
                                 if isinstance(__option, dict):
                                     __option = Option(**__option)
                                 if __option.focused:
-                                    __name, _value = self.__sub_command_context(
-                                        __option, _context
-                                    )
+                                    __name, _value = self.__sub_command_context(__option, _context)
                                     _name += f"_{__name}" if __name else ""
                                     if _value:
                                         __args.append(_value)
