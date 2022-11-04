@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
@@ -605,14 +605,14 @@ class VoiceState(ClientSerializerMixin):
     request_to_speak_timestamp: Optional[datetime] = field(
         converter=datetime.fromisoformat, default=None
     )
-    suppress: Optional[bool] = field(default=None)
-    session_id: Optional[int] = field(default=None)
-    self_video: Optional[bool] = field(default=None)
-    self_mute: Optional[bool] = field(default=None)
-    self_deaf: Optional[bool] = field(default=None)
+    suppress: bool = field()
+    session_id: int = field()
+    self_video: bool = field()
+    self_mute: bool = field()
+    self_deaf: bool = field()
     self_stream: Optional[bool] = field(default=None)
-    mute: Optional[bool] = field(default=None)
-    deaf: Optional[bool] = field(default=None)
+    mute: bool = field()
+    deaf: bool = field()
 
     def __attrs_post_init__(self):
         if self.member:
@@ -626,33 +626,31 @@ class VoiceState(ClientSerializerMixin):
         """
         return self.channel_id is not None
 
-    async def mute_member(self, reason: Optional[str]) -> Member:
+    async def mute_member(self, reason: Optional[str] = None) -> Member:
         """
         Mutes the current member.
-        :param reason: The reason of the muting, optional
-        :type reason: str
+        :param Optional[str] reason: The reason of the muting, optional
         :return: The modified member object
         :rtype: Member
         """
         return await self.member.modify(guild_id=int(self.guild_id), mute=True, reason=reason)
 
-    async def deafen_member(self, reason: Optional[str]) -> Member:
+    async def deafen_member(self, reason: Optional[str] = None) -> Member:
         """
         Deafens the current member.
-        :param reason: The reason of the deafening, optional
-        :type reason: str
+        :param Optional[str] reason: The reason of the deafening, optional
         :return: The modified member object
         :rtype: Member
         """
         return await self.member.modify(guild_id=int(self.guild_id), deaf=True, reason=reason)
 
-    async def move_member(self, channel_id: int, *, reason: Optional[str]) -> Member:
+    async def move_member(
+        self, channel_id: Union[int, str, Snowflake], *, reason: Optional[str] = None
+    ) -> Member:
         """
         Moves the member to another channel.
-        :param channel_id: The ID of the channel to move the user to
-        :type channel_id: int
-        :param reason: The reason of the move
-        :type reason: str
+        :param Union[int, str, Snowflake] channel_id: The ID of the channel to move the user to
+        :param Optional[str] reason: The reason of the move
         :return: The modified member object
         :rtype: Member
         """
@@ -672,4 +670,4 @@ class VoiceState(ClientSerializerMixin):
         Gets the guild in what the update took place.
         :rtype: Guild
         """
-        return Guild(**await self._client.get_guild(int(self.channel_id)), _client=self._client)
+        return Guild(**await self._client.get_guild(int(self.guild_id)), _client=self._client)
