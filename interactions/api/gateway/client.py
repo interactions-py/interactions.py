@@ -362,8 +362,7 @@ class WebSocketClient:
         """
         Dispatches interaction event from the Gateway.
 
-        :param data: The data of interaction for the event.
-        :type data: dict
+        :param dict data: The data of interaction for the event.
         """
         if data.get("type") is None:
             return log.warning(
@@ -477,10 +476,8 @@ class WebSocketClient:
         """
         Dispatches a discord event from the Gateway.
 
-        :param event: The name of the event.
-        :type event: str
-        :param data: The data for the event.
-        :type data: dict
+        :param str event: The name of the event.
+        :param dict data: The data for the event.
         """
         path: str = "interactions.api.models"
         name: str = event.lower()
