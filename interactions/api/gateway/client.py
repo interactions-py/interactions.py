@@ -545,7 +545,7 @@ class WebSocketClient:
                     _cache.add(old_obj, id)
 
                     if event == "VOICE_STATE_UPDATE" and not data.get("channel_id"):  # user left
-                        del _cache[Snowflake(data.get("user_id"))]
+                        del _cache[obj.user_id]
 
                     self._dispatch.dispatch(
                         f"on_{name}", before, old_obj
