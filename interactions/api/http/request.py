@@ -179,7 +179,7 @@ class _Request:
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
                         raise LibraryException(message=message, code=code, severity=40, data=data)
-                    elif isinstance(data, dict) and code in (0, 403) and message:
+                    elif isinstance(data, dict) and code == 0 and message:
                         log.debug(
                             f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
                         )
