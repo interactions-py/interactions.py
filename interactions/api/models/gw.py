@@ -652,6 +652,7 @@ class VoiceState(ClientSerializerMixin):
     ) -> Member:
         """
         Moves the member to another channel.
+
         :param Union[int, str, Snowflake] channel_id: The ID of the channel to move the user to
         :param Optional[str] reason: The reason of the move
         :return: The modified member object
