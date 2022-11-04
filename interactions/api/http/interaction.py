@@ -265,7 +265,7 @@ class InteractionRequest:
         )
 
     async def delete_interaction_response(
-        self, token: str, application_id: str, message_id: int = "original"
+        self, token: str, application_id: str, message_id: int = "@original"
     ) -> None:
         """
         Deletes an existing interaction message.
