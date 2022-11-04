@@ -84,6 +84,7 @@ class Member(ClientSerializerMixin, IDMixin):
         """
         if not self._client:
             raise LibraryException(code=13)
+
         from .gw import VoiceState
 
         return self._client.cache[VoiceState].get(self.id)
