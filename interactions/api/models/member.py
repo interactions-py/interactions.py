@@ -77,7 +77,7 @@ class Member(ClientSerializerMixin, IDMixin):
             raise AttributeError(f"Neither `User` nor `Member` have attribute {name}") from e
 
     @property
-    def voice_state(self) -> "VoiceState":
+    def voice_state(self) -> Optional["VoiceState"]:
         """
         Returns the current voice state of the member, if any.
         :rtype: VoiceState
