@@ -630,6 +630,7 @@ class VoiceState(ClientSerializerMixin):
     async def mute_member(self, reason: Optional[str] = None) -> Member:
         """
         Mutes the current member.
+
         :param Optional[str] reason: The reason of the muting, optional
         :return: The modified member object
         :rtype: Member
