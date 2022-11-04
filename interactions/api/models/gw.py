@@ -640,6 +640,7 @@ class VoiceState(ClientSerializerMixin):
     async def deafen_member(self, reason: Optional[str] = None) -> Member:
         """
         Deafens the current member.
+
         :param Optional[str] reason: The reason of the deafening, optional
         :return: The modified member object
         :rtype: Member
