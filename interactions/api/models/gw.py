@@ -622,6 +622,7 @@ class VoiceState(ClientSerializerMixin):
     def joined(self) -> bool:
         """
         Whether the user joined the channel.
+
         :rtype: bool
         """
         return self.channel_id is not None
