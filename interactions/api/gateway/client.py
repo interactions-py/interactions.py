@@ -33,7 +33,7 @@ from ..error import LibraryException
 from ..http.client import HTTPClient
 from ..models.flags import Intents
 from ..models.guild import Guild
-from ..models.gw import GuildMember, GuildRole
+from ..models.gw import GuildMember, GuildRole, VoiceState
 from ..models.member import Member
 from ..models.message import Message
 from ..models.misc import Snowflake
@@ -463,7 +463,8 @@ class WebSocketClient:
                 log.warning(
                     "Context is being created for the interaction, but no type is specified. Skipping..."
                 )
-        elif event not in {"TYPING_START", "VOICE_STATE_UPDATE", "VOICE_SERVER_UPDATE"}:
+
+        elif event not in {"TYPING_START", "VOICE_SERVER_UPDATE"}:
             name: str = event.lower()
             try:
                 data["_client"] = self._http
@@ -542,6 +543,10 @@ class WebSocketClient:
                         old_obj = obj
 
                     _cache.add(old_obj, id)
+
+                    if event == "VOICE_STATE_UPDATE" and not obj.channel_id:  # user left
+                        del _cache[obj.user_id]
+
                     self._dispatch.dispatch(
                         f"on_{name}", before, old_obj
                     )  # give previously stored and new one
@@ -601,6 +606,8 @@ class WebSocketClient:
         """
         if isinstance(obj, (Member, GuildMember)):
             id = (Snowflake(data["guild_id"]), obj.id)
+        if isinstance(obj, VoiceState):
+            id = obj.user_id
         else:
             id = getattr(obj, "id", None)
         if id is not None:

@@ -38,7 +38,7 @@ from .webhook import Webhook
 
 if TYPE_CHECKING:
     from ..http.client import HTTPClient
-    from .gw import AutoModerationRule
+    from .gw import AutoModerationRule, VoiceState
     from .message import Message
 
 __all__ = (
@@ -539,6 +539,40 @@ class Guild(ClientSerializerMixin, IDMixin):
         for member in self.members:
             if int(member.id) == _member_id:
                 return self.members.remove(member)
+
+    @property
+    def voice_states(self) -> List["VoiceState"]:
+        """
+        Gets all voice states of the guild.
+
+        :rtype: List[VoiceState]
+        """
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .gw import VoiceState
+
+        states: List[VoiceState] = []
+
+        data = self._client.cache[VoiceState].values.values()
+        states.extend(state for state in data if state.guild_id == self.id)
+        return states
+
+    @property
+    def mapped_voice_states(self) -> Dict[int, List["VoiceState"]]:
+        """
+        Returns all the voice states mapped after their channel id.
+
+        :rtype: Dict[int, List[VoiceState]]
+        """
+        states = self.voice_states
+        _states: Dict[int, List[VoiceState]] = {int(state.channel_id): [] for state in states}
+
+        for state in states:
+            _states[int(state.channel_id)].append(state)
+
+        return _states
 
     async def remove_ban(
         self,
