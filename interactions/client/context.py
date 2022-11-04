@@ -532,12 +532,17 @@ class CommandContext(_Context):
             Doing this will proceed in the context message no longer
             being present.
         """
-        if self.responded:
-            await self._client.delete_webhook_message(
-                webhook_id=int(self.id), webhook_token=self.token, message_id=int(self.message.id)
+        if self.responded and self.message is not None:
+            await self._client.delete_interaction_response(
+                application_id=int(self.application_id),
+                token=self.token,
+                message_id=int(self.message.id),
             )
         else:
-            await self._client.delete_original_webhook_message(int(self.id), self.token)
+            await self._client.delete_interaction_response(
+                application_id=int(self.application_id), token=self.token
+            )
+
         self.message = None
 
     async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]:
