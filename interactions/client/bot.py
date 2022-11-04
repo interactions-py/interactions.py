@@ -11,13 +11,17 @@ from types import ModuleType
 from typing import Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 from ..api import WebSocketClient as WSClient
+from ..api.cache import Cache
 from ..api.error import LibraryException
 from ..api.http.client import HTTPClient
+from ..api.models.channel import Channel
 from ..api.models.flags import Intents, Permissions
 from ..api.models.guild import Guild
+from ..api.models.member import Member
 from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
+from ..api.models.role import Role
 from ..api.models.team import Application
 from ..api.models.user import User
 from ..base import get_logger
@@ -62,21 +66,25 @@ class Client:
     def __init__(
         self,
         token: str,
+        cache_limits: Optional[Dict[type, int]] = None,
+        intents: Intents = Intents.DEFAULT,
+        shards: Optional[List[Tuple[int]]] = None,
+        default_scope: Optional[Union[int, Snowflake, List[Union[int, Snowflake]]]] = None,
+        presence: Optional[ClientPresence] = None,
+        _logging: Union[bool, int] = None,
+        disable_sync: bool = False,
         **kwargs,
     ) -> None:
         self._loop: AbstractEventLoop = get_event_loop()
-        self._http: HTTPClient = token
-        self._intents: Intents = kwargs.get("intents", Intents.DEFAULT)
-        self._shards: List[Tuple[int]] = kwargs.get("shards", [])
+        self._http: Union[str, HTTPClient] = token
+        self._intents: Intents = intents
+        self._shards: List[Tuple[int]] = shards or []
         self._commands: List[Command] = []
-        self._default_scope = kwargs.get("default_scope")
-        self._presence = kwargs.get("presence")
-        self._websocket: WSClient = WSClient(
-            token=token, intents=self._intents, shards=self._shards, presence=self._presence
-        )
+        self._default_scope = default_scope
+        self._presence = presence
         self._token = token
         self._extensions = {}
-        self._scopes = set([])
+        self._scopes = set()
         self.__command_coroutines = []
         self.__global_commands = {}
         self.__guild_commands = {}
@@ -93,7 +101,23 @@ class Client:
                 ]
         self._default_scope = convert_list(int)(self._default_scope)
 
-        if _logging := kwargs.get("logging"):
+        if cache_limits is None:
+            # Messages have the most explosive growth, but more limits can be added as needed
+            cache_limits = {
+                Message: 1000,  # Most users won't need to cache many messages
+            }
+
+        self._cache: Cache = Cache(cache_limits)
+        self._websocket: WSClient = WSClient(
+            token=token,
+            cache=self._cache,
+            intents=self._intents,
+            shards=self._shards,
+            presence=self._presence,
+        )
+
+        _logging = kwargs.get("logging", _logging)
+        if _logging:
 
             # thx i0 for posting this on the retux Discord
 
@@ -108,7 +132,7 @@ class Client:
 
             logging.basicConfig(format=_format, level=_logging)
 
-        if kwargs.get("disable_sync"):
+        if disable_sync:
             self._automate_sync = False
             log.warning(
                 "Automatic synchronization has been disabled. Interactions may need to be manually synchronized."
@@ -357,7 +381,7 @@ class Client:
         ready: bool = False
 
         if isinstance(self._http, str):
-            self._http = HTTPClient(self._http)
+            self._http = HTTPClient(self._http, self._cache)
 
         data = await self._http.get_current_bot_information()
         self.me = Application(**data, _client=self._http)
@@ -1525,9 +1549,10 @@ class Client:
         Waits for a component to be interacted with, and returns the resulting context.
 
         .. note::
-            If you are waiting for a select menu, you can find the selected values in ``ctx.data.values``
+            If you are waiting for a select menu, you can find the selected values in ``ctx.data.values``.
+            Another possibility is using the :meth:`.Client.wait_for_select` method.
 
-        :param Union[str, interactions.Button, interactions.SelectMenu, List[Union[str, interactions.Button, interactions.SelectMenu]]] components: The component(s) to wait for
+        :param Union[str, Button, SelectMenu, List[Union[str, Button, SelectMenu]]] components: The component(s) to wait for
         :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
         :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param float timeout: How long to wait for the event before raising an error
@@ -1581,6 +1606,57 @@ class Client:
             return check(ctx) if check else True
 
         return await self.wait_for("on_component", check=_check, timeout=timeout)
+
+    async def wait_for_select(
+        self,
+        components: Union[
+            Union[str, SelectMenu],
+            List[Union[str, SelectMenu]],
+        ] = None,
+        messages: Union[Message, int, List[Union[Message, int]]] = None,
+        check: Optional[Callable[..., Union[bool, Awaitable[bool]]]] = None,
+        timeout: Optional[float] = None,
+    ) -> Tuple[ComponentContext, List[Union[str, Member, User, Role, Channel]]]:
+        """
+        Waits for a select menu to be interacted with, and returns the resulting context and a list of the selected values.
+
+        The method can be used like this:
+
+        .. code-block:: python
+
+            ctx, values = await bot.wait_for_select(custom_id)
+
+        In this case ``ctx`` will be your normal context and ``values`` will be a list of :class:`str`, :class:`.Member`, :class:`.User`, :class:`.Channel` or :class:`.Role` objects,
+        depending on which select type you received.
+
+
+        :param Union[str, SelectMenu, List[Union[str, SelectMenu]]] components: The component(s) to wait for
+        :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
+        :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param float timeout: How long to wait for the event before raising an error
+        :return: The ComponentContext and list of selections of the dispatched event
+        :rtype: Tuple[ComponentContext, Union[List[str], List[Member], List[User], List[Channel], List[Role]]]
+        """
+
+        def _check(_ctx: ComponentContext) -> bool:
+            if _ctx.data.component_type.value not in {4, 5, 6, 7, 8}:
+                return False
+            return check(_ctx) if check else True
+
+        ctx: ComponentContext = await self.wait_for_component(
+            components, messages, check=_check, timeout=timeout
+        )
+
+        if ctx.data.component_type == 4:
+            return ctx, ctx.data.values
+
+        _list = []  # temp storage for items
+        _data = self._websocket._WebSocketClient__select_option_type_context(
+            ctx, ctx.data.component_type.value
+        )  # resolved.
+        for value in ctx.data.values:
+            _list.append(_data[value])
+        return ctx, _list
 
     async def wait_for_modal(
         self,

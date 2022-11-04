@@ -1,20 +1,22 @@
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from aiohttp import MultipartWriter
 
-from ...api.cache import Cache
 from ...utils.missing import MISSING
 from ..models.channel import Channel
 from ..models.misc import File
 from .request import _Request
 from .route import Route
 
+if TYPE_CHECKING:
+    from ...api.cache import Cache
+
 __all__ = ("ThreadRequest",)
 
 
 class ThreadRequest:
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass

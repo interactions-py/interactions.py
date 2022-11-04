@@ -1,16 +1,17 @@
-from typing import List
+from typing import TYPE_CHECKING, List
 
-from ...api.cache import Cache
 from .request import _Request
 from .route import Route
+
+if TYPE_CHECKING:
+    from ...api.cache import Cache
 
 __all__ = ("ReactionRequest",)
 
 
 class ReactionRequest:
-
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass

@@ -1,19 +1,20 @@
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from aiohttp import FormData
 
-from ...api.cache import Cache
 from ..models.misc import File
 from .request import _Request
 from .route import Route
+
+if TYPE_CHECKING:
+    from ...api.cache import Cache
 
 __all__ = ("StickerRequest",)
 
 
 class StickerRequest:
-
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass

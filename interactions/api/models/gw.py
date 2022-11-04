@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from ...client.enums import PermissionType
 from ...utils.attrs_utils import (
@@ -11,7 +11,7 @@ from ...utils.attrs_utils import (
 )
 from .channel import Channel, ThreadMember
 from .emoji import Emoji
-from .guild import EventMetadata
+from .guild import EventMetadata, Guild
 from .member import Member
 from .message import Sticker
 from .misc import (
@@ -52,6 +52,7 @@ __all__ = (
     "GuildJoinRequest",
     "GuildEmojis",
     "GuildRole",
+    "VoiceState",
 )
 
 
@@ -571,3 +572,107 @@ class Webhooks(DictSerializerMixin):
 
     channel_id: Snowflake = field(converter=Snowflake)
     guild_id: Snowflake = field(converter=Snowflake)
+
+
+@define()
+class VoiceState(ClientSerializerMixin):
+    """
+    A class object representing the gateway event ``VOICE_STATE_UPDATE``.
+    This class creates an object every time the event ``VOICE_STATE_UPDATE`` is received from the discord API.
+    It contains information about the user's update voice information. Additionally, the last voice state is cached,
+    allowing you to see, what attributes of the user's voice information change.
+
+    :ivar Member member: The member whose VoiceState was updated
+    :ivar Snowflake user_id: The id of the user whose VoiceState was updated. This is technically the same as the "member id", but it is called `user_id` because of API terminology.
+    :ivar bool suppress: Whether the user is muted by the current user(-> bot)
+    :ivar int session_id: The id of the session
+    :ivar bool self_video: Whether the user's camera is enabled.
+    :ivar bool self_mute: Whether the user is muted by themselves
+    :ivar bool self_deaf: Whether the user is deafened by themselves
+    :ivar bool self_stream: Whether the user is streaming in the current channel
+    :ivar datetime request_to_speak_timestamp: Only for stage-channels; when the user requested permissions to speak in the stage channel
+    :ivar bool mute: Whether the user's microphone is muted by the server
+    :ivar Snowflake guild_id: The id of the guild in what the update took action
+    :ivar bool deaf: Whether the user is deafened by the guild
+    :ivar Snowflake channel_id: The id of the channel the update took action
+    """
+
+    channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    user_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    member: Optional[Member] = field(converter=Member, default=None, add_client=True)
+    request_to_speak_timestamp: Optional[datetime] = field(
+        converter=datetime.fromisoformat, default=None
+    )
+    suppress: bool = field()
+    session_id: int = field()
+    self_video: bool = field()
+    self_mute: bool = field()
+    self_deaf: bool = field()
+    self_stream: Optional[bool] = field(default=None)
+    mute: bool = field()
+    deaf: bool = field()
+
+    def __attrs_post_init__(self):
+        if self.member:
+            self.member._extras["guild_id"] = self.guild_id
+
+    @property
+    def joined(self) -> bool:
+        """
+        Whether the user joined the channel.
+
+        :rtype: bool
+        """
+        return self.channel_id is not None
+
+    async def mute_member(self, reason: Optional[str] = None) -> Member:
+        """
+        Mutes the current member.
+
+        :param Optional[str] reason: The reason of the muting, optional
+        :return: The modified member object
+        :rtype: Member
+        """
+        return await self.member.modify(guild_id=int(self.guild_id), mute=True, reason=reason)
+
+    async def deafen_member(self, reason: Optional[str] = None) -> Member:
+        """
+        Deafens the current member.
+
+        :param Optional[str] reason: The reason of the deafening, optional
+        :return: The modified member object
+        :rtype: Member
+        """
+        return await self.member.modify(guild_id=int(self.guild_id), deaf=True, reason=reason)
+
+    async def move_member(
+        self, channel_id: Union[int, str, Snowflake], *, reason: Optional[str] = None
+    ) -> Member:
+        """
+        Moves the member to another channel.
+
+        :param Union[int, str, Snowflake] channel_id: The ID of the channel to move the user to
+        :param Optional[str] reason: The reason of the move
+        :return: The modified member object
+        :rtype: Member
+        """
+        return await self.member.modify(
+            guild_id=int(self.guild_id), channel_id=channel_id, reason=reason
+        )
+
+    async def get_channel(self) -> Channel:
+        """
+        Gets the channel in what the update took place.
+
+        :rtype: Channel
+        """
+        return Channel(**await self._client.get_channel(int(self.channel_id)), _client=self._client)
+
+    async def get_guild(self) -> "Guild":
+        """
+        Gets the guild in what the update took place.
+
+        :rtype: Guild
+        """
+        return Guild(**await self._client.get_guild(int(self.guild_id)), _client=self._client)
