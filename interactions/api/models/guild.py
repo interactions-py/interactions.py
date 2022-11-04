@@ -549,6 +549,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         if not self._client:
             raise LibraryException(code=13)
+
         from .gw import VoiceState
 
         states: List[VoiceState] = []
