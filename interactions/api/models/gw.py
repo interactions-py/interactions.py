@@ -668,6 +668,7 @@ class VoiceState(ClientSerializerMixin):
     async def get_guild(self) -> "Guild":
         """
         Gets the guild in what the update took place.
+
         :rtype: Guild
         """
         return Guild(**await self._client.get_guild(int(self.guild_id)), _client=self._client)
