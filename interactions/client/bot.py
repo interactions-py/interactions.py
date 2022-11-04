@@ -1424,7 +1424,6 @@ class Client:
                         self._loop.create_task(
                             _extension.teardown(remove_commands=remove_commands)
                         )  # made for Extension, usable by others
-            del sys.modules[_name]
 
         else:
             with contextlib.suppress(AttributeError):
