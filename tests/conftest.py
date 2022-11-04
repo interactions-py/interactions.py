@@ -7,7 +7,7 @@ import interactions
 client = interactions.Client(
     "ODIzMTQxMTE3ODUxMjA1Njgy.G8pIon.3WZzfl6W-C5HO-E_rAHfCojJKeG6aq3keFvjGw"
 )  # this token is invalidated
-client._http = interactions.HTTPClient(client._http)
+client._http = interactions.HTTPClient(client._http, client._cache)
 
 
 def pytest_sessionstart(session):
@@ -54,3 +54,7 @@ def channel(fake_client):
 
 
 # todo test get func
+# todo test every model
+# todo "test" every http func?
+# todo test gateway (events (-> AND CACHE)) as good as possible with fake data
+# todo run every get request func in a sep file to ensure 0 printouts

@@ -14,6 +14,13 @@ async def test_channel_mention(channel):
     assert channel.mention == "<#123456789>"
 
 
+async def test_channel_in_cache(fake_client, channel):
+    assert fake_client._http.cache[interactions.Channel][channel.id]._json == {
+        "id": 123456789,
+        "guild_id": 987654321,
+    }
+
+
 async def test_channel_send_text(channel):
     msg = await channel.send("hi")
     msg._json["author"].pop("_client")
@@ -178,6 +185,8 @@ async def test_create_tag(channel):
     type = channel.type
     channel.type = interactions.ChannelType.GUILD_FORUM
 
+    assert channel.type == interactions.ChannelType.GUILD_FORUM
+
     tag1 = await channel.create_tag(name="hi", emoji_name="d", moderated=False)
     tag2 = await channel.create_tag(name="hi", emoji_id=12298430293, moderated=True)
 
@@ -185,6 +194,10 @@ async def test_create_tag(channel):
         await channel.create_tag(emoji_id=12334, name="Hi", emoji_name="nya~")
 
     assert isinstance(tag1, interactions.Tags) and isinstance(tag2, interactions.Tags)
-    print(tag1._json, tag2._json)
+    assert tag1._json == {"name": "hi", "moderated": False, "emoji_name": "d"} and tag2._json == {
+        "name": "hi",
+        "moderated": True,
+        "emoji_id": 12298430293,
+    }
 
     channel.type = type
