@@ -563,6 +563,7 @@ class Guild(ClientSerializerMixin, IDMixin):
     def mapped_voice_states(self) -> Dict[int, List["VoiceState"]]:
         """
         Returns all the voice states mapped after their channel id.
+
         :rtype: Dict[int, List[VoiceState]]
         """
         states = self.voice_states
