@@ -505,6 +505,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     def voice_states(self) -> List["VoiceState"]:
         """
         Returns all voice states this channel has. Only applicable for voice channels.
+
         :rtype: List[VoiceState]
         """
         if self.type != ChannelType.GUILD_VOICE:
