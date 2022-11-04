@@ -534,7 +534,9 @@ class CommandContext(_Context):
         """
         if self.responded and self.message is not None:
             await self._client.delete_interaction_response(
-                application_id=int(self.application_id), token=self.token, message_id=int(self.message.id)
+                application_id=int(self.application_id),
+                token=self.token,
+                message_id=int(self.message.id),
             )
         else:
             await self._client.delete_interaction_response(
