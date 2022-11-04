@@ -544,6 +544,7 @@ class Guild(ClientSerializerMixin, IDMixin):
     def voice_states(self) -> List["VoiceState"]:
         """
         Gets all voice states of the guild.
+
         :rtype: List[VoiceState]
         """
 
