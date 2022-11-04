@@ -607,7 +607,7 @@ class WebSocketClient:
         if isinstance(obj, (Member, GuildMember)):
             id = (Snowflake(data["guild_id"]), obj.id)
         if isinstance(obj, VoiceState):
-            id = Snowflake(data["user_id"])
+            id = obj.user_id
         else:
             id = getattr(obj, "id", None)
         if id is not None:
