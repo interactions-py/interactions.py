@@ -80,6 +80,7 @@ class Member(ClientSerializerMixin, IDMixin):
     def voice_state(self) -> Optional["VoiceState"]:
         """
         Returns the current voice state of the member, if any.
+
         :rtype: VoiceState
         """
         if not self._client:
