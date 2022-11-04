@@ -664,6 +664,7 @@ class VoiceState(ClientSerializerMixin):
     async def get_channel(self) -> Channel:
         """
         Gets the channel in what the update took place.
+
         :rtype: Channel
         """
         return Channel(**await self._client.get_channel(int(self.channel_id)), _client=self._client)
