@@ -509,7 +509,7 @@ class Client:
             This is an internal method. Do not call it unless you know what you are doing!
         """
         for cmd in self._commands:
-            if cmd.coro.__qualname__ in [Cmd.__qualname__ for Cmd in self.__command_coroutines]:
+            if cmd.coro.__qualname__ in [_cmd.__qualname__ for _cmd in self.__command_coroutines]:
                 continue
 
             cmd.listener = self._websocket._dispatch
