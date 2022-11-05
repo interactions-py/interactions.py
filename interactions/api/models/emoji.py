@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 __all__ = ("Emoji",)
 
 
-@define(repr=False)
+@define()
 class Emoji(ClientSerializerMixin):
     """
     A class objecting representing an emoji.
@@ -36,7 +36,7 @@ class Emoji(ClientSerializerMixin):
     animated: Optional[bool] = field(default=None)
     available: Optional[bool] = field(default=None)
 
-    def __repr__(self):
+    def __str__(self):
         return (
             f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
             if self.id is not None
