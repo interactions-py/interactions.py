@@ -36,7 +36,12 @@ class Emoji(ClientSerializerMixin):
     animated: Optional[bool] = field(default=None)
     available: Optional[bool] = field(default=None)
 
-    def __str__(self):
+    @property
+    def format(self) -> str:
+        """
+        Formats the emoji into a send-able form.
+        :rtype: str
+        """
         return (
             f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
             if self.id is not None
