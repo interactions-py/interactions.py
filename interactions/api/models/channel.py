@@ -478,9 +478,6 @@ class Channel(ClientSerializerMixin, IDMixin):
                 if not self.recipients:
                     self.recipients = channel.recipients
 
-    def __repr__(self) -> str:
-        return self.name
-
     @property
     def typing(self) -> Union[Awaitable, ContextManager]:
         """
