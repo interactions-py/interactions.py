@@ -40,6 +40,8 @@ class Emoji(ClientSerializerMixin):
         return (
             f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
             if self.id is not None
+            else f":{self.name}:"
+            if self.require_colons
             else self.name
         )
 
