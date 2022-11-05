@@ -535,7 +535,7 @@ class Client:
             This is an internal method. Do not call it unless you know what you are doing!
         """
         for cmd in self._commands:
-            if cmd.resolved:
+            if cmd.coro.__qualname__ in [_cmd.__qualname__ for _cmd in self.__command_coroutines]:
                 continue
 
             cmd.listener = self._websocket._dispatch
@@ -581,7 +581,6 @@ class Client:
                     self._scopes.add(cmd.scope if isinstance(cmd.scope, int) else cmd.scope.id)
 
             self.event(coro, name=f"command_{cmd.name}")
-            cmd.resolved = True
 
     async def __sync(self) -> None:  # sourcery no-metrics
         """
@@ -1413,6 +1412,7 @@ class Client:
         else:
             log.debug(f"Loaded extension {name}.")
             self._extensions[_name] = module
+            del sys.modules[name]
             return extension
 
     def remove(
@@ -1450,7 +1450,6 @@ class Client:
                         self._loop.create_task(
                             _extension.teardown(remove_commands=remove_commands)
                         )  # made for Extension, usable by others
-            del sys.modules[_name]
 
         else:
             with contextlib.suppress(AttributeError):
