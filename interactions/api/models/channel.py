@@ -1866,7 +1866,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         from .message import Message
 
-        __files = [] if files is MISSING else files
+        __files = [] if files is MISSING else (files if isinstance(files, List) else [files])
 
         if isinstance(content, dict):  # just assume they know what they're doing
             _content = content

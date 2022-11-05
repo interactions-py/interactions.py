@@ -201,3 +201,10 @@ async def test_create_tag(channel):
     }
 
     channel.type = type
+
+
+async def test_create_forum_post(channel):
+    type = channel.type
+    channel.type = interactions.ChannelType.GUILD_FORUM
+    await channel.create_forum_post(name="hi", content="ello")
+    channel.type = type
