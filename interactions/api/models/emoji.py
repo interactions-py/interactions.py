@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 __all__ = ("Emoji",)
 
 
-@define(repr=False)
+@define()
 class Emoji(ClientSerializerMixin):
     """
     A class objecting representing an emoji.
@@ -36,10 +36,17 @@ class Emoji(ClientSerializerMixin):
     animated: Optional[bool] = field(default=None)
     available: Optional[bool] = field(default=None)
 
-    def __repr__(self):
+    @property
+    def format(self) -> str:
+        """
+        Formats the emoji into a send-able form.
+        :rtype: str
+        """
         return (
             f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
             if self.id is not None
+            else f":{self.name}:"
+            if self.require_colons
             else self.name
         )
 

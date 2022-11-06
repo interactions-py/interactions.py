@@ -14,6 +14,7 @@ from .user import User
 if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
     from .guild import Guild
+    from .gw import VoiceState
     from .message import Attachment, Embed, Message
 
 __all__ = ("Member",)
@@ -65,15 +66,26 @@ class Member(ClientSerializerMixin, IDMixin):
     )  # TODO: Investigate what this is for when documented by Discord.
     flags: int = field(repr=False)  # TODO: Investigate what this is for when documented by Discord.
 
-    def __str__(self) -> str:
-        return self.name or ""
-
     def __getattr__(self, name):
         # Forward any attributes the user has to make it easier for devs
         try:
             return getattr(self.user, name)
         except AttributeError as e:
             raise AttributeError(f"Neither `User` nor `Member` have attribute {name}") from e
+
+    @property
+    def voice_state(self) -> Optional["VoiceState"]:
+        """
+        Returns the current voice state of the member, if any.
+
+        :rtype: VoiceState
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .gw import VoiceState
+
+        return self._client.cache[VoiceState].get(self.id)
 
     @property
     def guild_id(self) -> Optional[Union[Snowflake, LibraryException]]:
@@ -91,6 +103,8 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if not self._client:
             raise LibraryException(code=13)
+
+        from .guild import Guild
 
         if self.roles:
             for guild in self._client.cache[Guild].values.values():

@@ -708,7 +708,9 @@ class Message(ClientSerializerMixin, IDMixin):
     mention_channels: Optional[List[ChannelMention]] = field(
         converter=convert_list(ChannelMention), default=None
     )
-    attachments: List[Attachment] = field(converter=convert_list(Attachment), default=None)
+    attachments: List[Attachment] = field(
+        converter=convert_list(Attachment), default=None, add_client=True
+    )
     embeds: List[Embed] = field(converter=convert_list(Embed), default=None)
     reactions: Optional[List[ReactionObject]] = field(
         converter=convert_list(ReactionObject), default=None

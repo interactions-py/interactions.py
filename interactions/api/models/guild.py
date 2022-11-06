@@ -38,7 +38,7 @@ from .webhook import Webhook
 
 if TYPE_CHECKING:
     from ..http.client import HTTPClient
-    from .gw import AutoModerationRule
+    from .gw import AutoModerationRule, VoiceState
     from .message import Message
 
 __all__ = (
@@ -482,9 +482,6 @@ class Guild(ClientSerializerMixin, IDMixin):
                 if not member._extras.get("guild_id"):
                     member._extras["guild_id"] = self.id
 
-    def __repr__(self) -> str:
-        return self.name
-
     async def ban(
         self,
         member_id: Union[int, Member, Snowflake],
@@ -539,6 +536,40 @@ class Guild(ClientSerializerMixin, IDMixin):
         for member in self.members:
             if int(member.id) == _member_id:
                 return self.members.remove(member)
+
+    @property
+    def voice_states(self) -> List["VoiceState"]:
+        """
+        Gets all voice states of the guild.
+
+        :rtype: List[VoiceState]
+        """
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .gw import VoiceState
+
+        states: List[VoiceState] = []
+
+        data = self._client.cache[VoiceState].values.values()
+        states.extend(state for state in data if state.guild_id == self.id)
+        return states
+
+    @property
+    def mapped_voice_states(self) -> Dict[int, List["VoiceState"]]:
+        """
+        Returns all the voice states mapped after their channel id.
+
+        :rtype: Dict[int, List[VoiceState]]
+        """
+        states = self.voice_states
+        _states: Dict[int, List[VoiceState]] = {int(state.channel_id): [] for state in states}
+
+        for state in states:
+            _states[int(state.channel_id)].append(state)
+
+        return _states
 
     async def remove_ban(
         self,
@@ -2699,7 +2730,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         """
 
         _user_id = (
-            (user_id.id if isinstance(user_id, User) else user_id)
+            int(user_id.id if isinstance(user_id, User) else user_id)
             if user_id is not MISSING
             else None
         )
@@ -2743,7 +2774,7 @@ class Guild(ClientSerializerMixin, IDMixin):
                     "is the user ID and the second is the action type!",
                 )
 
-            _user = of[0].id if isinstance(of[0], (Member, User)) else of[0]
+            _user = int(of[0].id if isinstance(of[0], (Member, User)) else of[0])
             res = await self._client.get_guild_auditlog(
                 guild_id=int(self.id), user_id=_user, action_type=of[1]
             )
@@ -2756,7 +2787,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         else:
             if isinstance(of, (Member, User)):
                 of = of.id
-            res = await self._client.get_guild_auditlog(guild_id=int(self.id), user_id=of, limit=1)
+            res = await self._client.get_guild_auditlog(
+                guild_id=int(self.id), user_id=int(of), limit=1
+            )
 
         return AuditLogs(**res)
 
@@ -2778,7 +2811,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         _action_type = action_type if action_type is not MISSING else None
         _user_id = (
-            (user_id.id if isinstance(user_id, User) else user_id)
+            int(user_id.id if isinstance(user_id, User) else user_id)
             if user_id is not MISSING
             else None
         )

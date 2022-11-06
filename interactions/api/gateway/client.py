@@ -33,7 +33,7 @@ from ..error import LibraryException
 from ..http.client import HTTPClient
 from ..models.flags import Intents
 from ..models.guild import Guild
-from ..models.gw import GuildMember, GuildRole
+from ..models.gw import GuildMember, GuildRole, VoiceState
 from ..models.member import Member
 from ..models.message import Message
 from ..models.misc import Snowflake
@@ -44,7 +44,7 @@ from .ratelimit import WSRateLimit
 
 if TYPE_CHECKING:
     from ...client.context import _Context
-    from ..cache import Storage
+    from ..cache import Cache, Storage
     from ..models.gw import GuildMembers
 
 log = get_logger("gateway")
@@ -90,9 +90,11 @@ class WebSocketClient:
     __slots__ = (
         "_loop",
         "_dispatch",
+        "__unavailable_guilds",
         "_ratelimiter",
         "_http",
         "_client",
+        "_cache",
         "__closed",  # placeholder to work with variables atm. its event variant of "_closed"
         "_options",
         "_intents",
@@ -120,6 +122,7 @@ class WebSocketClient:
         self,
         token: str,
         intents: Intents,
+        cache: "Cache",
         session_id: Optional[str] = MISSING,
         sequence: Optional[int] = MISSING,
         shards: Optional[List[Tuple[int]]] = MISSING,
@@ -144,6 +147,7 @@ class WebSocketClient:
         except RuntimeError:
             self._loop = new_event_loop()
         self._dispatch: Listener = Listener()
+        self.__unavailable_guilds = []
 
         self._ratelimiter = (
             WSRateLimit(loop=self._loop) if version_info < (3, 10) else WSRateLimit()
@@ -152,6 +156,7 @@ class WebSocketClient:
             loop=self._loop if version_info < (3, 10) else None
         )
         self._http: HTTPClient = token
+        self._cache: "Cache" = cache
 
         self._client: Optional["ClientWebSocketResponse"] = None
 
@@ -243,7 +248,7 @@ class WebSocketClient:
         """
 
         if isinstance(self._http, str):
-            self._http = HTTPClient(self._http)
+            self._http = HTTPClient(self._http, self._cache)
 
         url = await self._http.get_gateway()
         self.ws_url = url
@@ -322,6 +327,7 @@ class WebSocketClient:
             self.ready.set()
             self._dispatch.dispatch("on_ready")
             self._ready = data
+            self.__unavailable_guilds = [i["id"] for i in data["guilds"]]
             self.session_id = data["session_id"]
             self.resume_url = data["resume_gateway_url"]
             if not self.__started:
@@ -380,10 +386,10 @@ class WebSocketClient:
                             __args.append(values)
                         else:
                             _list = []  # temp storage for items
+                            _data = self.__select_option_type_context(
+                                _context, _context.data.component_type.value
+                            )  # resolved.
                             for value in values:
-                                _data = self.__select_option_type_context(
-                                    _context, _context.data.component_type.value
-                                )  # resolved.
                                 _list.append(_data[value])
                             __args.append(_list)
 
@@ -446,7 +452,8 @@ class WebSocketClient:
                 log.warning(
                     "Context is being created for the interaction, but no type is specified. Skipping..."
                 )
-        elif event not in {"TYPING_START", "VOICE_STATE_UPDATE", "VOICE_SERVER_UPDATE"}:
+
+        elif event not in {"TYPING_START", "VOICE_SERVER_UPDATE"}:
             name: str = event.lower()
             try:
                 data["_client"] = self._http
@@ -477,6 +484,12 @@ class WebSocketClient:
                     ids = self.__get_object_ids(obj, model)
 
                 if "_create" in name or "_add" in name:
+                    if name == "guild_create":
+                        if id and str(id) in self.__unavailable_guilds:
+                            self.__unavailable_guilds.remove(str(id))
+                        else:
+                            self._dispatch.dispatch("on_guild_join", obj)
+
                     self._dispatch.dispatch(f"on_{name}", obj)
 
                     if id:
@@ -519,6 +532,10 @@ class WebSocketClient:
                         old_obj = obj
 
                     _cache.add(old_obj, id)
+
+                    if event == "VOICE_STATE_UPDATE" and not obj.channel_id:  # user left
+                        del _cache[obj.user_id]
+
                     self._dispatch.dispatch(
                         f"on_{name}", before, old_obj
                     )  # give previously stored and new one
@@ -578,6 +595,8 @@ class WebSocketClient:
         """
         if isinstance(obj, (Member, GuildMember)):
             id = (Snowflake(data["guild_id"]), obj.id)
+        if isinstance(obj, VoiceState):
+            id = obj.user_id
         else:
             id = getattr(obj, "id", None)
         if id is not None:

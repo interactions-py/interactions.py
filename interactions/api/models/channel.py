@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
     from ..http.client import HTTPClient
     from .guild import Invite, InviteTargetType
+    from .gw import VoiceState
     from .member import Member
     from .message import Attachment, Embed, Message, Sticker
 
@@ -477,9 +478,6 @@ class Channel(ClientSerializerMixin, IDMixin):
                 if not self.recipients:
                     self.recipients = channel.recipients
 
-    def __repr__(self) -> str:
-        return self.name
-
     @property
     def typing(self) -> Union[Awaitable, ContextManager]:
         """
@@ -499,6 +497,29 @@ class Channel(ClientSerializerMixin, IDMixin):
         :rtype: str
         """
         return f"<#{self.id}>"
+
+    @property
+    def voice_states(self) -> List["VoiceState"]:
+        """
+        Returns all voice states this channel has. Only applicable for voice channels.
+
+        :rtype: List[VoiceState]
+        """
+        if self.type != ChannelType.GUILD_VOICE:
+            raise LibraryException(
+                code=14, message="Cannot only get voice states from a voice channel!"
+            )
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .gw import VoiceState
+
+        states: List[VoiceState] = []
+
+        data = self._client.cache[VoiceState].values.values()
+        states.extend(state for state in data if state.channel_id == self.id)
+        return states
 
     def history(
         self,
