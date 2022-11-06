@@ -97,7 +97,7 @@ class DictSerializerMixin:
 
         def _serializer(obj: Any, attrib: attrs.Attribute, value: Any):
             if isinstance(value, Snowflake):
-                return str(value)
+                return int(value)
             if isinstance(value, Enum):
                 return value.value
             if isinstance(value, datetime):
