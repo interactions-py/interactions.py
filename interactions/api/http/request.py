@@ -1,6 +1,6 @@
 import asyncio
 import traceback
-from asyncio import AbstractEventLoop, Lock, get_event_loop, get_running_loop, new_event_loop
+from asyncio import Lock, get_running_loop
 from contextlib import suppress
 from json import dumps
 from logging import Logger
@@ -43,7 +43,6 @@ class _Request:
         "_global_lock",
     )
     token: str
-    _loop: AbstractEventLoop
     ratelimits: Dict[str, Limiter]  # bucket: Limiter
     buckets: Dict[str, str]  # endpoint: shared_bucket
     _headers: dict
@@ -55,10 +54,7 @@ class _Request:
         :type token: str
         """
         self.token = token
-        try:
-            self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
-        except RuntimeError:
-            self._loop = new_event_loop()
+        self._loop = get_running_loop()
         self.ratelimits = {}
         self.buckets = {}
         self._headers = {
@@ -68,9 +64,7 @@ class _Request:
             f"aiohttp/{http_version}",
         }
         self._session = ClientSession()
-        self._global_lock = (
-            Limiter(lock=Lock(loop=self._loop)) if version_info < (3, 10) else Limiter(lock=Lock())
-        )
+        self._global_lock = Limiter(lock=Lock())
 
     def _check_session(self) -> None:
         """Ensures that we have a valid connection session."""
@@ -127,11 +121,7 @@ class _Request:
                 self._loop.call_later(_limiter.reset_after, _limiter.release_lock)
             _limiter.reset_after = 0
         else:
-            self.ratelimits[bucket] = (
-                Limiter(lock=Lock(loop=self._loop))
-                if version_info < (3, 10)
-                else Limiter(lock=Lock())
-            )
+            self.ratelimits[bucket] = Limiter(lock=Lock())
             _limiter: Limiter = self.ratelimits.get(bucket)
 
         await _limiter.lock.acquire()  # _limiter is the per shared bucket/route endpoint

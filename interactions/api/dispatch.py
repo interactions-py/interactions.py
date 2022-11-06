@@ -1,4 +1,4 @@
-from asyncio import AbstractEventLoop, Future, get_event_loop
+from asyncio import AbstractEventLoop, Future, get_running_loop
 from logging import Logger
 from typing import Callable, Coroutine, Dict, List, Optional
 
@@ -20,7 +20,7 @@ class Listener:
     __slots__ = ("loop", "events", "extra_events")
 
     def __init__(self) -> None:
-        self.loop: AbstractEventLoop = get_event_loop()
+        self.loop: AbstractEventLoop = get_running_loop()
         self.events: Dict[str, List[Callable[..., Coroutine]]] = {}
         self.extra_events: Dict[str, List[Future]] = {}  # used in `Client.wait_for`
 

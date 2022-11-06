@@ -10,13 +10,11 @@ from asyncio import (
     Task,
     TimeoutError,
     create_task,
-    get_event_loop,
     get_running_loop,
-    new_event_loop,
     wait,
     wait_for,
 )
-from sys import platform, version_info
+from sys import platform
 from time import perf_counter
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
 from zlib import decompressobj
@@ -142,25 +140,19 @@ class WebSocketClient:
         :param presence?: The presence shown on an application once first connected. Defaults to ``None``.
         :type presence?: Optional[ClientPresence]
         """
-        try:
-            self._loop = get_event_loop() if version_info < (3, 10) else get_running_loop()
-        except RuntimeError:
-            self._loop = new_event_loop()
+
+        self._loop = get_running_loop()
         self._dispatch: Listener = Listener()
         self.__unavailable_guilds = []
 
-        self._ratelimiter = (
-            WSRateLimit(loop=self._loop) if version_info < (3, 10) else WSRateLimit()
-        )
-        self.__heartbeater: _Heartbeat = _Heartbeat(
-            loop=self._loop if version_info < (3, 10) else None
-        )
+        self._ratelimiter = WSRateLimit()
+        self.__heartbeater: _Heartbeat = _Heartbeat()
         self._http: HTTPClient = token
         self._cache: "Cache" = cache
 
         self._client: Optional["ClientWebSocketResponse"] = None
 
-        self.__closed: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
+        self.__closed: Event = Event()
         self._options: dict = {
             "max_msg_size": 0,
             "timeout": 60,
@@ -176,21 +168,21 @@ class WebSocketClient:
         self.__presence: Optional[ClientPresence] = None if presence is MISSING else presence
 
         self._task: Optional[Task] = None
-        self.__heartbeat_event = Event(loop=self._loop) if version_info < (3, 10) else Event()
+        self.__heartbeat_event = Event()
         self.__started: bool = False
 
         self.session_id: Optional[str] = None if session_id is MISSING else session_id
         self.sequence: Optional[str] = None if sequence is MISSING else sequence
-        self.ready: Event = Event(loop=self._loop) if version_info < (3, 10) else Event()
+        self.ready: Event = Event()
 
         self._last_send: float = perf_counter()
         self._last_ack: float = perf_counter()
 
         self.resume_url: Optional[str] = None
         self.ws_url: Optional[str] = None
-        self.reconnect_lock = Lock(loop=self._loop) if version_info < (3, 10) else Lock()
+        self.reconnect_lock = Lock()
 
-        self._closing_lock = Event(loop=self._loop) if version_info < (3, 10) else Event()
+        self._closing_lock = Event()
 
         self.__stopping: Optional[Task] = None
 
@@ -1193,6 +1185,8 @@ class WebSocketClient:
         """
         Closes the current connection.
         """
+        await self._http._req.close()
+
         if self._client:
             await self._client.close()
         self.__closed.set()

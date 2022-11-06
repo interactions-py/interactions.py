@@ -1,8 +1,6 @@
 import asyncio
 import logging
-from sys import version_info
 from time import time
-from typing import Optional
 
 log = logging.getLogger("gateway.ratelimit")
 
@@ -22,8 +20,8 @@ class WSRateLimit:
     :ivar float per_second: A constant denoting how many requests can be done per unit of seconds. (i.e., per 60 seconds, per 45, etc.)
     """
 
-    def __init__(self, loop: Optional[asyncio.AbstractEventLoop] = None):
-        self.lock = asyncio.Lock(loop=loop) if version_info < (3, 10) else asyncio.Lock()
+    def __init__(self):
+        self.lock = asyncio.Lock()
         # To conserve timings, we need to do 115/60
         # Also, credit to d.py for their ratelimiter inspiration
 

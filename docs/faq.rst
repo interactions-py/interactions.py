@@ -50,11 +50,13 @@ What does that mean? Well, we'll show you:
 
 .. code-block:: python
 
+    import asyncio
     import interactions
+    import discord
     from discord.ext import commands
 
     client = interactions.Client(token="...")
-    dpy = commands.Bot(prefix="/")
+    dpy = commands.Bot(command_prefix="/", intents=...)
 
     @dpy.command()
     async def hello(ctx):
@@ -67,13 +69,10 @@ What does that mean? Well, we'll show you:
     async def test(ctx):
         await ctx.send("Hello from discord-interactions!")
 
-    loop = asyncio.get_event_loop()
+    async def main():
+        await asyncio.gather(client.astart(), dpy.start(token=token))
 
-    task2 = loop.create_task(dpy.start(token="...", bot=True))
-    task1 = loop.create_task(client.ready())
-
-    gathered = asyncio.gather(task1, task2, loop=loop)
-    loop.run_until_complete(gathered)
+    asyncio.run(main())
 
 Both of these variables ``interactions`` and ``dpy`` will be able to run in the same established environment, and additionally
 will both function properly as their respective libraries intend them to. This implementation uses asyncio.gather to execute

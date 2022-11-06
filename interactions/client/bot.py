@@ -2,7 +2,14 @@ import contextlib
 import logging
 import re
 import sys
-from asyncio import AbstractEventLoop, CancelledError, get_event_loop, iscoroutinefunction, wait_for
+from asyncio import (
+    AbstractEventLoop,
+    CancelledError,
+    get_running_loop,
+    iscoroutinefunction,
+    run,
+    wait_for,
+)
 from functools import wraps
 from importlib import import_module
 from importlib.util import resolve_name
@@ -90,7 +97,6 @@ class Client:
         disable_sync: bool = False,
         **kwargs,
     ) -> None:
-        self._loop: AbstractEventLoop = get_event_loop()
         self._http: Union[str, HTTPClient] = token
         self._intents: Intents = intents
         self._shards: List[Tuple[int]] = shards or []
@@ -123,13 +129,7 @@ class Client:
             }
 
         self._cache: Cache = Cache(cache_limits)
-        self._websocket: WSClient = WSClient(
-            token=token,
-            cache=self._cache,
-            intents=self._intents,
-            shards=self._shards,
-            presence=self._presence,
-        )
+        self._websocket: Optional[WSClient] = None
 
         _logging = kwargs.get("logging", _logging)
         if _logging:
@@ -156,6 +156,10 @@ class Client:
             self._automate_sync = True
 
     @property
+    def _loop(self) -> AbstractEventLoop:
+        return get_running_loop()
+
+    @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
 
@@ -167,18 +171,24 @@ class Client:
 
         return self._websocket.latency * 1000
 
-    def start(self) -> None:
+    async def astart(self):
         """Starts the client session."""
-
         try:
-            self._loop.run_until_complete(self._ready())
+            await self._ready()
         except (CancelledError, Exception) as e:
-            self._loop.run_until_complete(self._logout())
+            await self._logout()
             raise e from e
         except KeyboardInterrupt:
             log.error("KeyboardInterrupt detected, shutting down the bot.")
         finally:
-            self._loop.run_until_complete(self._logout())
+            await self._logout()
+
+    def start(self):
+        """A helper method to run the client without needing to make an event loop."""
+        try:
+            run(self.astart())
+        except KeyboardInterrupt:
+            log.error("KeyboardInterrupt detected, shutting down the bot.")
 
     async def __register_id_autocomplete(self) -> None:  # TODO: make this use ID and not name
         for key in self.__id_autocomplete.keys():
@@ -398,6 +408,13 @@ class Client:
         ready: bool = False
 
         if isinstance(self._http, str):
+            self._websocket = WSClient(
+                token=self._http,
+                cache=self._cache,
+                intents=self._intents,
+                shards=self._shards,
+                presence=self._presence,
+            )
             self._http = HTTPClient(self._http, self._cache)
 
         data = await self._http.get_current_bot_information()
@@ -1901,7 +1918,7 @@ class Extension:
 
         self.client._Client__resolve_commands()  # noqa
 
-        if client._websocket.ready.is_set() and client._automate_sync:
+        if client._websocket and client._websocket.ready.is_set() and client._automate_sync:
             client._loop.create_task(client._Client__sync())  # noqa
 
         return self
