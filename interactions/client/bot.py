@@ -132,8 +132,8 @@ class Client:
         self._cache: Cache = Cache(cache_limits)
         self._websocket: Optional[WSClient] = None
 
-        # only used for wait_until_ready if needed
         self._inited_websocket: Optional[Event] = None
+        self._events_to_register: List[Tuple[Callable[..., Coroutine], str]] = []
 
         _logging = kwargs.get("logging", _logging)
         if _logging:
@@ -423,6 +423,9 @@ class Client:
 
         if self._inited_websocket:
             self._inited_websocket.set()
+
+        for event in self._events_to_register:
+            self._websocket._dispatch.register(event[0], name=event[1])
 
         data = await self._http.get_current_bot_information()
         self.me = Application(**data, _client=self._http)
@@ -787,15 +790,25 @@ class Client:
         """
 
         def decorator(coro: Optional[Callable[..., Coroutine]]):
-            self._websocket._dispatch.register(
-                coro, name=name if name is not MISSING else coro.__name__
-            )
+            if not self._websocket:
+                self._events_to_register.append(
+                    (coro, name if name is not MISSING else coro.__name__)
+                )
+            else:
+                self._websocket._dispatch.register(
+                    coro, name=name if name is not MISSING else coro.__name__
+                )
             return coro
 
         if coro is not MISSING:
-            self._websocket._dispatch.register(
-                coro, name=name if name is not MISSING else coro.__name__
-            )
+            if not self._websocket:
+                self._events_to_register.append(
+                    (coro, name if name is not MISSING else coro.__name__)
+                )
+            else:
+                self._websocket._dispatch.register(
+                    coro, name=name if name is not MISSING else coro.__name__
+                )
             return coro
 
         return decorator
