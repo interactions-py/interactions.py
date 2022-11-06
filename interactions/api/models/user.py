@@ -55,9 +55,6 @@ class User(ClientSerializerMixin, IDMixin):
     public_flags: Optional[UserFlags] = field(converter=UserFlags, default=None, repr=False)
     bio: Optional[str] = field(default=None)
 
-    def __str__(self) -> str:
-        return self.username
-
     def has_public_flag(self, flag: Union[UserFlags, int]) -> bool:
         if self.public_flags == 0 or self.public_flags is None:
             return False

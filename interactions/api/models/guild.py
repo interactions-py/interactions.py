@@ -482,9 +482,6 @@ class Guild(ClientSerializerMixin, IDMixin):
                 if not member._extras.get("guild_id"):
                     member._extras["guild_id"] = self.id
 
-    def __repr__(self) -> str:
-        return self.name
-
     async def ban(
         self,
         member_id: Union[int, Member, Snowflake],
