@@ -5,6 +5,7 @@ import sys
 from asyncio import (
     AbstractEventLoop,
     CancelledError,
+    Event,
     get_running_loop,
     iscoroutinefunction,
     run,
@@ -130,6 +131,9 @@ class Client:
 
         self._cache: Cache = Cache(cache_limits)
         self._websocket: Optional[WSClient] = None
+
+        # only used for wait_until_ready if needed
+        self._inited_websocket: Optional[Event] = None
 
         _logging = kwargs.get("logging", _logging)
         if _logging:
@@ -417,6 +421,9 @@ class Client:
             )
             self._http = HTTPClient(self._http, self._cache)
 
+        if self._inited_websocket:
+            self._inited_websocket.set()
+
         data = await self._http.get_current_bot_information()
         self.me = Application(**data, _client=self._http)
 
@@ -496,6 +503,10 @@ class Client:
 
     async def wait_until_ready(self) -> None:
         """Helper method that waits until the websocket is ready."""
+        if not self._websocket:
+            self._inited_websocket = Event()
+            await self._inited_websocket.wait()
+
         await self._websocket.wait_until_ready()
 
     async def __get_all_commands(self) -> None:
