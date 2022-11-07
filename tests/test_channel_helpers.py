@@ -50,7 +50,8 @@ async def test_channel_send_embeds_and_components(channel):
             interactions.Button(style=2, label="hi"),
         ],
     )
-    msg._json["author"].pop("_client")
+    print(msg._json)
+    msg._json["author"].pop("_client", None)
 
     assert isinstance(msg, interactions.Message) and msg._json == dict(
         content="",
@@ -75,7 +76,15 @@ async def test_channel_send_embeds_and_components(channel):
             },
         ],
         allowed_mentions={},
-        components=[{"type": 1, "components": [[], []]}],
+        components=[
+            {
+                "type": 1,
+                "components": [
+                    {"style": 1, "label": "purr", "type": 2},
+                    {"style": 2, "label": "hi", "type": 2},
+                ],
+            }
+        ],
         sticker_ids=[],
         author={"id": None, "username": None, "discriminator": None},
     )

@@ -288,6 +288,7 @@ def _build_components(components) -> List[dict]:
                         "type": 1,
                         "components": [
                             component._json
+                            # stop checking custom ID/url existence, it'll error from the API anyways!
                             for component in (
                                 action_row
                                 if isinstance(action_row, list)
