@@ -237,7 +237,7 @@ class ActionRow(DictSerializerMixin):
     components: Optional[List[Component]] = field(converter=convert_list(Component), default=None)
 
     @classmethod
-    def new(cls, *components: Union[Button, SelectMenu, TextInput]) -> "ActionRow":
+    def new(cls, *components: Union[Button, SelectMenu, TextInput]) -> List["ActionRow"]:
         r"""
         A class method for creating a new ``ActionRow``.
 
