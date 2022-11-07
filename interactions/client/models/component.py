@@ -275,10 +275,7 @@ def _build_components(components) -> List[dict]:
 
         elif isinstance(components, ActionRow):
             _components: List[dict] = [{"type": 1, "components": []}]
-            _components[0]["components"] = [
-                component._json
-                for component in components.components
-            ]
+            _components[0]["components"] = [component._json for component in components.components]
             return _components
         else:
             return False
@@ -290,10 +287,7 @@ def _build_components(components) -> List[dict]:
             _components = [
                 {
                     "type": 1,
-                    "components": [
-                        component._json
-                        for component in components
-                    ],
+                    "components": [component._json for component in components],
                 }
             ]
             return _components
