@@ -262,10 +262,7 @@ def _build_components(components) -> List[dict]:
                     {
                         "type": 1,
                         "components": [
-                            (
-                                component_json
-                                else []
-                            )
+                            component._json
                             for component in (
                                 action_row
                                 if isinstance(action_row, list)
@@ -279,10 +276,7 @@ def _build_components(components) -> List[dict]:
         elif isinstance(components, ActionRow):
             _components: List[dict] = [{"type": 1, "components": []}]
             _components[0]["components"] = [
-                (
-                    component_json
-                    else []
-                )
+                component._json
                 for component in components.components
             ]
             return _components
@@ -297,31 +291,16 @@ def _build_components(components) -> List[dict]:
                 {
                     "type": 1,
                     "components": [
-                        (
-                            component_json
-                            else []
-                        )
+                        component._json
                         for component in components
                     ],
                 }
             ]
             return _components
 
-        elif isinstance(components, Button):
+        elif isinstance(components, (Button, SelectMenu)):
             _components: List[dict] = [{"type": 1, "components": []}]
-            _components[0]["components"] = (
-                [component_json]
-                else []
-            )
-            return _components
-        elif isinstance(components, SelectMenu):
-            _components: List[dict] = [{"type": 1, "components": []}]
-            _components[0]["components"] = (
-                [components_json]
-                if (components_json := components._json).get("custom_id")
-                or components_json.get("url")
-                else []
-            )
+            _components[0]["components"] = [components._json]
             return _components
         else:
             raise LibraryException(
