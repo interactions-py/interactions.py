@@ -210,6 +210,13 @@ class Modal(DictSerializerMixin):
     title: str = field()
     components: List[Component] = field(converter=convert_list(Component))
 
+    @property
+    def _json(self) -> dict:
+        json: dict = super()._json
+        json["components"] = [{"type": 1, "components": [component]} for component in json["components"]]
+
+        return json
+
 
 @define()
 class ActionRow(DictSerializerMixin):
