@@ -372,7 +372,6 @@ class WebSocketClient:
                             )
                             if _type:
                                 _type[option.value]._client = self._http
-                                # I'm not sure about line below because its doesn't affect anything
                                 option.value = _type[option.value]
                             _option = self.__sub_command_context(option, _context)
                             __kwargs.update(_option)
