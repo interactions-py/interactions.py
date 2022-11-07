@@ -311,8 +311,6 @@ def _build_components(components) -> List[dict]:
             _components: List[dict] = [{"type": 1, "components": []}]
             _components[0]["components"] = (
                 [component_json]
-                if (component_json := components._json).get("custom_id")
-                or component_json.get("url")
                 else []
             )
             return _components
