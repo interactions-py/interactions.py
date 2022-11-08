@@ -268,7 +268,9 @@ class AsyncMembersIterator(DiscordPaginationIterator):
 
         self.object_count += limit
 
-        self.objects = [Member(**member, _client=self._client) for member in members]
+        self.objects = [
+            Member(**member, _client=self._client, guild_id=self.object_id) for member in members
+        ]
 
     async def get_objects(self) -> None:
 
@@ -284,7 +286,9 @@ class AsyncMembersIterator(DiscordPaginationIterator):
 
         self.object_count += limit
 
-        self.objects.extend([Member(**member, _client=self._client) for member in members])
+        self.objects.extend(
+            [Member(**member, _client=self._client, guild_id=self.object_id) for member in members]
+        )
 
     async def flatten(self) -> List[Member]:
         """returns all remaining items as list"""
