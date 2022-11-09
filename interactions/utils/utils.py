@@ -245,7 +245,7 @@ def get_channel_history(
     channel: Union[int, str, "Snowflake", "Channel"],
     start_at: Optional[Union[int, str, "Snowflake", "Message"]] = MISSING,
     reverse: Optional[bool] = False,
-    check: Optional[Callable[["Message"], bool]] = None,
+    check: Optional[Callable[["Message"], Union[bool, Awaitable[bool]]]] = None,
     maximum: Optional[int] = inf,
 ) -> "AsyncHistoryIterator":
     """
@@ -255,7 +255,7 @@ def get_channel_history(
     :param Union[int, str, Snowflake, Channel] channel: The channel to get the history from
     :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
     :param Optional[bool] reverse: Whether to only get newer message. Default False
-    :param Optional[Callable[[Message], bool]] check: A check to ignore specific messages
+    :param Optional[Callable[["Message"], Union[bool, Awaitable[bool]]]] check: A check to ignore specific messages
     :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
 
     :return: An asynchronous iterator over the history of the channel
@@ -277,7 +277,7 @@ def get_guild_members(
     http: Union["HTTPClient", "Client"],
     guild: Union[int, str, "Snowflake", "Guild"],
     start_at: Optional[Union[int, str, "Snowflake", "Member"]] = MISSING,
-    check: Optional[Callable[["Member"], bool]] = None,
+    check: Optional[Callable[["Member"], Union[bool, Awaitable[bool]]]] = None,
     maximum: Optional[int] = inf,
 ) -> "AsyncMembersIterator":
     """
@@ -286,7 +286,7 @@ def get_guild_members(
     :param Union[HTTPClient, Client] http: The HTTPClient of the bot or your bot instance
     :param Union[int, str, Snowflake, Guild] guild: The channel to get the history from
     :param Optional[Union[int, str, Snowflake, Member]] start_at: The message to begin getting the history from
-    :param Optional[Callable[[Member], bool]] check: A check to ignore specific messages
+    :param Optional[Callable[["Member"], Union[bool, Awaitable[bool]]]] check: A check to ignore specific messages
     :param Optional[int] maximum: A set maximum of members to get before stopping the iteration
 
     :return: An asynchronous iterator over the history of the channel

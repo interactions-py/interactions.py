@@ -1505,7 +1505,7 @@ class Client:
         Unlike event decorators, this is not persistent, and can be used to only proceed in a command once an event happens.
 
         :param str name: The event to wait for
-        :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param Optional[Callable[..., Union[bool, Awaitable[bool]]]] check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param float timeout: How long to wait for the event before raising an error
         :return: The value of the dispatched event
         :rtype: Any
@@ -1541,7 +1541,7 @@ class Client:
             List[Union[str, Button, SelectMenu]],
         ] = None,
         messages: Union[Message, int, List[Union[Message, int]]] = None,
-        check: Optional[Callable[..., Union[bool, Awaitable[bool]]]] = None,
+        check: Optional[Callable[[ComponentContext], Union[bool, Awaitable[bool]]]] = None,
         timeout: Optional[float] = None,
     ) -> ComponentContext:
         """
@@ -1552,8 +1552,8 @@ class Client:
             Another possibility is using the :meth:`.Client.wait_for_select` method.
 
         :param Union[str, Button, SelectMenu, List[Union[str, Button, SelectMenu]]] components: The component(s) to wait for
-        :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
-        :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param Union[Message, int, List[Union[Message, int]]] messages: The message(s) to check for
+        :param Optional[Callable[ComponentContext, Union[bool, Awaitable[bool]]]] check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param float timeout: How long to wait for the event before raising an error
         :return: The ComponentContext of the dispatched event
         :rtype: ComponentContext
@@ -1613,7 +1613,7 @@ class Client:
             List[Union[str, SelectMenu]],
         ] = None,
         messages: Union[Message, int, List[Union[Message, int]]] = None,
-        check: Optional[Callable[..., Union[bool, Awaitable[bool]]]] = None,
+        check: Optional[Callable[[ComponentContext], Union[bool, Awaitable[bool]]]] = None,
         timeout: Optional[float] = None,
     ) -> Tuple[ComponentContext, List[Union[str, Member, User, Role, Channel]]]:
         """
@@ -1630,8 +1630,8 @@ class Client:
 
 
         :param Union[str, SelectMenu, List[Union[str, SelectMenu]]] components: The component(s) to wait for
-        :param Union[interactions.Message, int, List[Union[interactions.Message, int]]] messages: The message(s) to check for
-        :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param Union[Message, int, List[Union[Message, int]]] messages: The message(s) to check for
+        :param Optional[Callable[ComponentContext, Union[bool, Awaitable[bool]]]] check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param float timeout: How long to wait for the event before raising an error
         :return: The ComponentContext and list of selections of the dispatched event
         :rtype: Tuple[ComponentContext, Union[List[str], List[Member], List[User], List[Channel], List[Role]]]
@@ -1660,7 +1660,7 @@ class Client:
     async def wait_for_modal(
         self,
         modals: Union[Modal, str, List[Union[Modal, str]]],
-        check: Optional[Callable[[CommandContext], bool]] = None,
+        check: Optional[Callable[[CommandContext], Union[bool, Awaitable[bool]]]] = None,
         timeout: Optional[float] = None,
     ) -> Tuple[CommandContext, List[str]]:
         """
@@ -1675,7 +1675,7 @@ class Client:
             ``modal_ctx, (field1, field2, ...) = await bot.wait_for_modal(...)``
 
         :param Union[Modal, str, List[Modal, str]] modals: The modal(s) to wait for
-        :param Callable check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param Optional[Callable[CommandContext, Union[bool, Awaitable[bool]]]] check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param Optional[float] timeout: How long to wait for the event before raising an error
         :return: The context of the modal, followed by the data the user inputted
         :rtype: tuple[CommandContext, list[str]]
