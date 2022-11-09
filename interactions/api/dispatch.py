@@ -70,10 +70,8 @@ class Listener:
 
         i.e. : async def on_guild_create -> "ON_GUILD_CREATE" dispatch.
 
-        :param coro: The coroutine to register as an event.
-        :type coro: Callable[..., Coroutine]
-        :param name?: The name to associate the coroutine with. Defaults to None.
-        :type name?: Optional[str]
+        :param Callable[..., Coroutine] coro: The coroutine to register as an event.
+        :param Optional[str] name: The name to associate the coroutine with. Defaults to None.
         """
         _name: str = coro.__name__ if name is None else name
         event = self.events.get(_name, [])

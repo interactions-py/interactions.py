@@ -19,18 +19,18 @@ Generally, you can listen to an event like this:
 
     # possibility 1
     @bot.event
-    async def on_(...):
+    async def on_xxx(...):
         ...  # do smth
 
     # possibility 2
-    @bot.event(name="on_")
+    @bot.event(name="on_xxx")
     async def you_are_free_to_name_this_as_you_want(...):
         ... # do smth
 
     bot.start()
 
 
-```` represents the Discord event name - but lowercase and any spaces replaced with ``_``.
+``xxx`` represents the Discord event name - but with lowercase characters and any spaces replaced with ``_``.
 
 For example:
 
@@ -74,7 +74,7 @@ as long as you don't absolutely need it.
 
 
 Event: ``on_start``
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This event fires only when the bot is started.
 
 This function takes no arguments.
@@ -83,7 +83,7 @@ This function takes no arguments.
     Unlike ``on_ready``, this event will never be dispatched more than once.
 
 Event: ``on_interaction``
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This event fires on any interaction (commands, components, autocomplete and modals).
 
 The function needs one argument. It will have the type ``CommandContext`` or ``ComponentContext``.
@@ -93,7 +93,7 @@ recommend using this event unless you have experience with it.
 
 
 Event: ``on_command``
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This event fires on any Application Command (slash command + context menu command) used.
 
 The function takes in one argument of the type ``CommandContext``.
@@ -113,7 +113,7 @@ The function takes in two arguments, one of the type ``CommandContext``, and the
 
 
 Event: ``on_component``
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This event fires on any Component used (for now, those are Buttons and Select Menus).
 
 The function takes in one argument of the type ``ComponentContext``.
@@ -141,9 +141,6 @@ The function takes in one argument of the type ``CommandContext``.
 You will have to get all values yourself and check what modal was used when using this event.
 
 
-Additionally, if you struggle with getting the values, you can check
-:ref:`how it is handled internally `.
-
 
 After this, let us look at events from the Discord API.
 
@@ -151,17 +148,17 @@ Discord API Events
 ******************
 
 Events in this section do not match the name needed to put into the function. Please check
-:ref:`above ` for how to get the correct name.
+:ref:`above<events:How to listen for events>` for how to get the correct name.
 
 
-There are a lot of events dispatched by the Discord API. All of those can be found `here`_.
+There are a lot of events dispatched by the Discord API. All of those can be found `here <https://discord.com/developers/docs/topics/gateway-events#receive-events>`_.
 
 The events ``HELLO``, ``RESUMED``, ``RECONNECT``, ``INVALID SESSION`` and ``TYPING START`` are not dispatched by the library.
 
 ``TYPING START`` will be included in the raw socket create event. You can
 also listen for it if you choose to subclass the WebSocketClient
 
-The event ``VOICE STATE UPDATE`` can be only received with the voice :ref:`Extension `.
+The event ``VOICE STATE UPDATE`` can be only received with the :ref:`voice extension<faq:Extension libraries>`.
 
 
 Let's now have a look at a few events:
@@ -197,6 +194,3 @@ The function takes in one argument of the type ``GuildMember``.
 
 The argument has the same methods as a normal ``Member`` object, except the methods *do not take in a guild id*.
 Please keep that in mind when using this event.
-
-
-.. _here: https://Discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events

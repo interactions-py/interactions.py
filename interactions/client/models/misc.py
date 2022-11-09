@@ -7,7 +7,7 @@ from ...api.models.misc import Snowflake
 from ...api.models.role import Role
 from ...api.models.user import User
 from ...utils.attrs_utils import DictSerializerMixin, convert_dict, convert_list, define, field
-from ..enums import ApplicationCommandType, ComponentType, InteractionType, PermissionType
+from ..enums import ApplicationCommandType, ComponentType, InteractionType
 from ..models.command import Option
 from .component import ActionRow
 
@@ -50,13 +50,13 @@ class InteractionData(DictSerializerMixin):
     :ivar str id: The ID of the interaction data.
     :ivar str name: The name of the interaction.
     :ivar ApplicationCommandType type: The type of command from the interaction.
-    :ivar Optional[InteractionResolvedData] resolved?: The resolved version of the data.
-    :ivar Optional[Option, List[Option]] options?: The options of the interaction.
-    :ivar Optional[str] custom_id?: The custom ID of the interaction.
-    :ivar Optional[ComponentType] component_type?: The type of component from the interaction.
-    :ivar Optional[List[str]] values?: The values of the selected options in the interaction.
-    :ivar Optional[str] target_id?: The targeted ID of the interaction.
-    :ivar Optional[List[ActionRow]] components?: Array of Action Rows in modal.
+    :ivar Optional[InteractionResolvedData] resolved: The resolved version of the data.
+    :ivar Optional[Option, List[Option]] options: The options of the interaction.
+    :ivar Optional[str] custom_id: The custom ID of the interaction.
+    :ivar Optional[ComponentType] component_type: The type of component from the interaction.
+    :ivar Optional[List[str]] values: The values of the selected options in the interaction.
+    :ivar Optional[str] target_id: The targeted ID of the interaction.
+    :ivar Optional[List[ActionRow]] components: Array of Action Rows in modal.
     """
 
     id: Snowflake = field(converter=Snowflake, default=None)
@@ -81,14 +81,14 @@ class Interaction(DictSerializerMixin):
     :ivar str id: The ID of the interaction.
     :ivar str application_id: The application's ID of the interaction.
     :ivar InteractionType type: The type of interaction.
-    :ivar Optional[InteractionData] data?: The data of the interaction.
-    :ivar Optional[str] guild_id?: The guild ID of the interaction.
-    :ivar Optional[str] channel_id?: The channel ID of the interaction.
-    :ivar Optional[Member] member?: The member who invoked the interaction.
-    :ivar Optional[User] user?: The user who invoked the interaction.
+    :ivar Optional[InteractionData] data: The data of the interaction.
+    :ivar Optional[str] guild_id: The guild ID of the interaction.
+    :ivar Optional[str] channel_id: The channel ID of the interaction.
+    :ivar Optional[Member] member: The member who invoked the interaction.
+    :ivar Optional[User] user: The user who invoked the interaction.
     :ivar str token: The token of the interaction.
-    :ivar version: The version of the interaction as an autoincrement identifier.
-    :ivar Optional[Message] message?: The message of the interaction.
+    :ivar int version: The version of the interaction as an autoincrement identifier.
+    :ivar Optional[Message] message: The message of the interaction.
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -107,28 +107,3 @@ class Interaction(DictSerializerMixin):
         if self.member:
             if self.guild_id:
                 self.member._extras["guild_id"] = self.guild_id
-
-
-@define()
-class Permission(DictSerializerMixin):
-    """
-    A class object representing the permission of an application command.
-
-    The structure for a permission:
-
-    .. code-block:: python
-
-        interactions.Permission(
-            id=1234567890,
-            type=interactions.PermissionType.USER,
-            permission=True,
-        )
-
-    :ivar int id: The ID of the permission.
-    :ivar PermissionType type: The type of permission.
-    :ivar bool permission: The permission state. ``True`` for allow, ``False`` for disallow.
-    """
-
-    id: int = field()
-    type: PermissionType = field(converter=PermissionType)
-    permission: bool = field()
