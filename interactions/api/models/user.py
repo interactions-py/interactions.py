@@ -205,6 +205,12 @@ class User(ClientSerializerMixin, IDMixin):
         return Message(**res, _client=self._client)
 
     async def get_dm_channel(self) -> "Channel":
+        """
+        Gets the DM channel with the user
+
+        :return: The DM channel with the user
+        :rtype: Channel
+        """
         if not self._client:
             raise LibraryException(code=13)
         from .channel import Channel
