@@ -650,7 +650,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         auto_archive_duration: Optional[int] = MISSING,
         locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Channel":
+    ) -> "Channel":  # sourcery skip: low-code-quality
         """
         Edits the channel.
 
@@ -1085,11 +1085,13 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param Optional[bool] bulk: Whether to use the bulk delete endpoint for deleting messages. This only works for 14 days
 
             .. versionchanged:: 4.4.0
+
                 Purge now automatically continues deleting messages even after the 14 days limit was hit. Check
                 ``force_bulk`` for more information.
         :param Optional[st] reason: The reason of the deletes
         :param Optional[bool] force_bulk:
             .. versionadded:: 4.4.0
+
                 Whether to stop deleting messages when the 14 days bulk limit was hit, default ``False``
         :return: A list of the deleted messages
         :rtype: List[Message]
@@ -1618,7 +1620,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         files: Optional[List[File]] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Channel":
+    ) -> "Channel":  # sourcery skip: low-code-quality
         """
         Creates a new post inside a forum channel
 
