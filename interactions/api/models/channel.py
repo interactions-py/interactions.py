@@ -1129,7 +1129,6 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         return Message(**res, _client=self._client)
 
-    # fmt: off
     async def purge(
         self,
         amount: int,
@@ -1140,38 +1139,38 @@ class Channel(ClientSerializerMixin, IDMixin):
         force_bulk: Optional[bool] = False,
     ) -> List["Message"]:
         """
-        Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
+            Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
 
-        .. warning:: Calling this method can lead to rate-limits when purging higher amounts of messages.
+            .. warning:: Calling this method can lead to rate-limits when purging higher amounts of messages.
 
-        .. code-block:: python
+            .. code-block:: python
 
-            def check_pinned(message):
-                return not message.pinned  # This returns `True` only if the message is the message is not pinned
-            await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
+                def check_pinned(message):
+                    return not message.pinned  # This returns `True` only if the message is the message is not pinned
+                await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
 
-        :param amount: The amount of messages to delete
-        :type amount: int
-        :param check?: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
-        :type check?: Callable[[Message], bool]
-        :param before?: An id of a message to purge only messages before that message
-        :type before?: Optional[int]
-        :param bulk: Whether to use the bulk delete endpoint for deleting messages. This only works for 14 days
+            :param amount: The amount of messages to delete
+            :type amount: int
+            :param check?: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
+            :type check?: Callable[[Message], bool]
+            :param before?: An id of a message to purge only messages before that message
+            :type before?: Optional[int]
+            :param bulk: Whether to use the bulk delete endpoint for deleting messages. This only works for 14 days
 
-            .. versionchanged:: 4.4.0
-                Purge now automatically continues deleting messages even after the 14 days limit was hit. Check
-                ``force_bulk`` for more information.
-        :param bulk: Optional[bool]
-        :param reason?: The reason of the deletes
-        :type reason?: Optional[str]
+                .. versionchanged:: 4.4.0
+                    Purge now automatically continues deleting messages even after the 14 days limit was hit. Check
+                    ``force_bulk`` for more information.
+            :param bulk: Optional[bool]
+            :param reason?: The reason of the deletes
+            :type reason?: Optional[str]
 
-    .. versionadded:: 4.4.0
-        :param Optional[bool] force_bulk: Whether to stop deleting messages when the 14 days bulk limit was hit, default ``False``
+        .. versionadded:: 4.4.0
+            :param Optional[bool] force_bulk: Whether to stop deleting messages when the 14 days bulk limit was hit, default ``False``
 
-        :return: A list of the deleted messages
-        :rtype: List[Message]
+            :return: A list of the deleted messages
+            :rtype: List[Message]
         """
-        # fmt: on
+
         if not self._client:
             raise LibraryException(code=13)
         from .message import Message
