@@ -22,19 +22,19 @@ class User(ClientSerializerMixin, IDMixin):
     :ivar Snowflake id: The User ID
     :ivar str username: The Username associated (not necessarily unique across the platform)
     :ivar str discriminator: The User's 4-digit discord-tag (i.e.: XXXX)
-    :ivar Optional[str] avatar?: The user's avatar hash, if any
-    :ivar Optional[bool] bot?: A status denoting if the user is a bot
-    :ivar Optional[bool] system?: A status denoting if the user is an Official Discord System user
-    :ivar Optional[bool] mfa_enabled?: A status denoting if the user has 2fa on their account
-    :ivar Optional[str] banner?: The user's banner hash, if any
-    :ivar Optional[str] banner_color?: The user's banner color as a hex, if any
-    :ivar Optional[int] accent_color?: The user's banner color as an integer represented of hex color codes
-    :ivar Optional[str] locale?: The user's chosen language option
-    :ivar Optional[bool] verified?: Whether the email associated with this account has been verified
-    :ivar Optional[str] email?: The user's email, if any
-    :ivar Optional[UserFlags] flags?: The user's flags
-    :ivar Optional[int] premium_type?: The type of Nitro subscription the user has
-    :ivar Optional[UserFlags] public_flags?: The user's public flags
+    :ivar Optional[str] avatar: The user's avatar hash, if any
+    :ivar Optional[bool] bot: A status denoting if the user is a bot
+    :ivar Optional[bool] system: A status denoting if the user is an Official Discord System user
+    :ivar Optional[bool] mfa_enabled: A status denoting if the user has 2fa on their account
+    :ivar Optional[str] banner: The user's banner hash, if any
+    :ivar Optional[str] banner_color: The user's banner color as a hex, if any
+    :ivar Optional[int] accent_color: The user's banner color as an integer represented of hex color codes
+    :ivar Optional[str] locale: The user's chosen language option
+    :ivar Optional[bool] verified: Whether the email associated with this account has been verified
+    :ivar Optional[str] email: The user's email, if any
+    :ivar Optional[UserFlags] flags: The user's flags
+    :ivar Optional[int] premium_type: The type of Nitro subscription the user has
+    :ivar Optional[UserFlags] public_flags: The user's public flags
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -56,6 +56,7 @@ class User(ClientSerializerMixin, IDMixin):
     bio: Optional[str] = field(default=None)
 
     def has_public_flag(self, flag: Union[UserFlags, int]) -> bool:
+        """Returns whether the user has public flag."""
         if self.public_flags == 0 or self.public_flags is None:
             return False
         return bool(int(self.public_flags) & flag)
@@ -136,20 +137,13 @@ class User(ClientSerializerMixin, IDMixin):
         """
         Sends a DM to the user.
 
-        :param content?: The contents of the message as a string or string-converted value.
-        :type content?: Optional[str]
-        :param components?: A component, or list of components for the message.
-        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]]
-        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts?: Optional[bool]
-        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments?: Optional[List[Attachment]]
-        :param files?: A file or list of files to be attached to the message.
-        :type files?: Optional[Union[File, List[File]]]
-        :param embeds?: An embed, or list of embeds for the message.
-        :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The allowed mentions for the message.
-        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
+        :param Optional[str] content: The contents of the message as a string or string-converted value.
+        :param Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] components: A component, or list of components for the message.
+        :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Optional[Union[File, List[File]]] files: A file or list of files to be attached to the message.
+        :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
+        :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
         :return: The sent message as an object.
         :rtype: Message
         """

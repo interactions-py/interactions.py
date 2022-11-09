@@ -206,7 +206,7 @@ You can get those object via the ``get_channel()`` and ``get_guild()`` methods o
 
 
 "``ctx.send got an unexpected keyword argument: files``"! Why?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 It is not supported due to an decision of the core developer team.
 There are two ways to do it:
 
@@ -215,7 +215,7 @@ There are two ways to do it:
 
 
 "``ctx.send got an unexpected keyword argument: embed``"! Why?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is quite simple: The argument ``embed`` got deprecated by Discord. The new naming is ``embeds``.
 
 
@@ -244,7 +244,7 @@ You can additionally get the exact reason for why the exception occurred with ``
 
 
 My message content is always empty! How can I fix this?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This happens because you did not enable the intent for message content. Enable it on the developer portal and
 add it into the ``Client`` definition as the following:
 ``bot = interactions.Client(..., intents=interactions.Intents.DEFAULT | interactions.Intents.GUILD_MESSAGE_CONTENT)``

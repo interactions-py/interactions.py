@@ -1,6 +1,6 @@
 .. currentmodule:: interactions
 
-Model Objects
+API Models
 =============
 
 .. toctree::
@@ -20,3 +20,4 @@ Model Objects
     api.models.team.rst
     api.models.user.rst
     api.models.webhook.rst
+    enums.rst

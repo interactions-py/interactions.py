@@ -42,18 +42,21 @@ class ComponentMixin(DictSerializerMixin):
 @define()
 class SelectOption(ComponentMixin):
     """
-    A class object representing the select option of a select menu.
-    The structure for a select option: ::
+    A class object representing the select option of a select menu. The structure for a select option:
+
+    .. code-block:: python
+
         interactions.SelectOption(
             label="I'm a cool option. :)",
             value="internal_option_value",
             description="some extra info about me! :D",
         )
+
     :ivar str label: The label of the select option.
     :ivar str value: The returned value of the select option.
-    :ivar Optional[str] description?: The description of the select option.
-    :ivar Optional[Emoji] emoji?: The emoji used alongside the label of the select option.
-    :ivar Optional[bool] default?: Whether the select option is the default for the select menu.
+    :ivar Optional[str] description: The description of the select option.
+    :ivar Optional[Emoji] emoji: The emoji used alongside the label of the select option.
+    :ivar Optional[bool] default: Whether the select option is the default for the select menu.
     """
 
     label: str = field()
@@ -70,20 +73,23 @@ class SelectOption(ComponentMixin):
 @define()
 class SelectMenu(ComponentMixin):
     """
-    A class object representing the select menu of a component.
-    The structure for a select menu: ::
+    A class object representing the select menu of a component. The structure for a select menu:
+
+    .. code-block:: python
+
         interactions.SelectMenu(
             options=[interactions.SelectOption(...)],
             placeholder="Check out my options. :)",
             custom_id="menu_component",
         )
+
     :ivar ComponentType type: The type of select menu. If not given, it defaults to ``ComponentType.SELECT`` (``STRING_SELECT``)
     :ivar str custom_id: The customized "ID" of the select menu.
     :ivar Optional[List[SelectOption]] options: The list of select options in the select menu. This only applies to String-based selects.
-    :ivar Optional[str] placeholder?: The placeholder of the select menu.
-    :ivar Optional[int] min_values?: The minimum "options"/values to choose from the component.
-    :ivar Optional[int] max_values?: The maximum "options"/values to choose from the component.
-    :ivar Optional[bool] disabled?: Whether the select menu is unable to be used.
+    :ivar Optional[str] placeholder: The placeholder of the select menu.
+    :ivar Optional[int] min_values: The minimum "options"/values to choose from the component.
+    :ivar Optional[int] max_values: The maximum "options"/values to choose from the component.
+    :ivar Optional[bool] disabled: Whether the select menu is unable to be used.
     :ivar Optional[List[int]] channel_types:  Optional channel types to filter/whitelist. Only works with the CHANNEL_SELECT type.
     """
 
@@ -107,20 +113,23 @@ class SelectMenu(ComponentMixin):
 @define()
 class Button(ComponentMixin):
     """
-    A class object representing the button of a component.
-    The structure for a button: ::
+    A class object representing the button of a component. The structure for a button:
+
+    .. code-block:: python
+
         interactions.Button(
             style=interactions.ButtonStyle.DANGER,
             label="Delete",
             custom_id="delete_message",
         )
+
     :ivar ComponentType type: The type of button. Always defaults to ``2``.
     :ivar ButtonStyle style: The style of the button.
     :ivar str label: The label of the button.
-    :ivar Optional[Emoji] emoji?: The emoji used alongside the label of the button.
-    :ivar Optional[str] custom_id?: The customized "ID" of the button.
-    :ivar Optional[str] url?: The URL route/path of the button.
-    :ivar Optional[bool] disabled?: Whether the button is unable to be used.
+    :ivar Optional[Emoji] emoji: The emoji used alongside the label of the button.
+    :ivar Optional[str] custom_id: The customized "ID" of the button.
+    :ivar Optional[str] url: The URL route/path of the button.
+    :ivar Optional[bool] disabled: Whether the button is unable to be used.
     """
 
     type: ComponentType = field(converter=ComponentType, default=ComponentType.BUTTON)
@@ -145,26 +154,27 @@ class Component(ComponentMixin):
     .. note::
         ``components`` is only applicable if an ActionRow is supported, otherwise
         ActionRow-less will be opted. ``list`` is in reference to the class.
+
     .. warning::
         This object class is only inferred upon when the gateway is processing
         back information involving a component. Do not use this object for sending.
 
     :ivar ComponentType type: The type of component.
-    :ivar Optional[str] custom_id?: The customized "ID" of the component.
-    :ivar Optional[bool] disabled?: Whether the component is unable to be used.
-    :ivar Optional[ButtonStyle] style?: The style of the component.
-    :ivar Optional[str] label?: The label of the component.
-    :ivar Optional[Emoji] emoji?: The emoji used alongside the label of the component.
-    :ivar Optional[str] url?: The URl route/path of the component.
-    :ivar Optional[List[SelectMenu]] options?: The "choices"/options of the component.
-    :ivar Optional[str] placeholder?: The placeholder text/value of the component.
-    :ivar Optional[int] min_values?: The minimum "options"/values to choose from the component.
-    :ivar Optional[int] max_values?: The maximum "options"/values to choose from the component.
-    :ivar Optional[List[Component]] components?: A list of components nested in the component.
-    :ivar Optional[int] min_length?: The minimum input length to choose from the component.
-    :ivar Optional[int] max_length?: The maximum input length to choose from the component.
-    :ivar Optional[bool] required?: Whether this component is required to be filled.
-    :ivar Optional[str] value?: The pre-filled value of the component.
+    :ivar Optional[str] custom_id: The customized "ID" of the component.
+    :ivar Optional[bool] disabled: Whether the component is unable to be used.
+    :ivar Optional[ButtonStyle] style: The style of the component.
+    :ivar Optional[str] label: The label of the component.
+    :ivar Optional[Emoji] emoji: The emoji used alongside the label of the component.
+    :ivar Optional[str] url: The URl route/path of the component.
+    :ivar Optional[List[SelectMenu]] options: The "choices"/options of the component.
+    :ivar Optional[str] placeholder: The placeholder text/value of the component.
+    :ivar Optional[int] min_values: The minimum "options"/values to choose from the component.
+    :ivar Optional[int] max_values: The maximum "options"/values to choose from the component.
+    :ivar Optional[List[Component]] components: A list of components nested in the component.
+    :ivar Optional[int] min_length: The minimum input length to choose from the component.
+    :ivar Optional[int] max_length: The maximum input length to choose from the component.
+    :ivar Optional[bool] required: Whether this component is required to be filled.
+    :ivar Optional[str] value: The pre-filled value of the component.
     """
 
     type: ComponentType = field(converter=ComponentType)
@@ -197,8 +207,10 @@ class Component(ComponentMixin):
 @define()
 class TextInput(ComponentMixin):
     """
-    A class object representing the text input of a modal.
-    The structure for a text input: ::
+    A class object representing the text input of a modal. The structure for a text input:
+
+    .. code-block:: python
+
         interactions.TextInput(
             style=interactions.TextStyleType.SHORT,
             label="Let's get straight to it: what's 1 + 1?",
@@ -206,15 +218,16 @@ class TextInput(ComponentMixin):
             min_length=2,
             max_length=3,
         )
+
     :ivar ComponentType type: The type of input. Always defaults to ``4``.
     :ivar TextStyleType style: The style of the input.
     :ivar str custom_id: The custom Id of the input.
     :ivar str label: The label of the input.
     :ivar Optional[str] value: The pre-filled value of the input.
-    :ivar Optional[bool] required?: Whether the input is required or not.
-    :ivar Optional[str] placeholder?: The placeholder of the input.
-    :ivar Optional[int] min_length?: The minimum length of the input.
-    :ivar Optional[int] max_length?: The maximum length of the input.
+    :ivar Optional[bool] required: Whether the input is required or not.
+    :ivar Optional[str] placeholder: The placeholder of the input.
+    :ivar Optional[int] min_length: The minimum length of the input.
+    :ivar Optional[int] max_length: The maximum length of the input.
     """
 
     type: ComponentType = field(converter=ComponentType, default=ComponentType.INPUT_TEXT)
@@ -234,8 +247,10 @@ class TextInput(ComponentMixin):
 @define()
 class Modal(ComponentMixin):
     """
-    A class object representing a modal.
-    The structure for a modal: ::
+    A class object representing a modal. The structure for a modal:
+
+    .. code-block:: python
+
         interactions.Modal(
             title="Application Form",
             custom_id="mod_app_form",
@@ -272,7 +287,9 @@ class ActionRow(ComponentMixin):
         only.
 
     The structure for an action row:
-    ..code-block:: python
+
+    .. code-block:: python
+
         # "..." represents a component object.
         # Method 1:
         interactions.ActionRow(...)
@@ -280,7 +297,7 @@ class ActionRow(ComponentMixin):
         interactions.ActionRow(components=[...])
 
     :ivar int type: The type of component. Always defaults to ``1``.
-    :ivar Optional[List[Component]] components?: A list of components the ActionRow has, if any.
+    :ivar Optional[List[Component]] components: A list of components the ActionRow has, if any.
     """
 
     type: ComponentType = field(ComponentType, default=ComponentType.ACTION_ROW)
@@ -311,8 +328,7 @@ class ActionRow(ComponentMixin):
         r"""
         A class method for creating a new ``ActionRow``.
 
-        :param \*components: The components to add to the ``ActionRow``.
-        :type \*components: Union[Button, SelectMenu, TextInput]
+        :param Union[Button, SelectMenu, TextInput] \*components: The components to add to the ``ActionRow``.
         :return: A new ``ActionRow``.
         :rtype: ActionRow
         """
