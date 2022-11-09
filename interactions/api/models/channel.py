@@ -1077,16 +1077,21 @@ class Channel(ClientSerializerMixin, IDMixin):
 
             def check_pinned(message):
                 return not message.pinned  # This returns `True` only if the message is the message is not pinned
-            await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
+            await channel.purge(100, check=check_pinned)
+            # This will delete the newest 100 messages that are not pinned in that channel
 
         :param int amount: The amount of messages to delete
-        :param Optional[Callable[[Any], Union[bool, Awaitable[bool]]]] check: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
+        :param Optional[Callable[[Any], Union[bool, Awaitable[bool]]]] check:
+            The function used to check if a message should be deleted.
+            The message is only deleted if the check returns `True`
         :param Optional[int] before: An id of a message to purge only messages before that message
-        :param Optional[bool] bulk: Whether to use the bulk delete endpoint for deleting messages. This only works for 14 days
+        :param Optional[bool] bulk:
+            Whether to use the bulk delete endpoint for deleting messages. This only works for 14 days
 
             .. versionchanged:: 4.4.0
                 Purge now automatically continues deleting messages even after the 14 days limit was hit. Check
-                ``force_bulk`` for more information.
+                ``force_bulk`` for more information. If the 14 days span is exceeded the bot will encounter rate-limits
+                more frequently.
         :param Optional[st] reason: The reason of the deletes
         :param Optional[bool] force_bulk:
             .. versionadded:: 4.4.0
