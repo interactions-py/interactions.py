@@ -250,7 +250,7 @@ class AutoModTriggerMetadata(DictSerializerMixin):
 
     :ivar Optional[List[str]] keyword_filter: Words to match against content.
     :ivar Optional[List[str]] regex_patterns: Regular expression patterns to match against content.
-    :ivar Optional[List[str]] presets: The internally pre-defined wordsets which will be searched for in content.
+    :ivar Optional[List[AutoModKeywordPresetTypes]] presets: The internally pre-defined wordsets which will be searched for in content.
     :ivar Optional[List[str]] allow_list: Substrings which will be exempt from triggering the preset trigger type.
     :ivar Optional[int] mention_total_limit: Total number of unique role and user mentions allowed per message.
     """
