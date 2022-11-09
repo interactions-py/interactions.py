@@ -1156,14 +1156,15 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param before?: An id of a message to purge only messages before that message
         :type before?: Optional[int]
         :param bulk?: Whether to use the bulk delete endpoint for deleting messages. This only works for 14 days
+
             .. versionchanged:: 4.4.0
                 Purge now automatically continues deleting messages even after the 14 days limit was hit. Check
                 ``force_bulk`` for more information.
         :param bulk: Optional[bool]
         :param reason?: The reason of the deletes
         :type reason?: Optional[str]
-        .. versionadded:: 4.4.0
-            :param Optional[bool] force_bulk: Whether to stop deleting messages when the 14 days bulk limit was hit, default ``False``
+            .. versionadded:: 4.4.0
+        :param Optional[bool] force_bulk: Whether to stop deleting messages when the 14 days bulk limit was hit, default ``False``
         :return: A list of the deleted messages
         :rtype: List[Message]
         """
