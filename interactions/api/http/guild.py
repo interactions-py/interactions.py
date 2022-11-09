@@ -742,9 +742,8 @@ class GuildRequest:
             payload["exempt_channels"] = exempt_channels
 
         return await self._req.request(
-            Route(
-                "POST", f"/guilds/{guild_id}/auto-moderation/rules"), json=payload, reason=reason
-            )
+            Route("POST", f"/guilds/{guild_id}/auto-moderation/rules"), json=payload, reason=reason
+        )
 
     async def modify_auto_moderation_rule(
         self,
