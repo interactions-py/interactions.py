@@ -679,7 +679,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         auto_archive_duration: Optional[int] = MISSING,
         locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Channel":
+    ) -> "Channel":  # sourcery skip: low-code-quality
         """
         Edits the channel.
 
@@ -1136,7 +1136,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
-    ) -> List["Message"]:  # noqa  # sourcery skip: low-code-quality
+        force_bulk: Optional[bool] = False,
+    ) -> List["Message"]:
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
 
@@ -1154,10 +1155,15 @@ class Channel(ClientSerializerMixin, IDMixin):
         :type check?: Callable[[Message], bool]
         :param before?: An id of a message to purge only messages before that message
         :type before?: Optional[int]
-        :param bulk?: Whether to bulk delete the messages (you cannot delete messages older than 14 days, default) or to delete every message seperately
+        :param bulk?: Whether to use the bulk delete endpoint for deleting messages. This only works for 14 days
+            .. versionchanged:: 4.4.0
+                Purge now automatically continues deleting messages even after the 14 days limit was hit. Check
+                ``force_bulk`` for more information.
         :param bulk: Optional[bool]
         :param reason?: The reason of the deletes
         :type reason?: Optional[str]
+        .. versionadded:: 4.4.0
+            :param Optional[bool] force_bulk: Whether to stop deleting messages when the 14 days bulk limit was hit, default ``False``
         :return: A list of the deleted messages
         :rtype: List[Message]
         """
@@ -1167,6 +1173,141 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         _before = None if before is MISSING else before
         _all = []
+
+        def normal_delete():
+            nonlocal _before, _all, amount, check, reason
+
+        def bulk_delete():
+            nonlocal _before, _all, amount, check, reason
+
+            _allowed_time = datetime.now(tz=timezone.utc) - timedelta(days=14)
+            _stop = False
+            while amount > 100:
+
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=100,
+                        before=_before,
+                    )
+                ]
+                messages2 = messages.copy()
+                for message in messages2:
+                    if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
+                        messages.remove(message)
+                        _stop = True
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check is not MISSING:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+                if len(messages) > 1:
+                    await self._client.delete_messages(
+                        channel_id=int(self.id),
+                        message_ids=[int(message.id) for message in messages],
+                        reason=reason,
+                    )
+                elif len(messages) == 1:
+                    await self._client.delete_message(
+                        channel_id=int(self.id),
+                        message_id=int(messages[0].id),
+                        reason=reason,
+                    )
+                elif _stop:
+                    return _all
+                else:
+                    continue
+                if _stop:
+                    return _all
+
+                amount -= 100
+
+            while amount > 1:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=amount,
+                        before=_before,
+                    )
+                ]
+                messages2 = messages.copy()
+                for message in messages2:
+                    if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
+                        messages.remove(message)
+                        _stop = True
+                amount -= amount
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check is not MISSING:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+                if len(messages) > 1:
+                    await self._client.delete_messages(
+                        channel_id=int(self.id),
+                        message_ids=[int(message.id) for message in messages],
+                        reason=reason,
+                    )
+                elif len(messages) == 1:
+                    await self._client.delete_message(
+                        channel_id=int(self.id),
+                        message_id=int(messages[0].id),
+                        reason=reason,
+                    )
+                elif _stop:
+                    return _all
+                else:
+                    continue
+                if _stop:
+                    return _all
+            while amount == 1:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=amount,
+                        before=_before,
+                    )
+                ]
+                amount -= 1
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check is not MISSING:
+                        _check = check(message)
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+                if not messages:
+                    continue
+                await self._client.delete_message(
+                    channel_id=int(self.id),
+                    message_id=int(messages[0].id),
+                    reason=reason,
+                )
+
         if bulk:
             _allowed_time = datetime.now(tz=timezone.utc) - timedelta(days=14)
             _stop = False
@@ -1698,7 +1839,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         files: Optional[List[File]] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Channel":
+    ) -> "Channel":  # sourcery skip: low-code-quality
         """
         Creates a new post inside a forum channel
 
