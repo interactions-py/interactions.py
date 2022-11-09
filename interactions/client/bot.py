@@ -155,6 +155,20 @@ class Client:
         else:
             self._automate_sync = True
 
+    async def modify_nick_in_guild(
+        self, guild_id: Union[int, str, Snowflake, Guild], new_nick: Optional[str] = MISSING
+    ) -> Member:
+        if not self._http or isinstance(self._http, str):
+            raise LibraryException(
+                code=13, message="You cannot use this method until the bot has started!"
+            )
+        if new_nick is MISSING:
+            raise LibraryException(code=12, message="new nick name must either a string or `None`")
+        _id = int(guild_id.id) if isinstance(guild_id, Guild) else int(guild_id)
+        return Member(
+            **await self._http.modify_self_nick_in_guild(_id, new_nick), _client=self._http
+        )
+
     @property
     def guilds(self) -> List[Guild]:
         """Returns a list of guilds the bot is in."""
@@ -1517,6 +1531,10 @@ class Client:
         :return: The modified User object
         :rtype: User
         """
+        if not self._http or isinstance(self._http, str):
+            raise LibraryException(
+                code=13, message="You cannot use this method until the bot has started!"
+            )
         payload: dict = {}
         if avatar is not MISSING:
             payload["avatar"] = avatar.data

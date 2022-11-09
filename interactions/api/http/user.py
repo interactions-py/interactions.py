@@ -58,7 +58,9 @@ class UserRequest:
         :return: Nothing needed to be yielded.
         """
         return await self._req.request(
-            Route("PATCH", "/guilds/{guild_id}/members/@me/nick", guild_id=guild_id),
+            Route(
+                "PATCH", "/guilds/{guild_id}/members/@me", guild_id=guild_id
+            ),  # /nick isdeprecated
             json={"nick": nickname},
         )
 

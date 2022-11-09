@@ -2930,6 +2930,34 @@ class Guild(ClientSerializerMixin, IDMixin):
         res = await self._client.get_guild_invites(guild_id=int(self.id))
         return [Invite(**_, _client=self._client) for _ in res]
 
+    async def modify_bot_nick(self, new_nick: Optional[str] = MISSING) -> Member:
+        """
+        Changes a nickname of the current bot user in a guild.
+
+        :param Optional[str] new_nick: The new nickname, if any.
+        :return: The modified bot member object
+        :rtype: Member
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+        if new_nick is MISSING:
+            raise LibraryException(code=12, message="new nick name must either a string or `None`")
+
+        _member = Member(
+            **await self._client.modify_self_nick_in_guild(int(self.id), new_nick),
+            _client=self._client,
+        )
+        _member_id = int(_member.id)
+        if self.members is None:
+            self.members = []
+        for index, member in enumerate(self.members):
+            if int(member.id) == _member_id:
+                self.members[index] = _member
+                break
+        else:
+            self.members.append(_member)
+        return _member
+
     @property
     def icon_url(self) -> Optional[str]:
         """
