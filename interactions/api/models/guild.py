@@ -2932,6 +2932,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def modify_bot_nick(self, new_nick: Optional[str] = MISSING) -> Member:
         """
+        .. versionadded:: 4.4.0
+
         Changes a nickname of the current bot user in a guild.
 
         :param Optional[str] new_nick: The new nickname, if any.

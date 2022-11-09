@@ -158,6 +158,14 @@ class Client:
     async def modify_nick_in_guild(
         self, guild_id: Union[int, str, Snowflake, Guild], new_nick: Optional[str] = MISSING
     ) -> Member:
+        """
+        .. versionadded:: 4.4.0
+
+        Sets a new nick in the specified guild.
+
+        :param Union[int, str, Snowflake, Guild] guild_id: The ID of the guild to modify the nick in
+        :param Optional[str] new_nick: The new nick to assign
+        """
         if not self._http or isinstance(self._http, str):
             raise LibraryException(
                 code=13, message="You cannot use this method until the bot has started!"

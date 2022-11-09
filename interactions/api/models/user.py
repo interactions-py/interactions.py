@@ -206,6 +206,8 @@ class User(ClientSerializerMixin, IDMixin):
 
     async def get_dm_channel(self) -> "Channel":
         """
+        .. versionadded:: 4.4.0
+
         Gets the DM channel with the user
 
         :return: The DM channel with the user
