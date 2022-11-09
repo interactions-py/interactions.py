@@ -68,9 +68,8 @@ class _Context(ClientSerializerMixin):
     app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
 
     def __attrs_post_init__(self) -> None:
-        if self.member:
-            if self.guild_id:
-                self.member._extras["guild_id"] = self.guild_id
+        if self.member and self.guild_id:
+            self.member._extras["guild_id"] = self.guild_id
 
         self.author = self.member
 
@@ -211,7 +210,7 @@ class _Context(ClientSerializerMixin):
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
-    ) -> dict:
+    ) -> dict:  # sourcery skip: low-code-quality
         """
         This allows the invocation state described in the "context"
         to send an interaction response. This inherits the arguments
@@ -317,15 +316,9 @@ class _Context(ClientSerializerMixin):
         :rtype: bool
         """
         if operator == "and":
-            for perm in permissions:
-                if perm not in self.author.permissions:
-                    return False
-            return True
+            return all(perm in self.author.permissions for perm in permissions)
         else:
-            for perm in permissions:
-                if perm in self.author.permissions:
-                    return True
-            return False
+            return any(perm in self.author.permissions for perm in permissions)
 
 
 @define()
@@ -377,7 +370,9 @@ class CommandContext(_Context):
 
             self.target._client = self._client
 
-    async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
+    async def edit(
+        self, content: Optional[str] = MISSING, **kwargs
+    ) -> Message:  # sourcery skip: low-code-quality
 
         payload = await super().edit(content, **kwargs)
         msg = None
@@ -432,9 +427,7 @@ class CommandContext(_Context):
             else:
                 self.message = msg = Message(**res, _client=self._client)
 
-        if msg is not None:
-            return msg
-        return Message(**payload, _client=self._client)
+        return msg if msg is not None else Message(**payload, _client=self._client)
 
     async def defer(self, ephemeral: Optional[bool] = False) -> None:
         """
@@ -614,10 +607,7 @@ class ComponentContext(_Context):
             self.responded = True
             self.message = msg = Message(**res, _client=self._client)
 
-        if msg is not None:
-            return msg
-
-        return Message(**payload, _client=self._client)
+        return msg if msg is not None else Message(**payload, _client=self._client)
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload = await super().send(content, **kwargs)
@@ -653,9 +643,7 @@ class ComponentContext(_Context):
 
             self.responded = True
 
-        if msg is not None:
-            return msg
-        return Message(**payload, _client=self._client)
+        return msg if msg is not None else Message(**payload, _client=self._client)
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
@@ -702,18 +690,17 @@ class ComponentContext(_Context):
         if not respond_to_interaction:
             return await self.message.disable_all_components()
 
-        else:
-            for components in self.message.components:
-                for component in components.components:
-                    component.disabled = True
+        for components in self.message.components:
+            for component in components.components:
+                component.disabled = True
 
-            if other_kwargs.get("components"):
-                raise LibraryException(
-                    12, "You must not specify the `components` argument in this method."
-                )
+        if other_kwargs.get("components"):
+            raise LibraryException(
+                12, "You must not specify the `components` argument in this method."
+            )
 
-            other_kwargs["components"] = self.message.components
-            return await self.edit(**other_kwargs)
+        other_kwargs["components"] = self.message.components
+        return await self.edit(**other_kwargs)
 
     @property
     def custom_id(self) -> Optional[str]:
@@ -731,7 +718,7 @@ class ComponentContext(_Context):
 
         :rtype: Optional[str]
         """
-        if not self.data.component_type == ComponentType.BUTTON:
+        if self.data.component_type != ComponentType.BUTTON:
             return
         if self.message is None:
             return

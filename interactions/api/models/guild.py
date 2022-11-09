@@ -310,8 +310,8 @@ class AsyncMembersIterator(DiscordPaginationIterator):
 
             if not self.__stop and len(self.objects) < 5 and self.object_count <= self.maximum:
                 await self.get_objects()
-        except IndexError:
-            raise StopAsyncIteration
+        except IndexError as e:
+            raise StopAsyncIteration from e
         else:
             return obj
 

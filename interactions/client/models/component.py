@@ -455,7 +455,4 @@ def _build_components(components) -> List[dict]:
 
     _components = __check_action_row()
 
-    if _components:
-        return _components
-    else:
-        return __check_components()
+    return _components or __check_components()
