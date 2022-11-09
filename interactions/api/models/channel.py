@@ -133,7 +133,7 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
     :param Union[int, str, Snowflake, Channel] obj: The channel to get the history from
     :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
     :param Optional[bool] reverse: Whether to only get newer message. Default False
-    :param Optional[Callable[[Message], Union[bool, Awaitable[bool]]]] check: A check to ignore certain messages
+    :param Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] check: A check to ignore certain messages
     :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
     """
 
@@ -1711,8 +1711,6 @@ class Channel(ClientSerializerMixin, IDMixin):
         name: str,
         emoji_id: Optional[int] = MISSING,
         emoji_name: Optional[str] = MISSING,
-        moderated: Optional[bool] = MISSING,
-        reason: Optional[str] = None,
     ) -> Tags:
         """
         .. versionadded:: 4.3.2
@@ -1749,10 +1747,8 @@ class Channel(ClientSerializerMixin, IDMixin):
             payload["emoji_id"] = emoji_id
         if emoji_name is not MISSING:
             payload["emoji_name"] = emoji_name
-        if moderated is not MISSING:
-            payload["moderated"] = moderated
 
-        data = await self._client.create_tag(int(self.id), **payload, reason=reason)
+        data = await self._client.create_tag(int(self.id), **payload)
 
         return Tags(**data)
 
