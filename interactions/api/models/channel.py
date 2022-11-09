@@ -1163,8 +1163,10 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param bulk: Optional[bool]
         :param reason?: The reason of the deletes
         :type reason?: Optional[str]
+
         .. versionadded:: 4.4.0
         :param Optional[bool] force_bulk: Whether to stop deleting messages when the 14 days bulk limit was hit, default ``False``
+
         :return: A list of the deleted messages
         :rtype: List[Message]
         """
