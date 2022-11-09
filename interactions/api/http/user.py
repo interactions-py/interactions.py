@@ -60,7 +60,7 @@ class UserRequest:
         return await self._req.request(
             Route(
                 "PATCH", "/guilds/{guild_id}/members/@me", guild_id=guild_id
-            ),  # /nick isdeprecated
+            ),  # /nick is deprecated
             json={"nick": nickname},
         )
 
