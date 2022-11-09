@@ -1062,7 +1062,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     async def purge(
         self,
         amount: int,
-        check: Callable[[Any], bool] = MISSING,
+        check: Optional[Callable[[Any], Union[bool, Awaitable[bool]]]] = MISSING,
         before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
@@ -1080,18 +1080,16 @@ class Channel(ClientSerializerMixin, IDMixin):
             await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
 
         :param int amount: The amount of messages to delete
-        :param Optional[Callable[[Message], bool]] check: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
+        :param Optional[Callable[[Any], Union[bool, Awaitable[bool]]]] check: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
         :param Optional[int] before: An id of a message to purge only messages before that message
         :param Optional[bool] bulk: Whether to use the bulk delete endpoint for deleting messages. This only works for 14 days
 
             .. versionchanged:: 4.4.0
-
                 Purge now automatically continues deleting messages even after the 14 days limit was hit. Check
                 ``force_bulk`` for more information.
         :param Optional[st] reason: The reason of the deletes
         :param Optional[bool] force_bulk:
             .. versionadded:: 4.4.0
-
                 Whether to stop deleting messages when the 14 days bulk limit was hit, default ``False``
         :return: A list of the deleted messages
         :rtype: List[Message]
@@ -1103,8 +1101,41 @@ class Channel(ClientSerializerMixin, IDMixin):
         _before = None if before is MISSING else before
         _all = []
 
-        def normal_delete():
+        async def normal_delete():
             nonlocal _before, _all, amount, check, reason
+            while amount > 0:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=min(amount, 100),
+                        before=_before,
+                    )
+                ]
+
+                amount -= min(amount, 100)
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check is not MISSING:
+                        _check = check(message)
+                        if isawaitable(_check):
+                            _check = await _check
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+
+            for message in _all:
+                await self._client.delete_message(
+                    channel_id=int(self.id),
+                    message_id=int(message.id),
+                    reason=reason,
+                )
 
         async def bulk_delete():
             nonlocal _before, _all, amount, check, reason
@@ -1134,6 +1165,8 @@ class Channel(ClientSerializerMixin, IDMixin):
                         _before = int(message.id)
                     elif check is not MISSING:
                         _check = check(message)
+                        if isawaitable(_check):
+                            _check = await _check
                         if not _check:
                             messages.remove(message)
                             amount += 1
@@ -1183,6 +1216,8 @@ class Channel(ClientSerializerMixin, IDMixin):
                         _before = int(message.id)
                     elif check is not MISSING:
                         _check = check(message)
+                        if isawaitable(_check):
+                            _check = await _check
                         if not _check:
                             messages.remove(message)
                             amount += 1
@@ -1224,6 +1259,8 @@ class Channel(ClientSerializerMixin, IDMixin):
                         _before = int(message.id)
                     elif check is not MISSING:
                         _check = check(message)
+                        if isawaitable(_check):
+                            _check = await _check
                         if not _check:
                             messages.remove(message)
                             amount += 1
@@ -1239,39 +1276,11 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         if bulk:
             await bulk_delete()
+            if not force_bulk:
+                await normal_delete()
+            return _all
 
-        else:
-            while amount > 0:
-                messages = [
-                    Message(**res)
-                    for res in await self._client.get_channel_messages(
-                        channel_id=int(self.id),
-                        limit=min(amount, 100),
-                        before=_before,
-                    )
-                ]
-
-                amount -= min(amount, 100)
-                messages2 = messages.copy()
-                for message in messages2:
-                    if message.flags == (1 << 7):
-                        messages.remove(message)
-                        amount += 1
-                        _before = int(message.id)
-                    elif check is not MISSING:
-                        _check = check(message)
-                        if not _check:
-                            messages.remove(message)
-                            amount += 1
-                            _before = int(message.id)
-                _all += messages
-
-            for message in _all:
-                await self._client.delete_message(
-                    channel_id=int(self.id),
-                    message_id=int(message.id),
-                    reason=reason,
-                )
+        await normal_delete()
 
         return _all
 
