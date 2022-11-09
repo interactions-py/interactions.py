@@ -112,6 +112,8 @@ class ThreadMember(ClientSerializerMixin):
 
 class AsyncHistoryIterator(DiscordPaginationIterator):
     """
+    .. versionadded:: 4.3.2
+
     A class object that allows iterating through a channel's history.
 
     :param HTTPClient _client: The HTTPClient of the bot

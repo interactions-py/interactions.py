@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 from math import inf
 from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar, Union
 
@@ -14,10 +14,12 @@ if TYPE_CHECKING:
     from ...api.models.misc import Snowflake
 
 
-class BaseAsyncIterator(metaclass=ABCMeta):
-    """A base class for async iterators."""
+class BaseAsyncIterator(ABC):
+    """
+    .. versionadded:: 4.3.2
 
-    # I don't want to make it subclass the BaseIterator since it forces implementation of __next__ and __iter__
+    A base class for async iterators.
+    """
 
     @abstractmethod
     def __init__(self):
@@ -27,6 +29,9 @@ class BaseAsyncIterator(metaclass=ABCMeta):
         return self
 
     async def flatten(self):
+        """
+        Returns all items of the iterator as list
+        """
         return [item async for item in self]
 
     @abstractmethod
@@ -35,6 +40,12 @@ class BaseAsyncIterator(metaclass=ABCMeta):
 
 
 class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
+    """
+    .. versionadded:: 4.3.2
+
+    A base class for Discord Pagination Iterators.
+    """
+
     def __init__(
         self,
         obj: Union[int, str, "Snowflake", _T] = None,
@@ -59,8 +70,12 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
         self.objects: Optional[List[_O]] = None
 
 
-class BaseIterator(metaclass=ABCMeta):
-    """A base class for iterators"""
+class BaseIterator(ABC):
+    """
+    .. versionadded:: 4.3.2
+
+    A base class for iterators.
+    """
 
     @abstractmethod
     def __init__(self):
@@ -70,6 +85,9 @@ class BaseIterator(metaclass=ABCMeta):
         return self
 
     def flatten(self):
+        """
+        Returns all items of the iterator as list
+        """
         return [item for item in self]
 
     @abstractmethod

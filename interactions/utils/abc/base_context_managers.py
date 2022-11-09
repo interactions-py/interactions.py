@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import TypeVar
 
 _T = TypeVar("_T")
@@ -6,10 +6,12 @@ _T = TypeVar("_T")
 __all__ = ("BaseAsyncContextManager", "BaseContextManager")
 
 
-class BaseAsyncContextManager(metaclass=ABCMeta):
-    """A base class for async iterators."""
+class BaseAsyncContextManager(ABC):
+    """
+    .. versionadded:: 4.3.2
 
-    # I don't want to make it subclass the BaseContextManager since it forces implementation of __enter__ and __exit__
+    A base class for async context managers.
+    """
 
     @abstractmethod
     def __init__(self):
@@ -24,7 +26,13 @@ class BaseAsyncContextManager(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class BaseContextManager(metaclass=ABCMeta):
+class BaseContextManager(ABC):
+    """
+    .. versionadded:: 4.3.2
+
+    A base class for context managers.
+    """
+
     @abstractmethod
     def __init__(self):
         raise NotImplementedError
