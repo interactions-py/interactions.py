@@ -2942,6 +2942,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         """
         if not self._client:
             raise LibraryException(code=13)
+
         if new_nick is MISSING:
             raise LibraryException(code=12, message="new nick name must either a string or `None`")
 
@@ -2950,14 +2951,17 @@ class Guild(ClientSerializerMixin, IDMixin):
             _client=self._client,
         )
         _member_id = int(_member.id)
+
         if self.members is None:
             self.members = []
+
         for index, member in enumerate(self.members):
             if int(member.id) == _member_id:
                 self.members[index] = _member
                 break
         else:
             self.members.append(_member)
+
         return _member
 
     @property
