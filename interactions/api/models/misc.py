@@ -24,6 +24,7 @@ __all__ = (
     "AutoModKeywordPresetTypes",
     "AutoModTriggerType",
     "AutoModMetaData",
+    "AutoModActionTypes",
     "AutoModAction",
     "AutoModTriggerMetadata",
     "AllowedMentionType",
@@ -220,6 +221,12 @@ class AutoModKeywordPresetTypes(IntEnum):
     SLURS = 3
 
 
+class AutoModActionTypes(IntEnum):
+    BLOCK_MESSAGE = 1
+    SEND_ALERT_MESSAGE = 2
+    TIMEOUT = 3
+
+
 @define()
 class AutoModAction(DictSerializerMixin):
     """
@@ -233,11 +240,11 @@ class AutoModAction(DictSerializerMixin):
     .. note::
         The metadata can be omitted depending on the action type.
 
-    :ivar int type: Action type.
+    :ivar AutoModActionTypes type: Action type.
     :ivar AutoModMetaData metadata: Additional metadata needed during execution for this specific action type.
     """
 
-    type: int = field()
+    type: AutoModActionTypes = field(converter=AutoModActionTypes)
     metadata: Optional[AutoModMetaData] = field(converter=AutoModMetaData, default=None)
 
 
@@ -247,14 +254,16 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     A class object used to represent the trigger metadata from the AutoMod rule object.
 
     :ivar Optional[List[str]] keyword_filter: Words to match against content.
-    :ivar Optional[List[str]] presets: The internally pre-defined wordsets which will be searched for in content.
-    :ivar Optional[List[str]] allow_list: Substrings which will be exempt from triggering the preset trigger type
+    :ivar Optional[List[str]] regex_patterns: Regular expression patterns to match against content.
+    :ivar Optional[List[AutoModKeywordPresetTypes]] presets: The internally pre-defined wordsets which will be searched for in content.
+    :ivar Optional[List[str]] allow_list: Substrings which will be exempt from triggering the preset trigger type.
     :ivar Optional[int] mention_total_limit: Total number of unique role and user mentions allowed per message (Maximum of 50)
     """
 
     keyword_filter: Optional[List[str]] = field(default=None)
+    regex_patterns: Optional[List[str]] = field(default=None)
     presets: Optional[List[AutoModKeywordPresetTypes]] = field(
-        converter=convert_list(AutoModKeywordPresetTypes)
+        converter=convert_list(AutoModKeywordPresetTypes), default=None
     )
     allow_list: Optional[List[str]] = field(default=None)
     mention_total_limit: Optional[int] = field(default=None)

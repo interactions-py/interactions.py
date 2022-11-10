@@ -727,7 +727,7 @@ class GuildRequest:
         :return: A dictionary containing the new automod rule.
         """
 
-        params = {
+        payload = {
             "name": name,
             "event_type": event_type,
             "trigger_type": trigger_type,
@@ -735,16 +735,14 @@ class GuildRequest:
             "enabled": enabled,
         }
         if trigger_metadata:
-            params["trigger_metadata"] = trigger_metadata
+            payload["trigger_metadata"] = trigger_metadata
         if exempt_roles:
-            params["exempt_roles"] = exempt_roles
+            payload["exempt_roles"] = exempt_roles
         if exempt_channels:
-            params["exempt_channels"] = exempt_channels
+            payload["exempt_channels"] = exempt_channels
 
         return await self._req.request(
-            Route(
-                "POST", f"/guilds/{guild_id}/auto-moderation/rules/", params=params, reason=reason
-            )
+            Route("POST", f"/guilds/{guild_id}/auto-moderation/rules"), json=payload, reason=reason
         )
 
     async def modify_auto_moderation_rule(
