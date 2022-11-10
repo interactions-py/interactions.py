@@ -515,7 +515,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
         :param Optional[bool] reverse: Whether to only get newer message. Default False
         :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
-        :param Optional[Callable[["Message"], Union[bool, Awaitable[bool]]]] check: A custom check to ignore certain messages
+        :param Optional[Callable[[Message], Union[bool, Awaitable[bool]]]] check: A custom check to ignore certain messages
 
         :return: An asynchronous iterator over the history of the channel
         :rtype: AsyncHistoryIterator
