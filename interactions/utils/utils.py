@@ -286,7 +286,7 @@ def get_guild_members(
     :param Union[HTTPClient, Client] http: The HTTPClient of the bot or your bot instance
     :param Union[int, str, Snowflake, Guild] guild: The channel to get the history from
     :param Optional[Union[int, str, Snowflake, Member]] start_at: The message to begin getting the history from
-    :param Optional[Callable[["Member"], Union[bool, Awaitable[bool]]]] check: A check to ignore specific messages
+    :param Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] check: A check to ignore specific messages
     :param Optional[int] maximum: A set maximum of members to get before stopping the iteration
 
     :return: An asynchronous iterator over the history of the channel
