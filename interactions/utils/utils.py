@@ -255,7 +255,7 @@ def get_channel_history(
     :param Union[int, str, Snowflake, Channel] channel: The channel to get the history from
     :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
     :param Optional[bool] reverse: Whether to only get newer message. Default False
-    :param Optional[Callable[["Message"], Union[bool, Awaitable[bool]]]] check: A check to ignore specific messages
+    :param Optional[Callable[[Message], Union[bool, Awaitable[bool]]]] check: A check to ignore specific messages
     :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
 
     :return: An asynchronous iterator over the history of the channel
