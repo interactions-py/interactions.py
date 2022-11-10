@@ -1631,7 +1631,7 @@ class Client:
 
         :param Union[str, SelectMenu, List[Union[str, SelectMenu]]] components: The component(s) to wait for
         :param Union[Message, int, List[Union[Message, int]]] messages: The message(s) to check for
-        :param Optional[Callable[ComponentContext, Union[bool, Awaitable[bool]]]] check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param Optional[Callable[[ComponentContext], Union[bool, Awaitable[bool]]]] check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param float timeout: How long to wait for the event before raising an error
         :return: The ComponentContext and list of selections of the dispatched event
         :rtype: Tuple[ComponentContext, Union[List[str], List[Member], List[User], List[Channel], List[Role]]]
