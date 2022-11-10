@@ -159,6 +159,7 @@ class UserFlags(IntFlag):
     VERIFIED_DEVELOPER = 1 << 17
     DISCORD_CERTIFIED_MODERATOR = 1 << 18
     BOT_HTTP_INTERACTIONS = 1 << 19
+    ACTIVE_DEVELOPER = 1 << 22
 
 
 class AppFlags(IntFlag):
