@@ -63,9 +63,9 @@ class ClientStatus(DictSerializerMixin):
     """
     An object that symbolizes the status per client device per session.
 
-    :ivar Optional[str] desktop?: User's status set for an active desktop application session
-    :ivar Optional[str] mobile?: User's status set for an active mobile application session
-    :ivar Optional[str] web?: User's status set for an active web application session
+    :ivar Optional[str] desktop: User's status set for an active desktop application session
+    :ivar Optional[str] mobile: User's status set for an active mobile application session
+    :ivar Optional[str] web: User's status set for an active web application session
     """
 
     desktop: Optional[str] = field(default=None)
@@ -119,6 +119,7 @@ class Snowflake:
     def worker_id(self) -> int:
         """
         This is the Internal Worker ID of the snowflake.
+
         :return: An integer denoting the internal worker ID.
         """
         return (int(self._snowflake) & 0x3E0000) >> 17
@@ -127,6 +128,7 @@ class Snowflake:
     def process_id(self) -> int:
         """
         This is the Internal Process ID of the snowflake.
+
         :return: An integer denoting the internal process ID.
         """
         return (int(self._snowflake) & 0x1F000) >> 12
@@ -190,6 +192,7 @@ class IDMixin:
 class AutoModMetaData(DictSerializerMixin):
     """
     A class object used to represent the AutoMod Action Metadata.
+
     .. note::
         This is not meant to be instantiated outside the Gateway.
 
@@ -228,10 +231,12 @@ class AutoModActionTypes(IntEnum):
 class AutoModAction(DictSerializerMixin):
     """
     A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
+
     .. note::
         This is not to be confused with the GW event ``AUTO_MODERATION_ACTION_EXECUTION``.
         This object is not the same as that dispatched object. Moreover, that dispatched object name will be
         ``AutoModerationAction``
+
     .. note::
         The metadata can be omitted depending on the action type.
 
@@ -252,7 +257,7 @@ class AutoModTriggerMetadata(DictSerializerMixin):
     :ivar Optional[List[str]] regex_patterns: Regular expression patterns to match against content.
     :ivar Optional[List[AutoModKeywordPresetTypes]] presets: The internally pre-defined wordsets which will be searched for in content.
     :ivar Optional[List[str]] allow_list: Substrings which will be exempt from triggering the preset trigger type.
-    :ivar Optional[int] mention_total_limit: Total number of unique role and user mentions allowed per message.
+    :ivar Optional[int] mention_total_limit: Total number of unique role and user mentions allowed per message (Maximum of 50)
     """
 
     keyword_filter: Optional[List[str]] = field(default=None)
@@ -267,6 +272,7 @@ class AutoModTriggerMetadata(DictSerializerMixin):
 class Color(IntEnum):
     """
     An object representing Discord branding colors.
+
     .. note::
         This object only intends to cover the branding colors
         and no others. The main reason behind this is due to
@@ -375,10 +381,10 @@ class AllowedMentions(DictSerializerMixin):
     """
     A class object representing the allowed mentions object
 
-    :ivar parse?: Optional[List[AllowedMentionType]]: An array of allowed mention types to parse from the content.
-    :ivar users?: Optional[List[int]]: An array of user ids to mention.
-    :ivar roles?: Optional[List[int]]: An array of role ids to mention.
-    :ivar replied_user?: Optional[bool]: For replies, whether to mention the author of the message being replied to.
+    :ivar Optional[List[AllowedMentionType]] parse: An array of allowed mention types to parse from the content.
+    :ivar Optional[List[int]] users: An array of user ids to mention.
+    :ivar Optional[List[int]] roles: An array of role ids to mention.
+    :ivar Optional[bool] replied_user: For replies, whether to mention the author of the message being replied to.
     """
 
     parse: Optional[List[AllowedMentionType]] = field(

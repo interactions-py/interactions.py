@@ -74,7 +74,7 @@ class ThreadMetadata(DictSerializerMixin):
     :ivar int auto_archive_duration: The auto-archive time.
     :ivar datetime archive_timestamp: The timestamp that the thread will be/has been closed at.
     :ivar bool locked: The current message state of the thread.
-    :ivar Optional[bool] invitable?: The ability to invite users to the thread.
+    :ivar Optional[bool] invitable: The ability to invite users to the thread.
     """
 
     archived: bool = field()
@@ -93,7 +93,7 @@ class ThreadMember(ClientSerializerMixin):
         ``id`` only shows if there are active intents involved with the member
         in the thread.
 
-    :ivar Optional[Snowflake] id?: The "ID" or intents of the member.
+    :ivar Optional[Snowflake] id: The "ID" or intents of the member.
     :ivar Snowflake user_id: The user ID of the member.
     :ivar datetime join_timestamp: The timestamp of when the member joined the thread.
     :ivar int flags: The bitshift flags for the member in the thread.
@@ -114,18 +114,12 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
     """
     A class object that allows iterating through a channel's history.
 
-    :param _client: The HTTPClient of the bot
-    :type _client: HTTPClient
-    :param obj: The channel to get the history from
-    :type obj: Union[int, str, Snowflake, Channel]
-    :param start_at?: The message to begin getting the history from
-    :type start_at?: Optional[Union[int, str, Snowflake, Message]]
-    :param reverse?: Whether to only get newer message. Default False
-    :type reverse?: Optional[bool]
-    :param check?: A check to ignore certain messages
-    :type check?: Optional[Callable[[Member], bool]]
-    :param maximum?: A set maximum of messages to get before stopping the iteration
-    :type maximum?: Optional[int]
+    :param HTTPClient _client: The HTTPClient of the bot
+    :param Union[int, str, Snowflake, Channel] obj: The channel to get the history from
+    :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
+    :param Optional[bool] reverse: Whether to only get newer message. Default False
+    :param Optional[Callable[[Member], bool]] check: A check to ignore certain messages
+    :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
     """
 
     def __init__(
@@ -187,7 +181,7 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
         self.objects = [Message(**msg, _client=self._client) for msg in msgs]
 
     async def flatten(self) -> List["Message"]:
-        """returns all remaining items as list"""
+        """Returns all remaining items as list"""
         return [item async for item in self]
 
     async def get_objects(self) -> None:
@@ -241,8 +235,8 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
 
             if not self.__stop and len(self.objects) < 5 and self.object_count <= self.maximum:
                 await self.get_objects()
-        except IndexError:
-            raise StopAsyncIteration
+        except IndexError as e:
+            raise StopAsyncIteration from e
         else:
             return obj
 
@@ -251,10 +245,8 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
     """
     An async context manager for triggering typing.
 
-    :param obj: The channel to trigger typing in.
-    :type obj: Union[int, str, Snowflake, Channel]
-    :param _client: The HTTPClient of the bot
-    :type _client: HTTPClient
+    :param Union[int, str, Snowflake, Channel] obj: The channel to trigger typing in.
+    :param HTTPClient _client: The HTTPClient of the bot
     """
 
     def __init__(
@@ -268,7 +260,8 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
         except RuntimeError as e:
             raise RuntimeError("No running event loop detected!") from e
 
-        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self.object_id = (int(obj.id) if hasattr(obj, "id") else int(obj)) if obj else None
+
         self._client = _client
         self.__task: Optional[Task] = None
 
@@ -297,8 +290,8 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
 
     :ivar str name: Name of the tag. The limit is up to 20 characters.
     :ivar int id: ID of the tag. Can also be 0 if manually created.
-    :ivar bool moderated: A boolean denoting whether this tag can be removed/added by moderators with ``manage_threads`` permissions.
-    :ivar Optional[Emoji] emoji?: The emoji to represent the tag, if any.
+    :ivar bool moderated: A boolean denoting whether this tag can be removed/added by moderators with the :attr:`.Permissions.MANAGE_THREADS` permission.
+    :ivar Optional[Emoji] emoji: The emoji to represent the tag, if any.
 
     """
 
@@ -316,8 +309,7 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
         """
         Deletes this tag
 
-        :param channel_id: The ID of the channel where the tag belongs to
-        :type channel_id:  Union[int, str, Snowflake, Channel]
+        :param Union[int, str, Snowflake, Channel] channel_id: The ID of the channel where the tag belongs to
         """
         if isinstance(channel_id, Channel) and channel_id.type != ChannelType.GUILD_FORUM:
             raise LibraryException(code=14, message="Can only manage tags on a forum channel")
@@ -343,14 +335,10 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
             Can either have an emoji_id or an emoji_name, but not both.
             emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
 
-        :param channel_id: The ID of the channel where the tag belongs to
-        :type channel_id:  Union[int, str, Snowflake, Channel]
-        :param name: The new name of the tag
-        :type name: str
-        :param emoji_id: The ID of the emoji to use for the tag
-        :type emoji_id: Optional[int]
-        :param emoji_name: The name of the emoji to use for the tag
-        :type emoji_name: Optional[int]
+        :param Union[int, str, Snowflake, Channel] channel_id: The ID of the channel where the tag belongs to
+        :param str name: The new name of the tag
+        :param Optional[int] emoji_id: The ID of the emoji to use for the tag
+        :param Optional[int] emoji_name: The name of the emoji to use for the tag
         :return: The modified tag
         :rtype: Tags
         """
@@ -385,40 +373,36 @@ class Channel(ClientSerializerMixin, IDMixin):
     """
     A class object representing all types of channels.
 
-    .. note::
-        The purpose of this model is to be used as a base class, and
-        is never needed to be used directly.
-
     :ivar Snowflake id: The (snowflake) ID of the channel.
     :ivar ChannelType type: The type of channel.
-    :ivar Optional[Snowflake] guild_id?: The ID of the guild if it is not a DM channel.
-    :ivar Optional[int] position?: The position of the channel.
+    :ivar Optional[Snowflake] guild_id: The ID of the guild if it is not a DM channel.
+    :ivar Optional[int] position: The position of the channel.
     :ivar List[Overwrite] permission_overwrites: The non-synced permissions of the channel.
     :ivar str name: The name of the channel.
-    :ivar Optional[str] topic?: The description of the channel.
-    :ivar Optional[bool] nsfw?: Whether the channel is NSFW.
+    :ivar Optional[str] topic: The description of the channel.
+    :ivar Optional[bool] nsfw: Whether the channel is NSFW.
     :ivar Snowflake last_message_id: The ID of the last message sent.
-    :ivar Optional[int] bitrate?: The audio bitrate of the channel.
-    :ivar Optional[int] user_limit?: The maximum amount of users allowed in the channel.
-    :ivar Optional[int] rate_limit_per_user?: The concurrent ratelimit for users in the channel.
-    :ivar Optional[List[User]] recipients?: The recipients of the channel.
-    :ivar Optional[str] icon?: The icon of the channel.
-    :ivar Optional[Snowflake] owner_id?: The owner of the channel.
-    :ivar Optional[Snowflake] application_id?: The application of the channel.
-    :ivar Optional[Snowflake] parent_id?: The ID of the "parent"/main channel.
-    :ivar Optional[datetime] last_pin_timestamp?: The timestamp of the last pinned message in the channel.
-    :ivar Optional[str] rtc_region?: The region of the WebRTC connection for the channel.
-    :ivar Optional[int] video_quality_mode?: The set quality mode for video streaming in the channel.
+    :ivar Optional[int] bitrate: The audio bitrate of the channel.
+    :ivar Optional[int] user_limit: The maximum amount of users allowed in the channel.
+    :ivar Optional[int] rate_limit_per_user: The concurrent ratelimit for users in the channel.
+    :ivar Optional[List[User]] recipients: The recipients of the channel.
+    :ivar Optional[str] icon: The icon of the channel.
+    :ivar Optional[Snowflake] owner_id: The owner of the channel.
+    :ivar Optional[Snowflake] application_id: The application of the channel.
+    :ivar Optional[Snowflake] parent_id: The ID of the "parent"/main channel.
+    :ivar Optional[datetime] last_pin_timestamp: The timestamp of the last pinned message in the channel.
+    :ivar Optional[str] rtc_region: The region of the WebRTC connection for the channel.
+    :ivar Optional[int] video_quality_mode: The set quality mode for video streaming in the channel.
     :ivar int message_count: The amount of messages in the channel.
-    :ivar Optional[int] member_count?: The amount of members in the channel.
-    :ivar Optional[bool] newly_created?: Boolean representing if a thread is created.
-    :ivar Optional[ThreadMetadata] thread_metadata?: The thread metadata of the channel.
-    :ivar Optional[ThreadMember] member?: The member of the thread in the channel.
-    :ivar Optional[int] default_auto_archive_duration?: The set auto-archive time for all threads to naturally follow in the channel.
-    :ivar Optional[str] permissions?: The permissions of the channel.
-    :ivar Optional[int] flags?: The flags of the channel.
-    :ivar Optional[int] total_message_sent?: Number of messages ever sent in a thread.
-    :ivar Optional[int] default_thread_slowmode_delay?: The default slowmode delay in seconds for threads, if this channel is a forum.
+    :ivar Optional[int] member_count: The amount of members in the channel.
+    :ivar Optional[bool] newly_created: Boolean representing if a thread is created.
+    :ivar Optional[ThreadMetadata] thread_metadata: The thread metadata of the channel.
+    :ivar Optional[ThreadMember] member: The member of the thread in the channel.
+    :ivar Optional[int] default_auto_archive_duration: The set auto-archive time for all threads to naturally follow in the channel.
+    :ivar Optional[str] permissions: The permissions of the channel.
+    :ivar Optional[int] flags: The flags of the channel.
+    :ivar Optional[int] total_message_sent: Number of messages ever sent in a thread.
+    :ivar Optional[int] default_thread_slowmode_delay: The default slowmode delay in seconds for threads, if this channel is a forum.
     :ivar Optional[List[Tags]] available_tags: Tags in a forum channel, if any.
     :ivar Optional[Emoji] default_reaction_emoji: Default reaction emoji for threads created in a forum, if any.
     """
@@ -478,9 +462,6 @@ class Channel(ClientSerializerMixin, IDMixin):
                 if not self.recipients:
                     self.recipients = channel.recipients
 
-    def __repr__(self) -> str:
-        return self.name
-
     @property
     def typing(self) -> Union[Awaitable, ContextManager]:
         """
@@ -532,14 +513,10 @@ class Channel(ClientSerializerMixin, IDMixin):
         check: Optional[Callable[["Message"], bool]] = None,
     ) -> AsyncHistoryIterator:
         """
-        :param start_at?: The message to begin getting the history from
-        :type start_at?: Optional[Union[int, str, Snowflake, Message]]
-        :param reverse?: Whether to only get newer message. Default False
-        :type reverse?: Optional[bool]
-        :param maximum?: A set maximum of messages to get before stopping the iteration
-        :type maximum?: Optional[int]
-        :param check?: A custom check to ignore certain messages
-        :type check?: Optional[Callable[[Message], bool]]
+        :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
+        :param Optional[bool] reverse: Whether to only get newer message. Default False
+        :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
+        :param Optional[Callable[[Message], bool]] check: A custom check to ignore certain messages
 
         :return: An asynchronous iterator over the history of the channel
         :rtype: AsyncHistoryIterator
@@ -575,22 +552,14 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sends a message in the channel.
 
-        :param content?: The contents of the message as a string or string-converted value.
-        :type content?: Optional[str]
-        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts?: Optional[bool]
-        :param files?: A file or list of files to be attached to the message.
-        :type files?: Optional[Union[File, List[File]]]
-        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments?: Optional[List[Attachment]]
-        :param embeds?: An embed, or list of embeds for the message.
-        :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The allowed mentions for the message.
-        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
-        :param stickers?: A list of stickers to send with your message. You can send up to 3 stickers per message.
-        :type stickers?: Optional[List[Sticker]]
-        :param components?: A component, or list of components for the message.
-        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]]
+        :param Optional[str] content: The contents of the message as a string or string-converted value.
+        :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :param Optional[Union[File, List[File]]] files: A file or list of files to be attached to the message.
+        :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
+        :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
+        :param Optional[List[Sticker]] stickers: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :param Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]] components: A component, or list of components for the message.
         :return: The sent message as an object.
         :rtype: Message
         """
@@ -687,34 +656,21 @@ class Channel(ClientSerializerMixin, IDMixin):
         Edits the channel.
 
         .. note::
-            The fields `archived`, `auto_archive_duration` and `locked` require the provided channel to be a thread.
+            The fields ``archived``, ``auto_archive_duration`` and ``locked`` require the provided channel to be a thread.
 
-        :param name?: The name of the channel, defaults to the current value of the channel
-        :type name?: str
-        :param topic?: The topic of that channel, defaults to the current value of the channel
-        :type topic?: Optional[str]
-        :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
-        :type bitrate?: Optional[int]
-        :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
-        :type user_limit?: Optional[int]
-        :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
-        :type rate_limit_per_user: Optional[int]
-        :param position?: Sorting position of the channel, defaults to the current value of the channel
-        :type position?: Optional[int]
-        :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
-        :type parent_id?: Optional[int]
-        :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
-        :type nsfw?: Optional[bool]
-        :param permission_overwrites?: The permission overwrites, if any
-        :type permission_overwrites?: Optional[List[Overwrite]]
-        :param archived?: Whether the thread is archived
-        :type archived?: Optional[bool]
-        :param auto_archive_duration?: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :type auto_archive_duration?: Optional[int]
-        :param locked?: Whether the thread is locked
-        :type locked?: Optional[bool]
-        :param reason?: The reason for the edit
-        :type reason?: Optional[str]
+        :param Optional[str] name: The name of the channel, defaults to the current value of the channel
+        :param Optional[str] topic: The topic of that channel, defaults to the current value of the channel
+        :param Optional[int] bitrate: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
+        :param Optional[int] user_limit: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
+        :param Optional[int] rate_limit_per_use: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
+        :param Optional[int] position: Sorting position of the channel, defaults to the current value of the channel
+        :param Optional[int] parent_id: The id of the parent category for a channel, defaults to the current value of the channel
+        :param Optional[bool] nsfw: Whether the channel is nsfw or not, defaults to the current value of the channel
+        :param Optional[List[Overwrite]] permission_overwrites: The permission overwrites, if any
+        :param Optional[bool] archived: Whether the thread is archived
+        :param Optional[int] auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
+        :param Optional[bool] locked: Whether the thread is locked
+        :param Optional[str] reason: The reason for the edit
         :return: The modified channel as new object
         :rtype: Channel
         """
@@ -787,10 +743,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the name of the channel.
 
-        :param name: The new name of the channel
-        :type name: str
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param str name: The new name of the channel
+        :param Optional[str] reason: The reason of the edit
         :return: The edited channel
         :rtype: Channel
         """
@@ -806,10 +760,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the topic of the channel.
 
-        :param topic: The new topic of the channel
-        :type topic: str
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param str topic: The new topic of the channel
+        :param Optional[str] reason: The reason of the edit
         :return: The edited channel
         :rtype: Channel
         """
@@ -825,10 +777,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the bitrate of the channel.
 
-        :param bitrate: The new bitrate of the channel
-        :type bitrate: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int bitrate: The new bitrate of the channel
+        :param Optional[str] reason: The reason of the edit
         :return: The edited channel
         :rtype: Channel
         """
@@ -847,10 +797,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the user_limit of the channel.
 
-        :param user_limit: The new user limit of the channel
-        :type user_limit: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int user_limit: The new user limit of the channel
+        :param Optional[str] reason: The reason of the edit
         :return: The edited channel
         :rtype: Channel
         """
@@ -871,10 +819,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the amount of seconds a user has to wait before sending another message.
 
-        :param rate_limit_per_user: The new rate_limit_per_user of the channel (0-21600)
-        :type rate_limit_per_user: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int rate_limit_per_user: The new rate_limit_per_user of the channel (0-21600)
+        :param Optional[str] reason: The reason of the edit
         :return: The edited channel
         :rtype: Channel
         """
@@ -890,10 +836,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the position of the channel.
 
-        :param position: The new position of the channel
-        :type position: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int position: The new position of the channel
+        :param Optional[str] reason: The reason of the edit
         :return: The edited channel
         :rtype: Channel
         """
@@ -909,10 +853,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the parent_id of the channel.
 
-        :param parent_id: The new parent_id of the channel
-        :type parent_id: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int parent_id: The new parent_id of the channel
+        :param Optional[str] reason: The reason of the edit
         :return: The edited channel
         :rtype: Channel
         """
@@ -928,10 +870,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the nsfw-flag of the channel.
 
-        :param nsfw: The new nsfw-flag of the channel
-        :type nsfw: bool
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param bool nsfw: The new nsfw-flag of the channel
+        :param Optional[str] reason: The reason of the edit
         :return: The edited channel
         :rtype: Channel
         """
@@ -947,10 +887,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the archived state of the thread.
 
-        :param archived: Whether the Thread is archived, defaults to True
-        :type archived: bool
-        :param reason?: The reason of the archiving
-        :type reason?: Optional[str]
+        :param bool archived: Whether the Thread is archived, defaults to True
+        :param Optional[str] reason: The reason of the archiving
         :return: The edited channel
         :rtype: Channel
         """
@@ -966,10 +904,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the time after the thread is automatically archived.
 
-        :param auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :type auto_archive_duration: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
+        :param Optional[str] reason: The reason of the edit
         :return: The edited channel
         :rtype: Channel
         """
@@ -985,10 +921,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Sets the locked state of the thread.
 
-        :param locked: Whether the Thread is locked, defaults to True
-        :type locked: bool
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param bool locked: Whether the Thread is locked, defaults to True
+        :param Optional[str] reason: The reason of the edit
         :return: The edited channel
         :rtype: Channel
         """
@@ -1002,8 +936,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         This adds a member to the channel, if the channel is a thread.
 
-        :param member_id: The id of the member to add to the channel
-        :type member_id: int
+        :param int member_id: The id of the member to add to the channel
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -1023,8 +956,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         This removes a member of the channel, if the channel is a thread.
 
-        :param member_id: The id of the member to remove of the channel
-        :type member_id: int
+        :param int member_id: The id of the member to remove of the channel
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -1044,8 +976,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Pins a message to the channel.
 
-        :param message_id: The id of the message to pin
-        :type message_id: Union[int, Snowflake, "Message"]
+        :param Union[int, Snowflake, Message] message_id: The id of the message to pin
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -1063,8 +994,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Unpins a message from the channel.
 
-        :param message_id: The id of the message to unpin
-        :type message_id: Union[int, Snowflake, "Message"]
+        :param Union[int, Snowflake, Message] message_id: The id of the message to unpin
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -1081,8 +1011,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     ) -> "Message":
         """Publishes (API calls it crossposts) a message in the channel to any that is followed by.
 
-        :param message_id: The id of the message to publish
-        :type message_id: Union[int, Snowflake, "Message"]
+        :param Union[int, Snowflake, Message] message_id: The id of the message to publish
         :return: The message published
         :rtype: Message
         """
@@ -1119,8 +1048,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Gets a message sent in that channel.
 
-        :param message_id: The ID of the message to get
-        :type message_id: Union[int, Snowflake]
+        :param Union[int, Snowflake] message_id: The ID of the message to get
         :return: The message as object
         :rtype: Message
         """
@@ -1151,16 +1079,11 @@ class Channel(ClientSerializerMixin, IDMixin):
                 return not message.pinned  # This returns `True` only if the message is the message is not pinned
             await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
 
-        :param amount: The amount of messages to delete
-        :type amount: int
-        :param check?: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
-        :type check?: Callable[[Message], bool]
-        :param before?: An id of a message to purge only messages before that message
-        :type before?: Optional[int]
-        :param bulk?: Whether to bulk delete the messages (you cannot delete messages older than 14 days, default) or to delete every message seperately
-        :param bulk: Optional[bool]
-        :param reason?: The reason of the deletes
-        :type reason?: Optional[str]
+        :param int amount: The amount of messages to delete
+        :param Callable[[Message], bool] check: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
+        :param Optional[int] before: An id of a message to purge only messages before that message
+        :param Optional[bool] bulk: Whether to bulk delete the messages (you cannot delete messages older than 14 days, default) or to delete every message seperately
+        :param Optional[str] reason: The reason of the deletes
         :return: A list of the deleted messages
         :rtype: List[Message]
         """
@@ -1346,19 +1269,12 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Creates a thread in the Channel.
 
-        :param name: The name of the thread
-        :type name: str
-        :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
-            can be set to: 60, 1440, 4320, 10080
-        :type auto_archive_duration?: Optional[int]
-        :param type?: The type of thread, defaults to public. ignored if creating thread from a message
-        :type type?: Optional[ChannelType]
-        :param invitable?: Boolean to display if the Thread is open to join or private.
-        :type invitable?: Optional[bool]
-        :param message_id?: An optional message to create a thread from.
-        :type message_id?: Optional[Union[int, Snowflake, "Message"]]
-        :param reason?: An optional reason for the audit log
-        :type reason?: Optional[str]
+        :param str name: The name of the thread
+        :param Optional[int] auto_archive_duration: duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080
+        :param Optional[ChannelType] type: The type of thread, defaults to public. ignored if creating thread from a message
+        :param Optional[bool] invitable: Boolean to display if the Thread is open to join or private.
+        :param Optional[Union[int, Snowflake, Message]] message_id: An optional message to create a thread from.
+        :param Optional[str] reason: An optional reason for the audit log
         :return: The created thread
         :rtype: Channel
         """
@@ -1394,6 +1310,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     @property
     def url(self) -> str:
+        """
+        Returns the URL of the channel"""
         _guild_id = self.guild_id if isinstance(self.guild_id, int) else "@me"
         return f"https://discord.com/channels/{_guild_id}/{self.id}"
 
@@ -1411,22 +1329,14 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Creates an invite for the channel
 
-        :param max_age?: Duration of invite in seconds before expiry, or 0 for never. between 0 and 604800 (7 days). Default 86400 (24h)
-        :type max_age?: Optional[int]
-        :param max_uses?: Max number of uses or 0 for unlimited. between 0 and 100. Default 0
-        :type max_uses?: Optional[int]
-        :param temporary?: Whether this invite only grants temporary membership. Default False
-        :type temporary?: Optional[bool]
-        :param unique?: If true, don't try to reuse a similar invite (useful for creating many unique one time use invites). Default False
-        :type unique?: Optional[bool]
-        :param target_type?: The type of target for this voice channel invite
-        :type target_type?: Optional["InviteTargetType"]
-        :param target_user_id?: The id of the user whose stream to display for this invite, required if target_type is STREAM, the user must be streaming in the channel
-        :type target_user_id?: Optional[int]
-        :param target_application_id?: The id of the embedded application to open for this invite, required if target_type is EMBEDDED_APPLICATION, the application must have the EMBEDDED flag
-        :type target_application_id?: Optional[int]
-        :param reason?: The reason for the creation of the invite
-        :type reason?: Optional[str]
+        :param Optional[int] max_age: Duration of invite in seconds before expiry, or 0 for never. between 0 and 604800 (7 days). Default 86400 (24h)
+        :param Optional[int] max_uses: Max number of uses or 0 for unlimited. between 0 and 100. Default 0
+        :param Optional[bool] temporary: Whether this invite only grants temporary membership. Default False
+        :param Optional[bool] unique: If true, don't try to reuse a similar invite (useful for creating many unique one time use invites). Default False
+        :param Optional[InviteTargetType] target_type: The type of target for this voice channel invite
+        :param Optional[int] target_user_id: The id of the user whose stream to display for this invite, required if target_type is STREAM, the user must be streaming in the channel
+        :param Optional[int] target_application_id: The id of the embedded application to open for this invite, required if target_type is EMBEDDED_APPLICATION, the application must have the EMBEDDED flag
+        :param Optional[str] reason: The reason for the creation of the invite
         """
 
         if not self._client:
@@ -1481,8 +1391,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Gets messages from the channel's history.
 
-        :param limit?: The amount of messages to get. Default 100
-        :type limit?: int
+        :param int limit: The amount of messages to get. Default 100
         :return: A list of messages
         :rtype: List[Message]
         """
@@ -1596,12 +1505,9 @@ class Channel(ClientSerializerMixin, IDMixin):
             Can either have an emoji_id or an emoji_name, but not both.
             emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
 
-        :param name: The name of the tag
-        :type name: str
-        :param emoji_id: The ID of the emoji to use for the tag
-        :type emoji_id: Optional[int]
-        :param emoji_name: The name of the emoji to use for the tag
-        :type emoji_name: Optional[str]
+        :param str name: The name of the tag
+        :param Optional[int] emoji_id: The ID of the emoji to use for the tag
+        :param Optional[str] emoji_name: The name of the emoji to use for the tag
         :return: The create tag object
         :rtype: Tags
         """
@@ -1642,14 +1548,10 @@ class Channel(ClientSerializerMixin, IDMixin):
             Can either have an emoji_id or an emoji_name, but not both.
             emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
 
-        :param tag_id: The ID of the tag to edit
-        :type tag_id:  Union[int, str, Snowflake, Tag]
-        :param name: The new name of the tag
-        :type name: str
-        :param emoji_id: The ID of the emoji to use for the tag
-        :type emoji_id: Optional[int]
-        :param emoji_name: The name of the emoji to use for the tag
-        :type emoji_name: Optional[int]
+        :param Union[int, str, Snowflake, Tags] tag_id: The ID of the tag to edit
+        :param str name: The new name of the tag
+        :param Optional[int] emoji_id: The ID of the emoji to use for the tag
+        :param Optional[int] emoji_name: The name of the emoji to use for the tag
         :return: The modified tag
         :rtype: Tags
         """
@@ -1680,8 +1582,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Deletes a tag
 
-        :param tag_id: The ID of the Tag
-        :type tag_id:  Union[int, str, Snowflake, Tags]
+        :param Union[int, str, Snowflake, Tags] tag_id: The ID of the Tag
         """
         if self.type != ChannelType.GUILD_FORUM:
             raise LibraryException(code=14, message="Tags can only be created in forum channels!")
@@ -1705,22 +1606,14 @@ class Channel(ClientSerializerMixin, IDMixin):
         """
         Creates a new post inside a forum channel
 
-        :param name: The name of the thread
-        :type name: str
-        :param auto_archive_duration: duration in minutes to automatically archive the thread after recent activity,
-            can be set to: 60, 1440, 4320, 10080
-        :type auto_archive_duration: Optional[int]
-        :param content: The content to send as first message.
-        :type content: Union[dict, "Message", str, "Attachment", List["Attachment"]]
-        :param applied_tags: Tags to give to the created thread
-        :type applied_tags: Union[List[str], List[int], List[Tags], int, str, Tags]
-        :param files: An optional list of files to send attached to the message.
-        :type files: Optional[List[File]]
-        :param rate_limit_per_user: Seconds a user has to wait before sending another message (0 to 21600), if given.
-        :type rate_limit_per_user: Optional[int]
-        :param reason: An optional reason for the audit log
-        :type reason: Optional[str]
-        :returns: A channel of ChannelType 11 (THREAD)
+        :param str name: The name of the thread
+        :param Optional[int] auto_archive_duration: duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080
+        :param Union[dict, Message, str, Attachment, List[Attachment]] content: The content to send as first message.
+        :param Union[List[str], List[int], List[Tags], int, str, Tags] applied_tags: Tags to give to the created thread
+        :param Optional[List[File]] files: An optional list of files to send attached to the message.
+        :param Optional[int] rate_limit_per_user: Seconds a user has to wait before sending another message (0 to 21600), if given.
+        :param Optional[str] reason: An optional reason for the audit log
+        :returns: A channel of type :attr:`ChannelType.PUBLIC_THREAD`
         :rtype: Channel
         """
 
@@ -1852,8 +1745,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             user overwrites that can be assigned to channels or categories. If you
             don't need these overwrites, look into :meth:`.Member.get_guild_permissions`.
 
-        :param member: The member to get the permissions from
-        :type member: Member
+        :param Member member: The member to get the permissions from
         :return: Permissions of the member in this channel
         :rtype: Permissions
         """
@@ -1901,6 +1793,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 @define()
 class Thread(Channel):
     """An object representing a thread.
+
     .. note::
         This is a derivation of the base Channel, since a
         thread can be its own event.

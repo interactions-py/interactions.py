@@ -39,7 +39,7 @@ class _Context(ClientSerializerMixin):
     easily access information presented from any event in
     a "contextualized" sense.
 
-    :ivar Optional[Message] message?: The message data model.
+    :ivar Optional[Message] message: The message data model.
     :ivar Member author: The member data model.
     :ivar User user: The user data model.
     :ivar Optional[Channel] channel: The channel data model.
@@ -68,9 +68,8 @@ class _Context(ClientSerializerMixin):
     app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
 
     def __attrs_post_init__(self) -> None:
-        if self.member:
-            if self.guild_id:
-                self.member._extras["guild_id"] = self.guild_id
+        if self.member and self.guild_id:
+            self.member._extras["guild_id"] = self.guild_id
 
         self.author = self.member
 
@@ -125,24 +124,16 @@ class _Context(ClientSerializerMixin):
         This allows the invocation state described in the "context"
         to send an interaction response.
 
-        :param content?: The contents of the message as a string or string-converted value.
-        :type content?: Optional[str]
-        :param tts?: Whether the message utilizes the text-to-speech Discord programme or not.
-        :type tts?: Optional[bool]
-        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments?: Optional[List[Attachment]]
-        :param embeds?: An embed, or list of embeds for the message.
-        :type embeds?: Optional[Union[Embed, List[Embed]]]
-        :param allowed_mentions?: The allowed mentions for the message.
-        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
-        :param components?: A component, or list of components for the message.
-        :type components?: Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]]
-        :param ephemeral?: Whether the response is hidden or not.
-        :type ephemeral?: Optional[bool]
-        :param suppress_embeds: Whether embeds are not shown in the message.
-        :type suppress_embeds: bool
-        :return: The sent message as an object.
-        :rtype: Message
+        :param Optional[str] content: The contents of the message as a string or string-converted value.
+        :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
+        :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
+        :param Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] components: A component, or list of components for the message.
+        :param Optional[bool] ephemeral: Whether the response is hidden or not.
+        :param Optional[bool] suppress_embeds: Whether embeds are not shown in the message.
+        :return: The sent message as a dict.
+        :rtype: dict
         """
         if (
             content is MISSING
@@ -219,14 +210,14 @@ class _Context(ClientSerializerMixin):
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
-    ) -> dict:
+    ) -> dict:  # sourcery skip: low-code-quality
         """
         This allows the invocation state described in the "context"
         to send an interaction response. This inherits the arguments
-        of the Context ``.send()`` method.
+        of the :func:`_Context.send` method.
 
-        :return: The edited message as an object.
-        :rtype: Message
+        :return: The edited message as a dict.
+        :rtype: dict
         """
 
         payload = {}
@@ -292,8 +283,7 @@ class _Context(ClientSerializerMixin):
         This "pops up" a modal to present information back to the
         user.
 
-        :param modal: The components you wish to show.
-        :type modal: Modal
+        :param Modal modal: The components you wish to show.
         """
 
         payload: dict = {
@@ -317,60 +307,39 @@ class _Context(ClientSerializerMixin):
     async def has_permissions(
         self, *permissions: Union[int, Permissions], operator: str = "and"
     ) -> bool:
-        """
+        r"""
         Returns whether the author of the interaction has the permissions in the given context.
 
-        :param *permissions: The list of permissions
-        :type *permissions: Union[int, Permissions]
-        :param operator: The operator to use to calculate permissions. Possible values: `and`, `or`. Defaults to `and`.
-        :type operator: str
+        :param Union[int, Permissions] \*permissions: The list of permissions
+        :param Optional[str] operator: The operator to use to calculate permissions. Possible values: ``and``, ``or``. Defaults to ``and``.
         :return: Whether the author has the permissions
         :rtype: bool
         """
         if operator == "and":
-            for perm in permissions:
-                if perm not in self.author.permissions:
-                    return False
-            return True
+            return all(perm in self.author.permissions for perm in permissions)
         else:
-            for perm in permissions:
-                if perm in self.author.permissions:
-                    return True
-            return False
+            return any(perm in self.author.permissions for perm in permissions)
 
 
 @define()
 class CommandContext(_Context):
     """
-    A derivation of :class:`interactions.context.Context`
+    A derivation of :class:`_Context`
     designed specifically for application command data.
 
-    .. warning::
-        The ``guild`` attribute of the base context
-        is not accessible for any interaction-related events
-        since the current Discord API schema does not return
-        this as a value, but instead ``guild_id``. You will
-        need to manually fetch for this data for the time being.
-
-        You can fetch with ``client.get_guild(guild_id)`` which
-        will return a JSON dictionary, which you can then use
-        ``interactions.Guild(**data)`` for an object or continue
-        with a dictionary for your own purposes.
-
-    :ivar _client: the HTTP client
     :ivar Snowflake id: The ID of the interaction.
     :ivar Snowflake application_id: The application ID of the interaction.
     :ivar InteractionType type: The type of interaction.
-    :ivar InteractionData data?: The application command data.
+    :ivar InteractionData data: The application command data.
     :ivar Optional[Union[Message, Member, User]] target: The target selected if this interaction is invoked as a context menu.
     :ivar str token: The token of the interaction response.
-    :ivar Snowflake guild_id?: The ID of the current guild.
-    :ivar Snowflake channel_id?: The ID of the current channel.
+    :ivar Snowflake guild_id: The ID of the current guild.
+    :ivar Snowflake channel_id: The ID of the current channel.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
-    :ivar str locale?: The selected language of the user invoking the interaction.
-    :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
-    :ivar str app_permissions?: Bitwise set of permissions the bot has within the channel the interaction was sent from.
+    :ivar str locale: The selected language of the user invoking the interaction.
+    :ivar str guild_locale: The guild's preferred language, if invoked in a guild.
+    :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     :ivar Client client: The client instance that the command belongs to.
     :ivar Command command: The command object that is being invoked.
     :ivar Extension extension: The extension the command belongs to.
@@ -401,7 +370,9 @@ class CommandContext(_Context):
 
             self.target._client = self._client
 
-    async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
+    async def edit(
+        self, content: Optional[str] = MISSING, **kwargs
+    ) -> Message:  # sourcery skip: low-code-quality
 
         payload = await super().edit(content, **kwargs)
         msg = None
@@ -456,17 +427,14 @@ class CommandContext(_Context):
             else:
                 self.message = msg = Message(**res, _client=self._client)
 
-        if msg is not None:
-            return msg
-        return Message(**payload, _client=self._client)
+        return msg if msg is not None else Message(**payload, _client=self._client)
 
     async def defer(self, ephemeral: Optional[bool] = False) -> None:
         """
         This "defers" an interaction response, allowing up
         to a 15-minute delay between invocation and responding.
 
-        :param ephemeral?: Whether the deferred state is hidden or not.
-        :type ephemeral?: Optional[bool]
+        :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
         """
         if not self.responded:
             self.deferred = True
@@ -554,8 +522,7 @@ class CommandContext(_Context):
             Only a maximum of ``25`` choices may be presented
             within an autocomplete option.
 
-        :param choices: The choices you wish to present.
-        :type choices: Union[Choice, List[Choice]]
+        :param Union[Choice, List[Choice]] choices: The choices you wish to present.
         :return: The list of choices you've given.
         :rtype: List[Choice]
         """
@@ -598,7 +565,7 @@ class CommandContext(_Context):
 @define()
 class ComponentContext(_Context):
     """
-    A derivation of :class:`interactions.context.CommandContext`
+    A derivation of :class:`_Context`
     designed specifically for component data.
     """
 
@@ -640,10 +607,7 @@ class ComponentContext(_Context):
             self.responded = True
             self.message = msg = Message(**res, _client=self._client)
 
-        if msg is not None:
-            return msg
-
-        return Message(**payload, _client=self._client)
+        return msg if msg is not None else Message(**payload, _client=self._client)
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload = await super().send(content, **kwargs)
@@ -679,9 +643,7 @@ class ComponentContext(_Context):
 
             self.responded = True
 
-        if msg is not None:
-            return msg
-        return Message(**payload, _client=self._client)
+        return msg if msg is not None else Message(**payload, _client=self._client)
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
@@ -690,10 +652,8 @@ class ComponentContext(_Context):
         This "defers" a component response, allowing up
         to a 15-minute delay between invocation and responding.
 
-        :param ephemeral?: Whether the deferred state is hidden or not.
-        :type ephemeral?: Optional[bool]
-        :param edit_origin?: Whether you want to edit the original message or send a followup message
-        :type edit_origin?: Optional[bool]
+        :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
+        :param Optional[bool] edit_origin: Whether you want to edit the original message or send a followup message
         """
         if not self.responded:
 
@@ -720,10 +680,8 @@ class ComponentContext(_Context):
         r"""
         Disables all components of the message.
 
-        :param respond_to_interaction?: Whether the components should be disabled in an interaction response, default True
-        :type respond_to_interaction?: Optional[bool]
-        :param \**other_kwargs?: Additional keyword-arguments to pass to the edit method. This only works when this method is used as interaction response and takes the same arguments as :meth:`interactions.client.context._Context:edit()`
-        :type \**other_kwargs?: Optional[dict]
+        :param Optional[bool] respond_to_interaction: Whether the components should be disabled in an interaction response, default True
+        :param Optional[dict] \**other_kwargs: Additional keyword-arguments to pass to the edit method. This only works when this method is used as interaction response and takes the same arguments as :func:`ComponentContext.edit()`
 
         :return: The modified Message
         :rtype: Message
@@ -732,30 +690,35 @@ class ComponentContext(_Context):
         if not respond_to_interaction:
             return await self.message.disable_all_components()
 
-        else:
-            for components in self.message.components:
-                for component in components.components:
-                    component.disabled = True
+        for components in self.message.components:
+            for component in components.components:
+                component.disabled = True
 
-            if other_kwargs.get("components"):
-                raise LibraryException(
-                    12, "You must not specify the `components` argument in this method."
-                )
+        if other_kwargs.get("components"):
+            raise LibraryException(
+                12, "You must not specify the `components` argument in this method."
+            )
 
-            other_kwargs["components"] = self.message.components
-            return await self.edit(**other_kwargs)
+        other_kwargs["components"] = self.message.components
+        return await self.edit(**other_kwargs)
 
     @property
     def custom_id(self) -> Optional[str]:
+        """
+        The custom ID of the interacted component.
+
+        :rtype: Optional[str]
+        """
         return self.data.custom_id
 
     @property
     def label(self) -> Optional[str]:
         """
         The label of the interacted button.
+
         :rtype: Optional[str]
         """
-        if not self.data.component_type == ComponentType.BUTTON:
+        if self.data.component_type != ComponentType.BUTTON:
             return
         if self.message is None:
             return

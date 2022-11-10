@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
+from ...client.enums import PermissionType
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
@@ -29,6 +30,7 @@ from .user import User
 __all__ = (
     "AutoModerationAction",
     "AutoModerationRule",
+    "ApplicationCommandPermission",
     "ApplicationCommandPermissions",
     "EmbeddedActivity",
     "Integration",
@@ -89,18 +91,15 @@ class AutoModerationRule(DictSerializerMixin, IDMixin):
     A class object representing the gateway events ``AUTO_MODERATION_RULE_CREATE``, ``AUTO_MODERATION_RULE_UPDATE``, and ``AUTO_MODERATION_RULE_DELETE``
 
     .. note::
-        This is undocumented by the Discord API, so these attribute docs may or may not be finalised.
-
-    .. note::
-        ``event_type`` at the moment is only ``1``, which represents message sending.
+        ``event_type`` at the moment can only be ``1``, which represents message sending.
 
     :ivar Snowflake id: The ID of the rule.
     :ivar Snowflake guild_id: The guild ID associated with the rule.
     :ivar str name: The rule name.
     :ivar Snowflake creator_id: The user ID that first created this rule.
     :ivar int event_type: The rule type in which automod checks.
-    :ivar int trigger_type: The automod type. It characterises what type of information that is checked.
-    :ivar Dict[str, List[str]] trigger_metadata: Additional data needed to figure out whether this rule should be triggered.
+    :ivar AutoModTriggerType trigger_type: The automod type. It characterises what type of information that is checked.
+    :ivar AutoModTriggerMetadata trigger_metadata: Additional data needed to figure out whether this rule should be triggered.
     :ivar List[AutoModerationAction] actions: The actions that will be executed when the rule is triggered.
     :ivar bool enabled: Whether the rule is enabled.
     :ivar List[Snowflake] exempt_roles: The role IDs that should not be affected by this rule. (Max 20)
@@ -121,25 +120,50 @@ class AutoModerationRule(DictSerializerMixin, IDMixin):
 
 
 @define()
+class ApplicationCommandPermission(DictSerializerMixin):
+    """
+    A class object representing the permission of an application command.
+
+    The structure for a permission:
+
+    .. code-block:: python
+
+        interactions.Permission(
+            id=1234567890,
+            type=interactions.PermissionType.USER,
+            permission=True,
+        )
+
+    :ivar int id: The ID of the permission.
+    :ivar PermissionType type: The type of permission.
+    :ivar bool permission: The permission state. ``True`` for allow, ``False`` for disallow.
+    """
+
+    id: int = field()
+    type: PermissionType = field(converter=PermissionType)
+    permission: bool = field()
+
+    def __attrs_post_init__(self):
+        self._json["type"] = self.type.value
+
+
+@define()
 class ApplicationCommandPermissions(ClientSerializerMixin, IDMixin):
     """
     A class object representing the gateway event ``APPLICATION_COMMAND_PERMISSIONS_UPDATE``.
 
-    .. note:: This is undocumented by the Discord API, so these attribute docs may or may not be finalised.
-
-    :ivar Snowflake application_id: The application ID associated with the event.
-    :ivar Snowflake guild_id: The guild ID associated with the event.
-    :ivar Snowflake id: The ID of the command associated with the event. (?)
-    :ivar List[Permission] permissions: The updated permissions of the associated command/event.
+    :ivar Snowflake id: ID of the command or the application ID
+    :ivar Snowflake application_id: ID of the application the command belongs to
+    :ivar Snowflake guild_id: ID of the guild
+    :ivar List[ApplicationCommandPermission] permissions: Permissions for the command in the guild, max of 100
     """
 
     application_id: Snowflake = field(converter=Snowflake)
     guild_id: Snowflake = field(converter=Snowflake)
     id: Snowflake = field(converter=Snowflake)
-    # from ...client.models.command import Permission
-
-    # permissions: List[Permission] = field(converter=convert_list(Permission))
-    permissions = field()
+    permissions: List[ApplicationCommandPermission] = field(
+        converter=convert_list(ApplicationCommandPermission)
+    )
 
 
 @define()
@@ -243,15 +267,15 @@ class GuildMember(Member):
     :ivar Snowflake guild_id: The guild ID.
     :ivar User user: The user of the guild.
     :ivar str nick: The nickname of the member.
-    :ivar Optional[str] avatar?: The hash containing the user's guild avatar, if applicable.
+    :ivar Optional[str] avatar: The hash containing the user's guild avatar, if applicable.
     :ivar List[int] roles: The list of roles of the member.
     :ivar datetime joined_at: The timestamp the member joined the guild at.
     :ivar datetime premium_since: The timestamp the member has been a server booster since.
     :ivar bool deaf: Whether the member is deafened.
     :ivar bool mute: Whether the member is muted.
-    :ivar Optional[bool] pending?: Whether the member is pending to pass membership screening.
-    :ivar Optional[Permissions] permissions?: Whether the member has permissions.
-    :ivar Optional[str] communication_disabled_until?: How long until they're unmuted, if any.
+    :ivar Optional[bool] pending: Whether the member is pending to pass membership screening.
+    :ivar Optional[Permissions] permissions: Whether the member has permissions.
+    :ivar Optional[str] communication_disabled_until: How long until they're unmuted, if any.
     """
 
     _guild_id: Snowflake = field(converter=Snowflake, discord_name="guild_id")
@@ -289,7 +313,7 @@ class GuildRole(ClientSerializerMixin):
 
     :ivar Snowflake guild_id: The guild ID of the event.
     :ivar Optional[Role] role: The role of the event.
-    :ivar Optional[Snowflake] role_id?: The role ID of the event.
+    :ivar Optional[Snowflake] role_id: The role ID of the event.
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
@@ -318,22 +342,22 @@ class GuildScheduledEvent(ClientSerializerMixin, IDMixin):
 
     .. note::
         Some attributes are optional via creator_id/creator implementation by the API:
-        "`creator_id` will be null and `creator` will not be included for events created before October 25th, 2021, when the concept of `creator_id` was introduced and tracked."
+        "``creator_id`` will be null and ``creator`` will not be included for events created before October 25th, 2021, when the concept of ``creator_id`` was introduced and tracked."
 
     :ivar Snowflake id: The ID of the scheduled event.
     :ivar Snowflake guild_id: The ID of the guild that this scheduled event belongs to.
-    :ivar Optional[Snowflake] channel_id?: The channel ID in which the scheduled event belongs to, if any.
-    :ivar Optional[Snowflake] creator_id?: The ID of the user that created the scheduled event.
+    :ivar Optional[Snowflake] channel_id: The channel ID in which the scheduled event belongs to, if any.
+    :ivar Optional[Snowflake] creator_id: The ID of the user that created the scheduled event.
     :ivar str name: The name of the scheduled event.
     :ivar str description: The description of the scheduled event.
-    :ivar datetime scheduled_start_time?: The scheduled event start time.
-    :ivar Optional[datetime] scheduled_end_time?: The scheduled event end time, if any.
+    :ivar datetime scheduled_start_time: The scheduled event start time.
+    :ivar Optional[datetime] scheduled_end_time: The scheduled event end time, if any.
     :ivar int privacy_level: The privacy level of the scheduled event.
     :ivar int entity_type: The type of the scheduled event.
-    :ivar Optional[Snowflake] entity_id?: The ID of the entity associated with the scheduled event.
-    :ivar Optional[EventMetadata] entity_metadata?: Additional metadata associated with the scheduled event.
-    :ivar Optional[User] creator?: The user that created the scheduled event.
-    :ivar Optional[int] user_count?: The number of users subscribed to the scheduled event.
+    :ivar Optional[Snowflake] entity_id: The ID of the entity associated with the scheduled event.
+    :ivar Optional[EventMetadata] entity_metadata: Additional metadata associated with the scheduled event.
+    :ivar Optional[User] creator: The user that created the scheduled event.
+    :ivar Optional[int] user_count: The number of users subscribed to the scheduled event.
     :ivar int status: The status of the scheduled event
     :ivar Optional[str] image: The hash containing the image of an event, if applicable.
     """
@@ -377,9 +401,7 @@ class Integration(DictSerializerMixin, IDMixin):
     A class object representing the gateway events ``INTEGRATION_CREATE``, ``INTEGRATION_UPDATE`` and ``INTEGRATION_DELETE``.
 
     .. note::
-        The documentation of this event is the same as :class:`interactions.api.models.guild.Guild`.
-        The only key missing attribute is ``guild_id``. Likewise, the documentation
-        below reflects this.
+        The documentation of this event is the same as :class:`.Guild`.
 
     :ivar Snowflake id: The ID of the event.
     :ivar str name: The name of the event.
@@ -398,29 +420,6 @@ class Integration(DictSerializerMixin, IDMixin):
     :ivar Application application: The application used for the integration of the event.
     :ivar Snowflake guild_id: The guild ID of the event.
     """
-
-    # __slots__ = (
-    #     "_json",
-    #     "id",
-    #     "name",
-    #     "type",
-    #     "enabled",
-    #     "syncing",
-    #     "role_id",
-    #     "enable_emoticons",
-    #     "expire_behavior",
-    #     "expire_grace_period",
-    #     "user",
-    #     "account",
-    #     "synced_at",
-    #     "subscriber_count",
-    #     "revoked",
-    #     "application",
-    #     "guild_id",
-    #     # TODO: Document these when Discord does.
-    #     "guild_hashes",
-    #     "application_id",
-    # )
 
     id: Snowflake = field(converter=Snowflake)
     name: str = field()
@@ -466,7 +465,7 @@ class MessageDelete(DictSerializerMixin):
 
     :ivar List[Snowflake] ids: The message IDs of the event.
     :ivar Snowflake channel_id: The channel ID of the event.
-    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
+    :ivar Optional[Snowflake] guild_id: The guild ID of the event.
     """
 
     ids: List[Snowflake] = field(converter=convert_list(Snowflake))
@@ -479,12 +478,12 @@ class MessageReaction(ClientSerializerMixin):
     """
     A class object representing the gateway event ``MESSAGE_REACTION_ADD`` and ``MESSAGE_REACTION_REMOVE``.
 
-    :ivar Optional[Snowflake] user_id?: The user ID of the event.
+    :ivar Optional[Snowflake] user_id: The user ID of the event.
     :ivar Snowflake channel_id: The channel ID of the event.
     :ivar Snowflake message_id: The message ID of the event.
-    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
-    :ivar Optional[Member] member?: The member of the event.
-    :ivar Optional[Emoji] emoji?: The emoji of the event.
+    :ivar Optional[Snowflake] guild_id: The guild ID of the event.
+    :ivar Optional[Member] member: The member of the event.
+    :ivar Optional[Emoji] emoji: The emoji of the event.
     """
 
     user_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -495,9 +494,8 @@ class MessageReaction(ClientSerializerMixin):
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
     def __attrs_post_init__(self):
-        if self.member:
-            if self.guild_id:
-                self.member._extras["guild_id"] = self.guild_id
+        if self.member and self.guild_id:
+            self.member._extras["guild_id"] = self.guild_id
 
 
 class MessageReactionRemove(MessageReaction):
@@ -505,14 +503,14 @@ class MessageReactionRemove(MessageReaction):
     A class object representing the gateway events ``MESSAGE_REACTION_REMOVE_ALL`` and ``MESSAGE_REACTION_REMOVE_EMOJI``.
 
     .. note::
-        This class inherits the already existing attributes of :class:`interactions.api.models.gw.Reaction`.
+        This class inherits the already existing attributes of :class:`.MessageReaction`.
         The main missing attribute is ``member``.
 
-    :ivar Optional[Snowflake] user_id?: The user ID of the event.
+    :ivar Optional[Snowflake] user_id: The user ID of the event.
     :ivar Snowflake channel_id: The channel ID of the event.
     :ivar Snowflake message_id: The message ID of the event.
-    :ivar Optional[Snowflake] guild_id?: The guild ID of the event.
-    :ivar Optional[Emoji] emoji?: The emoji of the event.
+    :ivar Optional[Snowflake] guild_id: The guild ID of the event.
+    :ivar Optional[Emoji] emoji: The emoji of the event.
     """
 
     # todo see if the missing member attribute affects anything
@@ -528,7 +526,7 @@ class ThreadList(DictSerializerMixin):
     A class object representing the gateway event ``THREAD_LIST_SYNC``.
 
     :ivar Snowflake guild_id: The guild ID of the event.
-    :ivar Optional[List[Snowflake]] channel_ids?: The channel IDs of the event.
+    :ivar Optional[List[Snowflake]] channel_ids: The channel IDs of the event.
     :ivar List[Channel] threads: The threads of the event.
     :ivar List[ThreadMember] members: The members of the thread of the event.
     """
@@ -547,8 +545,8 @@ class ThreadMembers(DictSerializerMixin, IDMixin):
     :ivar Snowflake id: The ID of the event.
     :ivar Snowflake guild_id: The guild ID of the event.
     :ivar int member_count: The member count of the event.
-    :ivar Optional[List[ThreadMember]] added_members?: The added members of the thread of the event.
-    :ivar Optional[List[Snowflake]] removed_member_ids?: The removed IDs of members of the thread of the event.
+    :ivar Optional[List[ThreadMember]] added_members: The added members of the thread of the event.
+    :ivar Optional[List[Snowflake]] removed_member_ids: The removed IDs of members of the thread of the event.
     """
 
     id: Snowflake = field(converter=Snowflake)
