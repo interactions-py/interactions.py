@@ -1546,6 +1546,7 @@ class Client:
             raise LibraryException(
                 code=13, message="You cannot use this method until the bot has started!"
             )
+
         payload: dict = {}
         if avatar is not MISSING:
             payload["avatar"] = avatar.data
