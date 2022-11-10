@@ -177,6 +177,8 @@ def search_iterable(
     iterable: Iterable[_T], check: Optional[Callable[[_T], bool]] = None, /, **kwargs
 ) -> List[_T]:
     r"""
+    .. versionadded:: 4.3.0
+
     Searches through an iterable for items that:
     - Are True for the check, if one is given
     - Have attributes that match the keyword arguments (e.x. passing `id=your_id` will only return objects with that id)
@@ -212,6 +214,8 @@ def disable_components(
     ]
 ) -> None:
     """
+    .. versionadded:: 4.3.2
+
     Disables the given components.
 
     :param Union[List[Component], List[ActionRow], List[Button], List[SelectMenu], ActionRow, Component, Button, SelectMenu] components: The components to disable

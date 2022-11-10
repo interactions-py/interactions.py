@@ -75,6 +75,16 @@ class ClientStatus(DictSerializerMixin):
 
 class Snowflake:
     """
+    .. versionadded:: 4.0.0
+
+    .. important::
+        By default every ID in this library is of this class. This makes some information of them easier accessible.
+        If you need the ID as :class:`int` or :class:`str` object, for example to store it in a database,
+        just call ``str(id)`` or ``int(id)``.
+
+    .. versionchanged:: 4.2.0
+        Added ``__eq__``. You no longer have to convert this object to compare it to a string or integer
+
     The Snowflake object.
 
     This snowflake object will have features closely related to the
@@ -271,6 +281,11 @@ class AutoModTriggerMetadata(DictSerializerMixin):
 
 class Color(IntEnum):
     """
+    .. versionadded:: 4.2.0
+
+    .. versionchanged:: 4.4.0
+        Color class is now an Enum
+
     An object representing Discord branding colors.
 
     .. note::
@@ -291,6 +306,8 @@ class Color(IntEnum):
 
 class File:
     """
+    .. versionadded:: 4.2.0
+
     A File object to be sent as an attachment along with a message.
 
     If a fp is not given, this will try to open & send a local file at the location
@@ -324,6 +341,8 @@ class File:
 
 class Image:
     """
+    .. versionadded:: 4.2.0
+
     This class object allows you to upload Images to the Discord API.
 
     If a fp is not given, this will try to open & send a local file at the location
@@ -379,6 +398,8 @@ class AllowedMentionType(str, Enum):
 @define()
 class AllowedMentions(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.2
+
     A class object representing the allowed mentions object
 
     :ivar Optional[List[AllowedMentionType]] parse: An array of allowed mention types to parse from the content.
