@@ -170,9 +170,12 @@ class Client:
             raise LibraryException(
                 code=13, message="You cannot use this method until the bot has started!"
             )
+
         if new_nick is MISSING:
             raise LibraryException(code=12, message="new nick name must either a string or `None`")
+
         _id = int(guild_id.id) if isinstance(guild_id, Guild) else int(guild_id)
+
         return Member(
             **await self._http.modify_self_nick_in_guild(_id, new_nick), _client=self._http
         )
