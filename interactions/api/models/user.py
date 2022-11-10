@@ -8,6 +8,7 @@ from .misc import AllowedMentions, File, IDMixin, Snowflake
 
 if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
+    from .channel import Channel
     from .gw import Presence
     from .message import Attachment, Embed, Message
 
@@ -196,3 +197,19 @@ class User(ClientSerializerMixin, IDMixin):
         )
 
         return Message(**res, _client=self._client)
+
+    async def get_dm_channel(self) -> "Channel":
+        """
+        .. versionadded:: 4.4.0
+
+        Gets the DM channel with the user
+
+        :return: The DM channel with the user
+        :rtype: Channel
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .channel import Channel
+
+        return Channel(**await self._client.create_dm(int(self.id)), _client=self._client)
