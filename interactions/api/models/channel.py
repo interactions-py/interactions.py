@@ -237,8 +237,8 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
 
             if not self.__stop and len(self.objects) < 5 and self.object_count <= self.maximum:
                 await self.get_objects()
-        except IndexError:
-            raise StopAsyncIteration
+        except IndexError as e:
+            raise StopAsyncIteration from e
         else:
             return obj
 
@@ -262,7 +262,8 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
         except RuntimeError as e:
             raise RuntimeError("No running event loop detected!") from e
 
-        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self.object_id = (int(obj.id) if hasattr(obj, "id") else int(obj)) if obj else None
+
         self._client = _client
         self.__task: Optional[Task] = None
 

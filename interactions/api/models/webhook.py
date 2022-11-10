@@ -185,7 +185,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
-    ) -> Optional["Message"]:
+    ) -> Optional["Message"]:  # sourcery skip: low-code-quality
         """
         Executes the webhook. All parameters to this function are optional.
 
@@ -267,10 +267,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
             thread_id=thread_id if thread_id is not MISSING else None,
         )
 
-        if not isinstance(res, dict):
-            return res
-
-        return Message(**res, _client=self._client)
+        return Message(**res, _client=self._client) if isinstance(res, dict) else res
 
     async def delete(self) -> None:
         """

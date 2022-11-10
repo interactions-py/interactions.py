@@ -55,7 +55,8 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
         check: Optional[Callable[[_O], bool]] = None,
     ):
 
-        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self.object_id = (int(obj.id) if hasattr(obj, "id") else int(obj)) if obj else None
+
         self.maximum = maximum
         self.check = check
         self._client = _client
@@ -63,10 +64,11 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
         self.start_at = (
             None
             if start_at is MISSING
-            else int(start_at)
-            if not hasattr(start_at, "id")
             else int(start_at.id)
+            if hasattr(start_at, "id")
+            else int(start_at)
         )
+
         self.objects: Optional[List[_O]] = None
 
 

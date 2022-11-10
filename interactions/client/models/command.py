@@ -1,3 +1,4 @@
+import contextlib
 from asyncio import CancelledError
 from functools import wraps
 from inspect import getdoc, signature
@@ -784,7 +785,7 @@ class Command(DictSerializerMixin):
         _name: Optional[str] = None,
         _res: Optional[Union[BaseResult, GroupResult]] = None,
         **kwargs,
-    ) -> Optional[Any]:
+    ) -> Optional[Any]:  # sourcery skip: low-code-quality
         """Handles calling the coroutine based on parameter count."""
         params = signature(coro).parameters
         param_len = len(params)
@@ -802,7 +803,7 @@ class Command(DictSerializerMixin):
         ]  # parameters that are before *args and **kwargs
         keyword_only_args = list(params.keys())[index_of_var_pos:]  # parameters after *args
 
-        try:
+        with contextlib.suppress(CancelledError):
             _coro = coro if hasattr(coro, "_wrapped") else self.__wrap_coro(coro)
 
             if last.kind == last.VAR_KEYWORD:  # foo(ctx, ..., **kwargs)
@@ -848,8 +849,6 @@ class Command(DictSerializerMixin):
                     return await _coro(ctx, _res, *args, **kwargs)
 
             return await _coro(ctx, *args, **kwargs)
-        except CancelledError:
-            pass
 
     def __check_command(self, command_type: str) -> None:
         """Checks if subcommands, groups, or autocompletions are created on context menus."""

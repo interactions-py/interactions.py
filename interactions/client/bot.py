@@ -116,9 +116,7 @@ class Client:
             presence=self._presence,
         )
 
-        _logging = kwargs.get("logging", _logging)
-        if _logging:
-
+        if _logging := kwargs.get("logging", _logging):
             # thx i0 for posting this on the retux Discord
 
             if _logging is True:
@@ -139,6 +137,31 @@ class Client:
             )
         else:
             self._automate_sync = True
+
+    async def modify_nick_in_guild(
+        self, guild_id: Union[int, str, Snowflake, Guild], new_nick: Optional[str] = MISSING
+    ) -> Member:
+        """
+        .. versionadded:: 4.4.0
+
+        Sets a new nick in the specified guild.
+
+        :param Union[int, str, Snowflake, Guild] guild_id: The ID of the guild to modify the nick in
+        :param Optional[str] new_nick: The new nick to assign
+        """
+        if not self._http or isinstance(self._http, str):
+            raise LibraryException(
+                code=13, message="You cannot use this method until the bot has started!"
+            )
+
+        if new_nick is MISSING:
+            raise LibraryException(code=12, message="new nick name must either a string or `None`")
+
+        _id = int(guild_id.id) if isinstance(guild_id, Guild) else int(guild_id)
+
+        return Member(
+            **await self._http.modify_self_nick_in_guild(_id, new_nick), _client=self._http
+        )
 
     @property
     def guilds(self) -> List[Guild]:
@@ -378,30 +401,32 @@ class Client:
             |   |___ CALLBACK
             LOOP
         """
-        ready: bool = False
-
         if isinstance(self._http, str):
             self._http = HTTPClient(self._http, self._cache)
 
         data = await self._http.get_current_bot_information()
         self.me = Application(**data, _client=self._http)
 
+        ready: bool = False
         try:
             if self.me.flags is not None:
                 # This can be None.
-                if self._intents.GUILD_PRESENCES in self._intents and not (
-                    self.me.flags.GATEWAY_PRESENCE in self.me.flags
-                    or self.me.flags.GATEWAY_PRESENCE_LIMITED in self.me.flags
+                if (
+                    self._intents.GUILD_PRESENCES in self._intents
+                    and self.me.flags.GATEWAY_PRESENCE not in self.me.flags
+                    and self.me.flags.GATEWAY_PRESENCE_LIMITED not in self.me.flags
                 ):
                     raise RuntimeError("Client not authorised for the GUILD_PRESENCES intent.")
-                if self._intents.GUILD_MEMBERS in self._intents and not (
-                    self.me.flags.GATEWAY_GUILD_MEMBERS in self.me.flags
-                    or self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED in self.me.flags
+                if (
+                    self._intents.GUILD_MEMBERS in self._intents
+                    and self.me.flags.GATEWAY_GUILD_MEMBERS not in self.me.flags
+                    and self.me.flags.GATEWAY_GUILD_MEMBERS_LIMITED not in self.me.flags
                 ):
                     raise RuntimeError("Client not authorised for the GUILD_MEMBERS intent.")
-                if self._intents.GUILD_MESSAGES in self._intents and not (
-                    self.me.flags.GATEWAY_MESSAGE_CONTENT in self.me.flags
-                    or self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED in self.me.flags
+                if (
+                    self._intents.GUILD_MESSAGES in self._intents
+                    and self.me.flags.GATEWAY_MESSAGE_CONTENT not in self.me.flags
+                    and self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED not in self.me.flags
                 ):
                     log.critical("Client not authorised for the MESSAGE_CONTENT intent.")
             elif self._intents.value != Intents.DEFAULT.value:
@@ -494,7 +519,7 @@ class Client:
                 )
             except LibraryException as e:
                 if int(e.code) != 50001:
-                    raise LibraryException(code=e.code, message=e.message)
+                    raise LibraryException(code=e.code, message=e.message) from e
 
                 log.warning(
                     f"Your bot is missing access to guild with corresponding id {_id}! "
@@ -510,7 +535,7 @@ class Client:
 
             self.__guild_commands[_id] = {"commands": _cmds, "clean": True}
 
-    def __resolve_commands(self) -> None:
+    def __resolve_commands(self) -> None:  # sourcery skip: low-code-quality
         """
         Resolves all commands to the command coroutines.
 
@@ -1452,6 +1477,11 @@ class Client:
         :return: The modified User object
         :rtype: User
         """
+        if not self._http or isinstance(self._http, str):
+            raise LibraryException(
+                code=13, message="You cannot use this method until the bot has started!"
+            )
+
         payload: dict = {}
         if avatar is not MISSING:
             payload["avatar"] = avatar.data

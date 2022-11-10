@@ -129,7 +129,7 @@ class Member(ClientSerializerMixin, IDMixin):
             self._extras["guild_id"] = int(possible_guilds[0].id)
             return possible_guilds[0].id
 
-        elif len(possible_guilds) == 0:
+        elif not possible_guilds:
             possible_guilds = list(self._client.cache[Guild].values.values())
 
         for guild in possible_guilds:
@@ -548,7 +548,7 @@ class Member(ClientSerializerMixin, IDMixin):
                 raise _guild_id
 
         else:
-            _guild_id = int(guild_id) if not isinstance(guild_id, Guild) else int(guild_id.id)
+            _guild_id = int(guild_id.id) if isinstance(guild_id, Guild) else int(guild_id)
 
         guild = Guild(**await self._client.get_guild(int(_guild_id)), _client=self._client)
 
@@ -595,12 +595,6 @@ class Member(ClientSerializerMixin, IDMixin):
         )
 
         if operator == "and":
-            for perm in permissions:
-                if perm not in perms:
-                    return False
-            return True
+            return all(perm in perms for perm in permissions)
         else:
-            for perm in permissions:
-                if perm in perms:
-                    return True
-            return False
+            return any(perm in perms for perm in permissions)
