@@ -245,6 +245,8 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
 
 class AsyncTypingContextManager(BaseAsyncContextManager):
     """
+    .. versionadded:: 4.3.2
+
     An async context manager for triggering typing.
 
     :param Union[int, str, Snowflake, Channel] obj: The channel to trigger typing in.
@@ -285,6 +287,8 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
 @define()
 class Tags(ClientSerializerMixin):  # helpers, hehe :D
     """
+    .. versionadded:: 4.3.2
+
     An object denoting a tag object within a forum channel.
 
     .. note::
@@ -467,6 +471,8 @@ class Channel(ClientSerializerMixin, IDMixin):
     @property
     def typing(self) -> Union[Awaitable, ContextManager]:
         """
+        .. versionadded:: 4.3.2
+
         Manages the typing of the channel. Use with `await` or `async with`
 
         :return: A manager for typing
@@ -487,6 +493,8 @@ class Channel(ClientSerializerMixin, IDMixin):
     @property
     def voice_states(self) -> List["VoiceState"]:
         """
+        .. versionadded:: 4.4.0
+
         Returns all voice states this channel has. Only applicable for voice channels.
 
         :rtype: List[VoiceState]
@@ -515,6 +523,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         check: Optional[Callable[["Message"], bool]] = None,
     ) -> AsyncHistoryIterator:
         """
+        .. versionadded:: 4.3.2
+
         :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
         :param Optional[bool] reverse: Whether to only get newer message. Default False
         :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
@@ -1391,6 +1401,11 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def get_history(self, limit: int = 100) -> Optional[List["Message"]]:
         """
+        .. versionadded:: 4.2.0
+
+        .. deprecated:: 4.3.2
+            Use the :meth:`.history` instead
+
         Gets messages from the channel's history.
 
         :param int limit: The amount of messages to get. Default 100

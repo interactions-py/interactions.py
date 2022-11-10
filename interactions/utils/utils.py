@@ -249,6 +249,8 @@ def get_channel_history(
     maximum: Optional[int] = inf,
 ) -> "AsyncHistoryIterator":
     """
+    .. versionadded:: 4.3.2
+
     Gets the history of a channel.
 
     :param Union[HTTPClient, Client] http: The HTTPClient of the bot or your bot instance
@@ -281,6 +283,8 @@ def get_guild_members(
     maximum: Optional[int] = inf,
 ) -> "AsyncMembersIterator":
     """
+    .. versionadded:: 4.3.2
+
     Gets the members of a guild
 
     :param Union[HTTPClient, Client] http: The HTTPClient of the bot or your bot instance

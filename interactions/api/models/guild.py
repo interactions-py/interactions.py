@@ -214,6 +214,8 @@ class UnavailableGuild(DictSerializerMixin, IDMixin):
 
 class AsyncMembersIterator(DiscordPaginationIterator):
     """
+    .. versionadded:: 4.3.2
+
     A class object that allows iterating through a channel's history.
 
     :param HTTPClient _client: The HTTPClient of the bot
@@ -2283,6 +2285,11 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_all_members(self) -> List[Member]:
         """
+        .. versionadded:: 4.2.0
+
+        .. deprecated:: 4.3.2
+            Use :meth:`.get_members` instead.
+
         Gets all members of a guild.
 
         .. warning:: Calling this method can lead to rate-limits in larger guilds.
@@ -2321,6 +2328,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         check: Optional[Callable[[Member], bool]] = None,
     ) -> AsyncMembersIterator:
         """
+        .. versionadded:: 4.3.2
+
         :param Optional[Union[int, str, Snowflake, Member]] start_at: The message to begin getting the history from
         :param Optional[int] maximum: A set maximum of members to get before stopping the iteration
         :param Optional[Callable[[Message], bool]] check: A custom check to ignore certain members
