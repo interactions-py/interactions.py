@@ -494,9 +494,8 @@ class MessageReaction(ClientSerializerMixin):
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
     def __attrs_post_init__(self):
-        if self.member:
-            if self.guild_id:
-                self.member._extras["guild_id"] = self.guild_id
+        if self.member and self.guild_id:
+            self.member._extras["guild_id"] = self.guild_id
 
 
 class MessageReactionRemove(MessageReaction):

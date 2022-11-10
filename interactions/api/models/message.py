@@ -798,9 +798,8 @@ class Message(ClientSerializerMixin, IDMixin):
     position: Optional[int] = field(default=None, repr=False)
 
     def __attrs_post_init__(self):
-        if self.member:
-            if self.guild_id:
-                self.member._extras["guild_id"] = self.guild_id
+        if self.member and self.guild_id:
+            self.member._extras["guild_id"] = self.guild_id
 
         if self.author and self.member:
             self.member.user = self.author
@@ -862,7 +861,7 @@ class Message(ClientSerializerMixin, IDMixin):
                 List["SelectMenu"],
             ]
         ] = MISSING,
-    ) -> "Message":
+    ) -> "Message":  # sourcery skip: low-code-quality
         """
         This method edits a message. Only available for messages sent by the bot.
 

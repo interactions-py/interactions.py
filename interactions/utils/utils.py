@@ -264,7 +264,7 @@ def get_channel_history(
     from ..api.models.channel import AsyncHistoryIterator
 
     return AsyncHistoryIterator(
-        http if not hasattr(http, "_http") else http._http,
+        http._http if hasattr(http, "_http") else http,
         channel,
         start_at=start_at,
         reverse=reverse,
@@ -295,7 +295,7 @@ def get_guild_members(
     from ..api.models.guild import AsyncMembersIterator
 
     return AsyncMembersIterator(
-        http if not hasattr(http, "_http") else http._http,
+        http._http if hasattr(http, "_http") else http,
         guild,
         start_at=start_at,
         maximum=maximum,

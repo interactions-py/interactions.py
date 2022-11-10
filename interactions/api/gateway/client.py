@@ -315,8 +315,7 @@ class WebSocketClient:
         event: Optional[str] = stream.get("t")
         data: Optional[Dict[str, Any]] = stream.get("d")
 
-        seq: Optional[str] = stream.get("s")
-        if seq:
+        if seq := stream.get("s"):
             self.sequence = seq
 
         if op != OpCodeType.DISPATCH:
