@@ -118,7 +118,7 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
     :param Union[int, str, Snowflake, Channel] obj: The channel to get the history from
     :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
     :param Optional[bool] reverse: Whether to only get newer message. Default False
-    :param Optional[Callable[[Member], bool]] check: A check to ignore certain messages
+    :param Optional[Callable[[Message], Union[bool, Awaitable[bool]]]] check: A check to ignore certain messages
     :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
     """
 
@@ -128,7 +128,7 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
         obj: Union[int, str, Snowflake, "Channel"],
         maximum: Optional[int] = inf,
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
-        check: Optional[Callable[["Message"], bool]] = None,
+        check: Optional[Callable[["Message"], Union[bool, Awaitable[bool]]]] = None,
         reverse: Optional[bool] = False,
     ):
         super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)
@@ -510,13 +510,13 @@ class Channel(ClientSerializerMixin, IDMixin):
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
         reverse: Optional[bool] = False,
         maximum: Optional[int] = inf,
-        check: Optional[Callable[["Message"], bool]] = None,
+        check: Optional[Callable[["Message"], Union[bool, Awaitable[bool]]]] = None,
     ) -> AsyncHistoryIterator:
         """
         :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
         :param Optional[bool] reverse: Whether to only get newer message. Default False
         :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
-        :param Optional[Callable[[Message], bool]] check: A custom check to ignore certain messages
+        :param Optional[Callable[[Message], Union[bool, Awaitable[bool]]]] check: A custom check to ignore certain messages
 
         :return: An asynchronous iterator over the history of the channel
         :rtype: AsyncHistoryIterator
