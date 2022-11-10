@@ -651,7 +651,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         auto_archive_duration: Optional[int] = MISSING,
         locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Channel":
+    ) -> "Channel":  # sourcery skip: low-code-quality
         """
         Edits the channel.
 
@@ -1063,11 +1063,12 @@ class Channel(ClientSerializerMixin, IDMixin):
     async def purge(
         self,
         amount: int,
-        check: Callable[[Any], bool] = MISSING,
+        check: Optional[Callable[[Any], Union[bool, Awaitable[bool]]]] = MISSING,
         before: Optional[int] = MISSING,
         reason: Optional[str] = None,
         bulk: Optional[bool] = True,
-    ) -> List["Message"]:  # noqa  # sourcery skip: low-code-quality
+        force_bulk: Optional[bool] = False,
+    ) -> List["Message"]:
         """
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
 
@@ -1077,13 +1078,25 @@ class Channel(ClientSerializerMixin, IDMixin):
 
             def check_pinned(message):
                 return not message.pinned  # This returns `True` only if the message is the message is not pinned
-            await channel.purge(100, check=check_pinned)  # This will delete the newest 100 messages that are not pinned in that channel
+            await channel.purge(100, check=check_pinned)
+            # This will delete the newest 100 messages that are not pinned in that channel
 
         :param int amount: The amount of messages to delete
-        :param Callable[[Message], bool] check: The function used to check if a message should be deleted. The message is only deleted if the check returns `True`
+        :param Optional[Callable[[Any], Union[bool, Awaitable[bool]]]] check:
+            The function used to check if a message should be deleted.
+            The message is only deleted if the check returns `True`
         :param Optional[int] before: An id of a message to purge only messages before that message
-        :param Optional[bool] bulk: Whether to bulk delete the messages (you cannot delete messages older than 14 days, default) or to delete every message seperately
-        :param Optional[str] reason: The reason of the deletes
+        :param Optional[bool] bulk:
+            Whether to use the bulk delete endpoint for deleting messages. This only works for 14 days
+
+            .. versionchanged:: 4.4.0
+                Purge now automatically continues deleting messages even after the 14 days limit was hit. Check
+                ``force_bulk`` for more information. If the 14 days span is exceeded the bot will encounter rate-limits
+                more frequently.
+        :param Optional[st] reason: The reason of the deletes
+        :param Optional[bool] force_bulk:
+            .. versionadded:: 4.4.0
+                Whether to stop deleting messages when the 14 days bulk limit was hit, default ``False``
         :return: A list of the deleted messages
         :rtype: List[Message]
         """
@@ -1093,7 +1106,46 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         _before = None if before is MISSING else before
         _all = []
-        if bulk:
+
+        async def normal_delete():
+            nonlocal _before, _all, amount, check, reason
+            while amount > 0:
+                messages = [
+                    Message(**res)
+                    for res in await self._client.get_channel_messages(
+                        channel_id=int(self.id),
+                        limit=min(amount, 100),
+                        before=_before,
+                    )
+                ]
+
+                amount -= min(amount, 100)
+                messages2 = messages.copy()
+                for message in messages2:
+                    if message.flags == (1 << 7):
+                        messages.remove(message)
+                        amount += 1
+                        _before = int(message.id)
+                    elif check is not MISSING:
+                        _check = check(message)
+                        if isawaitable(_check):
+                            _check = await _check
+                        if not _check:
+                            messages.remove(message)
+                            amount += 1
+                            _before = int(message.id)
+                _all += messages
+
+            for message in _all:
+                await self._client.delete_message(
+                    channel_id=int(self.id),
+                    message_id=int(message.id),
+                    reason=reason,
+                )
+
+        async def bulk_delete():
+            nonlocal _before, _all, amount, check, reason
+
             _allowed_time = datetime.now(tz=timezone.utc) - timedelta(days=14)
             _stop = False
             while amount > 100:
@@ -1119,6 +1171,8 @@ class Channel(ClientSerializerMixin, IDMixin):
                         _before = int(message.id)
                     elif check is not MISSING:
                         _check = check(message)
+                        if isawaitable(_check):
+                            _check = await _check
                         if not _check:
                             messages.remove(message)
                             amount += 1
@@ -1168,6 +1222,8 @@ class Channel(ClientSerializerMixin, IDMixin):
                         _before = int(message.id)
                     elif check is not MISSING:
                         _check = check(message)
+                        if isawaitable(_check):
+                            _check = await _check
                         if not _check:
                             messages.remove(message)
                             amount += 1
@@ -1209,6 +1265,8 @@ class Channel(ClientSerializerMixin, IDMixin):
                         _before = int(message.id)
                     elif check is not MISSING:
                         _check = check(message)
+                        if isawaitable(_check):
+                            _check = await _check
                         if not _check:
                             messages.remove(message)
                             amount += 1
@@ -1222,38 +1280,13 @@ class Channel(ClientSerializerMixin, IDMixin):
                     reason=reason,
                 )
 
-        else:
-            while amount > 0:
-                messages = [
-                    Message(**res)
-                    for res in await self._client.get_channel_messages(
-                        channel_id=int(self.id),
-                        limit=min(amount, 100),
-                        before=_before,
-                    )
-                ]
+        if bulk:
+            await bulk_delete()
+            if not force_bulk:
+                await normal_delete()
+            return _all
 
-                amount -= min(amount, 100)
-                messages2 = messages.copy()
-                for message in messages2:
-                    if message.flags == (1 << 7):
-                        messages.remove(message)
-                        amount += 1
-                        _before = int(message.id)
-                    elif check is not MISSING:
-                        _check = check(message)
-                        if not _check:
-                            messages.remove(message)
-                            amount += 1
-                            _before = int(message.id)
-                _all += messages
-
-            for message in _all:
-                await self._client.delete_message(
-                    channel_id=int(self.id),
-                    message_id=int(message.id),
-                    reason=reason,
-                )
+        await normal_delete()
 
         return _all
 
@@ -1602,7 +1635,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         files: Optional[List[File]] = MISSING,
         rate_limit_per_user: Optional[int] = MISSING,
         reason: Optional[str] = None,
-    ) -> "Channel":
+    ) -> "Channel":  # sourcery skip: low-code-quality
         """
         Creates a new post inside a forum channel
 
