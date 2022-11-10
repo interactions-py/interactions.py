@@ -4,7 +4,7 @@ Quickstart
 Installing
 **********
 
-**discord-interactions** is a :ref:`Python library <index:interactions.py>` for the Discord Application Programming Interface. (API)
+**interactions.py** is a :ref:`Python library <index:interactions.py>` for the Discord Application Programming Interface. (API)
 A library in Python has to be installed through the `pip` file. Run this in your terminal/command line
 in order to install our library:
 
@@ -99,7 +99,7 @@ Let's take a look now at what is happening here:
 
 
 Now, let's create our first slash command:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
@@ -561,7 +561,7 @@ Responding to a Modal interaction
 You can respond to a modal the same way as you would respond to a normal ``chat-input`` command, except your function has an extra argument for the text what was put into the modal.
 
 Adding v2 Permissions
-^^^^^^^^^^^^^^^^^^^^^
+*********************
 
 v2 permissions consist of the ``default_member_permissions`` and ``dm_permission`` keyword arguments.
 Similar to adding privileged intents, you add permissions (like admin-only, ``BAN_MEMBERS``-only, etc.) as follows:
@@ -625,7 +625,7 @@ Likewise, setting ``dm_permission`` to ``True`` makes it usable in DMs. Just to 
 global commands. Guild commands with this argument will have no effect.
 
 Utilities
-^^^^^^^^^
+*********
 
 You can use the following utilities to help you with your commands:
 

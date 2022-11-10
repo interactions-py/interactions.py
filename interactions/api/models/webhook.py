@@ -33,16 +33,16 @@ class Webhook(ClientSerializerMixin, IDMixin):
 
     :ivar Snowflake id: the id of the webhook
     :ivar WebhookType type: the type of the webhook
-    :ivar Snowflake guild_id?: the guild id this webhook is for, if any
-    :ivar Snowflake channel_id?: the channel id this webhook is for, if any
-    :ivar User user?: the user this webhook was created by (not returned when getting a webhook with its token)
+    :ivar Snowflake guild_id: the guild id this webhook is for, if any
+    :ivar Snowflake channel_id: the channel id this webhook is for, if any
+    :ivar User user: the user this webhook was created by (not returned when getting a webhook with its token)
     :ivar str name: the default name of the webhook
     :ivar str avatar: the default user avatar hash of the webhook
     :ivar str token: the secure token of the webhook (returned for Incoming Webhooks)
     :ivar Snowflake application_id: the bot/OAuth2 application that created this webhook
-    :ivar Guild source_guild?: the guild of the channel that this webhook is following (returned for Channel Follower Webhooks)
-    :ivar Channel source_channel?: the channel that this webhook is following (returned for Channel Follower Webhooks)
-    :ivar str url?: the url used for executing the webhook (returned by the webhooks OAuth2 flow)
+    :ivar Guild source_guild: the guild of the channel that this webhook is following (returned for Channel Follower Webhooks)
+    :ivar Channel source_channel: the channel that this webhook is following (returned for Channel Follower Webhooks)
+    :ivar str url: the url used for executing the webhook (returned by the webhooks OAuth2 flow)
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -81,14 +81,10 @@ class Webhook(ClientSerializerMixin, IDMixin):
         """
         Creates a webhook in a channel.
 
-        :param client: The HTTPClient of the bot, has to be set to `bot._http`.
-        :type client: HTTPClient
-        :param channel_id: The ID of the channel to create the webhook in.
-        :type channel_id: int
-        :param name: The name of the webhook.
-        :type name: str
-        :param avatar: The avatar of the Webhook, if any.
-        :type avatar: Optional[Image]
+        :param HTTPClient client: The HTTPClient of the bot, has to be set to ``bot._http``.
+        :param int channel_id: The ID of the channel to create the webhook in.
+        :param str name: The name of the webhook.
+        :param Optional[Image] avatar: The avatar of the Webhook, if any.
         :return: The created webhook as object
         :rtype: Webhook
         """
@@ -109,12 +105,9 @@ class Webhook(ClientSerializerMixin, IDMixin):
         """
         Gets an existing webhook.
 
-        :param client: The HTTPClient of the bot, has to be set to `bot._http`.
-        :type client: HTTPClient
-        :param webhook_id: The ID of the webhook.
-        :type webhook_id: int
-        :param webhook_token: The token of the webhook, optional
-        :type webhook_token: Optional[str]
+        :param HTTPClient client: The HTTPClient of the bot, has to be set to ``bot._http``.
+        :param int webhook_id: The ID of the webhook.
+        :param Optional[str] webhook_token: The token of the webhook, optional
         :return: The Webhook object
         :rtype: Webhook
         """
@@ -134,12 +127,9 @@ class Webhook(ClientSerializerMixin, IDMixin):
         """
         Modifies the current webhook.
 
-        :param name: The new name of the webhook
-        :type name: Optional[str]
-        :param channel_id: The channel id of the webhook. If not provided, the webhook token will be used for authentication
-        :type channel_id: int
-        :param avatar: The new avatar of the webhook
-        :type avatar: Optional[Image]
+        :param Optional[str] name: The new name of the webhook
+        :param int channel_id: The channel id of the webhook. If not provided, the webhook token will be used for authentication
+        :param Optional[Image] avatar: The new avatar of the webhook
         :return: The modified webhook object
         :rtype: Webhook
         """
@@ -193,33 +183,23 @@ class Webhook(ClientSerializerMixin, IDMixin):
         ] = MISSING,
         files: Optional[Union[File, List[File]]] = MISSING,
         thread_id: Optional[int] = MISSING,
-    ) -> Optional["Message"]:
+    ) -> Optional["Message"]:  # sourcery skip: low-code-quality
         """
         Executes the webhook. All parameters to this function are optional.
 
         .. important::
             The ``components`` argument requires an application-owned webhook.
 
-        :param content: the message contents (up to 2000 characters)
-        :type content: str
-        :param username: override the default username of the webhook
-        :type username: str
-        :param avatar_url: override the default avatar of the webhook
-        :type avatar_url: str
-        :param tts: true if this is a TTS message
-        :type tts: bool
-        :param attachments?: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :type attachments?: Optional[List[Attachment]]
-        :param embeds: embedded ``rich`` content
-        :type embeds: Union[Embed, List[Embed]]
-        :param allowed_mentions?: The allowed mentions for the message.
-        :type allowed_mentions?: Optional[Union[AllowedMentions, dict]]
-        :param components: the components to include with the message
-        :type components: Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
-        :param files: The files to attach to the message
-        :type files: Union[File, List[File]]
-        :param thread_id: Send a message to a specified thread within a webhook's channel. The thread will automatically be unarchived
-        :type thread_id: int
+        :param str content: the message contents (up to 2000 characters)
+        :param str username: override the default username of the webhook
+        :param str avatar_url: override the default avatar of the webhook
+        :param bool tts: true if this is a TTS message
+        :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Union[Embed, List[Embed]] embeds: embedded ``rich`` content
+        :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
+        :param Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]] components: the components to include with the message
+        :param Union[File, List[File]] files: The files to attach to the message
+        :param int thread_id: Send a message to a specified thread within a webhook's channel. The thread will automatically be unarchived
         :return: The sent message, if present
         :rtype: Optional[Message]
         """
@@ -285,10 +265,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
             thread_id=thread_id if thread_id is not MISSING else None,
         )
 
-        if not isinstance(res, dict):
-            return res
-
-        return Message(**res, _client=self._client)
+        return Message(**res, _client=self._client) if isinstance(res, dict) else res
 
     async def delete(self) -> None:
         """

@@ -253,22 +253,23 @@ async def _http_request(
     _name: str = None,
     **kwargs,
 ) -> Union[_T, List[_T]]:
-    if not request:
-        if obj in (Role, Emoji):
-            from ..api.models.guild import Guild
+    if request:
+        return (
+            [obj(**await req, _client=http) if isawaitable(req) else req for req in request]
+            if isinstance(request, list)
+            else obj(**await request, _client=http)
+        )
 
-            _guild = Guild(**await http.get_guild(kwargs.pop("guild_id")), _client=http)
-            _func = getattr(_guild, _name)
-            return await _func(**kwargs)
+    if obj in (Role, Emoji):
+        from ..api.models.guild import Guild
 
-        _func = getattr(http, _name)
-        _obj = await _func(**kwargs)
-        return obj(**_obj, _client=http)
+        _guild = Guild(**await http.get_guild(kwargs.pop("guild_id")), _client=http)
+        _func = getattr(_guild, _name)
+        return await _func(**kwargs)
 
-    if not isinstance(request, list):
-        return obj(**await request, _client=http)
-
-    return [obj(**await req, _client=http) if isawaitable(req) else req for req in request]
+    _func = getattr(http, _name)
+    _obj = await _func(**kwargs)
+    return obj(**_obj, _client=http)
 
 
 async def _return_cache(
