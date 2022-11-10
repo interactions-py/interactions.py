@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from inspect import isawaitable
 from math import inf
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, List, Optional, Tuple, Union
 from warnings import warn
 
 from ...utils.abc.base_iterators import DiscordPaginationIterator
@@ -221,7 +221,7 @@ class AsyncMembersIterator(DiscordPaginationIterator):
     :param HTTPClient _client: The HTTPClient of the bot
     :param Union[int, str, Snowflake, Guild] obj: The guild to get the members from
     :param Optional[Union[int, str, Snowflake, Member]] start_at: The member ID to start getting members from (gets all members after that member)
-    :param Optional[Callable[[Member], bool]] check: A check to ignore certain members
+    :param Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] check: A check to ignore certain members
     :param Optional[int] maximum: A set maximum of members to get before stopping the iteration
     """
 
@@ -231,7 +231,7 @@ class AsyncMembersIterator(DiscordPaginationIterator):
         obj: Union[int, str, Snowflake, "Guild"],
         maximum: Optional[int] = inf,
         start_at: Optional[Union[int, str, Snowflake, Member]] = MISSING,
-        check: Optional[Callable[[Member], bool]] = None,
+        check: Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] = None,
     ):
 
         self.__stop: bool = False
@@ -2325,14 +2325,14 @@ class Guild(ClientSerializerMixin, IDMixin):
         self,
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
         maximum: Optional[int] = inf,
-        check: Optional[Callable[[Member], bool]] = None,
+        check: Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] = None,
     ) -> AsyncMembersIterator:
         """
         .. versionadded:: 4.3.2
 
         :param Optional[Union[int, str, Snowflake, Member]] start_at: The message to begin getting the history from
         :param Optional[int] maximum: A set maximum of members to get before stopping the iteration
-        :param Optional[Callable[[Message], bool]] check: A custom check to ignore certain members
+        :param Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] check: A custom check to ignore certain members
 
         :return: An asynchronous iterator over the members of the guild
         :rtype: AsyncMembersIterator

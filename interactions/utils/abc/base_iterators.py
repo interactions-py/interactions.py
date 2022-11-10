@@ -1,6 +1,6 @@
 from abc import ABC, ABCMeta, abstractmethod
 from math import inf
-from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Awaitable, Callable, List, Optional, TypeVar, Union
 
 from ..missing import MISSING
 
@@ -50,7 +50,7 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
         _client: Optional["HTTPClient"] = None,
         maximum: Optional[int] = inf,
         start_at: Optional[Union[int, str, "Snowflake", _O]] = MISSING,
-        check: Optional[Callable[[_O], bool]] = None,
+        check: Optional[Callable[[_O], Union[bool, Awaitable[bool]]]] = None,
     ):
         """
         Create a Discord Pagination iterator. All attributes are optional but may be useful for getting Discord objects.
