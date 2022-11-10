@@ -215,6 +215,7 @@ class User(ClientSerializerMixin, IDMixin):
         """
         if not self._client:
             raise LibraryException(code=13)
+
         from .channel import Channel
 
         return Channel(**await self._client.create_dm(int(self.id)), _client=self._client)
