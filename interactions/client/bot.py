@@ -1675,7 +1675,7 @@ class Client:
             ``modal_ctx, (field1, field2, ...) = await bot.wait_for_modal(...)``
 
         :param Union[Modal, str, List[Modal, str]] modals: The modal(s) to wait for
-        :param Optional[Callable[CommandContext, Union[bool, Awaitable[bool]]]] check: A function or coroutine to call, which should return a truthy value if the data should be returned
+        :param Optional[Callable[[CommandContext], Union[bool, Awaitable[bool]]]] check: A function or coroutine to call, which should return a truthy value if the data should be returned
         :param Optional[float] timeout: How long to wait for the event before raising an error
         :return: The context of the modal, followed by the data the user inputted
         :rtype: tuple[CommandContext, list[str]]
