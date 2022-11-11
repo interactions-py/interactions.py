@@ -226,10 +226,9 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
     http_name = f"get_{obj.__name__.lower()}"
     kwarg_name = f"{obj.__name__.lower()}_id"
 
-    _obj: Optional[_T] = None
-
-    if not force_http:
-        _obj = _get_cache(obj, client, kwarg_name, **kwargs)
+    _obj: Optional[_T] = (
+        None if force_http else _get_cache(obj, client, kwarg_name, **kwargs)
+    )  # more sourcery stuff
 
     if force_cache:
         return _obj
