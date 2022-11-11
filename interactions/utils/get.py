@@ -12,7 +12,7 @@ except ImportError:
     from typing import _BaseGenericAlias as _GenericAlias
 
 
-if sys.version_info < (3, 9):
+if version_info < (3, 9):
 
     class GenericAlias:
         ...
