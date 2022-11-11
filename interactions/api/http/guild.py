@@ -280,7 +280,7 @@ class GuildRequest:
             Route("POST", f"/guilds/templates/{template_code}", json=payload)
         )
 
-    async def get_guild_template(self, template_code: str) -> List[dict]:
+    async def get_guild_template(self, template_code: str) -> dict:
         """
         Returns a guild template.
 
