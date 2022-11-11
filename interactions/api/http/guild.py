@@ -283,7 +283,7 @@ class GuildRequest:
     async def get_guild_template(self, template_code: str) -> dict:
         """
         .. versionadded:: 4.4.0
-        
+
         Returns a guild template.
 
         :param template_code: The code for the template to get
