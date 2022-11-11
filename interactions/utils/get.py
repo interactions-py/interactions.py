@@ -1,4 +1,4 @@
-import sys
+from sys import version_info
 from asyncio import sleep
 from enum import Enum
 from inspect import isawaitable
