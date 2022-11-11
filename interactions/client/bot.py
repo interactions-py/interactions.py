@@ -1935,7 +1935,8 @@ def extension_listener(func: Optional[Coroutine] = None, name: Optional[str] = N
 
     if func:
         # allows omitting `()` on `@listener`
-        return decorator(func)
+        func.__listener_name__ = name or func.__name__
+        return func
 
     return decorator
 
