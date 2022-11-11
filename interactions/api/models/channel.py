@@ -210,10 +210,10 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
         self.objects.extend([Message(**msg, _client=self._client) for msg in msgs])
 
     async def __anext__(self) -> "Message":
-        if self.objects is None:
-            await self.get_first_objects()
-
         try:
+            if self.objects is None:
+                await self.get_first_objects()
+
             obj = self.objects.pop(0)
 
             if self.check:
