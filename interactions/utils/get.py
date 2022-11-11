@@ -1,8 +1,8 @@
-from sys import version_info
 from asyncio import sleep
 from enum import Enum
 from inspect import isawaitable
 from logging import getLogger
+from sys import version_info
 from typing import TYPE_CHECKING, Coroutine, List, Optional, Type, TypeVar, Union, get_args
 
 try:
@@ -19,7 +19,6 @@ if version_info < (3, 9):
 
 else:
     from types import GenericAlias
-
 
 from ..api.error import LibraryException
 from ..api.models.emoji import Emoji
