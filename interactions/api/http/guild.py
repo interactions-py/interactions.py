@@ -280,6 +280,15 @@ class GuildRequest:
             Route("POST", f"/guilds/templates/{template_code}", json=payload)
         )
 
+    async def get_guild_template(self, template_code: str) -> List[dict]:
+        """
+        Returns a guild template.
+
+        :param template_code: The code for the template to get
+        :return: A guild template
+        """
+        return await self._req.request(Route("GET", f"/guilds/templates/{template_code}"))
+
     async def get_guild_templates(self, guild_id: int) -> List[dict]:
         """
         Returns an array of guild templates.
