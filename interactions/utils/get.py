@@ -20,7 +20,6 @@ if sys.version_info < (3, 9):
 else:
     from types import GenericAlias
 
-from sys import version_info
 
 from ..api.error import LibraryException
 from ..api.models.emoji import Emoji
