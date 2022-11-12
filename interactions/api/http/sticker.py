@@ -68,7 +68,7 @@ class StickerRequest:
         :return: The new sticker data on success.
         """
         data = FormData()
-        data.add_field("file", file._fp, filename=file._filename)
+        data.add_field("file", file._fp, filename=file._filename, content_type="image/png")
         for key, value in payload.items():
             data.add_field(key, value)
 
