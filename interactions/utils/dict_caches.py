@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from typing import Generic, TypeVar
+
 from .missing import MISSING
 
 __all__ = ("FIFODict", "LRUDict")
