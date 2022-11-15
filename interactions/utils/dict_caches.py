@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from typing import Generic, TypeVar
+from .missing import MISSING
 
 __all__ = ("FIFODict", "LRUDict")
 
@@ -45,3 +46,12 @@ class LRUDict(OrderedDict, Generic[_KT, _VT]):
         # Prevent buildup over time
         while len(self) > self._max_items:
             del self[next(iter(self))]
+
+    def pop(self, key: _KT, default: _VT = MISSING) -> _VT:
+        if key in self:
+            result = self[key]
+            del self[key]
+            return result
+        if default is MISSING:
+            raise KeyError(key)
+        return default
