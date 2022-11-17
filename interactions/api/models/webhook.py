@@ -67,7 +67,7 @@ class Webhook(ClientSerializerMixin, IDMixin):
             else None
         )
         self.source_channel = (
-            Channel(**self.source_channel, _client=self._client, guild_id=self.guild_id)
+            Channel(**self.source_channel, _client=self._client)
             if self._json.get("source_channel")
             else None
         )
