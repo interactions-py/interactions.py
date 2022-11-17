@@ -669,7 +669,6 @@ class VoiceState(ClientSerializerMixin):
         return Channel(
             **await self._client.get_channel(int(self.channel_id)),
             _client=self._client,
-            guild_id=self.guild_id
         )
 
     async def get_guild(self) -> "Guild":

@@ -1387,7 +1387,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             reason=reason,
         )
 
-        return Channel(**res, _client=self._client, guild_id=self.guild_id)
+        return Channel(**res, _client=self._client)
 
     @property
     def url(self) -> str:
@@ -1815,7 +1815,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         data = await self._client.create_thread_in_forum(int(self.id), **_top_payload)
 
-        return Channel(**data, _client=self._client, guild_id=self.guild_id)
+        return Channel(**data, _client=self._client)
 
     async def get_permissions_for(self, member: "Member") -> Permissions:
         """
