@@ -67,8 +67,18 @@ class StickerRequest:
         :param reason: The reason for this action.
         :return: The new sticker data on success.
         """
+        if not isinstance(file._fp, bytes):
+            file._fp = file._fp.read()
+
+        if file._fp.startswith(b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"):
+            content_type = "image/png"
+        elif file._fp.startswith(b"{"):
+            content_type = "application/json"
+        else:
+            content_type = "application/octet-stream"
+
         data = FormData()
-        data.add_field("file", file._fp, filename=file._filename)
+        data.add_field("file", file._fp, filename=file._filename, content_type=content_type)
         for key, value in payload.items():
             data.add_field(key, value)
 
