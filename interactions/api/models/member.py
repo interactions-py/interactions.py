@@ -111,7 +111,7 @@ class Member(ClientSerializerMixin, IDMixin):
     def guild_id(self) -> Optional[Union[Snowflake, LibraryException]]:
         """
         Attempts to get the guild ID the member is in.
-        Only works then roles or nick or joined at is present and the guild is cached.
+        Only works when roles or nick or joined at is present and the guild is cached.
 
         :return: The ID of the guild this member belongs to.
         :rtype: Optional[Union[Snowflake, LibraryException]]
