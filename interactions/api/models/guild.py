@@ -903,7 +903,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             reason=reason,
         )
 
-        return Channel(**res, _client=self._client)
+        return Channel(**res, _client=self._client, guild_id=self.id)
 
     async def create_channel(
         self,
@@ -1752,7 +1752,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
         res = await self._client.get_all_channels(int(self.id))
-        self.channels = [Channel(**channel, _client=self._client) for channel in res]
+        self.channels = [
+            Channel(**channel, _client=self._client, guild_id=self.id) for channel in res
+        ]
         return self.channels
 
     async def get_all_active_threads(self) -> List[Channel]:

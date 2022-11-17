@@ -91,7 +91,7 @@ class _Context(ClientSerializerMixin):
         """
 
         res = await self._client.get_channel(int(self.channel_id))
-        self.channel = Channel(**res, _client=self._client)
+        self.channel = Channel(**res, _client=self._client, guild_id=self.guild_id)
         return self.channel
 
     async def get_guild(self) -> Guild:

@@ -88,12 +88,33 @@ class Member(ClientSerializerMixin, IDMixin):
         return self._client.cache[VoiceState].get(self.id)
 
     @property
+    def guild(self) -> Optional["Guild"]:
+        """
+        .. versionadded:: 4.4.0
+
+        Attempts to get the guild the member is in.
+        Only works then roles or nick or joined at is present and the guild is cached.
+
+        :return: The guild this member belongs to.
+        :rtype: Guild
+        """
+        _id = self.guild_id
+        from .guild import Guild
+
+        if not _id or isinstance(_id, LibraryException):
+            return None
+
+        else:
+            return self._client.cache[Guild].get(_id, None)
+
+    @property
     def guild_id(self) -> Optional[Union[Snowflake, LibraryException]]:
         """
         Attempts to get the guild ID the member is in.
-        Only works then roles or nick or joined at is present.
+        Only works then roles or nick or joined at is present and the guild is cached.
 
         :return: The ID of the guild this member belongs to.
+        :rtype: Optional[Union[Snowflake, LibraryException]]
         """
 
         if hasattr(self, "_guild_id"):

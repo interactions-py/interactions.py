@@ -813,7 +813,7 @@ class Message(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
         res = await self._client.get_channel(channel_id=int(self.channel_id))
-        return Channel(**res, _client=self._client)
+        return Channel(**res, _client=self._client, guild_id=self.guild_id)
 
     async def get_guild(self):
         """
@@ -1103,7 +1103,7 @@ class Message(ClientSerializerMixin, IDMixin):
             invitable=_invitable,
             auto_archive_duration=_auto_archive_duration,
         )
-        return Channel(**res, _client=self._client)
+        return Channel(**res, _client=self._client, guild_id=self.guild_id)
 
     async def create_reaction(
         self,

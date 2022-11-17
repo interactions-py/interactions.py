@@ -16,6 +16,7 @@ from ...utils.attrs_utils import (
     field,
 )
 from ...utils.missing import MISSING
+from ...utils.utils import search_iterable
 from ..error import LibraryException
 from .emoji import Emoji
 from .flags import Permissions
@@ -26,7 +27,7 @@ from .webhook import Webhook
 if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
     from ..http.client import HTTPClient
-    from .guild import Invite, InviteTargetType
+    from .guild import Guild, Invite, InviteTargetType
     from .gw import VoiceState
     from .member import Member
     from .message import Attachment, Embed, Message, Sticker
@@ -417,7 +418,9 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     type: ChannelType = field(converter=ChannelType)
     id: Snowflake = field(converter=Snowflake)
-    guild_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    _guild_id: Optional[Snowflake] = field(
+        converter=Snowflake, default=None, discord_name="guild_id"
+    )
     position: Optional[int] = field(default=None)
     permission_overwrites: Optional[List[Overwrite]] = field(
         converter=convert_list(Overwrite), factory=list
@@ -461,6 +464,51 @@ class Channel(ClientSerializerMixin, IDMixin):
             if channel := self._client.cache[Channel].get(self.id):
                 if not self.recipients:
                     self.recipients = channel.recipients
+
+    @property
+    def guild_id(self) -> Optional[Snowflake]:
+        """
+        .. versionadded:: 4.4.0
+
+        Attempts to get the guild ID the channel is in.
+
+        :return: The ID of the guild this channel belongs to.
+        :rtype: Optional[Snowflake]
+        """
+
+        if self._guild_id:
+            return self._guild_id
+
+        elif _id := self._extras.get("guild_id"):
+            return Snowflake(_id)
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .guild import Guild
+
+        def check(channel: Channel):
+            return self.id == channel.id
+
+        for guild in self._client.cache[Guild].values.values():
+            if len(search_iterable(guild.channels, check=check)) == 1:
+                self._extras["guild_id"] = guild.id
+                return guild.id
+
+    @property
+    def guild(self) -> Optional["Guild"]:
+        """
+        .. versionadded:: 4.4.0
+
+        Attempts to get the guild the channel is in.
+
+        :return: The guild this channel belongs to.
+        :rtype: Guild
+        """
+        _id = self.guild_id
+        from .guild import Guild
+
+        return self._client.cache[Guild].get(_id, None) if _id else None
 
     @property
     def typing(self) -> Union[Awaitable, ContextManager]:
@@ -1339,7 +1387,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             reason=reason,
         )
 
-        return Channel(**res, _client=self._client)
+        return Channel(**res, _client=self._client, guild_id=self.guild_id)
 
     @property
     def url(self) -> str:
@@ -1767,7 +1815,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         data = await self._client.create_thread_in_forum(int(self.id), **_top_payload)
 
-        return Channel(**data)
+        return Channel(**data, _client=self._client, guild_id=self.guild_id)
 
     async def get_permissions_for(self, member: "Member") -> Permissions:
         """
