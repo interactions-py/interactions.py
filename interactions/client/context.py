@@ -6,7 +6,7 @@ from ..api.models.channel import Channel
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Attachment, Embed, Message, MessageReference
+from ..api.models.message import Attachment, Embed, Message, MessageReference, File
 from ..api.models.misc import AllowedMentions, Snowflake
 from ..api.models.user import User
 from ..base import get_logger
@@ -112,6 +112,7 @@ class _Context(ClientSerializerMixin):
         *,
         tts: Optional[bool] = MISSING,
         attachments: Optional[List[Attachment]] = MISSING,
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         components: Optional[
@@ -188,15 +189,25 @@ class _Context(ClientSerializerMixin):
 
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
 
+        if not files or files is MISSING:
+            _files = []
+        elif isinstance(files, list):
+            _files = [file._json_payload(id) for id, file in enumerate(files)]
+        else:
+            _files = [files._json_payload(0)]
+            files = [files]
+
+        _files.extend(_attachments)
+
         return dict(
             content=_content,
             tts=_tts,
             embeds=_embeds,
             allowed_mentions=_allowed_mentions,
             components=_components,
-            attachments=_attachments,
+            attachments=_files,
             flags=_flags,
-        )
+        ), files
 
     async def edit(
         self,
@@ -204,6 +215,7 @@ class _Context(ClientSerializerMixin):
         *,
         tts: Optional[bool] = MISSING,
         attachments: Optional[List[Attachment]] = MISSING,
+        files: Optional[Union[File, List[File]]] = MISSING,
         embeds: Optional[Union[Embed, List[Embed]]] = MISSING,
         allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
         message_reference: Optional[MessageReference] = MISSING,
@@ -225,6 +237,7 @@ class _Context(ClientSerializerMixin):
         if self.message.content is not None or content is not MISSING:
             _content: str = self.message.content if content is MISSING else content
             payload["content"] = _content
+
         _tts: bool = False if tts is MISSING else tts
         payload["tts"] = _tts
 
@@ -252,7 +265,17 @@ class _Context(ClientSerializerMixin):
                 else []
             )
 
-            payload["attachments"] = _attachments
+        if not files or files is MISSING:
+            _files = []
+        elif isinstance(files, list):
+            _files = [file._json_payload(id) for id, file in enumerate(files)]
+        else:
+            _files = [files._json_payload(0)]
+            files = [files]
+
+        _files.extend(_attachments)
+
+        payload["attachments"] = _files
 
         _allowed_mentions: dict = (
             {}
@@ -276,7 +299,7 @@ class _Context(ClientSerializerMixin):
 
             payload["components"] = _components
 
-        return payload
+        return payload, files
 
     async def popup(self, modal: Modal) -> dict:
         """
@@ -374,7 +397,7 @@ class CommandContext(_Context):
         self, content: Optional[str] = MISSING, **kwargs
     ) -> Message:  # sourcery skip: low-code-quality
 
-        payload = await super().edit(content, **kwargs)
+        payload, files = await super().edit(content, **kwargs)
         msg = None
 
         if self.deferred:
@@ -385,7 +408,7 @@ class CommandContext(_Context):
             ):
                 try:
                     res = await self._client.edit_message(
-                        int(self.channel_id), int(self.message.id), payload=payload
+                        int(self.channel_id), int(self.message.id), payload=payload, files=files
                     )
                 except LibraryException as e:
                     if e.code in {10015, 10018}:
@@ -401,6 +424,7 @@ class CommandContext(_Context):
                         token=self.token,
                         application_id=str(self.id),
                         data=payload,
+                        files=files,
                         message_id=self.message.id
                         if self.message and self.message.flags != 64
                         else "@original",
@@ -416,7 +440,7 @@ class CommandContext(_Context):
         else:
             try:
                 res = await self._client.edit_interaction_response(
-                    token=self.token, application_id=str(self.application_id), data=payload
+                    token=self.token, application_id=str(self.application_id), data=payload, files=files
                 )
             except LibraryException as e:
                 if e.code in {10015, 10018}:
@@ -450,7 +474,7 @@ class CommandContext(_Context):
             self.responded = True
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
-        payload = await super().send(content, **kwargs)
+        payload, files = await super().send(content, **kwargs)
 
         if not self.deferred:
             self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
@@ -461,6 +485,7 @@ class CommandContext(_Context):
         if self.responded:
             res = await self._client._post_followup(
                 data=payload,
+                files=files,
                 token=self.token,
                 application_id=str(self.application_id),
             )
@@ -470,6 +495,7 @@ class CommandContext(_Context):
                 token=self.token,
                 application_id=int(self.id),
                 data=_payload,
+                files=files,
             )
 
             try:
@@ -571,13 +597,14 @@ class ComponentContext(_Context):
 
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
 
-        payload = await super().edit(content, **kwargs)
+        payload, files = await super().edit(content, **kwargs)
         msg = None
 
         if not self.deferred:
             self.callback = InteractionCallbackType.UPDATE_MESSAGE
             await self._client.create_interaction_response(
                 data={"type": self.callback.value, "data": payload},
+                files=files,
                 token=self.token,
                 application_id=int(self.id),
             )
@@ -595,12 +622,14 @@ class ComponentContext(_Context):
         elif self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
             await self._client._post_followup(
                 data=payload,
+                files=files,
                 token=self.token,
                 application_id=str(self.application_id),
             )
         else:
             res = await self._client.edit_interaction_response(
                 data=payload,
+                files=files,
                 token=self.token,
                 application_id=str(self.application_id),
             )
@@ -610,7 +639,7 @@ class ComponentContext(_Context):
         return msg if msg is not None else Message(**payload, _client=self._client)
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
-        payload = await super().send(content, **kwargs)
+        payload, files = await super().send(content, **kwargs)
 
         if not self.deferred:
             self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
@@ -621,6 +650,7 @@ class ComponentContext(_Context):
         if self.responded:
             res = await self._client._post_followup(
                 data=payload,
+                files=files,
                 token=self.token,
                 application_id=str(self.application_id),
             )
@@ -630,6 +660,7 @@ class ComponentContext(_Context):
                 token=self.token,
                 application_id=int(self.id),
                 data=_payload,
+                files=files,
             )
 
             try:
