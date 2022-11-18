@@ -295,7 +295,7 @@ class InteractionRequest:
         """
         # ^ again, I don't know if python will let me
         file_data = None
-        if files is not MISSING and files is not None:
+        if files is not None:
 
             file_data = MultipartWriter("form-data")
             part = file_data.append_json(data)
