@@ -350,7 +350,7 @@ class InteractionRequest:
         """
 
         file_data = None
-        if files is not None:
+        if files:
             file_data = MultipartWriter("form-data")
             part = file_data.append_json(data)
             part.set_content_disposition("form-data", name="payload_json")
