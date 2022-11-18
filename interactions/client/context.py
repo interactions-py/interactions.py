@@ -128,6 +128,7 @@ class _Context(ClientSerializerMixin):
         :param Optional[str] content: The contents of the message as a string or string-converted value.
         :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
         :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Optional[Union[File, List[File]]] files: The files to attach to the message.
         :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
         :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
         :param Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] components: A component, or list of components for the message.
