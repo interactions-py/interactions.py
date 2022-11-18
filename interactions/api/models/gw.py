@@ -666,7 +666,10 @@ class VoiceState(ClientSerializerMixin):
 
         :rtype: Channel
         """
-        return Channel(**await self._client.get_channel(int(self.channel_id)), _client=self._client)
+        return Channel(
+            **await self._client.get_channel(int(self.channel_id)),
+            _client=self._client,
+        )
 
     async def get_guild(self) -> "Guild":
         """
