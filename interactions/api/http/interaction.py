@@ -345,9 +345,9 @@ class InteractionRequest:
         Send a followup to an interaction.
 
         :param data: the payload to send
-        :param files: the files to send
         :param application_id: the id of the application
         :param token: the token of the interaction
+        :param files: the files to send
         """
 
         file_data = None
