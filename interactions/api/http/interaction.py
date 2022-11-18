@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, List, Optional, Union
 
 from aiohttp import MultipartWriter
 
-from ...utils.missing import MISSING
 from ..models import Snowflake
 from ..models.message import File
 from .request import _Request
@@ -224,7 +223,7 @@ class InteractionRequest:
         token: str,
         application_id: int,
         data: dict,
-        files: Optional[List[File]] = MISSING,
+        files: Optional[List[File]] = None,
     ) -> None:
         """
         Posts initial response to an interaction, but you need to add the token.
@@ -236,7 +235,7 @@ class InteractionRequest:
         """
 
         file_data = None
-        if files is not MISSING and len(files) > 0:
+        if files is not None and len(files) > 0:
 
             file_data = MultipartWriter("form-data")
             part = file_data.append_json(data)
