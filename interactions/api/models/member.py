@@ -102,10 +102,9 @@ class Member(ClientSerializerMixin, IDMixin):
         from .guild import Guild
 
         if not _id or isinstance(_id, LibraryException):
-            return None
+            return
 
-        else:
-            return self._client.cache[Guild].get(_id, None)
+        return self._client.cache[Guild].get(_id, None)
 
     @property
     def guild_id(self) -> Optional[Union[Snowflake, LibraryException]]:
