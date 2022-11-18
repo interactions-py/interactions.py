@@ -1,5 +1,3 @@
-from contextlib import suppress
-
 try:
     from orjson import dumps, loads
 except ImportError:
@@ -18,6 +16,7 @@ from asyncio import (
     wait,
     wait_for,
 )
+from contextlib import suppress
 from enum import IntEnum
 from sys import platform, version_info
 from time import perf_counter
