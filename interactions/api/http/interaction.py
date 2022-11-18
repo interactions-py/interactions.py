@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from aiohttp import MultipartWriter
+
 from ...utils.missing import MISSING
 from ..models import Snowflake
 from ..models.message import File
@@ -219,7 +220,11 @@ class InteractionRequest:
         )
 
     async def create_interaction_response(
-        self, token: str, application_id: int, data: dict, files: Optional[List[File]] = MISSING,
+        self,
+        token: str,
+        application_id: int,
+        data: dict,
+        files: Optional[List[File]] = MISSING,
     ) -> None:
         """
         Posts initial response to an interaction, but you need to add the token.
@@ -271,7 +276,12 @@ class InteractionRequest:
         )
 
     async def edit_interaction_response(
-        self, data: dict, files: Optional[List[File]], token: str, application_id: str, message_id: str = "@original",
+        self,
+        data: dict,
+        files: Optional[List[File]],
+        token: str,
+        application_id: str,
+        message_id: str = "@original",
     ) -> dict:
         """
         Edits an existing interaction message, but token needs to be manually called.
@@ -325,7 +335,11 @@ class InteractionRequest:
         )
 
     async def _post_followup(
-        self, data: dict, files: Optional[List[File]], token: str, application_id: str,
+        self,
+        data: dict,
+        files: Optional[List[File]],
+        token: str,
+        application_id: str,
     ) -> dict:
         """
         Send a followup to an interaction.
