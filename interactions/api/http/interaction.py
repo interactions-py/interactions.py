@@ -235,7 +235,7 @@ class InteractionRequest:
         """
 
         file_data = None
-        if files is not None and len(files) > 0:
+        if files:
 
             file_data = MultipartWriter("form-data")
             part = file_data.append_json(data)
