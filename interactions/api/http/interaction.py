@@ -287,9 +287,9 @@ class InteractionRequest:
         Edits an existing interaction message, but token needs to be manually called.
 
         :param data: A dictionary containing the new response.
-        :param files: The files to send.
         :param token: the token of the interaction
         :param application_id: Application ID snowflake.
+        :param files: The files to send.
         :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
         :return: Updated message data.
         """
