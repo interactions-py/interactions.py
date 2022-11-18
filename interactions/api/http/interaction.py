@@ -337,9 +337,9 @@ class InteractionRequest:
     async def _post_followup(
         self,
         data: dict,
-        files: Optional[List[File]],
         token: str,
         application_id: str,
+        files: Optional[List[File]] = None,
     ) -> dict:
         """
         Send a followup to an interaction.
