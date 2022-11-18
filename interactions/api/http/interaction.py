@@ -278,9 +278,9 @@ class InteractionRequest:
     async def edit_interaction_response(
         self,
         data: dict,
-        files: Optional[List[File]],
         token: str,
         application_id: str,
+        files: Optional[List[File]] = None,
         message_id: str = "@original",
     ) -> dict:
         """
