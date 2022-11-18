@@ -6,7 +6,7 @@ from ..api.models.channel import Channel
 from ..api.models.flags import Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
-from ..api.models.message import Attachment, Embed, Message, MessageReference, File
+from ..api.models.message import Attachment, Embed, File, Message, MessageReference
 from ..api.models.misc import AllowedMentions, Snowflake
 from ..api.models.user import User
 from ..base import get_logger
@@ -199,15 +199,18 @@ class _Context(ClientSerializerMixin):
 
         _files.extend(_attachments)
 
-        return dict(
-            content=_content,
-            tts=_tts,
-            embeds=_embeds,
-            allowed_mentions=_allowed_mentions,
-            components=_components,
-            attachments=_files,
-            flags=_flags,
-        ), files
+        return (
+            dict(
+                content=_content,
+                tts=_tts,
+                embeds=_embeds,
+                allowed_mentions=_allowed_mentions,
+                components=_components,
+                attachments=_files,
+                flags=_flags,
+            ),
+            files,
+        )
 
     async def edit(
         self,
@@ -440,7 +443,10 @@ class CommandContext(_Context):
         else:
             try:
                 res = await self._client.edit_interaction_response(
-                    token=self.token, application_id=str(self.application_id), data=payload, files=files
+                    token=self.token,
+                    application_id=str(self.application_id),
+                    data=payload,
+                    files=files,
                 )
             except LibraryException as e:
                 if e.code in {10015, 10018}:
