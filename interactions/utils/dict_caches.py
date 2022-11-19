@@ -48,7 +48,9 @@ class LRUDict(OrderedDict, Generic[_KT, _VT]):
         while len(self) > self._max_items:
             del self[next(iter(self))]
 
-    def pop(self, key: _KT, default: _VT = MISSING) -> _VT:
+    __marker = object()
+
+    def pop(self, key: _KT, default: _VT = __marker) -> _VT:
         if key in self:
             result = self[key]
             del self[key]
