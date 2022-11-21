@@ -580,7 +580,10 @@ class Channel(ClientSerializerMixin, IDMixin):
             The attachments to attach to the message. Needs to be uploaded to the CDN first.
         :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
         :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
-        :param Optional[List[Sticker]] stickers: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :param Optional[List[Sticker]] stickers:
+            .. versionadded:: 4.3.0
+
+            A list of stickers to send with your message. You can send up to 3 stickers per message.
         :param Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]] components: A component, or list of components for the message.
         :return: The sent message as an object.
         :rtype: Message
@@ -1564,6 +1567,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def get_webhooks(self) -> List[Webhook]:
         """
+        .. versionadded:: 4.3.0
+
         Gets a list of webhooks of that channel
         """
 
@@ -1575,6 +1580,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def get_members(self) -> List[ThreadMember]:
         """
+        .. versionadded:: 4.3.0
+
         Gets the list of thread members
 
         :return: The members of the thread.
@@ -1590,6 +1597,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def leave(self) -> None:
         """
+        .. versionadded:: 4.3.0
+
         Removes the bot from the thread
         """
         if not self._client:
@@ -1601,6 +1610,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def join(self) -> None:
         """
+        .. versionadded:: 4.3.0
+
         Add the bot to the thread
         """
         if not self._client:
@@ -1617,6 +1628,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         emoji_name: Optional[str] = MISSING,
     ) -> Tags:
         """
+        .. versionadded:: 4.3.2
+
         Create a new tag.
 
         .. note::
@@ -1660,6 +1673,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         emoji_id: Optional[int] = MISSING,
     ) -> "Tags":
         """
+        .. versionadded:: 4.3.2
+
         Edits a tag
 
         .. note::
@@ -1698,6 +1713,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         self, tag_id: Union[int, str, Snowflake, Tags]  # discord, why :hollow:
     ) -> None:
         """
+        .. versionadded:: 4.3.2
+
         Deletes a tag
 
         :param Union[int, str, Snowflake, Tags] tag_id: The ID of the Tag
@@ -1722,6 +1739,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":  # sourcery skip: low-code-quality
         """
+        .. versionadded:: 4.3.2
+
         Creates a new post inside a forum channel
 
         :param str name: The name of the thread
@@ -1856,6 +1875,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def get_permissions_for(self, member: "Member") -> Permissions:
         """
+        .. versionadded:: 4.3.2
+
         Returns the permissions of the member in this specific channel.
 
         .. note::
@@ -1910,7 +1931,10 @@ class Channel(ClientSerializerMixin, IDMixin):
 
 @define()
 class Thread(Channel):
-    """An object representing a thread.
+    """
+    .. versionadded:: 4.0.2
+
+    An object representing a thread.
 
     .. note::
         This is a derivation of the base Channel, since a
