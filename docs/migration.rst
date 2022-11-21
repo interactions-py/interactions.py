@@ -231,8 +231,16 @@ your option name! Example:
 4.3.4 → 4.4.0
 ~~~~~~~~~~~~~~~
 
-The ``Color`` class was refactored into an enum. You may now access its contents via ``interactions.Color.COLOR``.
-Due to `complaints <https://www.github.com/interactions-py/library/issues/1040>`_ on str and repr magic methods, we have
-decided to `remove all implementations of them in the model classes <https://www.github.com/interactions.py/library/pulls/1050>`_.
-This affects the way you can send emojis. You can no longer use ``str(emoji)`` or ``f"{emoji}"``.
-Instead you will have to use ``emoji.format`` or ``f"{emoji.format}"`` to transform an emoji into a send-able form.
+..
+    #. makes a list
+
+#. The ``Color`` class was refactored into an enum. You may now access its contents via ``interactions.Color.COLOR``.
+
+#.
+    Due to `complaints <https://www.github.com/interactions-py/library/issues/1040>`_ on str and repr magic methods, we
+    have decided to
+    `remove all implementations of them in the model classes <https://www.github.com/interactions.py/library/pulls/1050>`_.
+    This affects the way you can send emojis. You can no longer use ``str(emoji)`` or ``f"{emoji}"``.
+    Instead you will have to use ``emoji.format`` or ``f"{emoji.format}"`` to transform an emoji into a send-able form.
+
+#. ``versionadded``, ``deprecated`` and ``versionchanged`` markers have been added to the docs.
