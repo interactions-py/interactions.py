@@ -1508,7 +1508,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         .. versionadded:: 4.2.0
 
         .. deprecated:: 4.3.2
-            Use the :meth:`.history` instead
+            Use the :meth:`.history` method instead
 
         Gets messages from the channel's history.
 
