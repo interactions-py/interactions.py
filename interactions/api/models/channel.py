@@ -1916,7 +1916,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             _id = int(id)
             _type = type
 
-        if not _type and not type:
+        if not _type:
             raise LibraryException(12, "Please set the type of the overwrite!")
 
         overwrites.append(Overwrite(id=_id, type=_type, allow=allow, deny=deny))
