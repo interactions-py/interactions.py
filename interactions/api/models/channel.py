@@ -1898,6 +1898,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param Optional[Literal[0, 1, "0", "1"]] type: The type of the overwrite. 0 for Role 1 for User.
         :param Optional[Union[int, Permissions, str]] allow: Permissions to allow
         :param Optional[Union[int, Permissions, str]] deny: Permissions to deny
+        :return: The updated channel
+        :rtype: Channel
         """
 
         if not deny and not allow:
@@ -1926,11 +1928,13 @@ class Channel(ClientSerializerMixin, IDMixin):
         Add multiple overwrites to the channel.
 
         :param Iterable[Overwrite] overwrites: The overwrites to add to the channel.
+        :return: The updated channel
+        :rtype: Channel
         """
 
-        ow = self.permission_overwrites or []
-        ow.extend(overwrites)
-        return await self.modify(permission_overwrites=ow)
+        _overwrites = self.permission_overwrites or []
+        _overwrites.extend(overwrites)
+        return await self.modify(permission_overwrites=_overwrites)
 
     async def overwrite_permission_overwrites(self, overwrites: Iterable[Overwrite]) -> "Channel":
         """
@@ -1939,6 +1943,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         Overwrites the overwrites of the channel with new overwrites.
 
         :param Iterable[Overwrite] overwrites: The overwrites to add to the channel.
+        :return: The updated channel
+        :rtype: Channel
         """
 
         return await self.modify(permission_overwrites=list(overwrites))
