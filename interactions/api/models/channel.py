@@ -1963,6 +1963,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.4.0
+
         Removes the overwrite for the given ID.
 
         :param Union[int, str, Snowflake, User, Role, Overwrite] id: The ID of the User/Role to create the overwrite on.
