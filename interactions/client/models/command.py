@@ -2,7 +2,18 @@ import contextlib
 from asyncio import CancelledError
 from functools import wraps
 from inspect import getdoc, signature
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Coroutine,
+    Dict,
+    List,
+    Optional,
+    Union,
+    get_type_hints,
+)
 
 from ...api.error import LibraryException
 from ...api.models.channel import Channel, ChannelType
@@ -228,8 +239,10 @@ def option(
             coro._options = []
 
         param = parameters[-1 - len(coro._options)]
-
         option_type = kwargs.pop("type", param.annotation)
+        if isinstance(option_type, str):
+            option_type = get_type_hints(coro).get(param.name)
+
         name = kwargs.pop("name", param.name)
         if name != param.name:
             kwargs["converter"] = param.name

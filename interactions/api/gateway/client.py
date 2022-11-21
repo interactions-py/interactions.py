@@ -16,6 +16,7 @@ from asyncio import (
     wait,
     wait_for,
 )
+from contextlib import suppress
 from enum import IntEnum
 from sys import platform, version_info
 from time import perf_counter
@@ -858,8 +859,9 @@ class WebSocketClient:
                 context.data.resolved.members if context.guild_id else context.data.resolved.users
             )
             if context.guild_id:
-                for key in _resolved.keys():
-                    _resolved[key]._extras["guild_id"] = context.guild_id
+                with suppress(AttributeError):  # edge-case
+                    for key in _resolved.keys():
+                        _resolved[key]._extras["guild_id"] = context.guild_id
         elif type == OptionType.CHANNEL.value:
             _resolved = context.data.resolved.channels
         elif type == OptionType.ROLE.value:
@@ -872,8 +874,9 @@ class WebSocketClient:
                 context.data.resolved.members if context.guild_id else context.data.resolved.users
             )
             if context.guild_id:
-                for key in _members.keys():
-                    _members[key]._extras["guild_id"] = context.guild_id
+                with suppress(AttributeError):  # edge-case
+                    for key in _members.keys():
+                        _members[key]._extras["guild_id"] = context.guild_id
 
             _resolved = {
                 **(_members if _members is not None else {}),
@@ -901,8 +904,9 @@ class WebSocketClient:
                 context.data.resolved.members if context.guild_id else context.data.resolved.users
             )
             if context.guild_id:
-                for key in _resolved.keys():
-                    _resolved[key]._extras["guild_id"] = context.guild_id
+                with suppress(AttributeError):  # edge-case
+                    for key in _resolved.keys():
+                        _resolved[key]._extras["guild_id"] = context.guild_id
         elif type == ComponentType.CHANNEL_SELECT.value:
             _resolved = context.data.resolved.channels
         elif type == ComponentType.ROLE_SELECT.value:
@@ -914,8 +918,9 @@ class WebSocketClient:
                 else context.data.resolved.users
             ):
                 if context.guild_id:
-                    for key in users.keys():
-                        users[key]._extras["guild_id"] = context.guild_id
+                    with suppress(AttributeError):  # edge-case
+                        for key in users.keys():
+                            users[key]._extras["guild_id"] = context.guild_id
                 _resolved.update(**users)
             if roles := context.data.resolved.roles:
                 _resolved.update(**roles)
