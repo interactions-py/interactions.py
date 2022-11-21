@@ -1957,6 +1957,32 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         return await self.modify(permission_overwrites=list(overwrites), reason=reason)
 
+    async def remove_permission_overwrite_for(
+        self,
+        id: Union[int, str, Snowflake, User, Role, Overwrite],
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        Removes the overwrite for the given ID.
+
+        :param Union[int, str, Snowflake, User, Role, Overwrite] id: The ID of the User/Role to create the overwrite on.
+        :param Optional[str] reason: The reason to be shown in the audit log
+        :return: The updated channel
+        :rtype: Channel
+        """
+        _id = int(id.id) if isinstance(id, (User, Role, Overwrite)) else int(id)
+
+        if not self.permission_overwrites:
+            raise LibraryException(12, message="There are no permission overwrites!")
+
+        try:
+            val = search_iterable(self.permission_overwrites, check=lambda o: o.id == _id)[0]
+        except IndexError as e:
+            raise LibraryException(12, "Could not find an overwrite with the given ID!") from e
+
+        self.permission_overwrites.remove(val)
+        return await self.modify(permission_overwrites=self.permission_overwrites, reason=reason)
+
 
 @define()
 class Thread(Channel):
