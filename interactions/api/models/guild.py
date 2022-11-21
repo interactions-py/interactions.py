@@ -2,7 +2,18 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from inspect import isawaitable
 from math import inf
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+)
 from warnings import warn
 
 from ...utils.abc.base_iterators import DiscordPaginationIterator
@@ -475,7 +486,11 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         if self.members:
             for member in self.members:
-                if not member._extras.get("guild_id"):
+                if (
+                    not member._extras.get("guild_id")
+                    or hasattr(member, "_guild_id")
+                    and not member._guild_id
+                ):
                     member._extras["guild_id"] = self.id
 
     async def ban(
@@ -488,6 +503,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
+        .. versionchanged:: 4.3.2
+            Method has been aligned to changes in the Discord API. You can now input days, hours, minutes and seconds,
+            as long as it doesn't exceed 604800 seconds in total for deleting messages instead of only days.
+
         Bans a member from the guild.
 
         :param Union[int, Member, Snowflake] member_id: The id of the member to ban
@@ -530,6 +551,8 @@ class Guild(ClientSerializerMixin, IDMixin):
     @property
     def voice_states(self) -> List["VoiceState"]:
         """
+        .. versionadded:: 4.4.0
+
         Gets all voice states of the guild.
 
         :rtype: List[VoiceState]
@@ -549,6 +572,8 @@ class Guild(ClientSerializerMixin, IDMixin):
     @property
     def mapped_voice_states(self) -> Dict[int, List["VoiceState"]]:
         """
+        .. versionadded:: 4.4.0
+
         Returns all the voice states mapped after their channel id.
 
         :rtype: Dict[int, List[VoiceState]]
@@ -567,6 +592,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Removes the ban of a user.
 
         :param Union[int, Snowflake] user_id: The id of the user to remove the ban from
@@ -586,6 +613,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Kicks a member from the guild.
 
         :param Union[int, Member, Snowflake] member_id: The id of the member to kick
@@ -611,6 +640,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         This method adds a role to a member.
 
         :param Union[Role, int, Snowflake] role: The role to add. Either ``Role`` object or role_id
@@ -637,6 +668,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         This method removes a or multiple role(s) from a member.
 
         :param Union[Role, int, Snowflake] role: The role to remove. Either ``Role`` object or role_id
@@ -668,6 +701,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Role:
         """
+        .. versionadded:: 4.0.2
+
         Creates a new role in the guild.
 
         :param str name: The name of the role
@@ -711,6 +746,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         member_id: Union[int, Snowflake],
     ) -> Member:
         """
+        .. versionadded:: 4.0.2
+
         Searches for the member with specified id in the guild and returns the member as member object.
 
         :param Union[int, Snowflake] member_id: The id of the member to search for
@@ -739,6 +776,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         channel_id: Union[int, Snowflake, Channel],
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Deletes a channel from the guild.
 
         :param Union[int, Snowflake, Channel] channel_id: The id of the channel to delete
@@ -761,6 +800,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Deletes a role from the guild.
 
         :param Union[int, Snowflake, Role] role_id: The id of the role to delete
@@ -796,6 +837,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Role:
         """
+        .. versionadded:: 4.0.2
+
         Edits a role in the guild.
 
         :param Union[int, Snowflake, Role] role_id: The id of the role to edit
@@ -864,6 +907,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Channel:
         """
+        .. versionadded:: 4.1.0
+
         Creates a thread in the specified channel.
 
         :param str name: The name of the thread
@@ -922,6 +967,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Channel:
         """
+        .. versionadded:: 4.0.2
+
         Creates a channel in the guild.
 
         :param str name: The name of the channel
@@ -997,6 +1044,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def clone_channel(self, channel_id: Union[int, Snowflake, Channel]) -> Channel:
         """
+        .. versionadded:: 4.3.0
+
         Clones a channel of the guild.
 
         :param Union[int, Snowflake, Channel] channel_id: The id of the channel to clone
@@ -1031,14 +1080,16 @@ class Guild(ClientSerializerMixin, IDMixin):
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         archived: Optional[bool] = MISSING,
-        auto_archive_duration: Optional[int] = MISSING,
+        auto_archive_duration: Optional[Literal[60, 1440, 4320, 10080]] = MISSING,
         locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel:  # sourcery skip: low-code-quality
         """
+        .. versionadded:: 4.0.2
+
         Edits a channel of the guild.
 
-        .. note::
+        .. versionadded:: 4.2.0::
             The fields ``archived``, ``auto_archive_duration`` and ``locked`` require the provided channel to be a thread.
 
         :param Union[int, Snowflake, Channel] channel_id: The id of the channel to modify
@@ -1051,9 +1102,18 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param parent_id: The id of the parent category for a channel, defaults to the current value of the channel
         :param Optional[Overwrite] permission_overwrites: The permission overwrites, if any
         :param Optional[bool] nsfw: Whether the channel is nsfw or not, defaults to the current value of the channel
-        :param Optional[bool] archived: Whether the thread is archived
-        :param Optional[int] auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :param Optional[bool] locked: Whether the thread is locked
+        :param Optional[bool] archived:
+            .. versionadded:: 4.2.0
+
+            Whether the thread is archived
+        :param Optional[Literal[60, 1440, 4320, 10080]] auto_archive_duration:
+            .. versionadded:: 4.2.0
+
+            The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
+        :param Optional[bool] locked:
+            .. versionadded:: 4.2.0
+
+            Whether the thread is locked
         :param Optional[str] reason: The reason for the edit
         :return: The modified channel
         :rtype: Channel
@@ -1146,6 +1206,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Member:
         """
+        .. versionadded:: 4.0.2
+
         Modifies a member of the guild.
 
         :param Union[int, Snowflake, Member] member_id: The id of the member to modify
@@ -1202,8 +1264,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         return _member
 
     async def get_preview(self) -> "GuildPreview":
-
         """
+        .. versionadded:: 4.0.2
+
         Get the guild's preview.
 
         :return: the guild preview as object
@@ -1216,7 +1279,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         return GuildPreview(**await self._client.get_guild_preview(guild_id=int(self.id)))
 
     async def leave(self) -> None:
-        """Removes the bot from the guild."""
+        """
+        .. versionadded:: 4.0.2
+
+        Removes the bot from the guild.
+        """
         if not self._client:
             raise LibraryException(code=13)
         await self._client.leave_guild(guild_id=int(self.id))
