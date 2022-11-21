@@ -3,7 +3,18 @@ from datetime import datetime, timedelta, timezone
 from enum import IntEnum
 from inspect import isawaitable
 from math import inf
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, ContextManager, List, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    ContextManager,
+    Iterable,
+    List,
+    Literal,
+    Optional,
+    Union,
+)
 from warnings import warn
 
 from ...utils.abc.base_context_managers import BaseAsyncContextManager
@@ -21,6 +32,7 @@ from ..error import LibraryException
 from .emoji import Emoji
 from .flags import Permissions
 from .misc import AllowedMentions, File, IDMixin, Overwrite, Snowflake
+from .role import Role
 from .user import User
 from .webhook import Webhook
 
@@ -710,7 +722,7 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param Optional[str] topic: The topic of that channel, defaults to the current value of the channel
         :param Optional[int] bitrate: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
         :param Optional[int] user_limit: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
-        :param Optional[int] rate_limit_per_use: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
+        :param Optional[int] rate_limit_per_user: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
         :param Optional[int] position: Sorting position of the channel, defaults to the current value of the channel
         :param Optional[int] parent_id: The id of the parent category for a channel, defaults to the current value of the channel
         :param Optional[bool] nsfw: Whether the channel is nsfw or not, defaults to the current value of the channel
@@ -1869,6 +1881,109 @@ class Channel(ClientSerializerMixin, IDMixin):
             permissions |= int(overwrite_member[0].allow)
 
         return Permissions(permissions)
+
+    async def add_permission_overwrite(
+        self,
+        id: Union[int, str, Snowflake, User, Role],
+        type: Optional[Literal[0, 1, "0", "1"]] = MISSING,
+        allow: Optional[Union[int, Permissions, str]] = MISSING,
+        deny: Optional[Union[int, Permissions, str]] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        .. versionadded:: 4.4.0
+
+        Adds a permission overwrite to the channel.
+
+        :param Union[int, str, Snowflake, User, Role] id: The ID of the User/Role to create the overwrite on.
+        :param Optional[Literal[0, 1, "0", "1"]] type: The type of the overwrite. 0 for Role 1 for User.
+        :param Optional[Union[int, Permissions, str]] allow: Permissions to allow
+        :param Optional[Union[int, Permissions, str]] deny: Permissions to deny
+        :param Optional[str] reason: The reason to be shown in the audit log
+        :return: The updated channel
+        :rtype: Channel
+        """
+
+        if not deny and not allow:
+            raise LibraryException(message="Either allow or deny must be specified.", code=12)
+
+        overwrites = self.permission_overwrites or []
+
+        if isinstance(id, (User, Role)):
+            _id = int(id.id)
+            _type = 0 if isinstance(id, Role) else 1
+        else:
+            _id = int(id)
+            _type = type
+
+        if not _type:
+            raise LibraryException(12, "Please set the type of the overwrite!")
+
+        overwrites.append(Overwrite(id=_id, type=_type, allow=allow, deny=deny))
+
+        return await self.modify(permission_overwrites=overwrites, reason=reason)
+
+    async def add_permission_overwrites(
+        self, overwrites: Iterable[Overwrite], reason: Optional[str] = None
+    ) -> "Channel":
+        """
+        .. versionadded:: 4.4.0
+
+        Add multiple overwrites to the channel.
+
+        :param Iterable[Overwrite] overwrites: The overwrites to add to the channel.
+        :param Optional[str] reason: The reason to be shown in the audit log
+        :return: The updated channel
+        :rtype: Channel
+        """
+
+        _overwrites = self.permission_overwrites or []
+        _overwrites.extend(overwrites)
+        return await self.modify(permission_overwrites=_overwrites, reason=reason)
+
+    async def overwrite_permission_overwrites(
+        self, overwrites: Iterable[Overwrite], reason: Optional[str] = None
+    ) -> "Channel":
+        """
+        .. versionadded:: 4.4.0
+
+        Overwrites the overwrites of the channel with new overwrites.
+
+        :param Iterable[Overwrite] overwrites: The overwrites to add to the channel.
+        :param Optional[str] reason: The reason to be shown in the audit log
+        :return: The updated channel
+        :rtype: Channel
+        """
+
+        return await self.modify(permission_overwrites=list(overwrites), reason=reason)
+
+    async def remove_permission_overwrite_for(
+        self,
+        id: Union[int, str, Snowflake, User, Role, Overwrite],
+        reason: Optional[str] = None,
+    ) -> "Channel":
+        """
+        .. versionadded:: 4.4.0
+
+        Removes the overwrite for the given ID.
+
+        :param Union[int, str, Snowflake, User, Role, Overwrite] id: The ID of the User/Role to create the overwrite on.
+        :param Optional[str] reason: The reason to be shown in the audit log
+        :return: The updated channel
+        :rtype: Channel
+        """
+        _id = int(id.id) if isinstance(id, (User, Role, Overwrite)) else int(id)
+
+        if not self.permission_overwrites:
+            raise LibraryException(12, message="There are no permission overwrites!")
+
+        try:
+            val = search_iterable(self.permission_overwrites, check=lambda o: o.id == _id)[0]
+        except IndexError as e:
+            raise LibraryException(12, "Could not find an overwrite with the given ID!") from e
+
+        self.permission_overwrites.remove(val)
+        return await self.modify(permission_overwrites=self.permission_overwrites, reason=reason)
 
 
 @define()
