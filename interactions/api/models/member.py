@@ -76,6 +76,8 @@ class Member(ClientSerializerMixin, IDMixin):
     @property
     def voice_state(self) -> Optional["VoiceState"]:
         """
+        .. versionadded:: 4.4.0
+
         Returns the current voice state of the member, if any.
 
         :rtype: VoiceState
@@ -109,6 +111,8 @@ class Member(ClientSerializerMixin, IDMixin):
     @property
     def guild_id(self) -> Optional[Union[Snowflake, LibraryException]]:
         """
+        .. versionadded:: 4.3.2
+
         Attempts to get the guild ID the member is in.
         Only works when roles or nick or joined at is present and the guild is cached.
 
@@ -171,6 +175,8 @@ class Member(ClientSerializerMixin, IDMixin):
     @property
     def id(self) -> Snowflake:
         """
+        .. versionadded:: 4.1.0
+
         Returns the ID of the user.
 
         :return: The ID of the user
@@ -181,6 +187,8 @@ class Member(ClientSerializerMixin, IDMixin):
     @property
     def mention(self) -> str:
         """
+        .. versionadded:: 4.1.0
+
         Returns a string that allows you to mention the given member.
 
         :return: The string of the mentioned member.
@@ -191,6 +199,8 @@ class Member(ClientSerializerMixin, IDMixin):
     @property
     def name(self) -> str:
         """
+        .. versionadded:: 4.2.0
+
         Returns the string of either the user's nickname or username.
 
         :return: The name of the member
@@ -208,6 +218,15 @@ class Member(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
+        .. versionchanged:: 4.3.2
+            Method has been aligned to changes in the Discord API. You can now input days, hours, minutes and seconds,
+            as long as it doesn't exceed 604800 seconds in total for deleting messages, instead of only days.
+
+        .. versionchanged:: 4.3.2
+            ``guild_id`` is no longer required
+
         Bans the member from a guild.
 
         :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to ban the member from
@@ -254,6 +273,11 @@ class Member(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
+        .. versionchanged:: 4.3.2
+            ``guild_id`` is no longer required.
+
         Kicks the member from a guild.
 
         :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to kick the member from
@@ -286,6 +310,11 @@ class Member(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
+        .. versionchanged:: 4.3.2
+            ``guild_id`` is no longer required.
+
         This method adds a role to a member.
 
         :param Union[Role, int, Snowflake] role: The role to add. Either ``Role`` object or role_id
@@ -320,6 +349,11 @@ class Member(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
+        .. versionchanged:: 4.3.2
+            ``guild_id`` is no longer required.
+
         This method removes a role from a member.
 
         :param Union[Role, int] role: The role to remove. Either ``Role`` object or role_id
@@ -368,13 +402,21 @@ class Member(ClientSerializerMixin, IDMixin):
         allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
     ) -> "Message":
         """
+        .. versionadded:: 4.0.2
+
         Sends a DM to the member.
 
         :param Optional[str] content: The contents of the message as a string or string-converted value.
         :param Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] components: A component, or list of components for the message.
         :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
-        :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :param Optional[Union[File, List[File]]] files: A file or list of files to be attached to the message.
+        :param Optional[List[Attachment]] attachments:
+            .. versionadded:: 4.3.0
+
+            The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Optional[Union[File, List[File]]] files:
+            .. versionadded:: 4.2.0
+
+            A file or list of files to be attached to the message.
         :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
         :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
         :return: The sent message as an object.
@@ -442,6 +484,11 @@ class Member(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Member":
         """
+        .. versionadded:: 4.0.2
+
+        .. versionchanged:: 4.3.2
+            ``guild_id`` is no longer required.
+
         Modifies the member of a guild.
 
         :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to modify the member on
@@ -504,6 +551,8 @@ class Member(ClientSerializerMixin, IDMixin):
         thread_id: Union[int, Snowflake, Channel],
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Adds the member to a thread.
 
         :param Union[int, Snowflake, Channel] thread_id: The id of the thread to add the member to
@@ -522,6 +571,14 @@ class Member(ClientSerializerMixin, IDMixin):
         self, guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING
     ) -> Optional[str]:
         """
+        .. versionadded:: 4.2.0
+
+        .. versionchanged:: 4.3.0
+            Has been renamed to `get_avatar_url` instead of `get_member_avatar_url`
+
+        .. versionchanged:: 4.3.2
+            ``guild_id`` is no longer required.
+
         Returns the URL of the member's avatar for the specified guild.
 
         :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to get the member's avatar from
@@ -549,6 +606,8 @@ class Member(ClientSerializerMixin, IDMixin):
         self, guild_id: Optional[Union[int, Snowflake, "Guild"]] = MISSING
     ) -> Permissions:
         """
+        .. versionadded:: 4.3.2
+
         Returns the permissions of the member for the specified guild.
 
         .. note::
@@ -595,6 +654,8 @@ class Member(ClientSerializerMixin, IDMixin):
         operator: str = "and",
     ) -> bool:
         r"""
+        .. versionadded:: 4.3.2
+
         Returns whether the member has the permissions passed.
 
         .. note::

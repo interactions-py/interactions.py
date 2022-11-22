@@ -507,7 +507,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         .. versionchanged:: 4.3.2
             Method has been aligned to changes in the Discord API. You can now input days, hours, minutes and seconds,
-            as long as it doesn't exceed 604800 seconds in total for deleting messages instead of only days.
+            as long as it doesn't exceed 604800 seconds in total for deleting messages, instead of only days.
 
         Bans a member from the guild.
 
