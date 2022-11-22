@@ -46,6 +46,7 @@ extensions = [
     "hoverxref.extension",
     "sphinx_copybutton",
     "enum_tools.autoenum",
+    "sphinx.ext.viewcode",
 ]
 
 # Stackoverflow said that this is gonna cure my LaTeX errors for ref handling.
