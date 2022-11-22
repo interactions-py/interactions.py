@@ -352,7 +352,7 @@ class _Context(ClientSerializerMixin):
 @define()
 class CommandContext(_Context):
     """
-    A derivation of :class:`_Context`
+    A derivation of context
     designed specifically for application command data.
 
     :ivar Snowflake id: The ID of the interaction.
@@ -603,7 +603,7 @@ class CommandContext(_Context):
 @define()
 class ComponentContext(_Context):
     """
-    A derivation of :class:`_Context`
+    A derivation of context
     designed specifically for component data.
 
     :ivar Snowflake id: The ID of the interaction.
