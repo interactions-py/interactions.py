@@ -57,7 +57,11 @@ class User(ClientSerializerMixin, IDMixin):
     bio: Optional[str] = field(default=None)
 
     def has_public_flag(self, flag: Union[UserFlags, int]) -> bool:
-        """Returns whether the user has public flag."""
+        """
+        .. versionadded:: 4.3.0
+
+        Returns whether the user has public flag.
+        """
         if self.public_flags == 0 or self.public_flags is None:
             return False
         return bool(int(self.public_flags) & flag)
@@ -65,6 +69,8 @@ class User(ClientSerializerMixin, IDMixin):
     @property
     def mention(self) -> str:
         """
+        .. versionadded:: 4.1.0
+
         Returns a string that allows you to mention the given user.
 
         :return: The string of the mentioned user.
@@ -75,6 +81,8 @@ class User(ClientSerializerMixin, IDMixin):
     @property
     def avatar_url(self) -> str:
         """
+        .. versionadded:: 4.2.0
+
         Returns the URL of the user's avatar
 
         :return: URL of the user's avatar.
@@ -91,6 +99,8 @@ class User(ClientSerializerMixin, IDMixin):
     @property
     def banner_url(self) -> Optional[str]:
         """
+        .. versionadded:: 4.2.0
+
         Returns the URL of the user's banner.
 
         :return: URL of the user's banner (None will be returned if no banner is set)
@@ -106,6 +116,8 @@ class User(ClientSerializerMixin, IDMixin):
     @property
     def presence(self) -> Optional["Presence"]:
         """
+        .. versionadded:: 4.3.2
+
         Returns the presence of the user.
 
         :return: Presence of the user (None will be returned if not cached)
@@ -136,6 +148,8 @@ class User(ClientSerializerMixin, IDMixin):
         allowed_mentions: Optional[Union[AllowedMentions, dict]] = MISSING,
     ) -> "Message":
         """
+        .. versionadded:: 4.3.2
+
         Sends a DM to the user.
 
         :param Optional[str] content: The contents of the message as a string or string-converted value.
