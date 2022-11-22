@@ -181,7 +181,11 @@ class Snowflake:
 
 
 class IDMixin:
-    """A mixin to implement equality and hashing for models that have an id."""
+    """
+    .. versionadded:: 4.3.0
+
+    A mixin to implement equality and hashing for models that have an id.
+    """
 
     id: Snowflake
 
@@ -201,6 +205,8 @@ class IDMixin:
 @define()
 class AutoModMetaData(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object used to represent the AutoMod Action Metadata.
 
     .. note::
@@ -218,6 +224,12 @@ class AutoModMetaData(DictSerializerMixin):
 
 
 class AutoModTriggerType(IntEnum):
+    """
+    .. versionadded:: 4.3.0
+
+    An enumeration for the different AutoMod trigger types.
+    """
+
     KEYWORD = 1
     HARMFUL_LINK = 2
     SPAM = 3
@@ -226,12 +238,24 @@ class AutoModTriggerType(IntEnum):
 
 
 class AutoModKeywordPresetTypes(IntEnum):
+    """
+    .. versionadded:: 4.3.0
+
+    An enumeration for the different AutoMod keyword preset types.
+    """
+
     PROFANITY = 1
     SEXUAL_CONTENT = 2
     SLURS = 3
 
 
 class AutoModActionTypes(IntEnum):
+    """
+    .. versionadded:: 4.3.0
+
+    An enumeration for the different AutoMod action types.
+    """
+
     BLOCK_MESSAGE = 1
     SEND_ALERT_MESSAGE = 2
     TIMEOUT = 3
@@ -240,6 +264,8 @@ class AutoModActionTypes(IntEnum):
 @define()
 class AutoModAction(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
 
     .. note::
@@ -261,6 +287,8 @@ class AutoModAction(DictSerializerMixin):
 @define()
 class AutoModTriggerMetadata(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object used to represent the trigger metadata from the AutoMod rule object.
 
     :ivar Optional[List[str]] keyword_filter: Words to match against content.
@@ -387,6 +415,8 @@ class Image:
 
 class AllowedMentionType(str, Enum):
     """
+    .. versionadded:: 4.3.2
+
     An enumerable object representing the allowed mention types
     """
 
