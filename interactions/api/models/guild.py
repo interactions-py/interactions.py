@@ -1363,26 +1363,34 @@ class Guild(ClientSerializerMixin, IDMixin):
             and suppress_guild_reminder_notifications is MISSING
             and suppress_join_notification_replies is MISSING
         ):
-            system_channel_flags = None
+            system_channel_flags = MISSING
         else:
-            _suppress_join_notifications = (
-                (1 << 0) if suppress_join_notifications is not MISSING else 0
-            )
-            _suppress_premium_subscriptions = (
-                (1 << 1) if suppress_premium_subscriptions is not MISSING else 0
-            )
-            _suppress_guild_reminder_notifications = (
-                (1 << 2) if suppress_guild_reminder_notifications is not MISSING else 0
-            )
-            _suppress_join_notification_replies = (
-                (1 << 3) if suppress_join_notification_replies is not MISSING else 0
-            )
-            system_channel_flags = (
-                _suppress_join_notifications
-                | _suppress_premium_subscriptions
-                | _suppress_guild_reminder_notifications
-                | _suppress_join_notification_replies
-            )
+            #  sourcery skip: hoist-if-from-if
+            system_channel_flags = self.system_channel_flags or 0
+
+            if suppress_join_notifications is not MISSING:
+                if suppress_join_notifications:
+                    system_channel_flags |= 1 << 0
+                else:
+                    system_channel_flags &= ~(1 << 0)
+
+            if suppress_premium_subscriptions is not MISSING:
+                if suppress_premium_subscriptions:
+                    system_channel_flags |= 1 << 1
+                else:
+                    system_channel_flags &= ~(1 << 1)
+
+            if suppress_guild_reminder_notifications is not MISSING:
+                if suppress_guild_reminder_notifications:
+                    system_channel_flags |= 1 << 2
+                else:
+                    system_channel_flags &= ~(1 << 2)
+
+            if suppress_join_notification_replies is not MISSING:
+                if suppress_join_notification_replies:
+                    system_channel_flags |= 1 << 3
+                else:
+                    system_channel_flags &= ~(1 << 3)
 
         payload = {}
 

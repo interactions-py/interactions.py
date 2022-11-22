@@ -12,7 +12,7 @@ from ..api.models.user import User
 from ..base import get_logger
 from ..utils.attrs_utils import ClientSerializerMixin, convert_int, define, field
 from ..utils.missing import MISSING
-from .enums import ComponentType, InteractionCallbackType, InteractionType
+from .enums import ComponentType, InteractionCallbackType, InteractionType, Locale
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
 from .models.misc import InteractionData
@@ -38,12 +38,6 @@ class _Context(ClientSerializerMixin):
     that the user-facing API is able to allow developers to
     easily access information presented from any event in
     a "contextualized" sense.
-
-    :ivar Optional[Message] message: The message data model.
-    :ivar Member author: The member data model.
-    :ivar User user: The user data model.
-    :ivar Optional[Channel] channel: The channel data model.
-    :ivar Optional[Guild] guild: The guild data model.
     """
 
     message: Optional[Message] = field(converter=Message, default=None, add_client=True)
@@ -66,6 +60,8 @@ class _Context(ClientSerializerMixin):
     responded: bool = field(default=False)
     deferred: bool = field(default=False)
     app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
+    locale: Optional[Locale] = field(converter=Locale, default=None)
+    guild_locale: Optional[Locale] = field(converter=Locale, default=None)
 
     def __attrs_post_init__(self) -> None:
         if self.member and self.guild_id:
@@ -229,9 +225,16 @@ class _Context(ClientSerializerMixin):
     ) -> dict:  # sourcery skip: low-code-quality
         """
         This allows the invocation state described in the "context"
-        to send an interaction response. This inherits the arguments
-        of the :func:`_Context.send` method.
+        to send an interaction response.
 
+        :param Optional[str] content: The contents of the message as a string or string-converted value.
+        :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
+        :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Optional[Union[File, List[File]]] files: The files to attach to the message.
+        :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
+        :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
+        :param Optional[MessageReference] message_reference: Include to make your message a reply.
+        :param Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] components: A component, or list of components for the message.
         :return: The edited message as a dict.
         :rtype: dict
         """
@@ -351,7 +354,7 @@ class _Context(ClientSerializerMixin):
 @define()
 class CommandContext(_Context):
     """
-    A derivation of :class:`_Context`
+    A derivation of context
     designed specifically for application command data.
 
     :ivar Snowflake id: The ID of the interaction.
@@ -362,10 +365,14 @@ class CommandContext(_Context):
     :ivar str token: The token of the interaction response.
     :ivar Snowflake guild_id: The ID of the current guild.
     :ivar Snowflake channel_id: The ID of the current channel.
+    :ivar Member author: The member data model.
+    :ivar User user: The user data model.
+    :ivar Optional[Channel] channel: The channel data model.
+    :ivar Optional[Guild] guild: The guild data model.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
-    :ivar str locale: The selected language of the user invoking the interaction.
-    :ivar str guild_locale: The guild's preferred language, if invoked in a guild.
+    :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
+    :ivar Optional[Locale] guild_locale: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     :ivar Client client: The client instance that the command belongs to.
     :ivar Command command: The command object that is being invoked.
@@ -598,12 +605,29 @@ class CommandContext(_Context):
 @define()
 class ComponentContext(_Context):
     """
-    A derivation of :class:`_Context`
+    A derivation of context
     designed specifically for component data.
+
+    :ivar Snowflake id: The ID of the interaction.
+    :ivar Snowflake application_id: The application ID of the interaction.
+    :ivar InteractionType type: The type of interaction.
+    :ivar InteractionData data: The application command data.
+    :ivar str token: The token of the interaction response.
+    :ivar Snowflake guild_id: The ID of the current guild.
+    :ivar Snowflake channel_id: The ID of the current channel.
+    :ivar Optional[Message] message: The message data model.
+    :ivar Member author: The member data model.
+    :ivar User user: The user data model.
+    :ivar Optional[Channel] channel: The channel data model.
+    :ivar Optional[Guild] guild: The guild data model.
+    :ivar bool responded: Whether an original response was made or not.
+    :ivar bool deferred: Whether the response was deferred or not.
+    :ivar str locale: The selected language of the user invoking the interaction.
+    :ivar str guild_locale: The guild's preferred language, if invoked in a guild.
+    :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     """
 
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
-
         payload, files = await super().edit(content, **kwargs)
         msg = None
 
