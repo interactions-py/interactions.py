@@ -59,6 +59,8 @@ __all__ = (
 @define()
 class AutoModerationAction(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object representing the gateway event ``AUTO_MODERATION_ACTION_EXECUTION``.
 
     :ivar Snowflake guild_id: The ID of the guild in which the action was executed.
@@ -88,6 +90,8 @@ class AutoModerationAction(DictSerializerMixin):
 @define()
 class AutoModerationRule(DictSerializerMixin, IDMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object representing the gateway events ``AUTO_MODERATION_RULE_CREATE``, ``AUTO_MODERATION_RULE_UPDATE``, and ``AUTO_MODERATION_RULE_DELETE``
 
     .. note::
@@ -150,6 +154,8 @@ class ApplicationCommandPermission(DictSerializerMixin):
 @define()
 class ApplicationCommandPermissions(ClientSerializerMixin, IDMixin):
     """
+    .. versionadded:: 4.1.0
+
     A class object representing the gateway event ``APPLICATION_COMMAND_PERMISSIONS_UPDATE``.
 
     :ivar Snowflake id: ID of the command or the application ID
@@ -184,6 +190,8 @@ class ChannelPins(DictSerializerMixin):
 @define()
 class EmbeddedActivity(DictSerializerMixin):
     """
+    .. versionadded:: 4.0.2
+
     A class object representing the event ``EMBEDDED_ACTIVITY_UPDATE``.
 
     .. note::
@@ -241,6 +249,8 @@ class GuildIntegrations(DictSerializerMixin):
 @define()
 class GuildJoinRequest(DictSerializerMixin):
     """
+    .. versionadded:: 4.0.2
+
     A class object representing the gateway events ``GUILD_JOIN_REQUEST_CREATE``, ``GUILD_JOIN_REQUEST_UPDATE``, and ``GUILD_JOIN_REQUEST_DELETE``
 
     .. note::
@@ -258,6 +268,9 @@ class GuildJoinRequest(DictSerializerMixin):
 class GuildMember(Member):
     """
     A class object representing the gateway events ``GUILD_MEMBER_ADD``, ``GUILD_MEMBER_UPDATE`` and ``GUILD_MEMBER_REMOVE``.
+
+    .. versionchanged:: 4.3.2
+        GuildMember now subclasses :class:`.Member`.
 
     .. note::
         ``pending`` and ``permissions`` only apply for members retroactively
@@ -338,6 +351,8 @@ class GuildStickers(DictSerializerMixin):
 @define()
 class GuildScheduledEvent(ClientSerializerMixin, IDMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object representing gateway events ``GUILD_SCHEDULED_EVENT_CREATE``, ``GUILD_SCHEDULED_EVENT_UPDATE``, ``GUILD_SCHEDULED_EVENT_DELETE``.
 
     .. note::
@@ -383,6 +398,8 @@ class GuildScheduledEvent(ClientSerializerMixin, IDMixin):
 @define()
 class GuildScheduledEventUser(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object representing the gateway events ``GUILD_SCHEDULED_EVENT_USER_ADD`` and ``GUILD_SCHEDULED_EVENT_USER_REMOVE``
 
     :ivar Snowflake guild_scheduled_event_id: The ID of the guild scheduled event.
@@ -461,6 +478,8 @@ class Presence(ClientSerializerMixin):
 @define()
 class MessageDelete(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.1
+
     A class object representing the gateway event ``MESSAGE_DELETE_BULK``.
 
     :ivar List[Snowflake] ids: The message IDs of the event.
@@ -563,6 +582,8 @@ class ThreadMembers(DictSerializerMixin, IDMixin):
 @define()
 class Webhooks(DictSerializerMixin):
     """
+    .. versionadded:: 4.1.0
+
     A class object representing the gateway event ``WEBHOOKS_UPDATE``.
 
     :ivar Snowflake channel_id: The channel ID of the associated event.
@@ -576,6 +597,8 @@ class Webhooks(DictSerializerMixin):
 @define()
 class VoiceState(ClientSerializerMixin):
     """
+    .. versionadded:: 4.4.0
+
     A class object representing the gateway event ``VOICE_STATE_UPDATE``.
     This class creates an object every time the event ``VOICE_STATE_UPDATE`` is received from the discord API.
     It contains information about the user's update voice information. Additionally, the last voice state is cached,
