@@ -12,7 +12,7 @@ from ..api.models.user import User
 from ..base import get_logger
 from ..utils.attrs_utils import ClientSerializerMixin, convert_int, define, field
 from ..utils.missing import MISSING
-from .enums import ComponentType, InteractionCallbackType, InteractionType
+from .enums import ComponentType, InteractionCallbackType, InteractionType, Locale
 from .models.command import Choice
 from .models.component import ActionRow, Button, Modal, SelectMenu, _build_components
 from .models.misc import InteractionData
@@ -66,6 +66,8 @@ class _Context(ClientSerializerMixin):
     responded: bool = field(default=False)
     deferred: bool = field(default=False)
     app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
+    locale: Optional[Locale] = field(converter=Locale, default=None)
+    guild_locale: Optional[Locale] = field(converter=Locale, default=None)
 
     def __attrs_post_init__(self) -> None:
         if self.member and self.guild_id:
@@ -364,8 +366,8 @@ class CommandContext(_Context):
     :ivar Snowflake channel_id: The ID of the current channel.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
-    :ivar str locale: The selected language of the user invoking the interaction.
-    :ivar str guild_locale: The guild's preferred language, if invoked in a guild.
+    :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
+    :ivar Optional[Locale] guild_locale: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     :ivar Client client: The client instance that the command belongs to.
     :ivar Command command: The command object that is being invoked.
