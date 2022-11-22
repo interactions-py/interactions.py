@@ -212,6 +212,8 @@ def option(
     **kwargs,
 ) -> Callable[[Callable[..., Awaitable]], Callable[..., Awaitable]]:
     r"""
+    .. versionadded:: 4.3.0
+
     A decorator for adding options to a command.
 
     The ``type`` and ``name`` of the option are defaulted to the parameter's typehint and name.
@@ -281,6 +283,8 @@ def option(
 
 class StopCommand:
     """
+    .. versionadded:: 4.3.0
+
     A class that when returned from a command, the command chain is stopped.
 
     Usage:
@@ -304,6 +308,8 @@ class StopCommand:
 @define()
 class BaseResult(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object representing the result of the base command.
 
     Usage:
@@ -334,6 +340,8 @@ class BaseResult(DictSerializerMixin):
 @define()
 class GroupResult(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object representing the result of the base command.
 
     Usage:
@@ -372,6 +380,8 @@ class GroupResult(DictSerializerMixin):
 @define()
 class Command(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object representing a command.
 
     .. warning::

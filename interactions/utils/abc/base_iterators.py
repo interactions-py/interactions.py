@@ -16,6 +16,8 @@ if TYPE_CHECKING:
 
 class BaseAsyncIterator(ABC):
     """
+    .. versionadded:: 4.3.2
+
     A base class for async iterators.
     """
 
@@ -41,6 +43,8 @@ class BaseAsyncIterator(ABC):
 
 class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
     """
+    .. versionadded:: 4.3.2
+
     A base class for Discord Pagination Iterators.
     """
 
@@ -84,6 +88,8 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
 
 class BaseIterator(ABC):
     """
+    .. versionadded:: 4.3.2
+
     A base class for iterators.
     """
 

@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 from ..api.error import LibraryException
 from ..api.models.channel import Channel
@@ -80,6 +80,8 @@ class _Context(ClientSerializerMixin):
 
     async def get_channel(self) -> Channel:
         """
+        .. versionadded:: 4.1.0
+
         This gets the channel the context was invoked in.
 
         :return: The channel as object
@@ -92,6 +94,8 @@ class _Context(ClientSerializerMixin):
 
     async def get_guild(self) -> Guild:
         """
+        .. versionadded:: 4.1.0
+
         This gets the guild the context was invoked in.
 
         :return: The guild as object
@@ -116,7 +120,7 @@ class _Context(ClientSerializerMixin):
         ] = MISSING,
         ephemeral: Optional[bool] = False,
         suppress_embeds: bool = False,
-    ) -> dict:
+    ) -> Tuple[dict, List[File]]:
         """
         This allows the invocation state described in the "context"
         to send an interaction response.
@@ -124,14 +128,17 @@ class _Context(ClientSerializerMixin):
         :param Optional[str] content: The contents of the message as a string or string-converted value.
         :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
         :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :param Optional[Union[File, List[File]]] files: The files to attach to the message.
+        :param Optional[Union[File, List[File]]] files:
+            .. versionadded:: 4.4.0
+
+            The files to attach to the message.
         :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
         :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
         :param Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] components: A component, or list of components for the message.
         :param Optional[bool] ephemeral: Whether the response is hidden or not.
         :param Optional[bool] suppress_embeds: Whether embeds are not shown in the message.
         :return: The sent message as a dict.
-        :rtype: dict
+        :rtype: Tuple[dict, Union[File, List[File]]]
         """
         if (
             content is MISSING
@@ -222,7 +229,7 @@ class _Context(ClientSerializerMixin):
         components: Optional[
             Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]
         ] = MISSING,
-    ) -> dict:  # sourcery skip: low-code-quality
+    ) -> Tuple[dict, List[File]]:  # sourcery skip: low-code-quality
         """
         This allows the invocation state described in the "context"
         to send an interaction response.
@@ -230,7 +237,10 @@ class _Context(ClientSerializerMixin):
         :param Optional[str] content: The contents of the message as a string or string-converted value.
         :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
         :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :param Optional[Union[File, List[File]]] files: The files to attach to the message.
+        :param Optional[Union[File, List[File]]] files:
+            .. versionadded:: 4.4.0
+
+            The files to attach to the message.
         :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
         :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
         :param Optional[MessageReference] message_reference: Include to make your message a reply.
@@ -338,6 +348,8 @@ class _Context(ClientSerializerMixin):
         self, *permissions: Union[int, Permissions], operator: str = "and"
     ) -> bool:
         r"""
+        .. versionadded:: 4.3.2
+
         Returns whether the author of the interaction has the permissions in the given context.
 
         :param Union[int, Permissions] \*permissions: The list of permissions
@@ -374,9 +386,18 @@ class CommandContext(_Context):
     :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
     :ivar Optional[Locale] guild_locale: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
-    :ivar Client client: The client instance that the command belongs to.
-    :ivar Command command: The command object that is being invoked.
-    :ivar Extension extension: The extension the command belongs to.
+    :ivar Client client:
+        .. versionadded:: 4.3.0
+
+        The client instance that the command belongs to.
+    :ivar Command command:
+        .. versionadded:: 4.3.0
+
+        The command object that is being invoked.
+    :ivar Extension extension:
+        .. versionadded:: 4.3.0
+
+        The extension the command belongs to.
     """
 
     target: Optional[Union[Message, Member, User]] = field(default=None)
@@ -740,6 +761,8 @@ class ComponentContext(_Context):
         self, respond_to_interaction: Optional[bool] = True, **other_kwargs: Optional[dict]
     ) -> Message:
         r"""
+        .. versionadded:: 4.3.2
+
         Disables all components of the message.
 
         :param Optional[bool] respond_to_interaction: Whether the components should be disabled in an interaction response, default True

@@ -1,3 +1,5 @@
+# versionadded declared in docs gen file
+
 from asyncio import sleep
 from enum import Enum
 from inspect import isawaitable

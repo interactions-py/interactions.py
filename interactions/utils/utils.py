@@ -44,6 +44,8 @@ def autodefer(
     edit_origin: bool = False,
 ) -> Callable[[Callable[..., Union[Awaitable, Coroutine]]], Callable[..., Awaitable]]:
     """
+    .. versionadded:: 4.3.0
+
     A decorator that automatically defers a command if it did not respond within ``delay`` seconds.
 
     The structure of the decorator is:
@@ -106,6 +108,8 @@ def spread_to_rows(
     *components: Union[ActionRow, Button, SelectMenu], max_in_row: int = 5
 ) -> List[ActionRow]:
     r"""
+    .. versionadded:: 4.3.0
+
     A helper function that spreads components into :class:`ActionRow` s.
 
     Example:

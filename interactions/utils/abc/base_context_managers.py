@@ -8,6 +8,7 @@ __all__ = ("BaseAsyncContextManager", "BaseContextManager")
 
 class BaseAsyncContextManager(ABC):
     """
+    .. versionadded:: 4.3.2
     A base class for async context managers.
     """
 
@@ -29,6 +30,8 @@ class BaseAsyncContextManager(ABC):
 
 class BaseContextManager(ABC):
     """
+    .. versionadded:: 4.3.2
+
     A base class for context managers.
     """
 
