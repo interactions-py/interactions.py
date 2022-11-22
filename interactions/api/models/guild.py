@@ -1097,9 +1097,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param Optional[str] topic: The topic of that channel, defaults to the current value of the channel
         :param Optional[int] bitrate: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
         :param Optional[int] user_limit: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
-        :param Optional[int] rate_limit_per_use: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
-        :param position: Sorting position of the channel, defaults to the current value of the channel
-        :param parent_id: The id of the parent category for a channel, defaults to the current value of the channel
+        :param Optional[int] rate_limit_per_user: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
+        :param Optional[int] position: Sorting position of the channel, defaults to the current value of the channel
+        :param Optional[int] parent_id: The id of the parent category for a channel, defaults to the current value of the channel
         :param Optional[Overwrite] permission_overwrites: The permission overwrites, if any
         :param Optional[bool] nsfw: Whether the channel is nsfw or not, defaults to the current value of the channel
         :param Optional[bool] archived:
@@ -1314,6 +1314,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":  # sourcery skip: low-code-quality
         """
+        .. versionadded:: 4.0.2
+
         Modifies the current guild.
 
         :param Optional[str] name: The new name of the guild
@@ -1322,11 +1324,23 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param Optional[ExplicitContentFilterLevel] explicit_content_filter: The explicit content filter level for media content
         :param Optional[int] afk_channel_id: The id for the afk voice channel
         :param Optional[int] afk_timeout: Afk timeout in seconds
-        :param Optional[Image] icon: 1024x1024 png/jpeg/gif image for the guild icon (can be animated gif when the server has the ANIMATED_ICON feature)
+        :param Optional[Image] icon:
+            .. versionadded:: 4.2.0
+
+            1024x1024 png/jpeg/gif image for the guild icon (can be animated gif when the server has the ANIMATED_ICON feature)
         :param Optional[int] owner_id: The id of the user to transfer the guild ownership to. You must be the owner to perform this
-        :param Optional[Image] splash: 16:9 png/jpeg image for the guild splash (when the server has the INVITE_SPLASH feature)
-        :param Optional[Image] discovery_splash: 16:9 png/jpeg image for the guild discovery splash (when the server has the DISCOVERABLE feature)
-        :param Optional[Image] banner: 16:9 png/jpeg image for the guild banner (when the server has the BANNER feature; can be animated gif when the server has the ANIMATED_BANNER feature)
+        :param Optional[Image] splash:
+            .. versionadded:: 4.2.0
+
+            16:9 png/jpeg image for the guild splash (when the server has the INVITE_SPLASH feature)
+        :param Optional[Image] discovery_splash:
+            .. versionadded:: 4.2.0
+
+            16:9 png/jpeg image for the guild discovery splash (when the server has the DISCOVERABLE feature)
+        :param Optional[Image] banner:
+            .. versionadded:: 4.2.0
+
+            16:9 png/jpeg image for the guild banner (when the server has the BANNER feature; can be animated gif when the server has the ANIMATED_BANNER feature)
         :param Optional[int] system_channel_id: The id of the channel where guild notices such as welcome messages and boost events are posted
         :param Optional[bool] suppress_join_notifications: Whether to suppress member join notifications in the system channel or not
         :param Optional[bool] suppress_premium_subscriptions: Whether to suppress server boost notifications in the system channel or not
