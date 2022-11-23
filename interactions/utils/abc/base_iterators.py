@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from math import inf
-from typing import TYPE_CHECKING, Callable, List, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Awaitable, Callable, List, Optional, TypeVar, Union
 
 from ..missing import MISSING
 
@@ -41,10 +41,11 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
         _client: Optional["HTTPClient"] = None,
         maximum: Optional[int] = inf,
         start_at: Optional[Union[int, str, "Snowflake", _O]] = MISSING,
-        check: Optional[Callable[[_O], bool]] = None,
+        check: Optional[Callable[[_O], Union[bool, Awaitable[bool]]]] = None,
     ):
 
-        self.object_id = None if not obj else int(obj) if not hasattr(obj, "id") else int(obj.id)
+        self.object_id = (int(obj.id) if hasattr(obj, "id") else int(obj)) if obj else None
+
         self.maximum = maximum
         self.check = check
         self._client = _client
@@ -52,10 +53,11 @@ class DiscordPaginationIterator(BaseAsyncIterator, metaclass=ABCMeta):
         self.start_at = (
             None
             if start_at is MISSING
-            else int(start_at)
-            if not hasattr(start_at, "id")
             else int(start_at.id)
+            if hasattr(start_at, "id")
+            else int(start_at)
         )
+
         self.objects: Optional[List[_O]] = None
 
 

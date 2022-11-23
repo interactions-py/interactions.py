@@ -57,11 +57,10 @@ class DictSerializerMixin:
                                     item["_client"] = client
                                 elif isinstance(item, DictSerializerMixin):
                                     item._client = client
-                        else:
-                            if isinstance(value, dict):
-                                value["_client"] = client
-                            elif isinstance(value, DictSerializerMixin):
-                                value._client = client
+                        elif isinstance(value, dict):
+                            value["_client"] = client
+                        elif isinstance(value, DictSerializerMixin):
+                            value._client = client
 
                     # make sure json is recursively handled
                     if isinstance(value, list):
