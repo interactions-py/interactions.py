@@ -1513,7 +1513,7 @@ class Channel(ClientSerializerMixin, IDMixin):
 
         Returns the URL of the channel
         """
-        _guild_id = self.guild_id if isinstance(self.guild_id, int) else "@me"
+        _guild_id = self.guild_id or "@me"
         return f"https://discord.com/channels/{_guild_id}/{self.id}"
 
     async def create_invite(
