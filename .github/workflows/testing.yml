@@ -11,7 +11,7 @@ jobs:
   test:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: false  # In case of OS/py-ver specific bug
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.8.6", "3.9", "3.10", "3.11"]

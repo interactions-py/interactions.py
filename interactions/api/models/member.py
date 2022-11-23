@@ -582,7 +582,7 @@ class Member(ClientSerializerMixin, IDMixin):
         Returns the URL of the member's avatar for the specified guild.
 
         :param Optional[Union[int, Snowflake, Guild]] guild_id: The id of the guild to get the member's avatar from
-        :return: URL of the members's avatar (None will be returned if no avatar is set)
+        :return: URL of the member's avatar (None will be returned if no avatar is set)
         :rtype: str
         """
         if not self.avatar or self.avatar == self.user.avatar:
@@ -615,7 +615,7 @@ class Member(ClientSerializerMixin, IDMixin):
             user overwrites that can be assigned to channels or categories. If you need
             these overwrites, look into :meth:`.Channel.get_permissions_for`.
 
-        :param Guild guild: The guild of the member
+        :param Optional[Union[int, Snowflake, "Guild"]] guild_id: The guild of the member
         :return: Base permissions of the member in the specified guild
         :rtype: Permissions
         """
@@ -626,10 +626,11 @@ class Member(ClientSerializerMixin, IDMixin):
             if isinstance(_guild_id, LibraryException):
                 raise _guild_id
 
+            guild = self.guild
+
         else:
             _guild_id = int(guild_id.id) if isinstance(guild_id, Guild) else int(guild_id)
-
-        guild = Guild(**await self._client.get_guild(int(_guild_id)), _client=self._client)
+            guild = Guild(**await self._client.get_guild(_guild_id), _client=self._client)
 
         if int(guild.owner_id) == int(self.id):
             return Permissions.ALL

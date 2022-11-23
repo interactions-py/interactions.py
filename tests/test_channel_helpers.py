@@ -51,7 +51,6 @@ async def test_channel_send_embeds_and_components(channel):
             interactions.Button(style=2, label="hi"),
         ],
     )
-    # print(msg._json)
     msg._json["author"].pop("_client", None)
 
     assert isinstance(msg, interactions.Message) and msg._json == dict(
@@ -165,6 +164,10 @@ async def test_create_thread(channel):
 
 async def test_channel_url(channel):
     assert channel.url == "https://discord.com/channels/987654321/123456789"
+    _id = channel._guild_id
+    channel._guild_id = None
+    assert channel.url == "https://discord.com/channels/@me/123456789"
+    channel._guild_id = _id
 
 
 async def test_warning_on_get_history(channel):
@@ -212,4 +215,25 @@ async def test_create_forum_post(channel):
     type = channel.type
     channel.type = interactions.ChannelType.GUILD_FORUM
     await channel.create_forum_post(name="hi", content="ello")
+    await channel.create_forum_post(name="hi", content={"content": "ello"})
+    await channel.create_forum_post(name="hi", content=interactions.Message(content="hi"))
     channel.type = type
+
+
+async def test_guild_id(channel):
+    assert channel.guild_id == channel._guild_id == channel._json.get("guild_id", None)
+
+
+async def test_guild(channel, guild, fake_client):
+    assert channel.guild_id == guild.id and channel.guild == guild == fake_client._http.cache[
+        interactions.Guild
+    ].get(channel.guild_id)
+
+
+async def test_typing(channel):
+    typing = channel.typing
+    assert isinstance(typing, interactions.AsyncTypingContextManager)
+    await typing
+
+    async with typing:
+        pass

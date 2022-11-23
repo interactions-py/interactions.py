@@ -8,6 +8,7 @@ This pull request is about (X), which does (Y).
 - [ ] I've ensured the change(s) work on `3.8.6` and higher.
 - [ ] I have added the `versionadded`, `versionchanged` and `deprecated` to any new or changed user-facing function I committed.
 <!-- If you are unsure what the next version is, feel free to ask in #unstable at https://discord.gg/interactions -->
+- [ ] I've added at least one check per function committed, if possible
 
 ### Pull-Request specification
 

@@ -53,6 +53,13 @@ def channel(fake_client):
     return ch
 
 
+@pytest.fixture(scope="session")
+def guild(fake_client):
+    g = interactions.Guild(id=987654321, _client=fake_client._http)
+    fake_client._http.cache[interactions.Guild].add(g)
+    return g
+
+
 # todo test get func
 # todo test every model
 # todo "test" every http func?
