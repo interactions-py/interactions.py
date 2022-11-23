@@ -40,9 +40,7 @@ class DictSerializerMixin:
                 if attrib_name[0] == "_":
                     attrib_name = attrib_name[1:]
 
-                if discord_name := attrib.metadata.get("discord_name"):
-                    discord_name = discord_name
-                else:
+                if not (discord_name := attrib.metadata.get("discord_name")):
                     discord_name = attrib_name
 
                 if (value := kwargs.pop(discord_name, MISSING)) is not MISSING:
@@ -80,11 +78,26 @@ class DictSerializerMixin:
         self.__attrs_init__(**passed_kwargs)  # type: ignore
 
     @property
-    def _json(self) -> dict:
+    def _json(self) -> dict:  # sourcery skip: reintroduce-else
         """Returns the json data of the object"""
         from ..api.models.misc import Snowflake
 
+        _name_changed: bool = False
+
         def _filter(attrib: attrs.Attribute, value: Any):
+            nonlocal _name_changed
+            if attrib.metadata.get(
+                "discord_name"
+            ):  # for example avatar or guild ID for members and channels
+                _name_changed = True
+                return (
+                    attrib.name
+                    not in {
+                        "converter",
+                    }
+                    and value is not None
+                )
+
             return (
                 not attrib.name.startswith("_")
                 and attrib.name
@@ -103,7 +116,12 @@ class DictSerializerMixin:
                 return value.isoformat()
             return value
 
-        return attrs.asdict(self, filter=_filter, value_serializer=_serializer)
+        json = attrs.asdict(self, filter=_filter, value_serializer=_serializer)
+
+        if _name_changed:
+            return {k.lstrip("_"): v for k, v in json.items()}
+
+        return json
 
     def update(self, kwargs_dict: dict = None, /, **other_kwargs):
         """

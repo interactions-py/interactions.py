@@ -8,7 +8,6 @@ from interactions.api.http.client import HTTPClient
 _T = TypeVar("_T")
 _P = TypeVar("_P")
 
-
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 class DictSerializerMixin:
     _extras: dict = attrs.field(init=False)
@@ -17,10 +16,8 @@ class DictSerializerMixin:
     """Should the kwargs be deepcopied or not?"""
 
     def __init__(self, kwargs_dict: dict = None, /, **other_kwargs): ...
-
     @property
     def _json(self) -> dict: ...
-
 
 @attrs.define(eq=False, init=False, on_setattr=attrs.setters.NO_OP)
 class ClientSerializerMixin(DictSerializerMixin):

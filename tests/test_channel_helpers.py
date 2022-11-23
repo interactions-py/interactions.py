@@ -16,24 +16,25 @@ async def test_channel_mention(channel):
 
 async def test_channel_in_cache(fake_client, channel):
     assert fake_client._http.cache[interactions.Channel][channel.id]._json == {
-        "id": 123456789,
-        "guild_id": 987654321,
+        "id": "123456789",
+        "available_tags": [],
+        "name": "",
+        "permission_overwrites": [],
+        "guild_id": "987654321",
     }
 
 
 async def test_channel_send_text(channel):
     msg = await channel.send("hi")
-    msg._json["author"].pop("_client")
+    msg._json["author"].pop("_client", None)
 
     assert isinstance(msg, interactions.Message) and msg._json == dict(
         content="hi",
         tts=False,
         attachments=[],
         embeds=[],
-        allowed_mentions={},
         components=[],
-        sticker_ids=[],
-        author={"id": None, "username": None, "discriminator": None},
+        author={},
     )
 
 
@@ -50,7 +51,7 @@ async def test_channel_send_embeds_and_components(channel):
             interactions.Button(style=2, label="hi"),
         ],
     )
-    print(msg._json)
+    # print(msg._json)
     msg._json["author"].pop("_client", None)
 
     assert isinstance(msg, interactions.Message) and msg._json == dict(
@@ -68,14 +69,10 @@ async def test_channel_send_embeds_and_components(channel):
                 "description": "nya~",
                 "image": {
                     "url": "https://127.0.0.1/images/illegal/1837392.png",
-                    "proxy_url": None,
-                    "height": None,
-                    "width": None,
                 },
-                "author": {"name": "hello", "url": None, "icon_url": None, "proxy_icon_url": None},
+                "author": {"name": "hello"},
             },
         ],
-        allowed_mentions={},
         components=[
             {
                 "type": 1,
@@ -85,8 +82,7 @@ async def test_channel_send_embeds_and_components(channel):
                 ],
             }
         ],
-        sticker_ids=[],
-        author={"id": None, "username": None, "discriminator": None},
+        author={},
     )
 
 
@@ -149,9 +145,9 @@ async def test_set_position(channel):
 
 async def test_set_parent_id(channel):
     await channel.set_parent_id(82)
-    assert channel._json["parent_id"] == 82 and channel.parent_id == 82
+    assert channel._json["parent_id"] == "82" and channel.parent_id == 82
     await channel.modify(parent_id=223784)
-    assert channel._json["parent_id"] == 223784 and channel.parent_id == 223784
+    assert channel._json["parent_id"] == "223784" and channel.parent_id == 223784
 
 
 async def test_set_nsfw(channel):
@@ -206,7 +202,7 @@ async def test_create_tag(channel):
     assert tag1._json == {"name": "hi", "moderated": False, "emoji_name": "d"} and tag2._json == {
         "name": "hi",
         "moderated": True,
-        "emoji_id": 12298430293,
+        "emoji_id": "12298430293",
     }
 
     channel.type = type

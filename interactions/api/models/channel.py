@@ -318,7 +318,8 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
     name: str = field()
     id: int = field()
     moderated: bool = field()
-    emoji: Optional[Emoji] = field(converter=Emoji, default=None)
+    emoji_name: Optional[str] = field(default=None)
+    emoji_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
 
     # Maybe on post_attrs_init replace emoji object with one from cache for name population?
 

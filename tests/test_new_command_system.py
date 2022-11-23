@@ -216,11 +216,10 @@ def test_basic_command_with_connector_option(fake_client):
         name_localizations={},
         options=[
             {
-                "connector": "d",
                 "description": "hi",
                 "name": "hi",
                 "required": True,
-                "type": interactions.OptionType.USER,
+                "type": 6,
             }
         ],
         type=1,
@@ -361,9 +360,7 @@ def test_sub_command(fake_client):
         options=[
             {
                 "description": "OwO!",
-                "description_localizations": None,
                 "name": "command",
-                "name_localizations": None,
                 "options": [],
                 "type": 1,
             }
@@ -392,9 +389,7 @@ def test_sub_command_with_option(fake_client):
         options=[
             {
                 "description": "OwO!",
-                "description_localizations": None,
                 "name": "command",
-                "name_localizations": None,
                 "options": [
                     {
                         "description": "UwU nya~",
@@ -433,15 +428,11 @@ def test_sub_command_group(fake_client):
         options=[
             {
                 "description": "nya~",
-                "description_localizations": None,
                 "name": "purr",
-                "name_localizations": None,
                 "options": [
                     {
                         "description": "This developer has been furry-ized.",
-                        "description_localizations": None,
                         "name": "sorry",
-                        "name_localizations": None,
                         "options": [],
                         "type": 1,
                     }
@@ -477,15 +468,11 @@ def test_sub_command_group_with_options(fake_client):
         options=[
             {
                 "description": "nya~",
-                "description_localizations": None,
                 "name": "purr",
-                "name_localizations": None,
                 "options": [
                     {
                         "description": "This developer has been furry-ized.",
-                        "description_localizations": None,
                         "name": "sorry",
-                        "name_localizations": None,
                         "options": [
                             {
                                 "description": "OwO nya~ purr",

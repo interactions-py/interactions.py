@@ -352,8 +352,8 @@ class ChannelRequest:
         updated_channel = await self.modify_channel(
             channel_id, {"available_tags": _tags}, reason=reason
         )
-        _channel_obj = Channel(**updated_channel, _client=self)
-        return _channel_obj.available_tags[-1]._json
+        _channel_obj = updated_channel
+        return _channel_obj["available_tags"][-1]
 
     async def edit_tag(
         self,
