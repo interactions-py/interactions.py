@@ -50,12 +50,29 @@ def channel(fake_client):
     ch = interactions.Channel(id=123456789, guild_id=987654321, _client=fake_client._http)
     ch.available_tags = []
     fake_client._http.cache[interactions.Channel].add(ch)
+
+    fake_client._http.cache[interactions.VoiceState][
+        interactions.Snowflake(77)
+    ] = interactions.VoiceState(user_id=77, channel_id=123456789, guild_id=987654321)
+    fake_client._http.cache[interactions.VoiceState][
+        interactions.Snowflake(88)
+    ] = interactions.VoiceState(user_id=88, channel_id=123456789, guild_id=987654321)
+    fake_client._http.cache[interactions.VoiceState][
+        interactions.Snowflake(99)
+    ] = interactions.VoiceState(user_id=99, channel_id=123456789, guild_id=777)
+    fake_client._http.cache[interactions.VoiceState][
+        interactions.Snowflake(111)
+    ] = interactions.VoiceState(user_id=111, channel_id=777, guild_id=987654321)
     return ch
 
 
 @pytest.fixture(scope="session")
-def guild(fake_client):
-    g = interactions.Guild(id=987654321, _client=fake_client._http)
+def guild(fake_client, channel):
+    g = interactions.Guild(
+        id=987654321,
+        _client=fake_client._http,
+        channels=[channel, interactions.Channel(id=777, type=interactions.ChannelType.GUILD_VOICE)],
+    )
     fake_client._http.cache[interactions.Guild].add(g)
     return g
 
