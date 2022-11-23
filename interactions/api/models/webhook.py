@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from ...utils.attrs_utils import ClientSerializerMixin, define, field
 from ...utils.missing import MISSING
@@ -10,6 +10,8 @@ from .user import User
 if TYPE_CHECKING:
     from ...client.models.component import ActionRow, Button, SelectMenu
     from ..http import HTTPClient
+    from .channel import Channel
+    from .guild import Guild
     from .message import Attachment, Embed, Message
 
 __all__ = (
@@ -52,8 +54,8 @@ class Webhook(ClientSerializerMixin, IDMixin):
     avatar: str = field(repr=False)
     token: Optional[str] = field(default=None)
     application_id: Snowflake = field(converter=Snowflake)
-    source_guild: Optional[Any] = field(default=None)
-    source_channel: Optional[Any] = field(default=None)
+    source_guild: Optional["Guild"] = field(default=None)
+    source_channel: Optional["Channel"] = field(default=None)
     url: Optional[str] = field(default=None)
 
     def __attrs_post_init__(self):
@@ -62,14 +64,10 @@ class Webhook(ClientSerializerMixin, IDMixin):
         from .guild import Guild
 
         self.source_guild = (
-            Guild(**self.source_guild, _client=self._client)
-            if self._json.get("source_guild")
-            else None
+            Guild(**self.source_guild, _client=self._client) if self.source_guild else None
         )
         self.source_channel = (
-            Channel(**self.source_channel, _client=self._client)
-            if self._json.get("source_channel")
-            else None
+            Channel(**self.source_channel, _client=self._client) if self.source_channel else None
         )
 
     @classmethod

@@ -1085,7 +1085,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         )
         _type = ch.type
 
-        payload = Channel(
+        payload = dict(
             name=_name,
             type=_type,
             topic=_topic,
@@ -1097,8 +1097,6 @@ class Guild(ClientSerializerMixin, IDMixin):
             parent_id=_parent_id,
             nsfw=_nsfw,
         )
-
-        payload = payload._json
 
         if (
             archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING

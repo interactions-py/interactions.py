@@ -1,10 +1,8 @@
-import contextlib
 from typing import List, Optional, Union
 
 from ...api.error import LibraryException
 from ...api.models.emoji import Emoji
 from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
-from ...utils.missing import MISSING
 from ..enums import ButtonStyle, ComponentType, TextStyleType
 
 __all__ = (
@@ -20,27 +18,7 @@ __all__ = (
 
 
 @define()
-class ComponentMixin(DictSerializerMixin):
-    """
-    A mixin designed to let subclasses attribute changes be mirrored to their _json
-    Arguably, this should be moved to the DictSerializerMixin, but testing would need to be done first
-    """
-
-    def __setattr__(self, key, value) -> None:
-        super().__setattr__(key, value)
-        if key not in {"_json", "_extras"} and (
-            key not in self._json or value != self._json.get(key)
-        ):
-            if value is not None and value is not MISSING:
-                with contextlib.suppress(AttributeError):
-                    value = [val._json for val in value] if isinstance(value, list) else value._json
-                self._json.update({key: value})
-            elif value is None and key in self._json.keys():
-                del self._json[key]
-
-
-@define()
-class SelectOption(ComponentMixin):
+class SelectOption(DictSerializerMixin):
     """
     A class object representing the select option of a select menu. The structure for a select option:
 
@@ -65,13 +43,9 @@ class SelectOption(ComponentMixin):
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
     default: Optional[bool] = field(default=None)
 
-    def __attrs_post_init__(self):
-        if self.emoji:
-            self._json.update({"emoji": self.emoji._json})
-
 
 @define()
-class SelectMenu(ComponentMixin):
+class SelectMenu(DictSerializerMixin):
     """
     A class object representing the select menu of a component. The structure for a select menu:
 
@@ -104,14 +78,9 @@ class SelectMenu(ComponentMixin):
     disabled: Optional[bool] = field(default=None)
     channel_types: Optional[List[int]] = field(default=None)
 
-    def __attrs_post_init__(self) -> None:
-        self._json.update({"type": self.type.value})
-        if self.options:
-            self._json.update({"options": [option._json for option in self.options]})
-
 
 @define()
-class Button(ComponentMixin):
+class Button(DictSerializerMixin):
     """
     A class object representing the button of a component. The structure for a button:
 
@@ -140,14 +109,9 @@ class Button(ComponentMixin):
     url: Optional[str] = field(default=None)
     disabled: Optional[bool] = field(default=None)
 
-    def __attrs_post_init__(self) -> None:
-        self._json.update({"type": self.type.value, "style": self.style.value})
-        if self.emoji:
-            self._json.update({"emoji": self.emoji._json})
-
 
 @define()
-class Component(ComponentMixin):
+class Component(DictSerializerMixin):
     """
     A class object representing the component in an interaction response/followup.
 
@@ -200,12 +164,10 @@ class Component(ComponentMixin):
         self.components = (
             [Component(**components) for components in self.components] if self.components else None
         )
-        if self._json.get("components"):
-            self._json["components"] = [component._json for component in self.components]
 
 
 @define()
-class TextInput(ComponentMixin):
+class TextInput(DictSerializerMixin):
     """
     A class object representing the text input of a modal. The structure for a text input:
 
@@ -240,12 +202,9 @@ class TextInput(ComponentMixin):
     min_length: Optional[int] = field(default=None)
     max_length: Optional[int] = field(default=None)
 
-    def __attrs_post_init__(self):
-        self._json.update({"type": self.type.value, "style": self.style.value})
-
 
 @define()
-class Modal(ComponentMixin):
+class Modal(DictSerializerMixin):
     """
     A class object representing a modal. The structure for a modal:
 
@@ -266,18 +225,18 @@ class Modal(ComponentMixin):
     title: str = field()
     components: List[Component] = field(converter=convert_list(Component))
 
-    def __attrs_post_init__(self):
-        self._json.update(
-            {
-                "components": [
-                    {"type": 1, "components": [component._json]} for component in self.components
-                ]
-            }
-        )
+    @property
+    def _json(self) -> dict:
+        json: dict = super()._json
+        json["components"] = [
+            {"type": 1, "components": [component]} for component in json["components"]
+        ]
+
+        return json
 
 
 @define()
-class ActionRow(ComponentMixin):
+class ActionRow(DictSerializerMixin):
     """
     A class object representing the action row for interaction responses holding components.
 
@@ -303,28 +262,8 @@ class ActionRow(ComponentMixin):
     type: ComponentType = field(ComponentType, default=ComponentType.ACTION_ROW)
     components: Optional[List[Component]] = field(converter=convert_list(Component), default=None)
 
-    def __attrs_post_init__(self) -> None:
-        for component in self.components:
-            if isinstance(component, SelectMenu):
-                component._json["options"] = (
-                    [
-                        option._json if isinstance(option, SelectOption) else option
-                        for option in component._json["options"]
-                    ]
-                    if component._json.get("options")
-                    else []
-                )
-        self.components = (
-            [Component(**component._json) for component in self.components]
-            if self._json.get("components")
-            else None
-        )
-        self._json.update({"type": self.type.value})
-        if self._json.get("components"):
-            self._json["components"] = [component._json for component in self.components]
-
     @classmethod
-    def new(cls, *components: Union[Button, SelectMenu, TextInput]) -> "ActionRow":
+    def new(cls, *components: Union[Button, SelectMenu, TextInput]) -> List["ActionRow"]:
         r"""
         A class method for creating a new ``ActionRow``.
 
@@ -344,28 +283,11 @@ def _build_components(components) -> List[dict]:
         ):
             _components = []
             for action_row in components:
-                for component in (
-                    action_row if isinstance(action_row, list) else action_row.components
-                ):
-                    if isinstance(component, SelectMenu):
-                        component._json["options"] = (
-                            [
-                                option if isinstance(option, dict) else option._json
-                                for option in component.options
-                            ]
-                            if component._json.get("options")
-                            else []
-                        )
-
                 _components.append(
                     {
                         "type": 1,
                         "components": [
-                            (
-                                component._json
-                                if component._json.get("custom_id") or component._json.get("url")
-                                else []
-                            )
+                            component._json
                             for component in (
                                 action_row
                                 if isinstance(action_row, list)
@@ -378,14 +300,7 @@ def _build_components(components) -> List[dict]:
 
         elif isinstance(components, ActionRow):
             _components: List[dict] = [{"type": 1, "components": []}]
-            _components[0]["components"] = [
-                (
-                    component._json
-                    if component._json.get("custom_id") or component._json.get("url")
-                    else []
-                )
-                for component in components.components
-            ]
+            _components[0]["components"] = [component._json for component in components.components]
             return _components
         else:
             return False
@@ -394,56 +309,17 @@ def _build_components(components) -> List[dict]:
         if isinstance(components, list) and all(
             isinstance(component, (Button, SelectMenu)) for component in components
         ):
-            for component in components:
-                if isinstance(component, SelectMenu):
-                    component._json["options"] = (
-                        [
-                            options if isinstance(options, dict) else options._json
-                            for options in component._json["options"]
-                        ]
-                        if component._json.get("options")
-                        else []
-                    )
-
             _components = [
                 {
                     "type": 1,
-                    "components": [
-                        (
-                            component._json
-                            if component._json.get("custom_id") or component._json.get("url")
-                            else []
-                        )
-                        for component in components
-                    ],
+                    "components": [component._json for component in components],
                 }
             ]
             return _components
 
-        elif isinstance(components, Button):
+        elif isinstance(components, (Button, SelectMenu)):
             _components: List[dict] = [{"type": 1, "components": []}]
-            _components[0]["components"] = (
-                [components._json]
-                if components._json.get("custom_id") or components._json.get("url")
-                else []
-            )
-            return _components
-        elif isinstance(components, SelectMenu):
-            _components: List[dict] = [{"type": 1, "components": []}]
-            components._json["options"] = (
-                [
-                    options if isinstance(options, dict) else options._json
-                    for options in components._json["options"]
-                ]
-                if components._json.get("options")
-                else []
-            )
-
-            _components[0]["components"] = (
-                [components._json]
-                if components._json.get("custom_id") or components._json.get("url")
-                else []
-            )
+            _components[0]["components"] = [components._json]
             return _components
         else:
             raise LibraryException(

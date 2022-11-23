@@ -647,7 +647,7 @@ class Client:
                 if isinstance(coro._command_data, list):
                     _guild_command: dict
                     for _guild_command in coro._command_data:
-                        _guild_id = _guild_command.get("guild_id")
+                        _guild_id = int(_guild_command.get("guild_id"))
                         if _guild_id in __blocked_guilds:
                             log.fatal(f"Cannot sync commands on guild with id {_guild_id}!")
                             raise LibraryException(50001, message="Missing Access |")
