@@ -930,7 +930,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param Optional[int] rate_limit_per_use: Amount of seconds a user has to wait before sending another message (0-21600)
         :param Optional[int] position: Sorting position of the channel
         :param Optional[Union[int, Channel, Snowflake]] parent_id: The id of the parent category for a channel
-        :param Optional[Overwrite] permission_overwrites: The permission overwrites, if any
+        :param Optional[List[Overwrite]] permission_overwrites: The permission overwrites, if any
         :param Optional[bool] nsfw: Whether the channel is nsfw or not, default ``False``
         :param Optional[str] reason: The reason for the creation
         :return: The created channel
