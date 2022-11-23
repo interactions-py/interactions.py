@@ -16,10 +16,7 @@ def pytest_sessionstart(session):
             if route.method == "POST" and route.path == "/channels/123456789/messages":
                 kwargs["json"]["author"] = {}
 
-            if json := kwargs.get("json"):
-                return json
-
-            return kwargs.get("data")  # I think we have to manually assert here
+            return json if (json := kwargs.get("json")) else kwargs.get("data")
 
     interactions.api.http.request._Request.request = _Request.request
 
@@ -71,7 +68,12 @@ def guild(fake_client, channel):
     g = interactions.Guild(
         id=987654321,
         _client=fake_client._http,
-        channels=[channel, interactions.Channel(id=777, type=interactions.ChannelType.GUILD_VOICE)],
+        channels=[
+            channel,
+            interactions.Channel(
+                id=777, type=interactions.ChannelType.GUILD_VOICE, name="stepbro?"
+            ),
+        ],
     )
     fake_client._http.cache[interactions.Guild].add(g)
     return g

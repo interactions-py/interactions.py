@@ -25,7 +25,7 @@ async def test_guild_in_cache(fake_client, guild):
                 "parent_id": "223784",
                 "available_tags": [],
             },
-            {"id": "777", "permission_overwrites": [], "name": "", "type": 2},
+            {"id": "777", "permission_overwrites": [], "name": "stepbro?", "type": 2},
         ],
         premium_tier=0,
         nsfw_level=0,
@@ -38,6 +38,7 @@ def test_get_voice_state(fake_client, guild):
         {"channel_id": "123456789", "user_id": "88", "guild_id": "987654321"},
         {"channel_id": "777", "user_id": "111", "guild_id": "987654321"},
     ]
+
     assert {k: [v._json for v in states] for k, states in guild.mapped_voice_states.items()} == {
         123456789: [
             {"channel_id": "123456789", "guild_id": "987654321", "user_id": "77"},
@@ -49,3 +50,27 @@ def test_get_voice_state(fake_client, guild):
     assert [v._json for v in guild.channels[1].voice_states] == [
         {"channel_id": "777", "guild_id": "987654321", "user_id": "111"}
     ]
+
+
+async def test_create_role(guild):
+    role = await guild.create_role("ur mom", permissions=8, color=0xFFFFFF, hoist=True)
+    assert isinstance(role, interactions.Role) and role._json == dict(
+        name="ur mom", color=16777215, hoist=True, permissions=8, mentionable=False
+    )
+
+    role2 = await guild.create_role(
+        "ur mommy",
+        permissions=8,
+        color=0x1B1B1B,
+        hoist=False,
+        mentionable=True,
+        unicode_emoji=":hi:",
+    )
+    assert isinstance(role2, interactions.Role) and role2._json == dict(
+        name="ur mommy",
+        color=1776411,
+        hoist=False,
+        unicode_emoji=":hi:",
+        permissions=8,
+        mentionable=True,
+    )
