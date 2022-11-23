@@ -71,7 +71,7 @@ class LibraryException(Exception):
             log.critical(message, *args)
 
     @staticmethod
-    def lookup(code: int) -> str:
+    def errors() -> dict:
         # https://discord.com/developers/docs/topics/opcodes-and-status-codes#json
         return {
             # Default error integer enum
@@ -295,7 +295,11 @@ class LibraryException(Exception):
             220003: "Webhooks can only create threads in forum channels",
             220004: "Webhook services cannot be used in forum channels",
             240000: "Message blocked by harmful links filter",
-        }.get(code, f"Unknown error: {code}")
+        }
+
+    @staticmethod
+    def lookup(code: int) -> str:
+        return LibraryException.errors().get(code, f"Unknown error: {code}")
 
     def __init__(self, code: int = 0, message: str = None, severity: int = 0, **kwargs):
         self.code: int = code
