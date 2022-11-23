@@ -15,13 +15,21 @@ async def test_channel_mention(channel):
 
 
 async def test_channel_in_cache(fake_client, channel):
-    assert fake_client._http.cache[interactions.Channel][channel.id]._json == {
-        "id": "123456789",
-        "available_tags": [],
-        "name": "",
-        "permission_overwrites": [],
-        "guild_id": "987654321",
-    }
+    assert fake_client._http.cache[interactions.Channel][channel.id]._json == dict(
+        id="123456789", available_tags=[], name="", permission_overwrites=[], guild_id="987654321"
+    )
+
+
+def test_voice_states(channel):
+    _type = channel.type
+    channel.type = interactions.ChannelType.GUILD_VOICE
+    assert [v._json for v in channel.voice_states] == [
+        {"channel_id": "123456789", "user_id": "77", "guild_id": "987654321"},
+        {"channel_id": "123456789", "user_id": "88", "guild_id": "987654321"},
+        {"channel_id": "123456789", "user_id": "99", "guild_id": "777"},
+    ]
+
+    channel.type = _type
 
 
 async def test_channel_send_text(channel):
