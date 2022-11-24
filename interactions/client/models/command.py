@@ -69,17 +69,10 @@ class Choice(DictSerializerMixin):
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
 
     def __attrs_post_init__(self):
-        if self._json.get("name_localizations"):
-            if any(
-                type(x) != str for x in self._json["name_localizations"]
-            ):  # check if Locale object is used to create localisation at any certain point.
-                self._json["name_localizations"] = {
-                    k.value if isinstance(k, Locale) else k: v
-                    for k, v in self._json["name_localizations"].items()
-                }
+        if self.name_localizations:
             self.name_localizations = {
                 k if isinstance(k, Locale) else Locale(k): v
-                for k, v in self._json["name_localizations"].items()
+                for k, v in self.name_localizations.items()
             }
 
 
@@ -151,19 +144,15 @@ class Option(DictSerializerMixin):
     converter: Optional[str] = field(default=None)
 
     def __attrs_post_init__(self):
-        self._json.pop("converter", None)
-
         # needed for nested classes
         if self.options is not None:
             self.options = [
                 Option(**option) if isinstance(option, dict) else option for option in self.options
             ]
-            self._json["options"] = [option._json for option in self.options]
         if self.choices is not None:
             self.choices = [
                 Choice(**choice) if isinstance(choice, dict) else choice for choice in self.choices
             ]
-            self._json["choices"] = [choice._json for choice in self.choices]
 
 
 @define()
@@ -585,7 +574,6 @@ class Command(DictSerializerMixin):
                         if int(option.type) == 2 and option.name == _group:
                             break
                 self.options[i].options.append(subcommand)
-                self.options[i]._json["options"].append(subcommand._json)
                 self.coroutines[f"{_group} {_name}"] = self.__wrap_coro(coro)
                 self.num_options[f"{_group} {_name}"] = len(
                     {opt for opt in _options if int(opt.type) > 2}
