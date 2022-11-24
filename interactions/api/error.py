@@ -301,7 +301,6 @@ class LibraryException(Exception):
         self.code: int = code
         self.severity: int = severity
         self.data: dict = kwargs.pop("data", None)
-        print(self.data)
         self.message: str = message or self.lookup(self.code)
         _fmt_error: List[tuple] = []
 
