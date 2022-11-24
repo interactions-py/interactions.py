@@ -163,7 +163,7 @@ class UserFlags(IntFlag):
 
 
 class AppFlags(IntFlag):
-    """An integer fldfdfsdfag bitshift object representing the different application flags given by Discord."""
+    """An integer flag bitshift object representing the different application flags given by Discord."""
 
     GATEWAY_PRESENCE = 1 << 12
     GATEWAY_PRESENCE_LIMITED = 1 << 13
