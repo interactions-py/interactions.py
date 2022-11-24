@@ -18,6 +18,7 @@ from ...utils.missing import MISSING
 from ..error import LibraryException
 from .channel import Channel
 from .emoji import Emoji
+from .flags import MessageFlags
 from .member import Member
 from .misc import AllowedMentions, File, IDMixin, Snowflake
 from .team import Application
@@ -74,6 +75,15 @@ class MessageType(IntEnum):
     GUILD_INVITE_REMINDER = 22
     CONTEXT_MENU_COMMAND = 23
     AUTO_MODERATION_ACTION = 24
+
+    @staticmethod
+    def not_deletable() -> List[int]:
+        """
+        .. versionadded:: 4.4.0
+
+        returns A list of message types which are not deletable
+        """
+        return [1, 2, 3, 4, 5, 14, 15, 16, 17, 21]
 
 
 @define()
@@ -692,7 +702,7 @@ class Message(ClientSerializerMixin, IDMixin):
     application: Optional[Application] = field(converter=Application, default=None)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     message_reference: Optional[MessageReference] = field(converter=MessageReference, default=None)
-    flags: int = field(default=None)
+    flags: Optional[Union[int, MessageFlags]] = field(converter=MessageFlags, default=None)
     referenced_message: Optional[MessageReference] = field(converter=MessageReference, default=None)
     interaction: Optional[MessageInteraction] = field(
         converter=MessageInteraction, default=None, add_client=True, repr=False
@@ -707,6 +717,15 @@ class Message(ClientSerializerMixin, IDMixin):
         converter=convert_list(Sticker), default=None
     )  # deprecated
     position: Optional[int] = field(default=None, repr=False)
+
+    @property
+    def deletable(self) -> bool:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns if the message can be deleted or not
+        """
+        return self.type not in self.type.not_deletable()
 
     def __attrs_post_init__(self):
         if self.member and self.guild_id:
@@ -793,9 +812,9 @@ class Message(ClientSerializerMixin, IDMixin):
             raise LibraryException(message="You cannot edit a hidden message!", code=12)
         _flags = self.flags
         if suppress_embeds is not MISSING and suppress_embeds:
-            _flags |= 1 << 2
+            _flags |= MessageFlags.SUPPRESS_EMBEDS
         elif suppress_embeds is not MISSING:
-            _flags &= ~1 << 2
+            _flags &= ~MessageFlags.SUPPRESS_EMBEDS
 
         from ...client.models.component import _build_components
 

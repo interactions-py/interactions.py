@@ -30,7 +30,7 @@ from ...utils.missing import MISSING
 from ...utils.utils import search_iterable
 from ..error import LibraryException
 from .emoji import Emoji
-from .flags import Permissions
+from .flags import MessageFlags, Permissions
 from .misc import AllowedMentions, File, IDMixin, Overwrite, Snowflake
 from .role import Role
 from .user import User
@@ -1178,11 +1178,17 @@ class Channel(ClientSerializerMixin, IDMixin):
                         before=_before,
                     )
                 ]
+                if not messages:
+                    return _all
 
                 amount -= min(amount, 100)
                 messages2 = messages.copy()
                 for message in messages2:
-                    if message.flags == (1 << 7):
+                    if (
+                        message.flags & MessageFlags.EPHEMERAL
+                        or message.flags & MessageFlags.LOADING
+                        or not message.deletable
+                    ):
                         messages.remove(message)
                         amount += 1
                         _before = int(message.id)
@@ -1194,14 +1200,17 @@ class Channel(ClientSerializerMixin, IDMixin):
                             messages.remove(message)
                             amount += 1
                             _before = int(message.id)
+
+                for message in messages:  # show results faster
+                    await self._client.delete_message(
+                        channel_id=int(self.id),
+                        message_id=int(message.id),
+                        reason=reason,
+                    )
+
                 _all += messages
 
-            for message in _all:
-                await self._client.delete_message(
-                    channel_id=int(self.id),
-                    message_id=int(message.id),
-                    reason=reason,
-                )
+            return _all
 
         async def bulk_delete():
             nonlocal _before, _all, amount, check, reason
@@ -1218,14 +1227,19 @@ class Channel(ClientSerializerMixin, IDMixin):
                         before=_before,
                     )
                 ]
+                if not messages:
+                    return _all
                 messages2 = messages.copy()
                 for message in messages2:
                     if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
                         messages.remove(message)
                         _stop = True
-                messages2 = messages.copy()
-                for message in messages2:
-                    if message.flags == (1 << 7):
+
+                    elif (
+                        message.flags & MessageFlags.EPHEMERAL
+                        or message.flags & MessageFlags.LOADING
+                        or not message.deletable
+                    ):
                         messages.remove(message)
                         amount += 1
                         _before = int(message.id)
@@ -1268,15 +1282,19 @@ class Channel(ClientSerializerMixin, IDMixin):
                         before=_before,
                     )
                 ]
+                if not messages:
+                    return _all
+                amount -= amount
                 messages2 = messages.copy()
                 for message in messages2:
                     if datetime.fromisoformat(str(message.timestamp)) < _allowed_time:
                         messages.remove(message)
                         _stop = True
-                amount -= amount
-                messages2 = messages.copy()
-                for message in messages2:
-                    if message.flags == (1 << 7):
+                    elif (
+                        message.flags & MessageFlags.EPHEMERAL
+                        or message.flags & MessageFlags.LOADING
+                        or not message.deletable
+                    ):
                         messages.remove(message)
                         amount += 1
                         _before = int(message.id)
@@ -1316,10 +1334,16 @@ class Channel(ClientSerializerMixin, IDMixin):
                         before=_before,
                     )
                 ]
+                if not messages:
+                    return _all
                 amount -= 1
                 messages2 = messages.copy()
                 for message in messages2:
-                    if message.flags == (1 << 7):
+                    if (
+                        message.flags & MessageFlags.EPHEMERAL
+                        or message.flags & MessageFlags.LOADING
+                        or not message.deletable
+                    ):
                         messages.remove(message)
                         amount += 1
                         _before = int(message.id)
@@ -1339,6 +1363,7 @@ class Channel(ClientSerializerMixin, IDMixin):
                     message_id=int(messages[0].id),
                     reason=reason,
                 )
+            return _all
 
         if bulk:
             await bulk_delete()

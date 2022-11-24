@@ -171,7 +171,7 @@ class _Request:
                         self.buckets[route.endpoint] = _bucket
                         # real-time replacement/update/add if needed.
                     if isinstance(data, dict) and (
-                        data.get("errors") or (code and code != 429 and message)
+                        data.get("errors") or (code and code not in {429, 31001} and message)
                     ):
                         log.debug(
                             f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
@@ -189,15 +189,15 @@ class _Request:
                             message=f"'{message}'. Make sure that your token is set properly.",
                             severity=50,
                         )
-                    if code == 429:
+                    if code in {429, 31001}:
                         hours = int(reset_after // 3600)
                         minutes = int((reset_after % 3600) // 60)
                         seconds = int(reset_after % 60)
                         log.warning(
-                            f"(429) {LibraryException.lookup(429)} Locking down future requests for "
-                            + f"{f'{hours} hours ' if hours else ''}"
-                            + f"{f'{minutes} minutes ' if minutes else ''}"
-                            + f"{f'{seconds} seconds ' if seconds else ''}"
+                            "(429/31001) The Bot has encountered a rate-limit. Resuming future requests after "
+                            f"{f'{hours} hours ' if hours else ''}"
+                            f"{f'{minutes} minutes ' if minutes else ''}"
+                            f"{f'{seconds} seconds ' if seconds else ''}"
                         )
                         if is_global:
                             self._global_lock.reset_after = reset_after
