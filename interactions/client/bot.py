@@ -1817,22 +1817,21 @@ class Extension:
                     self._listeners[listener_name] = listeners
 
             if hasattr(func, "__component_data__"):
-                if hasattr(func, "__component_data__"):
-                    all_component_data: List[Tuple[tuple, dict]] = func.__component_data__
-                    for args, kwargs in all_component_data:
-                        func = client.component(*args, **kwargs)(func)
+                all_component_data: List[Tuple[tuple, dict]] = func.__component_data__
+                for args, kwargs in all_component_data:
+                    func = client.component(*args, **kwargs)(func)
 
-                        component = kwargs.get("component") or args[0]
-                        comp_name = (
-                            _component(component).custom_id
-                            if isinstance(component, (Button, SelectMenu))
-                            else component
-                        )
-                        comp_name = f"component_{comp_name}"
+                    component = kwargs.get("component") or args[0]
+                    comp_name = (
+                        _component(component).custom_id
+                        if isinstance(component, (Button, SelectMenu))
+                        else component
+                    )
+                    comp_name = f"component_{comp_name}"
 
-                        listeners = self._listeners.get(comp_name, [])
-                        listeners.append(func)
-                        self._listeners[comp_name] = listeners
+                    listeners = self._listeners.get(comp_name, [])
+                    listeners.append(func)
+                    self._listeners[comp_name] = listeners
 
             if hasattr(func, "__autocomplete_data__"):
                 all_args_kwargs = func.__autocomplete_data__
