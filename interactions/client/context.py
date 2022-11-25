@@ -476,7 +476,7 @@ class CommandContext(_Context):
         """
         if not self.responded:
             self.deferred = True
-            _ephemeral: int = MessageFlags.EPHEMERAL.value if ephemeral else MessageFlags(0)
+            _ephemeral: int = MessageFlags.EPHEMERAL.value if ephemeral else 0
             self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
             await self._client.create_interaction_response(
