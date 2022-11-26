@@ -367,230 +367,245 @@ class WebSocketClient:
         :param dict data: The data for the event.
         """
         self._dispatch.dispatch("raw_socket_create", event, data)
-        path: str = "interactions"
-        path += ".models" if event == "INTERACTION_CREATE" else ".api.models"
+
         if event == "INTERACTION_CREATE":
-            if data.get("type"):
-                _context = self.__contextualize(data)
-                _name: str = ""
-                __args: list = [_context]
-                __kwargs: dict = {}
+            self._dispatch_interaction_event(data)
+        elif event not in {"TYPING_START", "VOICE_SERVER_UPDATE"}:
+            self._dispatch_discord_event(event, data)
 
-                if data["type"] == InteractionType.APPLICATION_COMMAND:
-                    _name = f"command_{_context.data.name}"
+    def _dispatch_interaction_event(self, data: dict) -> None:
+        """
+        Dispatches interaction event from the Gateway.
 
-                    if options := _context.data.options:
-                        for option in options:
-                            _type = self.__option_type_context(
-                                _context,
-                                option.type.value,
-                            )
-                            if _type:
-                                _type[option.value]._client = self._http
-                                option.value = _type[option.value]
-                            _option = self.__sub_command_context(option, _context)
-                            __kwargs.update(_option)
+        :param dict data: The data of interaction for the event.
+        """
+        if data.get("type") is None:
+            return log.warning(
+                "Context is being created for the interaction, but no type is specified. Skipping..."
+            )
 
-                    self._dispatch.dispatch("on_command", _context)
-                elif data["type"] == InteractionType.MESSAGE_COMPONENT:
-                    _name = f"component_{_context.data.custom_id}"
+        _context = self.__contextualize(data)
+        _name: str = ""
+        __args: list = [_context]
+        __kwargs: dict = {}
 
-                    if values := _context.data.values:
-                        if _context.data.component_type.value not in {5, 6, 7, 8}:
-                            __args.append(values)
-                        else:
-                            _list = []  # temp storage for items
-                            _data = self.__select_option_type_context(
-                                _context, _context.data.component_type.value
-                            )  # resolved.
-                            for value in values:
-                                _list.append(_data[value])
-                            __args.append(_list)
+        if data["type"] == InteractionType.APPLICATION_COMMAND:
+            _name = f"command_{_context.data.name}"
 
-                    self._dispatch.dispatch("on_component", _context)
-                elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
-                    _name = f"autocomplete_{_context.data.name}"
+            if options := _context.data.options:
+                for option in options:
+                    _type = self.__option_type_context(
+                        _context,
+                        option.type.value,
+                    )
+                    if _type:
+                        _type[option.value]._client = self._http
+                        option.value = _type[option.value]
+                    _option = self.__sub_command_context(option, _context)
+                    __kwargs.update(_option)
 
-                    if _context.data.options:
-                        for option in _context.data.options:
-                            if option.type not in (
-                                OptionType.SUB_COMMAND,
-                                OptionType.SUB_COMMAND_GROUP,
-                            ):
-                                if option.focused:
-                                    __name, _value = self.__sub_command_context(option, _context)
+            self._dispatch.dispatch("on_command", _context)
+        elif data["type"] == InteractionType.MESSAGE_COMPONENT:
+            _name = f"component_{_context.data.custom_id}"
+
+            if values := _context.data.values:
+                if _context.data.component_type.value not in {5, 6, 7, 8}:
+                    __args.append(values)
+                else:
+                    _list = []  # temp storage for items
+                    _data = self.__select_option_type_context(
+                        _context, _context.data.component_type.value
+                    )  # resolved.
+                    for value in values:
+                        _list.append(_data[value])
+                    __args.append(_list)
+
+            self._dispatch.dispatch("on_component", _context)
+        elif data["type"] == InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE:
+            _name = f"autocomplete_{_context.data.name}"
+
+            if _context.data.options:
+                for option in _context.data.options:
+                    if option.type not in (
+                        OptionType.SUB_COMMAND,
+                        OptionType.SUB_COMMAND_GROUP,
+                    ):
+                        if option.focused:
+                            __name, _value = self.__sub_command_context(option, _context)
+                            _name += f"_{__name}" if __name else ""
+                            if _value:
+                                __args.append(_value)
+                                break
+
+                    elif option.type == OptionType.SUB_COMMAND:
+                        for _option in option.options:
+                            if _option.focused:
+                                __name, _value = self.__sub_command_context(_option, _context)
+                                _name += f"_{__name}" if __name else ""
+                                if _value:
+                                    __args.append(_value)
+                                break
+
+                    elif option.type == OptionType.SUB_COMMAND_GROUP:
+                        for _option in option.options:
+                            for __option in _option.options:
+                                if __option.focused:
+                                    __name, _value = self.__sub_command_context(__option, _context)
                                     _name += f"_{__name}" if __name else ""
                                     if _value:
                                         __args.append(_value)
-                                        break
-
-                            elif option.type == OptionType.SUB_COMMAND:
-                                for _option in option.options:
-                                    if _option.focused:
-                                        __name, _value = self.__sub_command_context(
-                                            _option, _context
-                                        )
-                                        _name += f"_{__name}" if __name else ""
-                                        if _value:
-                                            __args.append(_value)
-                                        break
-
-                            elif option.type == OptionType.SUB_COMMAND_GROUP:
-                                for _option in option.options:
-                                    for __option in _option.options:
-                                        if __option.focused:
-                                            __name, _value = self.__sub_command_context(
-                                                __option, _context
-                                            )
-                                            _name += f"_{__name}" if __name else ""
-                                            if _value:
-                                                __args.append(_value)
-                                            break
                                     break
+                            break
 
-                    self._dispatch.dispatch("on_autocomplete", _context)
-                elif data["type"] == InteractionType.MODAL_SUBMIT:
-                    _name = f"modal_{_context.data.custom_id}"
+            self._dispatch.dispatch("on_autocomplete", _context)
+        elif data["type"] == InteractionType.MODAL_SUBMIT:
+            _name = f"modal_{_context.data.custom_id}"
 
-                    if _context.data.components:
-                        for component in _context.data.components:
-                            if component.components:
-                                __args.append([_value.value for _value in component.components][0])
+            __args.extend(
+                [
+                    component.value
+                    for action_row in _context.data.components
+                    for component in action_row.components
+                ]
+            )
 
-                    self._dispatch.dispatch("on_modal", _context)
+            self._dispatch.dispatch("on_modal", _context)
 
-                self._dispatch.dispatch(_name, *__args, **__kwargs)
-                self._dispatch.dispatch("on_interaction", _context)
-                self._dispatch.dispatch("on_interaction_create", _context)
-            else:
-                log.warning(
-                    "Context is being created for the interaction, but no type is specified. Skipping..."
+        self._dispatch.dispatch(_name, *__args, **__kwargs)
+        self._dispatch.dispatch("on_interaction", _context)
+        self._dispatch.dispatch("on_interaction_create", _context)
+
+    def _dispatch_discord_event(self, event: str, data: dict) -> None:
+        """
+        Dispatches a discord event from the Gateway.
+
+        :param str event: The name of the event.
+        :param dict data: The data for the event.
+        """
+        path: str = "interactions.api.models"
+        name: str = event.lower()
+        try:
+            data["_client"] = self._http
+
+            _event_path: list = [section.capitalize() for section in name.split("_")]
+            _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
+            model = getattr(__import__(path), _name)
+            obj = model(**data)
+
+            guild_obj = guild_model = None
+            if model is GuildRole:
+                guild_obj = (
+                    Role(**role_data, _client=self._http)
+                    if (role_data := data.get("role"))
+                    else None
+                )
+                guild_model = Role
+            elif model is GuildMember:
+                guild_obj = Member(**data)
+                guild_model = Member
+
+            _cache: "Storage" = self._http.cache[model]
+            _guild_cache: "Storage" = self._http.cache[guild_model]
+
+            ids = None
+            id = self.__get_object_id(data, obj, model)
+            if id is None:
+                ids = self.__get_object_ids(obj, model)
+
+            if "_create" in name or "_add" in name:
+                if name == "guild_create":
+                    if id and str(id) in self.__unavailable_guilds:
+                        self.__unavailable_guilds.remove(str(id))
+                    else:
+                        self._dispatch.dispatch("on_guild_join", obj)
+
+                self._dispatch.dispatch(f"on_{name}", obj)
+
+                if id:
+                    _cache.merge(obj, id)
+                    if guild_obj:
+                        _guild_cache.add(guild_obj, id)
+
+                self.__modify_guild_cache(
+                    name, data, guild_model or model, guild_obj or obj, id, ids
                 )
 
-        elif event not in {"TYPING_START", "VOICE_SERVER_UPDATE"}:
-            name: str = event.lower()
-            try:
-                data["_client"] = self._http
+            elif "_update" in name:
+                self._dispatch.dispatch(f"on_raw_{name}", obj)
 
-                _event_path: list = [section.capitalize() for section in name.split("_")]
-                _name: str = _event_path[0] if len(_event_path) < 3 else "".join(_event_path[:-1])
-                model = getattr(__import__(path), _name)
-                obj = model(**data)
+                if not id and ids is None:
+                    return self._dispatch.dispatch(f"on_{name}", obj)
 
-                guild_obj = guild_model = None
-                if model is GuildRole:
-                    guild_obj = (
-                        Role(**role_data, _client=self._http)
-                        if (role_data := data.get("role"))
-                        else None
-                    )
-                    guild_model = Role
-                elif model is GuildMember:
-                    guild_obj = Member(**data)
-                    guild_model = Member
-
-                _cache: "Storage" = self._http.cache[model]
-                _guild_cache: "Storage" = self._http.cache[guild_model]
-
-                ids = None
-                id = self.__get_object_id(data, obj, model)
+                self.__modify_guild_cache(
+                    name, data, guild_model or model, guild_obj or obj, id, ids
+                )
+                if ids is not None:
+                    # Not cached, but it needed for guild_emojis_update and guild_stickers_update events
+                    return self._dispatch.dispatch(f"on_{name}", obj)
                 if id is None:
-                    ids = self.__get_object_ids(obj, model)
+                    return
 
-                if "_create" in name or "_add" in name:
-                    if name == "guild_create":
-                        if id and str(id) in self.__unavailable_guilds:
-                            self.__unavailable_guilds.remove(str(id))
-                        else:
-                            self._dispatch.dispatch("on_guild_join", obj)
-
-                    self._dispatch.dispatch(f"on_{name}", obj)
-
-                    if id:
-                        _cache.merge(obj, id)
-                        if guild_obj:
-                            _guild_cache.add(guild_obj, id)
-
-                    self.__modify_guild_cache(
-                        name, data, guild_model or model, guild_obj or obj, id, ids
-                    )
-
-                elif "_update" in name:
-                    self._dispatch.dispatch(f"on_raw_{name}", obj)
-
-                    if not id and ids is None:
-                        return self._dispatch.dispatch(f"on_{name}", obj)
-
-                    self.__modify_guild_cache(
-                        name, data, guild_model or model, guild_obj or obj, id, ids
-                    )
-                    if ids is not None:
-                        # Not cached but it needed for guild_emojis_update and guild_stickers_update events
-                        return self._dispatch.dispatch(f"on_{name}", obj)
-                    if id is None:
-                        return
-
-                    if guild_obj:
-                        old_guild_obj = _guild_cache.get(id)
-                        if old_guild_obj:
-                            old_guild_obj.update(**guild_obj._json)
-                        else:
-                            _guild_cache.add(guild_obj, id)
-
-                    old_obj = _cache.get(id)
-                    if old_obj:
-                        before = model(**old_obj._json)
-                        old_obj.update(**data)
+                if guild_obj:
+                    old_guild_obj = _guild_cache.get(id)
+                    if old_guild_obj:
+                        old_guild_obj.update(**guild_obj._json)
                     else:
-                        before = None
-                        old_obj = obj
+                        _guild_cache.add(guild_obj, id)
 
-                    _cache.add(old_obj, id)
-
-                    if event == "VOICE_STATE_UPDATE" and not obj.channel_id:  # user left
-                        del _cache[obj.user_id]
-
-                    self._dispatch.dispatch(
-                        f"on_{name}", before, old_obj
-                    )  # give previously stored and new one
-
-                elif "_remove" in name or "_delete" in name:
-                    self._dispatch.dispatch(
-                        f"on_raw_{name}", obj
-                    )  # Deprecated. Remove this in the future.
-
-                    old_obj = None
-                    if id:
-                        _guild_cache.pop(id)
-                        self.__modify_guild_cache(
-                            name, data, guild_model or model, guild_obj or obj, id, ids
-                        )
-                        old_obj = _cache.pop(id)
-
-                    elif ids is not None and "message" in name:
-                        # currently only message has '_delete_bulk' event but ig better keep this condition for future.
-                        _message_cache: "Storage" = self._http.cache[Message]
-                        for message_id in ids:
-                            _message_cache.pop(message_id)
-
-                    self._dispatch.dispatch(f"on_{name}", old_obj or obj)
-
-                elif "guild_members_chunk" in name:
-                    self.__modify_guild_cache(name, data, model, obj, ids=ids)
-
-                    _member_cache: "Storage" = self._http.cache[Member]
-                    obj: GuildMembers
-                    for member in obj.members:
-                        member._guild_id = obj.guild_id
-                        _member_cache.add(member, (obj.guild_id, member.id))
-
-                    self._dispatch.dispatch(f"on_{name}", obj)
-
+                old_obj = _cache.get(id)
+                if old_obj:
+                    before = model(**old_obj._json)
+                    old_obj.update(**data)
                 else:
-                    self._dispatch.dispatch(f"on_{name}", obj)
+                    before = None
+                    old_obj = obj
 
-            except AttributeError as error:
-                log.warning(f"An error occurred dispatching {name}: {error}")
+                _cache.add(old_obj, id)
+
+                if event == "VOICE_STATE_UPDATE" and not obj.channel_id:  # user left
+                    del _cache[obj.user_id]
+
+                self._dispatch.dispatch(
+                    f"on_{name}", before, old_obj
+                )  # give previously stored and new one
+
+            elif "_remove" in name or "_delete" in name:
+                self._dispatch.dispatch(
+                    f"on_raw_{name}", obj
+                )  # Deprecated. Remove this in the future.
+
+                old_obj = None
+                if id:
+                    _guild_cache.pop(id)
+                    self.__modify_guild_cache(
+                        name, data, guild_model or model, guild_obj or obj, id, ids
+                    )
+                    old_obj = _cache.pop(id)
+
+                elif ids is not None and "message" in name:
+                    # currently only message has '_delete_bulk' event but ig better keep this condition for future.
+                    _message_cache: "Storage" = self._http.cache[Message]
+                    for message_id in ids:
+                        _message_cache.pop(message_id)
+
+                self._dispatch.dispatch(f"on_{name}", old_obj or obj)
+
+            elif "guild_members_chunk" in name:
+                self.__modify_guild_cache(name, data, model, obj, ids=ids)
+
+                _member_cache: "Storage" = self._http.cache[Member]
+                obj: GuildMembers
+                for member in obj.members:
+                    member._guild_id = obj.guild_id
+                    _member_cache.add(member, (obj.guild_id, member.id))
+
+                self._dispatch.dispatch(f"on_{name}", obj)
+
+            else:
+                self._dispatch.dispatch(f"on_{name}", obj)
+
+        except AttributeError as error:
+            log.warning(f"An error occurred dispatching {name}: {error}")
 
     def __get_object_id(
         self, data: dict, obj: Any, model: type
