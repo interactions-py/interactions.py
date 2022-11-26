@@ -44,6 +44,8 @@ def autodefer(
     edit_origin: bool = False,
 ) -> Callable[[Callable[..., Union[Awaitable, Coroutine]]], Callable[..., Awaitable]]:
     """
+    .. versionadded:: 4.3.0
+
     A decorator that automatically defers a command if it did not respond within ``delay`` seconds.
 
     The structure of the decorator is:
@@ -106,6 +108,8 @@ def spread_to_rows(
     *components: Union[ActionRow, Button, SelectMenu], max_in_row: int = 5
 ) -> List[ActionRow]:
     r"""
+    .. versionadded:: 4.3.0
+
     A helper function that spreads components into :class:`ActionRow` s.
 
     Example:
@@ -177,6 +181,8 @@ def search_iterable(
     iterable: Iterable[_T], check: Optional[Callable[[_T], bool]] = None, /, **kwargs
 ) -> List[_T]:
     r"""
+    .. versionadded:: 4.3.0
+
     Searches through an iterable for items that:
     - Are True for the check, if one is given
     - Have attributes that match the keyword arguments (e.x. passing `id=your_id` will only return objects with that id)
@@ -212,6 +218,8 @@ def disable_components(
     ]
 ) -> None:
     """
+    .. versionadded:: 4.3.2
+
     Disables the given components.
 
     :param Union[List[Component], List[ActionRow], List[Button], List[SelectMenu], ActionRow, Component, Button, SelectMenu] components: The components to disable
@@ -249,6 +257,8 @@ def get_channel_history(
     maximum: Optional[int] = inf,
 ) -> "AsyncHistoryIterator":
     """
+    .. versionadded:: 4.3.2
+
     Gets the history of a channel.
 
     :param Union[HTTPClient, Client] http: The HTTPClient of the bot or your bot instance
@@ -281,6 +291,8 @@ def get_guild_members(
     maximum: Optional[int] = inf,
 ) -> "AsyncMembersIterator":
     """
+    .. versionadded:: 4.3.2
+
     Gets the members of a guild
 
     :param Union[HTTPClient, Client] http: The HTTPClient of the bot or your bot instance

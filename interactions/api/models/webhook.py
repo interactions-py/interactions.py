@@ -1,3 +1,5 @@
+# versionadded is specified in docs gen file
+
 from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, Union
 

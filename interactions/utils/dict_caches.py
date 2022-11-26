@@ -10,7 +10,11 @@ _VT = TypeVar("_VT")
 
 
 class FIFODict(OrderedDict, Generic[_KT, _VT]):
-    """A dictionary that removes the old keys if over the item limit"""
+    """
+    .. versionadded:: 4.4.0
+
+    A dictionary that removes the old keys if over the item limit
+    """
 
     def __init__(self, *args, max_items: int = float("inf"), **kwargs):
         if max_items < 0:
@@ -28,7 +32,11 @@ class FIFODict(OrderedDict, Generic[_KT, _VT]):
 
 
 class LRUDict(OrderedDict, Generic[_KT, _VT]):
-    """A dictionary that removes the value that was the least recently used if over the item limit"""
+    """
+    .. versionadded:: 4.4.0
+
+    A dictionary that removes the value that was the least recently used if over the item limit
+    """
 
     def __init__(self, *args, max_items: int = float("inf"), **kwargs):
         if max_items < 0:

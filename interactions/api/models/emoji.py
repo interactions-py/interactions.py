@@ -39,6 +39,8 @@ class Emoji(ClientSerializerMixin):
     @property
     def format(self) -> str:
         """
+        .. versionadded:: 4.4.0
+
         Formats the emoji into a send-able form.
         :rtype: str
         """
@@ -58,6 +60,8 @@ class Emoji(ClientSerializerMixin):
         client: "HTTPClient",
     ) -> "Emoji":
         """
+        .. versionadded:: 4.2.0
+
         Gets an emoji.
 
         :param Union[int, Snowflake, Guild] guild_id: The id of the guild of the emoji
@@ -79,6 +83,8 @@ class Emoji(ClientSerializerMixin):
         client: "HTTPClient",
     ) -> List["Emoji"]:
         """
+        .. versionadded:: 4.2.0
+
         Gets all emoji of a guild.
 
         :param Union[int, Snowflake, Guild] guild_id: The id of the guild to get the emojis of
@@ -98,6 +104,8 @@ class Emoji(ClientSerializerMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Deletes the emoji.
 
         :param Union[int, Snowflake, Guild] guild_id: The guild id to delete the emoji from
@@ -115,6 +123,8 @@ class Emoji(ClientSerializerMixin):
     @property
     def url(self) -> str:
         """
+        .. versionadded:: 4.2.0
+
         Returns the emoji's URL.
 
         :return: URL of the emoji

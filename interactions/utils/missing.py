@@ -4,7 +4,15 @@ __all__ = ("MISSING",)
 
 
 class _Missing:
-    """A sentinel object for places where None is a valid value"""
+    """
+    .. versionadded:: 4.1.0
+        Added MISSING as pseudo-sentinel
+
+    .. versionchanged:: 4.3.2
+        Turned MISSING into a proper sentinel
+
+    A sentinel object for places where None is a valid value
+    """
 
     _instance: ClassVar["_Missing"] = None
 

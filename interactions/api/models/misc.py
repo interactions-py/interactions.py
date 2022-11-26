@@ -75,6 +75,16 @@ class ClientStatus(DictSerializerMixin):
 
 class Snowflake:
     """
+    .. versionadded:: 4.0.0
+
+    .. important::
+        By default every ID in this library is of this class. This makes some information of them easier accessible.
+        If you need the ID as :class:`int` or :class:`str` object, for example to store it in a database,
+        just call ``str(id)`` or ``int(id)``.
+
+    .. versionchanged:: 4.2.0
+        Added ``__eq__``. You no longer have to convert this object to compare it to a string or integer
+
     The Snowflake object.
 
     This snowflake object will have features closely related to the
@@ -171,7 +181,11 @@ class Snowflake:
 
 
 class IDMixin:
-    """A mixin to implement equality and hashing for models that have an id."""
+    """
+    .. versionadded:: 4.3.0
+
+    A mixin to implement equality and hashing for models that have an id.
+    """
 
     id: Snowflake
 
@@ -191,6 +205,8 @@ class IDMixin:
 @define()
 class AutoModMetaData(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object used to represent the AutoMod Action Metadata.
 
     .. note::
@@ -208,6 +224,12 @@ class AutoModMetaData(DictSerializerMixin):
 
 
 class AutoModTriggerType(IntEnum):
+    """
+    .. versionadded:: 4.3.0
+
+    An enumeration for the different AutoMod trigger types.
+    """
+
     KEYWORD = 1
     HARMFUL_LINK = 2
     SPAM = 3
@@ -216,12 +238,24 @@ class AutoModTriggerType(IntEnum):
 
 
 class AutoModKeywordPresetTypes(IntEnum):
+    """
+    .. versionadded:: 4.3.0
+
+    An enumeration for the different AutoMod keyword preset types.
+    """
+
     PROFANITY = 1
     SEXUAL_CONTENT = 2
     SLURS = 3
 
 
 class AutoModActionTypes(IntEnum):
+    """
+    .. versionadded:: 4.3.0
+
+    An enumeration for the different AutoMod action types.
+    """
+
     BLOCK_MESSAGE = 1
     SEND_ALERT_MESSAGE = 2
     TIMEOUT = 3
@@ -230,6 +264,8 @@ class AutoModActionTypes(IntEnum):
 @define()
 class AutoModAction(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object used for the ``AUTO_MODERATION_ACTION_EXECUTION`` event.
 
     .. note::
@@ -251,6 +287,8 @@ class AutoModAction(DictSerializerMixin):
 @define()
 class AutoModTriggerMetadata(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.0
+
     A class object used to represent the trigger metadata from the AutoMod rule object.
 
     :ivar Optional[List[str]] keyword_filter: Words to match against content.
@@ -271,6 +309,11 @@ class AutoModTriggerMetadata(DictSerializerMixin):
 
 class Color(IntEnum):
     """
+    .. versionadded:: 4.2.0
+
+    .. versionchanged:: 4.4.0
+        Color class is now an Enum
+
     An object representing Discord branding colors.
 
     .. note::
@@ -291,6 +334,8 @@ class Color(IntEnum):
 
 class File:
     """
+    .. versionadded:: 4.2.0
+
     A File object to be sent as an attachment along with a message.
 
     If a fp is not given, this will try to open & send a local file at the location
@@ -324,6 +369,8 @@ class File:
 
 class Image:
     """
+    .. versionadded:: 4.2.0
+
     This class object allows you to upload Images to the Discord API.
 
     If a fp is not given, this will try to open & send a local file at the location
@@ -368,6 +415,8 @@ class Image:
 
 class AllowedMentionType(str, Enum):
     """
+    .. versionadded:: 4.3.2
+
     An enumerable object representing the allowed mention types
     """
 
@@ -379,6 +428,8 @@ class AllowedMentionType(str, Enum):
 @define()
 class AllowedMentions(DictSerializerMixin):
     """
+    .. versionadded:: 4.3.2
+
     A class object representing the allowed mentions object
 
     :ivar Optional[List[AllowedMentionType]] parse: An array of allowed mention types to parse from the content.

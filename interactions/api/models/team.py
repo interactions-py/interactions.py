@@ -104,6 +104,8 @@ class Application(ClientSerializerMixin, IDMixin):
     @property
     def icon_url(self) -> Optional[str]:
         """
+        .. versionadded:: 4.2.0
+
         Returns the URL of the application's icon
 
         :return: URL of the application's icon.

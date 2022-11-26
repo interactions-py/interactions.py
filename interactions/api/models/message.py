@@ -370,6 +370,8 @@ class Embed(DictSerializerMixin):
 
     def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Adds a field to the embed
 
         :param str name: The name of the field
@@ -384,6 +386,8 @@ class Embed(DictSerializerMixin):
 
     def clear_fields(self) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Clears all the fields of the embed
         """
 
@@ -393,6 +397,8 @@ class Embed(DictSerializerMixin):
         self, index: int, name: str, value: str, inline: Optional[bool] = False
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Inserts a field in the embed at the specified index
 
         :param int index: The field's index to insert
@@ -410,6 +416,8 @@ class Embed(DictSerializerMixin):
         self, index: int, name: str, value: str, inline: Optional[bool] = False
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Overwrites the field in the embed at the specified index
 
         :param int index: The field's index to overwrite
@@ -428,6 +436,8 @@ class Embed(DictSerializerMixin):
 
     def remove_field(self, index: int) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Remove field at the specified index
 
         :param int index: The field's index to remove
@@ -443,6 +453,8 @@ class Embed(DictSerializerMixin):
 
     def remove_author(self) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Removes the embed's author
         """
 
@@ -457,6 +469,8 @@ class Embed(DictSerializerMixin):
         proxy_icon_url: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Sets the embed's author
 
         :param str name: The name of the author
@@ -473,6 +487,8 @@ class Embed(DictSerializerMixin):
         self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Sets the embed's footer
 
         :param str text: The text of the footer
@@ -490,6 +506,8 @@ class Embed(DictSerializerMixin):
         width: Optional[int] = None,
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Sets the embed's image
 
         :param str url: Url of the image
@@ -508,6 +526,8 @@ class Embed(DictSerializerMixin):
         width: Optional[int] = None,
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Sets the embed's video
 
         :param str url: Url of the video
@@ -526,6 +546,8 @@ class Embed(DictSerializerMixin):
         width: Optional[int] = None,
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Sets the embed's thumbnail
 
         :param str url: Url of the thumbnail
@@ -717,6 +739,8 @@ class Message(ClientSerializerMixin, IDMixin):
 
     async def get_channel(self) -> Channel:
         """
+        .. versionadded:: 4.0.2
+
         Gets the channel where the message was sent.
 
         :rtype: Channel
@@ -728,6 +752,8 @@ class Message(ClientSerializerMixin, IDMixin):
 
     async def get_guild(self):
         """
+        .. versionadded:: 4.0.2
+
         Gets the guild where the message was sent.
 
         :rtype: Guild
@@ -741,6 +767,8 @@ class Message(ClientSerializerMixin, IDMixin):
 
     async def delete(self, reason: Optional[str] = None) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Deletes the message.
 
         :param Optional[str] reason: Optional reason to show up in the audit log. Defaults to `None`.
@@ -774,15 +802,26 @@ class Message(ClientSerializerMixin, IDMixin):
         ] = MISSING,
     ) -> "Message":  # sourcery skip: low-code-quality
         """
+        .. versionadded:: 4.0.2
+
         This method edits a message. Only available for messages sent by the bot.
 
         :param Optional[str] content: The contents of the message as a string or string-converted value.
         :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
-        :param Optional[Union[File, List[File]]] files: A file or list of files to be attached to the message.
+        :param Optional[Union[File, List[File]]] files:
+           .. versionadded:: 4.2.0
+
+            A file or list of files to be attached to the message.
         :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
-        :param Optional[bool] suppress_embeds: Whether to suppress embeds in the message.
+        :param Optional[bool] suppress_embeds:
+           .. versionadded:: 4.3.0
+
+            Whether to suppress embeds in the message.
         :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
-        :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Optional[List[Attachment]] attachments:
+           .. versionadded:: 4.3.0
+
+            The attachments to attach to the message. Needs to be uploaded to the CDN first
         :param Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] components: A component, or list of components for the message. If `[]` the components will be removed
         :return: The edited message as an object.
         :rtype: Message
@@ -886,12 +925,20 @@ class Message(ClientSerializerMixin, IDMixin):
         ] = MISSING,
     ) -> "Message":  # sourcery skip: dict-assign-update-to-union
         """
+        .. versionadded:: 4.0.2
+
         Sends a new message replying to the old.
 
         :param Optional[str] content: The contents of the message as a string or string-converted value.
         :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
-        :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
-        :param Optional[Union[File, List[File]]] files: A file or list of files to be attached to the message.
+        :param Optional[List[Attachment]] attachments:
+           .. versionadded:: 4.3.0
+
+            The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Optional[Union[File, List[File]]] files:
+           .. versionadded:: 4.2.0
+
+            A file or list of files to be attached to the message.
         :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
         :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
         :param Optional[Union[ActionRow, Button, SelectMenu, List[ActionRow], List[Button], List[SelectMenu]]] components: A component, or list of components for the message.
@@ -961,19 +1008,30 @@ class Message(ClientSerializerMixin, IDMixin):
         return Message(**res, _client=self._client)
 
     async def pin(self) -> None:
-        """Pins the message to its channel"""
+        """
+        .. versionadded:: 4.0.2
+
+        Pins the message to its channel
+        """
         if not self._client:
             raise LibraryException(code=13)
         await self._client.pin_message(channel_id=int(self.channel_id), message_id=int(self.id))
 
     async def unpin(self) -> None:
-        """Unpins the message from its channel"""
+        """
+        .. versionadded:: 4.0.2
+
+        Unpins the message from its channel
+        """
         if not self._client:
             raise LibraryException(code=13)
         await self._client.unpin_message(channel_id=int(self.channel_id), message_id=int(self.id))
 
     async def publish(self) -> "Message":
-        """Publishes (API calls it crossposts) the message in its channel to any that is followed by.
+        """
+        .. versionadded:: 4.0.2
+
+        Publishes (API calls it crossposts) the message in its channel to any that is followed by.
 
         :return: message object
         :rtype: Message
@@ -993,6 +1051,8 @@ class Message(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Channel:
         """
+        .. versionadded:: 4.1.0
+
         Creates a thread from the message.
 
         :param str name: The name of the thread
@@ -1021,6 +1081,8 @@ class Message(ClientSerializerMixin, IDMixin):
         emoji: Union[str, "Emoji"],
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Adds a reaction to the message.
 
         :param Union[str, Emoji] emoji: The Emoji as object or formatted as `name:id`
@@ -1040,6 +1102,8 @@ class Message(ClientSerializerMixin, IDMixin):
 
     async def remove_all_reactions(self) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Removes all reactions of the message.
         """
         if not self._client:
@@ -1054,6 +1118,8 @@ class Message(ClientSerializerMixin, IDMixin):
         emoji: Union[str, "Emoji"],
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Removes all reactions of one emoji of the message.
 
         :param Union[str, Emoji] emoji: The Emoji as object or formatted as `name:id`
@@ -1076,6 +1142,8 @@ class Message(ClientSerializerMixin, IDMixin):
         emoji: Union[str, "Emoji"],
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Removes the own reaction of an emoji of the message.
 
         :param Union[str, Emoji] emoji: The Emoji as object or formatted as `name:id`
@@ -1097,6 +1165,8 @@ class Message(ClientSerializerMixin, IDMixin):
         self, emoji: Union[str, "Emoji"], user: Union[Member, User, int]
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Removes another reaction of an emoji of the message.
 
         :param Union[str, Emoji] emoji: The Emoji as object or formatted as `name:id`
@@ -1123,6 +1193,8 @@ class Message(ClientSerializerMixin, IDMixin):
         emoji: Union[str, "Emoji"],
     ) -> List[User]:
         """
+        .. versionadded:: 4.2.0
+
         Retrieves all users that reacted to the message with the given emoji
 
         :param Union[str, Emoji] emoji: The Emoji as object or formatted as `name:id`
@@ -1162,6 +1234,8 @@ class Message(ClientSerializerMixin, IDMixin):
     @classmethod
     async def get_from_url(cls, url: str, client: "HTTPClient") -> "Message":
         """
+        .. versionadded:: 4.1.0
+
         Gets a Message based from its url.
 
         :param str url: The full url of the message
@@ -1182,6 +1256,8 @@ class Message(ClientSerializerMixin, IDMixin):
     @property
     def url(self) -> str:
         """
+        .. versionadded:: 4.2.0
+
         Returns the URL of the message.
 
         :return: The URL of said message
@@ -1192,6 +1268,8 @@ class Message(ClientSerializerMixin, IDMixin):
 
     async def disable_all_components(self) -> "Message":
         """
+        .. versionadded:: 4.3.2
+
         Sets all components to disabled on this message.
 
         :return: The modified message.

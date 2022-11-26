@@ -64,6 +64,8 @@ class Role(ClientSerializerMixin, IDMixin):
     @property
     def mention(self) -> str:
         """
+        .. versionadded:: 4.1.0
+
         Returns a string that allows you to mention the given role.
 
         :return: The string of the mentioned role.
@@ -77,6 +79,8 @@ class Role(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Deletes the role from the guild.
 
         :param int guild_id: The id of the guild to delete the role from
@@ -104,6 +108,8 @@ class Role(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Role":
         """
+        .. versionadded:: 4.0.2
+
         Edits the role in a guild.
 
         :param int guild_id: The id of the guild to edit the role on
@@ -157,6 +163,8 @@ class Role(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> List["Role"]:
         """
+        .. versionadded:: 4.0.2
+
         Modifies the position of a role in the guild.
 
         :param int guild_id: The id of the guild to modify the role position on

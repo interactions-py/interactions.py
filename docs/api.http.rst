@@ -4,8 +4,15 @@ HTTP
 ====
 
 .. important::
-    This page shows internal functions that you should not use unless you know how to use them.
-    Most of these functions should have their own implementation in the different Models of the library.
+    #.
+        This page shows internal functions that you should not use unless you know how to use them.
+        Most of these functions should have their own implementation in the different Models of the library.
+
+    #.
+        Because this page is showcasing internal functions the ``versionadded``, ``deprecated`` and ``versionchanged``
+        markers will not be added.
+
+
 
 .. autoclass:: interactions.api.http.route.Route
     :members:

@@ -56,9 +56,15 @@ class Client:
     :param Optional[Intents] intents: Allows specific control of permissions the application has when connected. In order to use multiple intents, the ``|`` operator is recommended. Defaults to :attr:`.Intents.DEFAULT`.
     :param Optional[List[Tuple[int]]] shards: Dictates and controls the shards that the application connects under.
     :param Optional[ClientPresence] presence: Sets an RPC-like presence on the application when connected to the Gateway.
-    :param Optional[Union[int, Guild, List[int], List[Guild]]] default_scope: Sets the default scope of all commands.
+    :param Optional[Union[int, Guild, List[int], List[Guild]]] default_scope:
+        .. versionadded:: 4.3.0
+
+        Sets the default scope of all commands.
     :param Optional[bool] disable_sync: Controls whether synchronization in the user-facing API should be automatic or not.
-    :param Optional[Union[bool, logging.DEBUG, logging.INFO, logging.NOTSET, logging.WARNING, logging.ERROR, logging.CRITICAL]] logging: Set to ``True`` to enable debug logging or set to a log level to use a specific level
+    :param Optional[Union[bool, logging.DEBUG, logging.INFO, logging.NOTSET, logging.WARNING, logging.ERROR, logging.CRITICAL]] logging:
+        .. versionadded:: 4.3.2
+
+        Set to ``True`` to enable debug logging or set to a log level to use a specific level
 
     :ivar Application me: The application representation of the client.
     """
@@ -165,13 +171,21 @@ class Client:
 
     @property
     def guilds(self) -> List[Guild]:
-        """Returns a list of guilds the bot is in."""
+        """
+        .. versionadded:: 4.2.0
+
+        Returns a list of guilds the bot is in.
+        """
 
         return list(self._http.cache[Guild].values.values())
 
     @property
     def latency(self) -> float:
-        """Returns the connection latency in milliseconds."""
+        """
+        .. versionadded:: 4.2.0
+
+        Returns the connection latency in milliseconds.
+        """
 
         return self._websocket.latency * 1000
 
@@ -486,7 +500,11 @@ class Client:
                             self._websocket._client = None
 
     async def wait_until_ready(self) -> None:
-        """Helper method that waits until the websocket is ready."""
+        """
+        .. versionadded:: 4.2.0
+
+        Helper method that waits until the websocket is ready.
+        """
         await self._websocket.wait_until_ready()
 
     async def __get_all_commands(self) -> None:
@@ -782,6 +800,8 @@ class Client:
 
     async def change_presence(self, presence: ClientPresence) -> None:
         """
+        .. versionadded:: 4.2.0
+
         A method that changes the current client's presence on runtime.
 
         .. note::
@@ -1047,11 +1067,20 @@ class Client:
         :param Optional[str] description: The description of the application command. This should be left blank if you are not using ``CHAT_INPUT``.
         :param Optional[Union[int, Guild, List[int], List[Guild]]] scope: The "scope"/applicable guilds the application command applies to.
         :param Optional[Union[Dict[str, Any], List[Dict[str, Any]], Option, List[Option]]] options: The "arguments"/options of an application command. This should be left blank if you are not using ``CHAT_INPUT``.
-        :param Optional[Dict[Union[str, Locale], str]] name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :param Optional[Dict[Union[str, Locale], str]] description_localizations: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
+        :param Optional[Dict[Union[str, Locale], str]] name_localizations:
+            .. versionadded:: 4.2.0
+
+            The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param Optional[Dict[Union[str, Locale], str]] description_localizations:
+            .. versionadded:: 4.2.0
+
+            The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
         :param Optional[Union[int, Permissions]] default_member_permissions: The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :param Optional[bool] default_scope: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
+        :param Optional[bool] default_scope:
+            .. versionadded:: 4.3.0
+
+            Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
         :return: A callable response.
         :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
@@ -1104,10 +1133,16 @@ class Client:
 
         :param Optional[str] name: The name of the application command.
         :param Optional[Union[int, Guild, List[int], List[Guild]]] scope: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
-        :param Optional[Dict[Union[str, Locale], str]] name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param Optional[Dict[Union[str, Locale], str]] name_localizations:
+            .. versionadded:: 4.2.0
+
+            The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
         :param Optional[Union[int, Permissions]] default_member_permissions: The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :param Optional[bool] default_scope: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
+        :param Optional[bool] default_scope:
+            .. versionadded:: 4.3.0
+
+            Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
         :return: A callable response.
         :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
@@ -1153,10 +1188,17 @@ class Client:
 
         :param Optional[str] name: The name of the application command.
         :param Optional[Union[int, Guild, List[int], List[Guild]]] scope: The "scope"/applicable guilds the application command applies to. Defaults to ``None``.
-        :param Optional[Dict[Union[str, Locale], str]] name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
-        :param Optional[Union[int, Permissions]] default_member_permissions: The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
+        :param Optional[Dict[Union[str, Locale], str]] name_localizations:
+            .. versionadded:: 4.2.0
+
+            The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
+        :param Optional[Union[int, Permissions]] default_member_permissions:
+        The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
-        :param Optional[bool] default_scope: Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
+        :param Optional[bool] default_scope:
+            .. versionadded:: 4.3.0
+
+            Whether the scope of the command is the default scope set in the client. Defaults to ``True``.
         :return: A callable response.
         :rtype: Callable[[Callable[..., Coroutine]], Command]
         """
@@ -1262,6 +1304,8 @@ class Client:
         self, command: Union[ApplicationCommand, int, str, Snowflake], name: str
     ) -> Callable[[Callable[..., Coroutine]], Callable[..., Coroutine]]:
         """
+        .. versionadded:: 4.0.2
+
         A decorator for listening to ``INTERACTION_CREATE`` dispatched gateway
         events involving autocompletion fields.
 
@@ -1345,6 +1389,8 @@ class Client:
         self, name: str, package: Optional[str] = None, *args, **kwargs
     ) -> Optional["Extension"]:
         r"""
+        .. versionadded:: 4.1.0
+
         "Loads" an extension off of the current client by adding a new class
         which is imported from the library.
 
@@ -1382,6 +1428,8 @@ class Client:
         self, name: str, remove_commands: bool = True, package: Optional[str] = None
     ) -> None:
         """
+        .. versionadded:: 4.1.0
+
         Removes an extension out of the current client from an import resolve.
 
         :param str name: The name of the extension.
@@ -1429,6 +1477,8 @@ class Client:
         **kwargs,
     ) -> Optional["Extension"]:
         r"""
+        .. versionadded:: 4.1.0
+
         "Reloads" an extension off of current client from an import resolve.
 
         .. warning::
@@ -1456,6 +1506,8 @@ class Client:
 
     def get_extension(self, name: str) -> Optional[Union[ModuleType, "Extension"]]:
         """
+        .. versionadded:: 4.2.0
+
         Get an extension based on its name.
 
         :param str name: Name of the extension.
@@ -1470,6 +1522,8 @@ class Client:
         avatar: Optional[Image] = MISSING,
     ) -> User:
         """
+        .. versionadded:: 4.2.0
+
         Modify the bot user account settings.
 
         :param Optional[str] username: The new username of the bot
@@ -1501,6 +1555,8 @@ class Client:
         nonce: Optional[str] = MISSING,
     ) -> None:
         """
+        .. versionadded:: 4.3.2
+
         Requests guild members via websocket.
 
         :param Union[Guild, Snowflake, int, str] guild_id: ID of the guild to get members for.
@@ -1530,6 +1586,8 @@ class Client:
         timeout: Optional[float] = None,
     ) -> Any:
         """
+        .. versionadded:: 4.4.0
+
         Waits for an event once, and returns the result.
 
         Unlike event decorators, this is not persistent, and can be used to only proceed in a command once an event happens.
@@ -1575,6 +1633,8 @@ class Client:
         timeout: Optional[float] = None,
     ) -> ComponentContext:
         """
+        .. versionadded:: 4.4.0
+
         Waits for a component to be interacted with, and returns the resulting context.
 
         .. note::
@@ -1647,6 +1707,8 @@ class Client:
         timeout: Optional[float] = None,
     ) -> Tuple[ComponentContext, List[Union[str, Member, User, Role, Channel]]]:
         """
+        .. versionadded:: 4.4.0
+
         Waits for a select menu to be interacted with, and returns the resulting context and a list of the selected values.
 
         The method can be used like this:
@@ -1694,6 +1756,8 @@ class Client:
         timeout: Optional[float] = None,
     ) -> Tuple[CommandContext, List[str]]:
         """
+        .. versionadded:: 4.4.0
+
         Waits for a modal to be interacted with, and returns the resulting context and submitted data.
 
         .. note::
@@ -1745,6 +1809,8 @@ class Client:
 
 class Extension:
     """
+    .. versionadded:: 4.1.0
+
     A class that allows you to represent "extensions" of your code, or
     essentially cogs that can be ran independent of the root file in
     an object-oriented structure.

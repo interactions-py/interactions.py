@@ -125,6 +125,8 @@ class ThreadMember(ClientSerializerMixin):
 
 class AsyncHistoryIterator(DiscordPaginationIterator):
     """
+    .. versionadded:: 4.3.2
+
     A class object that allows iterating through a channel's history.
 
     :param HTTPClient _client: The HTTPClient of the bot
@@ -256,6 +258,8 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
 
 class AsyncTypingContextManager(BaseAsyncContextManager):
     """
+    .. versionadded:: 4.3.2
+
     An async context manager for triggering typing.
 
     :param Union[int, str, Snowflake, Channel] obj: The channel to trigger typing in.
@@ -296,6 +300,8 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
 @define()
 class Tags(ClientSerializerMixin):  # helpers, hehe :D
     """
+    .. versionadded:: 4.3.2
+
     An object denoting a tag object within a forum channel.
 
     .. note::
@@ -525,6 +531,8 @@ class Channel(ClientSerializerMixin, IDMixin):
     @property
     def typing(self) -> Union[Awaitable, ContextManager]:
         """
+        .. versionadded:: 4.3.2
+
         Manages the typing of the channel. Use with `await` or `async with`
 
         :return: A manager for typing
@@ -535,6 +543,8 @@ class Channel(ClientSerializerMixin, IDMixin):
     @property
     def mention(self) -> str:
         """
+        .. versionadded:: 4.1.0
+
         Returns a string that allows you to mention the given channel.
 
         :return: The string of the mentioned channel.
@@ -545,6 +555,8 @@ class Channel(ClientSerializerMixin, IDMixin):
     @property
     def voice_states(self) -> List["VoiceState"]:
         """
+        .. versionadded:: 4.4.0
+
         Returns all voice states this channel has. Only applicable for voice channels.
 
         :rtype: List[VoiceState]
@@ -573,6 +585,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         check: Optional[Callable[["Message"], Union[bool, Awaitable[bool]]]] = None,
     ) -> AsyncHistoryIterator:
         """
+        .. versionadded:: 4.3.2
+
         :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
         :param Optional[bool] reverse: Whether to only get newer message. Default False
         :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
@@ -610,15 +624,26 @@ class Channel(ClientSerializerMixin, IDMixin):
         ] = MISSING,
     ) -> "Message":  # noqa  # sourcery skip: dict-assign-update-to-union
         """
+        .. versionadded:: 4.0.2
+
         Sends a message in the channel.
 
         :param Optional[str] content: The contents of the message as a string or string-converted value.
         :param Optional[bool] tts: Whether the message utilizes the text-to-speech Discord programme or not.
-        :param Optional[Union[File, List[File]]] files: A file or list of files to be attached to the message.
-        :param Optional[List[Attachment]] attachments: The attachments to attach to the message. Needs to be uploaded to the CDN first
+        :param Optional[Union[File, List[File]]] files:
+            .. versionadded:: 4.2.0
+
+            A file or list of files to be attached to the message.
+        :param Optional[List[Attachment]] attachments:
+            .. versionadded:: 4.3.0
+
+            The attachments to attach to the message. Needs to be uploaded to the CDN first.
         :param Optional[Union[Embed, List[Embed]]] embeds: An embed, or list of embeds for the message.
         :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
-        :param Optional[List[Sticker]] stickers: A list of stickers to send with your message. You can send up to 3 stickers per message.
+        :param Optional[List[Sticker]] stickers:
+            .. versionadded:: 4.3.0
+
+            A list of stickers to send with your message. You can send up to 3 stickers per message.
         :param Optional[Union[ActionRow, Button, SelectMenu, List[Actionrow], List[Button], List[SelectMenu]]] components: A component, or list of components for the message.
         :return: The sent message as an object.
         :rtype: Message
@@ -690,6 +715,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def delete(self) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Deletes the channel.
         """
         if not self._client:
@@ -713,10 +740,13 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":  # sourcery skip: low-code-quality
         """
+        .. versionadded:: 4.0.2
+
         Edits the channel.
 
-        .. note::
-            The fields ``archived``, ``auto_archive_duration`` and ``locked`` require the provided channel to be a thread.
+        .. versionadded:: 4.2.0
+            The fields ``archived``, ``auto_archive_duration`` and ``locked``.
+            All require the provided channel to be a thread.
 
         :param Optional[str] name: The name of the channel, defaults to the current value of the channel
         :param Optional[str] topic: The topic of that channel, defaults to the current value of the channel
@@ -727,9 +757,18 @@ class Channel(ClientSerializerMixin, IDMixin):
         :param Optional[int] parent_id: The id of the parent category for a channel, defaults to the current value of the channel
         :param Optional[bool] nsfw: Whether the channel is nsfw or not, defaults to the current value of the channel
         :param Optional[List[Overwrite]] permission_overwrites: The permission overwrites, if any
-        :param Optional[bool] archived: Whether the thread is archived
-        :param Optional[int] auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :param Optional[bool] locked: Whether the thread is locked
+        :param Optional[bool] archived:
+            .. versionadded:: 4.2.0
+
+            Whether the thread is archived
+        :param Optional[int] auto_archive_duration:
+            .. versionadded:: 4.2.0
+
+            The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
+        :param Optional[bool] locked:
+            .. versionadded:: 4.2.0
+
+            Whether the thread is locked
         :param Optional[str] reason: The reason for the edit
         :return: The modified channel as new object
         :rtype: Channel
@@ -801,6 +840,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.1.0
+
         Sets the name of the channel.
 
         :param str name: The new name of the channel
@@ -818,6 +859,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.1.0
+
         Sets the topic of the channel.
 
         :param str topic: The new topic of the channel
@@ -835,6 +878,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.1.0
+
         Sets the bitrate of the channel.
 
         :param int bitrate: The new bitrate of the channel
@@ -855,6 +900,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.1.0
+
         Sets the user_limit of the channel.
 
         :param int user_limit: The new user limit of the channel
@@ -877,6 +924,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.1.0
+
         Sets the amount of seconds a user has to wait before sending another message.
 
         :param int rate_limit_per_user: The new rate_limit_per_user of the channel (0-21600)
@@ -894,6 +943,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.1.0
+
         Sets the position of the channel.
 
         :param int position: The new position of the channel
@@ -911,6 +962,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.1.0
+
         Sets the parent_id of the channel.
 
         :param int parent_id: The new parent_id of the channel
@@ -928,6 +981,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.1.0
+
         Sets the nsfw-flag of the channel.
 
         :param bool nsfw: The new nsfw-flag of the channel
@@ -945,6 +1000,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.2.0
+
         Sets the archived state of the thread.
 
         :param bool archived: Whether the Thread is archived, defaults to True
@@ -962,6 +1019,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.2.0
+
         Sets the time after the thread is automatically archived.
 
         :param int auto_archive_duration: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
@@ -979,6 +1038,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.2.0
+
         Sets the locked state of the thread.
 
         :param bool locked: Whether the Thread is locked, defaults to True
@@ -994,6 +1055,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         member_id: Union[int, Snowflake, "Member"],
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         This adds a member to the channel, if the channel is a thread.
 
         :param int member_id: The id of the member to add to the channel
@@ -1014,6 +1077,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         member_id: Union[int, Snowflake, "Member"],
     ) -> None:
         """
+        .. versionadded:: 4.3.0
+
         This removes a member of the channel, if the channel is a thread.
 
         :param int member_id: The id of the member to remove of the channel
@@ -1034,6 +1099,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         message_id: Union[int, Snowflake, "Message"],
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Pins a message to the channel.
 
         :param Union[int, Snowflake, Message] message_id: The id of the message to pin
@@ -1052,6 +1119,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         message_id: Union[int, Snowflake, "Message"],
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Unpins a message from the channel.
 
         :param Union[int, Snowflake, Message] message_id: The id of the message to unpin
@@ -1069,7 +1138,10 @@ class Channel(ClientSerializerMixin, IDMixin):
         self,
         message_id: Union[int, Snowflake, "Message"],
     ) -> "Message":
-        """Publishes (API calls it crossposts) a message in the channel to any that is followed by.
+        """
+        .. versionadded:: 4.0.2
+
+        Publishes (API calls it crossposts) a message in the channel to any that is followed by.
 
         :param Union[int, Snowflake, Message] message_id: The id of the message to publish
         :return: The message published
@@ -1089,6 +1161,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def get_pinned_messages(self) -> List["Message"]:
         """
+        .. versionadded:: 4.0.2
+
         Get all pinned messages from the channel.
 
         :return: A list of pinned message objects.
@@ -1106,6 +1180,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         message_id: Union[int, Snowflake],
     ) -> "Message":
         """
+        .. versionadded:: 4.1.0
+
         Gets a message sent in that channel.
 
         :param Union[int, Snowflake] message_id: The ID of the message to get
@@ -1130,6 +1206,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         force_bulk: Optional[bool] = False,
     ) -> List["Message"]:
         """
+        .. versionadded:: 4.1.0
+
         Purges a given amount of messages from a channel. You can specify a check function to exclude specific messages.
 
         .. warning:: Calling this method can lead to rate-limits when purging higher amounts of messages.
@@ -1360,6 +1438,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":
         """
+        .. versionadded:: 4.1.0
+
         Creates a thread in the Channel.
 
         :param str name: The name of the thread
@@ -1404,7 +1484,10 @@ class Channel(ClientSerializerMixin, IDMixin):
     @property
     def url(self) -> str:
         """
-        Returns the URL of the channel"""
+        .. versionadded:: 4.2.0
+
+        Returns the URL of the channel
+        """
         _guild_id = self.guild_id if isinstance(self.guild_id, int) else "@me"
         return f"https://discord.com/channels/{_guild_id}/{self.id}"
 
@@ -1482,6 +1565,11 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def get_history(self, limit: int = 100) -> Optional[List["Message"]]:
         """
+        .. versionadded:: 4.2.0
+
+        .. deprecated:: 4.3.2
+            Use the :meth:`.history` method instead
+
         Gets messages from the channel's history.
 
         :param int limit: The amount of messages to get. Default 100
@@ -1539,6 +1627,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def get_webhooks(self) -> List[Webhook]:
         """
+        .. versionadded:: 4.3.0
+
         Gets a list of webhooks of that channel
         """
 
@@ -1550,6 +1640,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def get_members(self) -> List[ThreadMember]:
         """
+        .. versionadded:: 4.3.0
+
         Gets the list of thread members
 
         :return: The members of the thread.
@@ -1565,6 +1657,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def leave(self) -> None:
         """
+        .. versionadded:: 4.3.0
+
         Removes the bot from the thread
         """
         if not self._client:
@@ -1576,6 +1670,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def join(self) -> None:
         """
+        .. versionadded:: 4.3.0
+
         Add the bot to the thread
         """
         if not self._client:
@@ -1592,6 +1688,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         emoji_name: Optional[str] = MISSING,
     ) -> Tags:
         """
+        .. versionadded:: 4.3.2
+
         Create a new tag.
 
         .. note::
@@ -1635,6 +1733,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         emoji_id: Optional[int] = MISSING,
     ) -> "Tags":
         """
+        .. versionadded:: 4.3.2
+
         Edits a tag
 
         .. note::
@@ -1673,6 +1773,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         self, tag_id: Union[int, str, Snowflake, Tags]  # discord, why :hollow:
     ) -> None:
         """
+        .. versionadded:: 4.3.2
+
         Deletes a tag
 
         :param Union[int, str, Snowflake, Tags] tag_id: The ID of the Tag
@@ -1697,6 +1799,8 @@ class Channel(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Channel":  # sourcery skip: low-code-quality
         """
+        .. versionadded:: 4.3.2
+
         Creates a new post inside a forum channel
 
         :param str name: The name of the thread
@@ -1828,6 +1932,8 @@ class Channel(ClientSerializerMixin, IDMixin):
 
     async def get_permissions_for(self, member: "Member") -> Permissions:
         """
+        .. versionadded:: 4.3.2
+
         Returns the permissions of the member in this specific channel.
 
         .. note::
@@ -1985,7 +2091,10 @@ class Channel(ClientSerializerMixin, IDMixin):
 
 @define()
 class Thread(Channel):
-    """An object representing a thread.
+    """
+    .. versionadded:: 4.0.2
+
+    An object representing a thread.
 
     .. note::
         This is a derivation of the base Channel, since a
