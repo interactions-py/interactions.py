@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 from ..api.error import LibraryException
 from ..api.models.channel import Channel
-from ..api.models.flags import Permissions
+from ..api.models.flags import MessageFlags, Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
 from ..api.models.message import Attachment, Embed, File, Message, MessageReference
@@ -187,9 +187,9 @@ class _Context(ClientSerializerMixin):
         else:
             _components = []
 
-        _flags: int = (1 << 6) if ephemeral else 0
+        _flags = MessageFlags.EPHEMERAL if ephemeral else MessageFlags(0)
         if suppress_embeds:
-            _flags += 1 << 2
+            _flags |= MessageFlags.SUPPRESS_EMBEDS
 
         _attachments = [] if attachments is MISSING else [a._json for a in attachments]
 
@@ -211,7 +211,7 @@ class _Context(ClientSerializerMixin):
                 allowed_mentions=_allowed_mentions,
                 components=_components,
                 attachments=_files,
-                flags=_flags,
+                flags=_flags.value,
             ),
             files,
         )
@@ -497,7 +497,7 @@ class CommandContext(_Context):
         """
         if not self.responded:
             self.deferred = True
-            _ephemeral: int = (1 << 6) if ephemeral else 0
+            _ephemeral: int = MessageFlags.EPHEMERAL.value if ephemeral else 0
             self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
 
             await self._client.create_interaction_response(
@@ -741,7 +741,7 @@ class ComponentContext(_Context):
         if not self.responded:
 
             self.deferred = True
-            _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
+            _ephemeral: int = MessageFlags.EPHEMERAL.value if bool(ephemeral) else 0
 
             # ephemeral doesn't change callback typings. just data json
             if edit_origin:

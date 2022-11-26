@@ -72,6 +72,7 @@ class LibraryException(Exception):
 
     @staticmethod
     def lookup(code: int) -> str:
+        # https://discord.com/developers/docs/topics/opcodes-and-status-codes#json
         return {
             # Default error integer enum
             0: "Unknown error",
@@ -197,6 +198,7 @@ class LibraryException(Exception):
             30047: "Maximum number of pinned threads in a forum channel has been reached",
             30048: "Maximum number of tags in a forum channel has been reached",
             30052: "Bitrate is too high for channel of this type",
+            31001: "Undocumented error/rate-limit related.",
             40001: "Unauthorized. Provide a valid token and try again",
             40002: "You need to verify your account in order to perform this action",
             40003: "You are opening direct messages too fast",
