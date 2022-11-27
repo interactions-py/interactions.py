@@ -1831,8 +1831,7 @@ class Extension:
             def __init__(self, client):
                 self.client = client
 
-            @command(
-                type=interactions.ApplicationCommandType.USER,
+            @extension_user_command(
                 name="User command in cog",
             )
             async def cog_user_cmd(self, ctx):
