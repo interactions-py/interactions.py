@@ -66,6 +66,7 @@ class _Context(ClientSerializerMixin):
     @property
     def deferred_ephemeral(self) -> bool:
         """
+        .. versionadded:: 4.4.0
         Returns whether the current interaction was deferred ephemerally.
         """
         return bool(
@@ -498,12 +499,14 @@ class CommandContext(_Context):
 
         return msg if msg is not None else Message(**payload, _client=self._client)
 
-    async def defer(self, ephemeral: Optional[bool] = False) -> None:
+    async def defer(self, ephemeral: Optional[bool] = False) -> Message:
         """
         This "defers" an interaction response, allowing up
         to a 15-minute delay between invocation and responding.
 
         :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
+        :return: The defering message
+        :rtype: Message
         """
         if not self.responded:
             self.deferred = True
@@ -523,6 +526,7 @@ class CommandContext(_Context):
             else:
                 self.message = Message(**_msg, _client=self._client)
             self.responded = True
+            return self.message
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload, files = await super().send(content, **kwargs)
@@ -746,13 +750,15 @@ class ComponentContext(_Context):
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
-    ) -> None:
+    ) -> Message:
         """
         This "defers" a component response, allowing up
         to a 15-minute delay between invocation and responding.
 
         :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
         :param Optional[bool] edit_origin: Whether you want to edit the original message or send a followup message
+        :return: The defering message
+        :rtype: Message
         """
         if not self.responded:
 
@@ -778,6 +784,7 @@ class ComponentContext(_Context):
             else:
                 self.message = Message(**_msg, _client=self._client)
             self.responded = True
+            return self.message
 
     async def disable_all_components(
         self, respond_to_interaction: Optional[bool] = True, **other_kwargs: Optional[dict]
