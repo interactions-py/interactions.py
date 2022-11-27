@@ -65,6 +65,9 @@ class _Context(ClientSerializerMixin):
 
     @property
     def deferred_ephemeral(self) -> bool:
+        """
+        Returns whether the current interaction was deferred ephemerally.
+        """
         return bool(
             self.message.flags & MessageFlags.EPHEMERAL
             and self.message.flags & MessageFlags.LOADING
@@ -391,7 +394,6 @@ class CommandContext(_Context):
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
-    :ivar bool deferred_ephemeral: Whether the response was deferred and ephemeral.
     :ivar Optional[Locale] guild_locale: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     :ivar Client client:
