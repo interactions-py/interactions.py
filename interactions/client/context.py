@@ -68,7 +68,6 @@ class _Context(ClientSerializerMixin):
         """
         .. versionadded:: 4.4.0
 
-        .. versionadded:: 4.4.0
         Returns whether the current interaction was deferred ephemerally.
         """
         return bool(
@@ -503,11 +502,13 @@ class CommandContext(_Context):
 
     async def defer(self, ephemeral: Optional[bool] = False) -> Message:
         """
+        .. versionchanged::; 4.4.0
+            Now returns the created message object
         This "defers" an interaction response, allowing up
         to a 15-minute delay between invocation and responding.
 
         :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
-        :return: The defering message
+        :return: The defered message
         :rtype: Message
         """
         if not self.responded:
@@ -754,12 +755,14 @@ class ComponentContext(_Context):
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
     ) -> Message:
         """
+        .. versionchanged::; 4.4.0
+            Now returns the created message object
         This "defers" a component response, allowing up
         to a 15-minute delay between invocation and responding.
 
         :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
         :param Optional[bool] edit_origin: Whether you want to edit the original message or send a followup message
-        :return: The defering message
+        :return: The defered message
         :rtype: Message
         """
         if not self.responded:
