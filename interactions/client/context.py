@@ -756,7 +756,7 @@ class ComponentContext(_Context):
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
     ) -> Message:
         """
-        .. versionchanged::; 4.4.0
+        .. versionchanged:: 4.4.0
             Now returns the created message object
 
         This "defers" a component response, allowing up
