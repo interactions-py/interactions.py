@@ -4,7 +4,7 @@ from logging import Logger
 from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 from ..api.error import LibraryException
-from ..api.models.channel import Channel
+from ..api.models.channel import Channel, Thread
 from ..api.models.flags import MessageFlags, Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
@@ -43,7 +43,7 @@ class _Context(ClientSerializerMixin):
     """
 
     message: Optional[Message] = field(converter=Message, default=None, add_client=True)
-    member: Member = field(converter=Member, add_client=True)
+    member: Member = field(default=None, converter=Member, add_client=True)  # DMs?
     user: User = field(converter=User, default=None, add_client=True)
     id: Snowflake = field(converter=Snowflake)
     application_id: Snowflake = field(converter=Snowflake)
@@ -62,6 +62,16 @@ class _Context(ClientSerializerMixin):
     locale: Optional[Locale] = field(converter=Locale, default=None)
     guild_locale: Optional[Locale] = field(converter=Locale, default=None)
 
+    def __attrs_post_init__(self) -> None:
+        if self.member and self.guild_id:
+            self.member._extras["guild_id"] = self.guild_id
+
+        if self.user is None:
+            self.user = self.member.user if self.member else None
+
+        if self.member and not self.member.user and self.user:
+            self.member.user = self.user
+
     @property
     def deferred_ephemeral(self) -> bool:
         """
@@ -73,16 +83,6 @@ class _Context(ClientSerializerMixin):
             self.message.flags & MessageFlags.EPHEMERAL
             and self.message.flags & MessageFlags.LOADING
         )
-
-    def __attrs_post_init__(self) -> None:
-        if self.member and self.guild_id:
-            self.member._extras["guild_id"] = self.guild_id
-
-        if self.user is None:
-            self.user = self.member.user if self.member else None
-
-        if not self.member.user and self.user:
-            self.member.user = self.user
 
     @property
     def created_at(self) -> datetime:
@@ -106,9 +106,11 @@ class _Context(ClientSerializerMixin):
         .. versionchanged:: 4.4.0
             Channel now returns ``None`` instead of ``MISSING`` if it is not found to avoid confusion
 
-        Returns the current channel.
+        Returns the current channel, if cached.
         """
-        return self._client.cache[Channel].get(self.channel_id, None)
+        return self._client.cache[Channel].get(self.channel_id, None) or self._client.cache[
+            Thread
+        ].get(self.channel_id, None)
 
     @property
     def guild(self) -> Optional[Guild]:
@@ -116,7 +118,7 @@ class _Context(ClientSerializerMixin):
          .. versionchanged:: 4.4.0
             Guild now returns ``None`` instead of ``MISSING`` if it is not found to avoid confusion
 
-        Returns the current guild.
+        Returns the current guild, if cached.
         """
 
         return self._client.cache[Guild].get(self.guild_id, None)
@@ -125,7 +127,7 @@ class _Context(ClientSerializerMixin):
         """
         .. versionadded:: 4.1.0
 
-        This gets the channel the context was invoked in.
+        This gets the channel the context was invoked in. If the channel is not cached, an HTTP request is made.
 
         :return: The channel as object
         :rtype: Channel
@@ -141,7 +143,7 @@ class _Context(ClientSerializerMixin):
         """
         .. versionadded:: 4.1.0
 
-        This gets the guild the context was invoked in.
+        This gets the guild the context was invoked in. If the guild is not cached, an HTTP request is made.
 
         :return: The guild as object
         :rtype: Guild
