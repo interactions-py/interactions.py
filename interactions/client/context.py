@@ -508,7 +508,7 @@ class CommandContext(_Context):
         to a 15-minute delay between invocation and responding.
 
         :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
-        :return: The defered message
+        :return: The deferred message
         :rtype: Message
         """
         if not self.responded:
@@ -762,7 +762,7 @@ class ComponentContext(_Context):
 
         :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
         :param Optional[bool] edit_origin: Whether you want to edit the original message or send a followup message
-        :return: The defered message
+        :return: The deferred message
         :rtype: Message
         """
         if not self.responded:
