@@ -44,6 +44,8 @@ def autodefer(
     edit_origin: bool = False,
 ) -> Callable[[Callable[..., Union[Awaitable, Coroutine]]], Callable[..., Awaitable]]:
     """
+    .. versionadded:: 4.3.0
+
     A decorator that automatically defers a command if it did not respond within ``delay`` seconds.
 
     The structure of the decorator is:
@@ -56,12 +58,9 @@ def autodefer(
             await asyncio.sleep(5)
             await ctx.send("I'm awake now!")
 
-    :param delay?: The amount of time in seconds to wait before defering the command. Defaults to ``2`` seconds.
-    :type delay?: Union[float, int]
-    :param ephemeral?: Whether the command is deferred ephemerally. Defaults to ``False``.
-    :type ephemeral?: bool
-    :param edit_origin?: Whether the command is deferred on origin. Defaults to ``False``.
-    :type edit_origin?: bool
+    :param Optional[Union[float, int]] delay: The amount of time in seconds to wait before defering the command. Defaults to ``2`` seconds.
+    :param Optional[bool] ephemeral: Whether the command is deferred ephemerally. Defaults to ``False``.
+    :param Optional[bool] edit_origin: Whether the command is deferred on origin. Defaults to ``False``.
     :return: The inner function, for decorating.
     :rtype:
     """
@@ -109,6 +108,8 @@ def spread_to_rows(
     *components: Union[ActionRow, Button, SelectMenu], max_in_row: int = 5
 ) -> List[ActionRow]:
     r"""
+    .. versionadded:: 4.3.0
+
     A helper function that spreads components into :class:`ActionRow` s.
 
     Example:
@@ -132,12 +133,12 @@ def spread_to_rows(
             await ctx.send("Components:", components=spread_to_rows(b1, b2, s1, b3, b4))
 
     .. note::
-        You can only pass in :class:`ActionRow`s, :class:`Button`s, and :class:`SelectMenu`s, but in any order.
+        You can only pass in :class:`.ActionRow`, :class:`.Button`, and :class:`.SelectMenu`, but in any order.
 
-    :param \*components: The components to spread.
-    :type \*components: Union[ActionRow, Button, SelectMenu]
-    :param max_in_row?: The maximum number of components in a single row. Defaults to ``5``.
-    :type max_in_row?: int
+    :param Union[ActionRow, Button, SelectMenu] \*components: The components to spread.
+    :param Optional[int] max_in_row: The maximum number of components in a single row. Defaults to ``5``.
+    :return: List of Action rows
+    :rtype: List[ActionRow]
     """
     if not components or len(components) > 25:
         raise LibraryException(code=12, message="Number of components should be between 1 and 25.")
@@ -179,17 +180,16 @@ def spread_to_rows(
 def search_iterable(
     iterable: Iterable[_T], check: Optional[Callable[[_T], bool]] = None, /, **kwargs
 ) -> List[_T]:
-    """
+    r"""
+    .. versionadded:: 4.3.0
+
     Searches through an iterable for items that:
     - Are True for the check, if one is given
     - Have attributes that match the keyword arguments (e.x. passing `id=your_id` will only return objects with that id)
 
-    :param iterable: The iterable to search through
-    :type iterable: Iterable
-    :param check: The check that items will be checked against
-    :type check: Callable[[Any], bool]
-    :param kwargs: Any attributes the items should have
-    :type kwargs: Any
+    :param Iterable iterable: The iterable to search through
+    :param Callable[[Any], bool] check: The check that items will be checked against
+    :param Any \**kwargs: Any attributes the items should have
     :return: All items that match the check and keywords
     :rtype: list
     """
@@ -218,10 +218,11 @@ def disable_components(
     ]
 ) -> None:
     """
+    .. versionadded:: 4.3.2
+
     Disables the given components.
 
-    :param components: The components to disable
-    :type components: Union[List[Component], List[ActionRow], List[Button], List[SelectMenu], ActionRow, Component, Button, SelectMenu]
+    :param Union[List[Component], List[ActionRow], List[Button], List[SelectMenu], ActionRow, Component, Button, SelectMenu] components: The components to disable
     """
     if isinstance(components, (Component, ActionRow)):
         for component in components.components:
@@ -252,24 +253,20 @@ def get_channel_history(
     channel: Union[int, str, "Snowflake", "Channel"],
     start_at: Optional[Union[int, str, "Snowflake", "Message"]] = MISSING,
     reverse: Optional[bool] = False,
-    check: Optional[Callable[["Message"], bool]] = None,
+    check: Optional[Callable[["Message"], Union[bool, Awaitable[bool]]]] = None,
     maximum: Optional[int] = inf,
 ) -> "AsyncHistoryIterator":
     """
+    .. versionadded:: 4.3.2
+
     Gets the history of a channel.
 
-    :param http: The HTTPClient of the bot or your bot instance
-    :type http: Union[HTTPClient, Client]
-    :param channel: The channel to get the history from
-    :type channel: Union[int, str, Snowflake, Channel]
-    :param start_at?: The message to begin getting the history from
-    :type start_at?: Optional[Union[int, str, Snowflake, Message]]
-    :param reverse?: Whether to only get newer message. Default False
-    :type reverse?: Optional[bool]
-    :param check?: A check to ignore specific messages
-    :type check?: Optional[Callable[[Message], bool]]
-    :param maximum?: A set maximum of messages to get before stopping the iteration
-    :type maximum?: Optional[int]
+    :param Union[HTTPClient, Client] http: The HTTPClient of the bot or your bot instance
+    :param Union[int, str, Snowflake, Channel] channel: The channel to get the history from
+    :param Optional[Union[int, str, Snowflake, Message]] start_at: The message to begin getting the history from
+    :param Optional[bool] reverse: Whether to only get newer message. Default False
+    :param Optional[Callable[[Message], Union[bool, Awaitable[bool]]]] check: A check to ignore specific messages
+    :param Optional[int] maximum: A set maximum of messages to get before stopping the iteration
 
     :return: An asynchronous iterator over the history of the channel
     :rtype: AsyncHistoryIterator
@@ -277,7 +274,7 @@ def get_channel_history(
     from ..api.models.channel import AsyncHistoryIterator
 
     return AsyncHistoryIterator(
-        http if not hasattr(http, "_http") else http._http,
+        http._http if hasattr(http, "_http") else http,
         channel,
         start_at=start_at,
         reverse=reverse,
@@ -290,22 +287,19 @@ def get_guild_members(
     http: Union["HTTPClient", "Client"],
     guild: Union[int, str, "Snowflake", "Guild"],
     start_at: Optional[Union[int, str, "Snowflake", "Member"]] = MISSING,
-    check: Optional[Callable[["Member"], bool]] = None,
+    check: Optional[Callable[["Member"], Union[bool, Awaitable[bool]]]] = None,
     maximum: Optional[int] = inf,
 ) -> "AsyncMembersIterator":
     """
+    .. versionadded:: 4.3.2
+
     Gets the members of a guild
 
-    :param http: The HTTPClient of the bot or your bot instance
-    :type http: Union[HTTPClient, Client]
-    :param guild: The channel to get the history from
-    :type guild: Union[int, str, Snowflake, Guild]
-    :param start_at?: The message to begin getting the history from
-    :type start_at?: Optional[Union[int, str, Snowflake, Member]]
-    :param check?: A check to ignore specific messages
-    :type check?: Optional[Callable[[Member], bool]]
-    :param maximum?: A set maximum of members to get before stopping the iteration
-    :type maximum?: Optional[int]
+    :param Union[HTTPClient, Client] http: The HTTPClient of the bot or your bot instance
+    :param Union[int, str, Snowflake, Guild] guild: The channel to get the history from
+    :param Optional[Union[int, str, Snowflake, Member]] start_at: The message to begin getting the history from
+    :param Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] check: A check to ignore specific messages
+    :param Optional[int] maximum: A set maximum of members to get before stopping the iteration
 
     :return: An asynchronous iterator over the history of the channel
     :rtype: AsyncMembersIterator
@@ -313,7 +307,7 @@ def get_guild_members(
     from ..api.models.guild import AsyncMembersIterator
 
     return AsyncMembersIterator(
-        http if not hasattr(http, "_http") else http._http,
+        http._http if hasattr(http, "_http") else http,
         guild,
         start_at=start_at,
         maximum=maximum,

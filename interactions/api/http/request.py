@@ -146,10 +146,20 @@ class _Request:
                 async with self._session.request(
                     route.method, route.__api__ + route.path, **kwargs
                 ) as response:
+                    if response.content_type == "application/json":
+                        data = await response.json()
+                        if isinstance(data, dict):
+                            message: Optional[str] = data.get("message")
+                            code: int = data.get("code", response.status)
+                        else:
+                            message, code = None, response.status
+                    else:
+                        data, message, code = None, None, response.status
 
-                    data = await response.json(content_type=None)
                     reset_after: float = float(
-                        response.headers.get("X-RateLimit-Reset-After", "0.0")
+                        response.headers.get(
+                            "X-RateLimit-Reset-After", response.headers.get("Retry-After", "0.0")
+                        )
                     )
                     remaining: str = response.headers.get("X-RateLimit-Remaining")
                     _bucket: str = response.headers.get("X-RateLimit-Bucket")
@@ -161,40 +171,40 @@ class _Request:
                         self.buckets[route.endpoint] = _bucket
                         # real-time replacement/update/add if needed.
                     if isinstance(data, dict) and (
-                        data.get("errors")
-                        or ((code := data.get("code")) and code != 429 and data.get("message"))
+                        data.get("errors") or (code and code not in {429, 31001} and message)
                     ):
                         log.debug(
                             f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
                         )
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
-                        raise LibraryException(
-                            message=data["message"], code=data["code"], severity=40, data=data
-                        )
-                    elif isinstance(data, dict) and data.get("code") == 0 and data.get("message"):
+                        raise LibraryException(message=message, code=code, severity=40, data=data)
+                    elif isinstance(data, dict) and code == 0 and message:
                         log.debug(
                             f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
                         )
                         # This "redundant" debug line is for debug use and tracing back the error codes.
 
                         raise LibraryException(
-                            message=f"'{data['message']}'. Make sure that your token is set properly.",
+                            message=f"'{message}'. Make sure that your token is set properly.",
                             severity=50,
                         )
-                    if response.status == 429:
+                    if code in {429, 31001}:
+                        hours = int(reset_after // 3600)
+                        minutes = int((reset_after % 3600) // 60)
+                        seconds = int(reset_after % 60)
+                        log.warning(
+                            "(429/31001) The Bot has encountered a rate-limit. Resuming future requests after "
+                            f"{f'{hours} hours ' if hours else ''}"
+                            f"{f'{minutes} minutes ' if minutes else ''}"
+                            f"{f'{seconds} seconds ' if seconds else ''}"
+                        )
                         if is_global:
-                            log.warning(
-                                f"The HTTP client has encountered a global ratelimit. Locking down future requests for {reset_after} seconds."
-                            )
                             self._global_lock.reset_after = reset_after
                             self._loop.call_later(
                                 self._global_lock.reset_after, self._global_lock.lock.release
                             )
                         else:
-                            log.warning(
-                                f"The HTTP client has encountered a per-route ratelimit. Locking down future requests for {reset_after} seconds."
-                            )
                             _limiter.reset_after = reset_after
                             await asyncio.sleep(_limiter.reset_after)
                             continue

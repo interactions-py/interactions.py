@@ -1,6 +1,5 @@
-from typing import Any, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Optional, Tuple
 
-from ...api.cache import Cache, ref_cache
 from .channel import ChannelRequest
 from .emoji import EmojiRequest
 from .guild import GuildRequest
@@ -16,6 +15,9 @@ from .sticker import StickerRequest
 from .thread import ThreadRequest
 from .user import UserRequest
 from .webhook import WebhookRequest
+
+if TYPE_CHECKING:
+    from ...api.cache import Cache
 
 __all__ = ("HTTPClient",)
 
@@ -51,25 +53,12 @@ class HTTPClient(
 
     token: str
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
-    def __init__(self, token: str):
+    def __init__(self, token: str, cache: "Cache"):  # noqa skip the no super imports
         self.token = token
         self._req = _Request(self.token)
-        self.cache = ref_cache
-        UserRequest.__init__(self)
-        MessageRequest.__init__(self)
-        GuildRequest.__init__(self)
-        ChannelRequest.__init__(self)
-        InviteRequest.__init__(self)
-        ThreadRequest.__init__(self)
-        ReactionRequest.__init__(self)
-        StickerRequest.__init__(self)
-        InteractionRequest.__init__(self)
-        WebhookRequest.__init__(self)
-        ScheduledEventRequest.__init__(self)
-        EmojiRequest.__init__(self)
-        MemberRequest.__init__(self)
+        self.cache = cache
 
         # An ideology is that this client does every single HTTP call, which reduces multiple ClientSessions in theory
         # because of how they are constructed/closed. This includes Gateway

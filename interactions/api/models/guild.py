@@ -2,7 +2,18 @@ from datetime import datetime
 from enum import Enum, IntEnum
 from inspect import isawaitable
 from math import inf
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+)
 from warnings import warn
 
 from ...utils.abc.base_iterators import DiscordPaginationIterator
@@ -38,7 +49,7 @@ from .webhook import Webhook
 
 if TYPE_CHECKING:
     from ..http.client import HTTPClient
-    from .gw import AutoModerationRule
+    from .gw import AutoModerationRule, VoiceState
     from .message import Message
 
 __all__ = (
@@ -147,8 +158,8 @@ class WelcomeChannels(DictSerializerMixin):
 
     :ivar Snowflake channel_id: The ID of the welcome channel.
     :ivar str description: The description of the welcome channel.
-    :ivar Optional[Snowflake] emoji_id?: The ID of the emoji of the welcome channel.
-    :ivar Optional[str] emoji_name?: The name of the emoji of the welcome channel.
+    :ivar Optional[Snowflake] emoji_id: The ID of the emoji of the welcome channel.
+    :ivar Optional[str] emoji_name: The name of the emoji of the welcome channel.
     """
 
     channel_id: int = field()
@@ -162,12 +173,7 @@ class WelcomeScreen(DictSerializerMixin):
     """
     A class object representing the welcome screen shown for community guilds.
 
-    .. note::
-        ``description`` is ambiguous -- Discord poorly documented this. :)
-
-        We assume it's for the welcome screen topic.
-
-    :ivar Optional[str] description?: The description of the welcome screen.
+    :ivar Optional[str] description: The description of the welcome screen.
     :ivar List[WelcomeChannels] welcome_channels: A list of welcome channels of the welcome screen.
     """
 
@@ -219,18 +225,15 @@ class UnavailableGuild(DictSerializerMixin, IDMixin):
 
 class AsyncMembersIterator(DiscordPaginationIterator):
     """
+    .. versionadded:: 4.3.2
+
     A class object that allows iterating through a channel's history.
 
-    :param _client: The HTTPClient of the bot
-    :type _client: HTTPClient
-    :param obj: The guild to get the members from
-    :type obj: Union[int, str, Snowflake, Guild]
-    :param start_at?: The member ID to start getting members from (gets all members after that member)
-    :type start_at?: Optional[Union[int, str, Snowflake, Member]]
-    :param check?: A check to ignore certain members
-    :type check?: Optional[Callable[[Member], bool]]
-    :param maximum?: A set maximum of members to get before stopping the iteration
-    :type maximum?: Optional[int]
+    :param HTTPClient _client: The HTTPClient of the bot
+    :param Union[int, str, Snowflake, Guild] obj: The guild to get the members from
+    :param Optional[Union[int, str, Snowflake, Member]] start_at: The member ID to start getting members from (gets all members after that member)
+    :param Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] check: A check to ignore certain members
+    :param Optional[int] maximum: A set maximum of members to get before stopping the iteration
     """
 
     def __init__(
@@ -239,7 +242,7 @@ class AsyncMembersIterator(DiscordPaginationIterator):
         obj: Union[int, str, Snowflake, "Guild"],
         maximum: Optional[int] = inf,
         start_at: Optional[Union[int, str, Snowflake, Member]] = MISSING,
-        check: Optional[Callable[[Member], bool]] = None,
+        check: Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] = None,
     ):
 
         self.__stop: bool = False
@@ -268,7 +271,9 @@ class AsyncMembersIterator(DiscordPaginationIterator):
 
         self.object_count += limit
 
-        self.objects = [Member(**member, _client=self._client) for member in members]
+        self.objects = [
+            Member(**member, _client=self._client, guild_id=self.object_id) for member in members
+        ]
 
     async def get_objects(self) -> None:
 
@@ -284,10 +289,12 @@ class AsyncMembersIterator(DiscordPaginationIterator):
 
         self.object_count += limit
 
-        self.objects.extend([Member(**member, _client=self._client) for member in members])
+        self.objects.extend(
+            [Member(**member, _client=self._client, guild_id=self.object_id) for member in members]
+        )
 
     async def flatten(self) -> List[Member]:
-        """returns all remaining items as list"""
+        """Returns all remaining items of the iterator as list."""
         return [item async for item in self]
 
     async def __anext__(self) -> Member:
@@ -316,8 +323,8 @@ class AsyncMembersIterator(DiscordPaginationIterator):
 
             if not self.__stop and len(self.objects) < 5 and self.object_count <= self.maximum:
                 await self.get_objects()
-        except IndexError:
-            raise StopAsyncIteration
+        except IndexError as e:
+            raise StopAsyncIteration from e
         else:
             return obj
 
@@ -334,18 +341,18 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     :ivar Snowflake id: The ID of the guild.
     :ivar str name: The name of the guild.
-    :ivar Optional[str] icon?: The icon of the guild.
-    :ivar Optional[str] icon_hash?: The hashed version of the icon of the guild.
-    :ivar Optional[str] splash?: The invite splash banner of the guild.
-    :ivar Optional[str] discovery_splash?: The discovery splash banner of the guild.
-    :ivar Optional[bool] owner?: Whether the guild is owned.
+    :ivar Optional[str] icon: The icon of the guild.
+    :ivar Optional[str] icon_hash: The hashed version of the icon of the guild.
+    :ivar Optional[str] splash: The invite splash banner of the guild.
+    :ivar Optional[str] discovery_splash: The discovery splash banner of the guild.
+    :ivar Optional[bool] owner: Whether the guild is owned.
     :ivar Snowflake owner_id: The ID of the owner of the guild.
-    :ivar Optional[str] permissions?: The permissions of the guild.
-    :ivar Optional[str] region?: The geographical region of the guild.
-    :ivar Optional[Snowflake] afk_channel_id?: The AFK voice channel of the guild.
+    :ivar Optional[str] permissions: The permissions of the guild.
+    :ivar Optional[str] region: The geographical region of the guild.
+    :ivar Optional[Snowflake] afk_channel_id: The AFK voice channel of the guild.
     :ivar int afk_timeout: The timeout of the AFK voice channel of the guild.
-    :ivar Optional[bool] widget_enabled?: Whether widgets are enabled in the guild.
-    :ivar Optional[Snowflake] widget_channel_id?: The channel ID of the widget in the guild.
+    :ivar Optional[bool] widget_enabled: Whether widgets are enabled in the guild.
+    :ivar Optional[Snowflake] widget_channel_id: The channel ID of the widget in the guild.
     :ivar int verification_level: The level of user verification of the guild.
     :ivar int default_message_notifications: The default message notifications setting of the guild.
     :ivar int explicit_content_filter: The explicit content filter setting level of the guild.
@@ -353,34 +360,34 @@ class Guild(ClientSerializerMixin, IDMixin):
     :ivar List[Emoji] emojis: The list of emojis from the guild.
     :ivar List[GuildFeature] features: The list of features of the guild.
     :ivar int mfa_level: The MFA level of the guild.
-    :ivar Optional[Snowflake] application_id?: The application ID of the guild.
-    :ivar Optional[Snowflake] system_channel_id?: The channel ID of the system of the guild.
-    :ivar Optional[Snowflake] rules_channel_id?: The channel ID of Discord's defined "rules" channel of the guild.
-    :ivar Optional[datetime] joined_at?: The timestamp the member joined the guild.
-    :ivar Optional[bool] large?: Whether the guild is considered "large."
-    :ivar Optional[bool] unavailable?: Whether the guild is unavailable to access.
-    :ivar Optional[int] member_count?: The amount of members in the guild.
-    :ivar Optional[List[Member]] members?: The members in the guild.
-    :ivar Optional[List[Channel]] channels?: The channels in the guild.
-    :ivar Optional[List[Thread]] threads?: All known threads in the guild.
-    :ivar Optional[List[PresenceUpdate]] presences?: The list of presences in the guild.
-    :ivar Optional[int] max_presences?: The maximum amount of presences allowed in the guild.
-    :ivar Optional[int] max_members?: The maximum amount of members allowed in the guild.
-    :ivar Optional[str] vanity_url_code?: The vanity URL of the guild.
-    :ivar Optional[str] description?: The description of the guild.
-    :ivar Optional[str] banner?: The banner of the guild.
+    :ivar Optional[Snowflake] application_id: The application ID of the guild.
+    :ivar Optional[Snowflake] system_channel_id: The channel ID of the system of the guild.
+    :ivar Optional[Snowflake] rules_channel_id: The channel ID of Discord's defined "rules" channel of the guild.
+    :ivar Optional[datetime] joined_at: The timestamp the member joined the guild.
+    :ivar Optional[bool] large: Whether the guild is considered "large."
+    :ivar Optional[bool] unavailable: Whether the guild is unavailable to access.
+    :ivar Optional[int] member_count: The amount of members in the guild.
+    :ivar Optional[List[Member]] members: The members in the guild.
+    :ivar Optional[List[Channel]] channels: The channels in the guild.
+    :ivar Optional[List[Thread]] threads: All known threads in the guild.
+    :ivar Optional[List[PresenceUpdate]] presences: The list of presences in the guild.
+    :ivar Optional[int] max_presences: The maximum amount of presences allowed in the guild.
+    :ivar Optional[int] max_members: The maximum amount of members allowed in the guild.
+    :ivar Optional[str] vanity_url_code: The vanity URL of the guild.
+    :ivar Optional[str] description: The description of the guild.
+    :ivar Optional[str] banner: The banner of the guild.
     :ivar int premium_tier: The server boost level of the guild.
-    :ivar Optional[int] premium_subscription_count?: The amount of server boosters in the guild.
+    :ivar Optional[int] premium_subscription_count: The amount of server boosters in the guild.
     :ivar str preferred_locale: The "preferred" local region of the guild.
-    :ivar Optional[Snowflake] public_updates_channel_id?: The channel ID for community updates of the guild.
-    :ivar Optional[int] max_video_channel_users?: The maximum amount of video streaming members in a channel allowed in a guild.
-    :ivar Optional[int] approximate_member_count?: The approximate amount of members in the guild.
-    :ivar Optional[int] approximate_presence_count?: The approximate amount of presences in the guild.
-    :ivar Optional[WelcomeScreen] welcome_screen?: The welcome screen of the guild.
+    :ivar Optional[Snowflake] public_updates_channel_id: The channel ID for community updates of the guild.
+    :ivar Optional[int] max_video_channel_users: The maximum amount of video streaming members in a channel allowed in a guild.
+    :ivar Optional[int] approximate_member_count: The approximate amount of members in the guild.
+    :ivar Optional[int] approximate_presence_count: The approximate amount of presences in the guild.
+    :ivar Optional[WelcomeScreen] welcome_screen: The welcome screen of the guild.
     :ivar int nsfw_level: The NSFW safety filter level of the guild.
-    :ivar Optional[List[StageInstance]] stage_instances?: The stage instance of the guild.
-    :ivar Optional[List[Sticker]] stickers?: The list of stickers from the guild.
-    :ivar Optional[bool] premium_progress_bar_enabled?: Whether the guild has the boost progress bar enabled.
+    :ivar Optional[List[StageInstance]] stage_instances: The stage instance of the guild.
+    :ivar Optional[List[Sticker]] stickers: The list of stickers from the guild.
+    :ivar Optional[bool] premium_progress_bar_enabled: Whether the guild has the boost progress bar enabled.
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -479,11 +486,12 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         if self.members:
             for member in self.members:
-                if not member._extras.get("guild_id"):
+                if (
+                    not member._extras.get("guild_id")
+                    or hasattr(member, "_guild_id")
+                    and not member._guild_id
+                ):
                     member._extras["guild_id"] = self.id
-
-    def __repr__(self) -> str:
-        return self.name
 
     async def ban(
         self,
@@ -495,20 +503,20 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
+        .. versionchanged:: 4.3.2
+            Method has been aligned to changes in the Discord API. You can now input days, hours, minutes and seconds,
+            as long as it doesn't exceed 604800 seconds in total for deleting messages, instead of only days.
+
         Bans a member from the guild.
 
-        :param member_id: The id of the member to ban
-        :type member_id: Union[int, Member, Snowflake]
-        :param seconds?: Number of seconds to delete messages, from 0 to 604800. Defaults to 0
-        :type seconds?: Optional[int]
-        :param minutes?: Number of minutes to delete messages, from 0 to 10080
-        :type minutes?: Optional[int]
-        :param hours?: Number of hours to delete messages, from 0 to 168
-        :type hours?: Optional[int]
-        :param days?: Number of days to delete messages, from 0 to 7
-        :type days?: Optional[int]
-        :param reason?: The reason of the ban
-        :type reason?: Optional[str]
+        :param Union[int, Member, Snowflake] member_id: The id of the member to ban
+        :param Optional[int] seconds: Number of seconds to delete messages, from 0 to 604800. Defaults to 0
+        :param Optional[int] minutes: Number of minutes to delete messages, from 0 to 10080
+        :param Optional[int] hours: Number of hours to delete messages, from 0 to 168
+        :param Optional[int] days: Number of days to delete messages, from 0 to 7
+        :param Optional[str] reason: The reason of the ban
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -540,18 +548,56 @@ class Guild(ClientSerializerMixin, IDMixin):
             if int(member.id) == _member_id:
                 return self.members.remove(member)
 
+    @property
+    def voice_states(self) -> List["VoiceState"]:
+        """
+        .. versionadded:: 4.4.0
+
+        Gets all voice states of the guild.
+
+        :rtype: List[VoiceState]
+        """
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .gw import VoiceState
+
+        states: List[VoiceState] = []
+
+        data = self._client.cache[VoiceState].values.values()
+        states.extend(state for state in data if state.guild_id == self.id)
+        return states
+
+    @property
+    def mapped_voice_states(self) -> Dict[int, List["VoiceState"]]:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns all the voice states mapped after their channel id.
+
+        :rtype: Dict[int, List[VoiceState]]
+        """
+        states = self.voice_states
+        _states: Dict[int, List[VoiceState]] = {int(state.channel_id): [] for state in states}
+
+        for state in states:
+            _states[int(state.channel_id)].append(state)
+
+        return _states
+
     async def remove_ban(
         self,
         user_id: Union[int, Snowflake],  # only support ID since there's no member on the guild
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Removes the ban of a user.
 
-        :param user_id: The id of the user to remove the ban from
-        :type user_id: Union[int, Snowflake]
-        :param reason?: The reason for the removal of the ban
-        :type reason?: Optional[str]
+        :param Union[int, Snowflake] user_id: The id of the user to remove the ban from
+        :param Optional[str] reason: The reason for the removal of the ban
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -567,12 +613,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Kicks a member from the guild.
 
-        :param member_id: The id of the member to kick
-        :type member_id: Union[int, Member, Snowflake]
-        :param reason?: The reason for the kick
-        :type reason?: Optional[str]
+        :param Union[int, Member, Snowflake] member_id: The id of the member to kick
+        :param Optional[str] reason: The reason for the kick
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -594,14 +640,13 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         This method adds a role to a member.
 
-        :param role: The role to add. Either ``Role`` object or role_id
-        :type role  Union[Role, int, Snowflake]
-        :param member_id: The id of the member to add the roles to
-        :type member_id: Union[Member, int, Snowflake]
-        :param reason?: The reason why the roles are added
-        :type reason?: Optional[str]
+        :param Union[Role, int, Snowflake] role: The role to add. Either ``Role`` object or role_id
+        :param Union[Member, int, Snowflake] member_id: The id of the member to add the roles to
+        :param Optional[str] reason: The reason why the roles are added
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -623,14 +668,13 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         This method removes a or multiple role(s) from a member.
 
-        :param role: The role to remove. Either ``Role`` object or role_id
-        :type role: Union[Role, int, Snowflake]
-        :param member_id: The id of the member to remove the roles from
-        :type member_id: Union[Member, int, Snowflake]
-        :param reason?: The reason why the roles are removed
-        :type reason?: Optional[str]
+        :param Union[Role, int, Snowflake] role: The role to remove. Either ``Role`` object or role_id
+        :param Union[Member, int, Snowflake] member_id: The id of the member to remove the roles from
+        :param Optional[str] reason: The reason why the roles are removed
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -657,24 +701,18 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Role:
         """
+        .. versionadded:: 4.0.2
+
         Creates a new role in the guild.
 
-        :param name: The name of the role
-        :type name: str
-        :param color?: RGB color value as integer, default ``0``
-        :type color?: Optional[int]
-        :param permissions?: Bitwise value of the enabled/disabled permissions
-        :type permissions?: Optional[int]
-        :param hoist?: Whether the role should be displayed separately in the sidebar, default ``False``
-        :type hoist?: Optional[bool]
-        :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature)
-        :type icon?: Optional[Image]
-        :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature)
-        :type unicode_emoji?: Optional[str]
-        :param mentionable?: Whether the role should be mentionable, default ``False``
-        :type mentionable?: Optional[bool]
-        :param reason?: The reason why the role is created, default ``None``
-        :type reason?: Optional[str]
+        :param str name: The name of the role
+        :param Optional[int] color: RGB color value as integer, default ``0``
+        :param Optional[int] permissions: Bitwise value of the enabled/disabled permissions
+        :param Optional[bool] hoist: Whether the role should be displayed separately in the sidebar, default ``False``
+        :param Optional[Image] icon: The role's icon image (if the guild has the ROLE_ICONS feature)
+        :param Optional[str] unicode_emoji: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature)
+        :param Optional[bool] mentionable: Whether the role should be mentionable, default ``False``
+        :param Optional[str] reason: The reason why the role is created, default ``None``
         :return: The created Role
         :rtype: Role
         """
@@ -708,10 +746,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         member_id: Union[int, Snowflake],
     ) -> Member:
         """
+        .. versionadded:: 4.0.2
+
         Searches for the member with specified id in the guild and returns the member as member object.
 
-        :param member_id: The id of the member to search for
-        :type member_id: Union[int, Snowflake]
+        :param Union[int, Snowflake] member_id: The id of the member to search for
         :return: The member searched for
         :rtype: Member
         """
@@ -737,10 +776,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         channel_id: Union[int, Snowflake, Channel],
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Deletes a channel from the guild.
 
-        :param channel_id: The id of the channel to delete
-        :type channel_id: Union[int, Snowflake, Channel]
+        :param Union[int, Snowflake, Channel] channel_id: The id of the channel to delete
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -760,12 +800,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Deletes a role from the guild.
 
-        :param role_id: The id of the role to delete
-        :type role_id: Union[int, Snowflake, Role]
-        :param reason?: The reason of the deletion
-        :type reason?: Optional[str]
+        :param Union[int, Snowflake, Role] role_id: The id of the role to delete
+        :param Optional[str] reason: The reason of the deletion
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -797,26 +837,19 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Role:
         """
+        .. versionadded:: 4.0.2
+
         Edits a role in the guild.
 
-        :param role_id: The id of the role to edit
-        :type role_id: Union[int, Snowflake, Role]
-        :param name?: The name of the role, defaults to the current value of the role
-        :type name?: Optional[str]
-        :param color?: RGB color value as integer, defaults to the current value of the role
-        :type color?: Optional[int]
-        :param permissions?: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
-        :type permissions?: Optional[int]
-        :param hoist?: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
-        :type hoist?: Optional[bool]
-        :param icon?: The role's icon image (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
-        :type icon?: Optional[Image]
-        :param unicode_emoji?: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
-        :type unicode_emoji?: Optional[str]
-        :param mentionable?: Whether the role should be mentionable, defaults to the current value of the role
-        :type mentionable?: Optional[bool]
-        :param reason?: The reason why the role is edited, default ``None``
-        :type reason?: Optional[str]
+        :param Union[int, Snowflake, Role] role_id: The id of the role to edit
+        :param Optional[str] name: The name of the role, defaults to the current value of the role
+        :param Optional[int] color: RGB color value as integer, defaults to the current value of the role
+        :param Optional[int] permissions: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
+        :param Optional[bool] hoist: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
+        :param Optional[Image] icon: The role's icon image (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
+        :param Optional[str] unicode_emoji: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
+        :param Optional[bool] mentionable: Whether the role should be mentionable, defaults to the current value of the role
+        :param Optional[str] reason: The reason why the role is edited, default ``None``
         :return: The modified role object
         :rtype: Role
         """
@@ -874,23 +907,17 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Channel:
         """
+        .. versionadded:: 4.1.0
+
         Creates a thread in the specified channel.
 
-        :param name: The name of the thread
-        :type name: str
-        :param channel_id: The id of the channel to create the thread in
-        :type channel_id: Union[int, Snowflake, Channel]
-        :param auto_archive_duration?: duration in minutes to automatically archive the thread after recent activity,
-            can be set to: 60, 1440, 4320, 10080
-        :type auto_archive_duration?: Optional[int]
-        :param type?: The type of thread, defaults to public. ignored if creating thread from a message
-        :type type?: Optional[ChannelType]
-        :param invitable?: Boolean to display if the Thread is open to join or private.
-        :type invitable?: Optional[bool]
-        :param message_id?: An optional message to create a thread from.
-        :type message_id?: Optional[Union[int, Snowflake, "Message"]]
-        :param reason?: An optional reason for the audit log
-        :type reason?: Optional[str]
+        :param str name: The name of the thread
+        :param Union[int, Snowflake, Channel] channel_id: The id of the channel to create the thread in
+        :param Optional[int] auto_archive_duration: duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080
+        :param Optional[ChannelType] type: The type of thread, defaults to public. ignored if creating thread from a message
+        :param Optional[bool] invitable: Boolean to display if the Thread is open to join or private.
+        :param Optional[Union[int, Snowflake, Message]] message_id: An optional message to create a thread from.
+        :param Optional[str] reason: An optional reason for the audit log
         :return: The created thread
         :rtype: Channel
         """
@@ -940,30 +967,21 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Channel:
         """
+        .. versionadded:: 4.0.2
+
         Creates a channel in the guild.
 
-        :param name: The name of the channel
-        :type name: str
-        :param type: The type of the channel
-        :type type: ChannelType
-        :param topic?: The topic of that channel
-        :type topic?: Optional[str]
-        :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel
-        :type bitrate?: Optional[int]
-        :param user_limit?: (voice channel only) Maximum amount of users in the channel
-        :type user_limit?: Optional[int]
-        :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600)
-        :type rate_limit_per_user: Optional[int]
-        :param position?: Sorting position of the channel
-        :type position?: Optional[int]
-        :param parent_id?: The id of the parent category for a channel
-        :type parent_id?: Optional[Union[int, Channel, Snowflake]]
-        :param permission_overwrites?: The permission overwrites, if any
-        :type permission_overwrites?: Optional[Overwrite]
-        :param nsfw?: Whether the channel is nsfw or not, default ``False``
-        :type nsfw?: Optional[bool]
-        :param reason: The reason for the creation
-        :type reason: Optional[str]
+        :param str name: The name of the channel
+        :param ChannelType type: The type of the channel
+        :param Optional[str] topic: The topic of that channel
+        :param Optional[int] bitrate: (voice channel only) The bitrate (in bits) of the voice channel
+        :param Optional[int] user_limit: (voice channel only) Maximum amount of users in the channel
+        :param Optional[int] rate_limit_per_use: Amount of seconds a user has to wait before sending another message (0-21600)
+        :param Optional[int] position: Sorting position of the channel
+        :param Optional[Union[int, Channel, Snowflake]] parent_id: The id of the parent category for a channel
+        :param Optional[List[Overwrite]] permission_overwrites: The permission overwrites, if any
+        :param Optional[bool] nsfw: Whether the channel is nsfw or not, default ``False``
+        :param Optional[str] reason: The reason for the creation
         :return: The created channel
         :rtype: Channel
         """
@@ -1026,10 +1044,11 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def clone_channel(self, channel_id: Union[int, Snowflake, Channel]) -> Channel:
         """
+        .. versionadded:: 4.3.0
+
         Clones a channel of the guild.
 
-        :param channel_id: The id of the channel to clone
-        :type channel_id: Union[int, Snowflake, Channel]
+        :param Union[int, Snowflake, Channel] channel_id: The id of the channel to clone
         :return: The cloned channel
         :rtype: Channel
         """
@@ -1061,44 +1080,41 @@ class Guild(ClientSerializerMixin, IDMixin):
         parent_id: Optional[int] = MISSING,
         nsfw: Optional[bool] = MISSING,
         archived: Optional[bool] = MISSING,
-        auto_archive_duration: Optional[int] = MISSING,
+        auto_archive_duration: Optional[Literal[60, 1440, 4320, 10080]] = MISSING,
         locked: Optional[bool] = MISSING,
         reason: Optional[str] = None,
     ) -> Channel:  # sourcery skip: low-code-quality
         """
+        .. versionadded:: 4.0.2
+
         Edits a channel of the guild.
 
-        .. note::
-            The fields `archived`, `auto_archive_duration` and `locked` require the provided channel to be a thread.
+        .. versionadded:: 4.2.0::
+            The fields ``archived``, ``auto_archive_duration`` and ``locked`` require the provided channel to be a thread.
 
-        :param channel_id: The id of the channel to modify
-        :type channel_id: Union[int, Snowflake, Channel]
-        :param name?: The name of the channel, defaults to the current value of the channel
-        :type name?: str
-        :param topic?: The topic of that channel, defaults to the current value of the channel
-        :type topic?: Optional[str]
-        :param bitrate?: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
-        :type bitrate?: Optional[int]
-        :param user_limit?: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
-        :type user_limit?: Optional[int]
-        :param rate_limit_per_use?: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
-        :type rate_limit_per_user: Optional[int]
-        :param position?: Sorting position of the channel, defaults to the current value of the channel
-        :type position?: Optional[int]
-        :param parent_id?: The id of the parent category for a channel, defaults to the current value of the channel
-        :type parent_id?: Optional[int]
-        :param permission_overwrites?: The permission overwrites, if any
-        :type permission_overwrites?: Optional[Overwrite]
-        :param nsfw?: Whether the channel is nsfw or not, defaults to the current value of the channel
-        :type nsfw?: Optional[bool]
-        :param archived?: Whether the thread is archived
-        :type archived?: Optional[bool]
-        :param auto_archive_duration?: The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
-        :type auto_archive_duration?: Optional[int]
-        :param locked?: Whether the thread is locked
-        :type locked?: Optional[bool]
-        :param reason: The reason for the edit
-        :type reason: Optional[str]
+        :param Union[int, Snowflake, Channel] channel_id: The id of the channel to modify
+        :param str name: The name of the channel, defaults to the current value of the channel
+        :param Optional[str] topic: The topic of that channel, defaults to the current value of the channel
+        :param Optional[int] bitrate: (voice channel only) The bitrate (in bits) of the voice channel, defaults to the current value of the channel
+        :param Optional[int] user_limit: (voice channel only) Maximum amount of users in the channel, defaults to the current value of the channel
+        :param Optional[int] rate_limit_per_user: Amount of seconds a user has to wait before sending another message (0-21600), defaults to the current value of the channel
+        :param Optional[int] position: Sorting position of the channel, defaults to the current value of the channel
+        :param Optional[int] parent_id: The id of the parent category for a channel, defaults to the current value of the channel
+        :param Optional[Overwrite] permission_overwrites: The permission overwrites, if any
+        :param Optional[bool] nsfw: Whether the channel is nsfw or not, defaults to the current value of the channel
+        :param Optional[bool] archived:
+            .. versionadded:: 4.2.0
+
+            Whether the thread is archived
+        :param Optional[Literal[60, 1440, 4320, 10080]] auto_archive_duration:
+            .. versionadded:: 4.2.0
+
+            The time after the thread is automatically archived. One of 60, 1440, 4320, 10080
+        :param Optional[bool] locked:
+            .. versionadded:: 4.2.0
+
+            Whether the thread is locked
+        :param Optional[str] reason: The reason for the edit
         :return: The modified channel
         :rtype: Channel
         """
@@ -1131,7 +1147,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         )
         _type = ch.type
 
-        payload = Channel(
+        payload = dict(
             name=_name,
             type=_type,
             topic=_topic,
@@ -1143,8 +1159,6 @@ class Guild(ClientSerializerMixin, IDMixin):
             parent_id=_parent_id,
             nsfw=_nsfw,
         )
-
-        payload = payload._json
 
         if (
             archived is not MISSING or auto_archive_duration is not MISSING or locked is not MISSING
@@ -1190,24 +1204,18 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Member:
         """
+        .. versionadded:: 4.0.2
+
         Modifies a member of the guild.
 
-        :param member_id: The id of the member to modify
-        :type member_id: Union[int, Snowflake, Member]
-        :param nick?: The nickname of the member
-        :type nick?: Optional[str]
-        :param roles?: A list of all role ids the member has
-        :type roles?: Optional[List[int]]
-        :param mute?: whether the user is muted in voice channels
-        :type mute?: Optional[bool]
-        :param deaf?: whether the user is deafened in voice channels
-        :type deaf?: Optional[bool]
-        :param channel_id?: id of channel to move user to (if they are connected to voice)
-        :type channel_id?: Optional[int]
-        :param communication_disabled_until?: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
-        :type communication_disabled_until?: Optional[datetime.isoformat]
-        :param reason?: The reason of the modifying
-        :type reason?: Optional[str]
+        :param Union[int, Snowflake, Member] member_id: The id of the member to modify
+        :param Optional[str] nick: The nickname of the member
+        :param Optional[List[int]] roles: A list of all role ids the member has
+        :param Optional[bool] mute: whether the user is muted in voice channels
+        :param Optional[bool] deaf: whether the user is deafened in voice channels
+        :param Optional[int] channel_id: id of channel to move user to (if they are connected to voice)
+        :param Optional[datetime.isoformat] communication_disabled_until: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
+        :param Optional[str] reason: The reason of the modifying
         :return: The modified member
         :rtype: Member
         """
@@ -1254,8 +1262,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         return _member
 
     async def get_preview(self) -> "GuildPreview":
-
         """
+        .. versionadded:: 4.0.2
+
         Get the guild's preview.
 
         :return: the guild preview as object
@@ -1268,7 +1277,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         return GuildPreview(**await self._client.get_guild_preview(guild_id=int(self.id)))
 
     async def leave(self) -> None:
-        """Removes the bot from the guild."""
+        """
+        .. versionadded:: 4.0.2
+
+        Removes the bot from the guild.
+        """
         if not self._client:
             raise LibraryException(code=13)
         await self._client.leave_guild(guild_id=int(self.id))
@@ -1299,52 +1312,44 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":  # sourcery skip: low-code-quality
         """
+        .. versionadded:: 4.0.2
+
         Modifies the current guild.
 
-        :param name?: The new name of the guild
-        :type name?: Optional[str]
-        :param verification_level?: The verification level of the guild
-        :type verification_level?: Optional[VerificationLevel]
-        :param default_message_notifications?: The default message notification level for members
-        :type default_message_notifications?: Optional[DefaultMessageNotificationLevel]
-        :param explicit_content_filter?: The explicit content filter level for media content
-        :type explicit_content_filter?: Optional[ExplicitContentFilterLevel]
-        :param afk_channel_id?: The id for the afk voice channel
-        :type afk_channel_id?: Optional[int]
-        :param afk_timeout?: Afk timeout in seconds
-        :type afk_timeout?: Optional[int]
-        :param icon?: 1024x1024 png/jpeg/gif image for the guild icon (can be animated gif when the server has the ANIMATED_ICON feature)
-        :type icon?: Optional[Image]
-        :param owner_id?: The id of the user to transfer the guild ownership to. You must be the owner to perform this
-        :type owner_id?: Optional[int]
-        :param splash?: 16:9 png/jpeg image for the guild splash (when the server has the INVITE_SPLASH feature)
-        :type splash?: Optional[Image]
-        :param discovery_splash?: 16:9 png/jpeg image for the guild discovery splash (when the server has the DISCOVERABLE feature)
-        :type discovery_splash?: Optional[Image]
-        :param banner?: 16:9 png/jpeg image for the guild banner (when the server has the BANNER feature; can be animated gif when the server has the ANIMATED_BANNER feature)
-        :type banner?: Optional[Image]
-        :param system_channel_id?: The id of the channel where guild notices such as welcome messages and boost events are posted
-        :type system_channel_id?: Optional[int]
-        :param suppress_join_notifications?: Whether to suppress member join notifications in the system channel or not
-        :type suppress_join_notifications?: Optional[bool]
-        :param suppress_premium_subscriptions?: Whether to suppress server boost notifications in the system channel or not
-        :type suppress_premium_subscriptions?: Optional[bool]
-        :param suppress_guild_reminder_notifications?: Whether to suppress server setup tips in the system channel or not
-        :type suppress_guild_reminder_notifications?: Optional[bool]
-        :param suppress_join_notification_replies?: Whether to hide member join sticker reply buttons in the system channel or not
-        :type suppress_join_notification_replies?: Optional[bool]
-        :param rules_channel_id?: The id of the channel where guilds display rules and/or guidelines
-        :type rules_channel_id?: Optional[int]
-        :param public_updates_channel_id?: The id of the channel where admins and moderators of community guilds receive notices from Discord
-        :type public_updates_channel_id?: Optional[int]
-        :param preferred_locale?: The preferred locale of a community guild used in server discovery and notices from Discord; defaults to "en-US"
-        :type preferred_locale?: Optional[str]
-        :param description?: The description for the guild, if the guild is discoverable
-        :type description?: Optional[str]
-        :param premium_progress_bar_enabled?: Whether the guild's boost progress bar is enabled
-        :type premium_progress_bar_enabled?: Optional[bool]
-        :param reason?: The reason for the modifying
-        :type reason?: Optional[str]
+        :param Optional[str] name: The new name of the guild
+        :param Optional[VerificationLevel] verification_level: The verification level of the guild
+        :param Optional[DefaultMessageNotificationLevel] default_message_notifications: The default message notification level for members
+        :param Optional[ExplicitContentFilterLevel] explicit_content_filter: The explicit content filter level for media content
+        :param Optional[int] afk_channel_id: The id for the afk voice channel
+        :param Optional[int] afk_timeout: Afk timeout in seconds
+        :param Optional[Image] icon:
+            .. versionadded:: 4.2.0
+
+            1024x1024 png/jpeg/gif image for the guild icon (can be animated gif when the server has the ANIMATED_ICON feature)
+        :param Optional[int] owner_id: The id of the user to transfer the guild ownership to. You must be the owner to perform this
+        :param Optional[Image] splash:
+            .. versionadded:: 4.2.0
+
+            16:9 png/jpeg image for the guild splash (when the server has the INVITE_SPLASH feature)
+        :param Optional[Image] discovery_splash:
+            .. versionadded:: 4.2.0
+
+            16:9 png/jpeg image for the guild discovery splash (when the server has the DISCOVERABLE feature)
+        :param Optional[Image] banner:
+            .. versionadded:: 4.2.0
+
+            16:9 png/jpeg image for the guild banner (when the server has the BANNER feature; can be animated gif when the server has the ANIMATED_BANNER feature)
+        :param Optional[int] system_channel_id: The id of the channel where guild notices such as welcome messages and boost events are posted
+        :param Optional[bool] suppress_join_notifications: Whether to suppress member join notifications in the system channel or not
+        :param Optional[bool] suppress_premium_subscriptions: Whether to suppress server boost notifications in the system channel or not
+        :param Optional[bool] suppress_guild_reminder_notifications: Whether to suppress server setup tips in the system channel or not
+        :param Optional[bool] suppress_join_notification_replies: Whether to hide member join sticker reply buttons in the system channel or not
+        :param Optional[int] rules_channel_id: The id of the channel where guilds display rules and/or guidelines
+        :param Optional[int] public_updates_channel_id: The id of the channel where admins and moderators of community guilds receive notices from Discord
+        :param Optional[str] preferred_locale: The preferred locale of a community guild used in server discovery and notices from Discord; defaults to "en-US"
+        :param Optional[str] description: The description for the guild, if the guild is discoverable
+        :param Optional[bool] premium_progress_bar_enabled: Whether the guild's boost progress bar is enabled
+        :param Optional[str] reason: The reason for the modifying
         :return: The modified guild
         :rtype: Guild
         """
@@ -1356,26 +1361,34 @@ class Guild(ClientSerializerMixin, IDMixin):
             and suppress_guild_reminder_notifications is MISSING
             and suppress_join_notification_replies is MISSING
         ):
-            system_channel_flags = None
+            system_channel_flags = MISSING
         else:
-            _suppress_join_notifications = (
-                (1 << 0) if suppress_join_notifications is not MISSING else 0
-            )
-            _suppress_premium_subscriptions = (
-                (1 << 1) if suppress_premium_subscriptions is not MISSING else 0
-            )
-            _suppress_guild_reminder_notifications = (
-                (1 << 2) if suppress_guild_reminder_notifications is not MISSING else 0
-            )
-            _suppress_join_notification_replies = (
-                (1 << 3) if suppress_join_notification_replies is not MISSING else 0
-            )
-            system_channel_flags = (
-                _suppress_join_notifications
-                | _suppress_premium_subscriptions
-                | _suppress_guild_reminder_notifications
-                | _suppress_join_notification_replies
-            )
+            #  sourcery skip: hoist-if-from-if
+            system_channel_flags = self.system_channel_flags or 0
+
+            if suppress_join_notifications is not MISSING:
+                if suppress_join_notifications:
+                    system_channel_flags |= 1 << 0
+                else:
+                    system_channel_flags &= ~(1 << 0)
+
+            if suppress_premium_subscriptions is not MISSING:
+                if suppress_premium_subscriptions:
+                    system_channel_flags |= 1 << 1
+                else:
+                    system_channel_flags &= ~(1 << 1)
+
+            if suppress_guild_reminder_notifications is not MISSING:
+                if suppress_guild_reminder_notifications:
+                    system_channel_flags |= 1 << 2
+                else:
+                    system_channel_flags &= ~(1 << 2)
+
+            if suppress_join_notification_replies is not MISSING:
+                if suppress_join_notification_replies:
+                    system_channel_flags |= 1 << 3
+                else:
+                    system_channel_flags &= ~(1 << 3)
 
         payload = {}
 
@@ -1434,12 +1447,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the name of the guild.
 
-        :param name: The new name of the guild
-        :type name: str
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param str name: The new name of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(name=name, reason=reason)
 
@@ -1450,12 +1463,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the verification level of the guild.
 
-        :param verification_level: The new verification level of the guild
-        :type verification_level: VerificationLevel
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param VerificationLevel verification_level: The new verification level of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(verification_level=verification_level, reason=reason)
 
@@ -1466,12 +1479,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the default message notifications level of the guild.
 
-        :param default_message_notifications: The new default message notification level of the guild
-        :type default_message_notifications: DefaultMessageNotificationLevel
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param DefaultMessageNotificationLevel default_message_notifications: The new default message notification level of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(
             default_message_notifications=default_message_notifications, reason=reason
@@ -1484,12 +1497,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the explicit content filter level of the guild.
 
-        :param explicit_content_filter: The new explicit content filter level of the guild
-        :type explicit_content_filter: ExplicitContentFilterLevel
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param ExplicitContentFilterLevel explicit_content_filter: The new explicit content filter level of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(explicit_content_filter=explicit_content_filter, reason=reason)
 
@@ -1500,12 +1513,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the afk channel of the guild.
 
-        :param afk_channel_id: The new name of the guild
-        :type afk_channel_id: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int afk_channel_id: The new name of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(afk_channel_id=afk_channel_id, reason=reason)
 
@@ -1516,12 +1529,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the afk timeout of the guild.
 
-        :param afk_timeout: The new afk timeout of the guild
-        :type afk_timeout: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int afk_timeout: The new afk timeout of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(afk_timeout=afk_timeout, reason=reason)
 
@@ -1532,12 +1545,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the system channel of the guild.
 
-        :param system_channel_id: The new system channel id of the guild
-        :type system_channel_id: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int system_channel_id: The new system channel id of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(system_channel_id=system_channel_id, reason=reason)
 
@@ -1548,12 +1561,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the rules channel of the guild.
 
-        :param rules_channel_id: The new rules channel id of the guild
-        :type rules_channel_id: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int rules_channel_id: The new rules channel id of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(rules_channel_id=rules_channel_id, reason=reason)
 
@@ -1564,12 +1577,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the public updates channel of the guild.
 
-        :param public_updates_channel_id: The new public updates channel id of the guild
-        :type public_updates_channel_id: int
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param int public_updates_channel_id: The new public updates channel id of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(public_updates_channel_id=public_updates_channel_id, reason=reason)
 
@@ -1580,12 +1593,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the preferred locale of the guild.
 
-        :param preferred_locale: The new preferredlocale of the guild
-        :type preferred_locale: str
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param str preferred_locale: The new preferredlocale of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(preferred_locale=preferred_locale, reason=reason)
 
@@ -1596,12 +1609,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the description of the guild.
 
-        :param description: The new description of the guild
-        :type description: str
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param str description: The new description of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(description=description, reason=reason)
 
@@ -1612,12 +1625,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the visibility of the premium progress bar of the guild.
 
-        :param premium_progress_bar_enabled: Whether the bar is enabled or not
-        :type premium_progress_bar_enabled: bool
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param bool premium_progress_bar_enabled: Whether the bar is enabled or not
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(
             premium_progress_bar_enabled=premium_progress_bar_enabled, reason=reason
@@ -1630,12 +1643,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the icon of the guild.
 
-        :param icon: The new icon of the guild
-        :type icon: Image
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param Image icon: The new icon of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(icon=icon, reason=reason)
 
@@ -1646,12 +1659,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the splash of the guild.
 
-        :param splash: The new splash of the guild
-        :type splash: Image
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param Image splash: The new splash of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(splash=splash, reason=reason)
 
@@ -1662,12 +1675,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the discovery_splash of the guild.
 
-        :param discovery_splash: The new discovery_splash of the guild
-        :type discovery_splash: Image
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param Image discovery_splash: The new discovery_splash of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(discovery_splash=discovery_splash, reason=reason)
 
@@ -1678,12 +1691,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "Guild":
         """
+        .. versionadded:: 4.2.0
+
         Sets the banner of the guild.
 
-        :param banner: The new banner of the guild
-        :type banner: Image
-        :param reason?: The reason of the edit
-        :type reason?: Optional[str]
+        :param Image banner: The new banner of the guild
+        :param Optional[str] reason: The reason of the edit
         """
         return await self.modify(banner=banner, reason=reason)
 
@@ -1700,24 +1713,18 @@ class Guild(ClientSerializerMixin, IDMixin):
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
-        creates a scheduled event for the guild.
+        .. versionadded:: 4.0.2
 
-        :param name: The name of the event
-        :type name: str
-        :param entity_type: The entity type of the scheduled event
-        :type entity_type: EntityType
-        :param scheduled_start_time: The time to schedule the scheduled event
-        :type scheduled_start_time: datetime.isoformat
-        :param scheduled_end_time?: The time when the scheduled event is scheduled to end
-        :type scheduled_end_time?: Optional[datetime.isoformat]
-        :param entity_metadata?: The entity metadata of the scheduled event
-        :type entity_metadata?: Optional[EventMetadata]
-        :param channel_id?: The channel id of the scheduled event.
-        :type channel_id?: Optional[int]
-        :param description?: The description of the scheduled event
-        :type description?: Optional[str]
-        :param image?: The cover image of the scheduled event
-        :type image?: Optional[Image]
+        Creates a scheduled event for the guild.
+
+        :param str name: The name of the event
+        :param EntityType entity_type: The entity type of the scheduled event
+        :param datetime.isoformat scheduled_start_time: The time to schedule the scheduled event
+        :param Optional[datetime.isoformat] scheduled_end_time: The time when the scheduled event is scheduled to end
+        :param Optional[EventMetadata] entity_metadata: The entity metadata of the scheduled event
+        :param Optional[int] channel_id: The channel id of the scheduled event.
+        :param Optional[str] description: The description of the scheduled event
+        :param Optional[Image] image: The cover image of the scheduled event
         :return: The created event
         :rtype: ScheduledEvents
         """
@@ -1760,10 +1767,11 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_scheduled_events(self, with_user_count: bool) -> List["ScheduledEvents"]:
         """
+        .. versionadded:: 4.3.2
+
         Gets all scheduled events of the guild.
 
-        :param with_user_count: A boolean to include number of users subscribed to the associated event, if given.
-        :type with_user_count: bool
+        :param bool with_user_count: A boolean to include number of users subscribed to the associated event, if given.
         :return: The sheduled events of the guild.
         :rtype: List[ScheduledEvents]
         """
@@ -1789,28 +1797,20 @@ class Guild(ClientSerializerMixin, IDMixin):
         # privacy_level, TODO: implement when more levels available
     ) -> "ScheduledEvents":
         """
+        .. versionadded:: 4.0.2
+
         Edits a scheduled event of the guild.
 
-        :param event_id: The id of the event to edit
-        :type event_id: Union[int, "ScheduledEvents", Snowflake]
-        :param name: The name of the event
-        :type name: Optional[str]
-        :param entity_type: The entity type of the scheduled event
-        :type entity_type: Optional[EntityType]
-        :param scheduled_start_time: The time to schedule the scheduled event
-        :type scheduled_start_time: Optional[datetime.isoformat]
-        :param scheduled_end_time?: The time when the scheduled event is scheduled to end
-        :type scheduled_end_time?: Optional[datetime.isoformat]
-        :param entity_metadata?: The entity metadata of the scheduled event
-        :type entity_metadata?: Optional[EventMetadata]
-        :param channel_id?: The channel id of the scheduled event.
-        :type channel_id?: Optional[int]
-        :param description?: The description of the scheduled event
-        :type description?: Optional[str]
-        :param status?: The status of the scheduled event
-        :type status?: Optional[EventStatus]
-        :param image?: The cover image of the scheduled event
-        :type image?: Optional[Image]
+        :param Union[int, ScheduledEvents, Snowflake] event_id: The id of the event to edit
+        :param Optional[str] name: The name of the event
+        :param Optional[EntityType] entity_type: The entity type of the scheduled event
+        :param Optional[datetime.isoformat] scheduled_start_time: The time to schedule the scheduled event
+        :param Optional[datetime.isoformat] scheduled_end_time: The time when the scheduled event is scheduled to end
+        :param Optional[EventMetadata] entity_metadata: The entity metadata of the scheduled event
+        :param Optional[int] channel_id: The channel id of the scheduled event.
+        :param Optional[str] description: The description of the scheduled event
+        :param Optional[EventStatus] status: The status of the scheduled event
+        :param Optional[Image] image: The cover image of the scheduled event
         :return: The modified event
         :rtype: ScheduledEvents
         """
@@ -1855,10 +1855,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         self, event_id: Union[int, "ScheduledEvents", Snowflake]
     ) -> None:
         """
+        .. versionadded:: 4.0.2
+
         Deletes a scheduled event of the guild.
 
-        :param event_id: The id of the event to delete
-        :type event_id: Union[int, "ScheduledEvents", Snowflake]
+        :param Union[int, ScheduledEvents, Snowflake] event_id: The id of the event to delete
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -1872,6 +1873,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_all_channels(self) -> List[Channel]:
         """
+        .. versionadded:: 4.0.2
+
         Gets all channels of the guild as list.
 
         :return: The channels of the guild.
@@ -1885,6 +1888,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_all_active_threads(self) -> List[Channel]:
         """
+        .. versionadded:: 4.3.0
+
         Gets all active threads of the guild.
 
         :return: The threads of the guild.
@@ -1905,6 +1910,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_all_roles(self) -> List[Role]:
         """
+        .. versionadded:: 4.0.2
+
         Gets all roles of the guild as list.
 
         :return: The roles of the guild.
@@ -1921,10 +1928,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         role_id: int,
     ) -> Role:
         """
+        .. versionadded:: 4.2.0
+
         Gets a role of the guild.
 
-        :param role_id: The id of the role to get
-        :type role_id: int
+        :param int role_id: The id of the role to get
         :return: The role as object
         :rtype: Role
         """
@@ -1950,14 +1958,13 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> List[Role]:
         """
+        .. versionadded:: 4.0.2
+
         Modifies the position of a role in the guild.
 
-        :param role_id: The id of the role to modify the position of
-        :type role_id: Union[Role, int]
-        :param position: The new position of the role
-        :type position: int
-        :param reason?: The reason for the modifying
-        :type reason?: Optional[str]
+        :param Union[Role, int] role_id: The id of the role to modify the position of
+        :param int position: The new position of the role
+        :param Optional[str] reason: The reason for the modifying
         :return: List of guild roles with updated hierarchy
         :rtype: List[Role]
         """
@@ -1974,12 +1981,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> List[Role]:
         """
+        .. versionadded:: 4.2.0
+
         Modifies the positions of multiple roles in the guild.
 
-        :param changes: A list of dicts containing roles (id) and their new positions (position)
-        :type changes: List[dict]
-        :param reason: The reason for the modifying
-        :type reason: Optional[str]
+        :param List[dict] changes: A list of dicts containing roles (id) and their new positions (position)
+        :param Optional[str] reason: The reason for the modifying
         :return: List of guild roles with updated hierarchy
         :rtype: List[Role]
         """
@@ -2005,14 +2012,17 @@ class Guild(ClientSerializerMixin, IDMixin):
         after: Optional[int] = MISSING,
     ) -> List[Dict[str, User]]:
         """
+        .. versionadded:: 4.0.2
+
+        .. versionchanged:: 4.2.0
+            The method now gets an amount of bans as the endpoint on the Discord API has been paginated.
+            To get all bans use the :meth:`.get_all_bans` method.
+
         Gets a list of banned users.
 
-        :param limit?: Number of users to return. Defaults to 1000.
-        :type limit?: Optional[int]
-        :param before?: Consider only users before the given User ID snowflake.
-        :type before?: Optional[int]
-        :param after?: Consider only users after the given User ID snowflake.
-        :type after?: Optional[int]
+        :param Optional[int] limit: Number of users to return. Defaults to 1000.
+        :param Optional[int] before: Consider only users before the given User ID snowflake.
+        :param Optional[int] after: Consider only users after the given User ID snowflake.
         :return: List of banned users with reasons
         :rtype: List[Dict[str, User]]
         """
@@ -2027,6 +2037,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_all_bans(self) -> List[Dict[str, User]]:
         """
+        .. versionadded:: 4.2.0
+
         Gets all bans of the guild.
 
         :return: List of banned users with reasons
@@ -2066,11 +2078,13 @@ class Guild(ClientSerializerMixin, IDMixin):
         include_roles: Optional[Union[List[Role], List[int], List[Snowflake], List[str]]] = MISSING,
     ) -> Optional[int]:
         """
+        .. versionadded:: 4.3.2
+
         Begins a prune operation.
 
-        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
-        :param compute_prune_count: Whether the returned "pruned" dict contains the computed prune count or None.
-        :param include_roles: Role IDs to include, if given.
+        :param Optional[int] days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
+        :param Optional[bool] compute_prune_count: Whether the returned "pruned" dict contains the computed prune count or None.
+        :param Optional[Union[List[Role], List[int], List[Snowflake], List[str]]] include_roles: Role IDs to include, if given.
         :return: The number of pruned members, if compute_prune_count is not false. Otherwise returns None.
         :rtype: Optional[int]
         """
@@ -2099,10 +2113,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         include_roles: Optional[Union[List[Role], List[int], List[Snowflake], List[str]]] = MISSING,
     ) -> int:
         """
+         .. versionadded:: 4.3.2
+
         Returns the number of members that would be removed in a prune operation.
 
-        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
-        :param include_roles: Role IDs to include, if given.
+        :param Optional[int] days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
+        :param Optional[Union[List[Role], List[int], List[Snowflake], List[str]]] include_roles: Role IDs to include, if given.
         :return: The number of members that would be pruned.
         :rtype: int
         """
@@ -2129,10 +2145,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         emoji_id: int,
     ) -> Emoji:
         """
+        .. versionadded:: 4.2.0
+
         Gets an emoji of the guild and returns it.
 
-        :param emoji_id: The id of the emoji
-        :type emoji_id: int
+        :param int emoji_id: The id of the emoji
         :return: The specified Emoji, if found
         :rtype: Emoji
         """
@@ -2155,6 +2172,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_all_emoji(self) -> List[Emoji]:
         """
+        .. versionadded:: 4.2.0
+
         Gets all emojis of a guild.
 
         :return: All emojis of the guild
@@ -2174,16 +2193,14 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Emoji:
         """
+        .. versionadded:: 4.2.0
+
         Creates an Emoji in the guild.
 
-        :param image: The image of the emoji.
-        :type image: Image
-        :param name?: The name of the emoji. If not specified, the filename will be used
-        :type name?: Optional[str]
-        :param roles?: Roles allowed to use this emoji
-        :type roles?: Optional[Union[List[Role], List[int]]]
-        :param reason?: The reason of the creation
-        :type reason?: Optional[str]
+        :param Image image: The image of the emoji.
+        :param Optional[str] name: The name of the emoji. If not specified, the filename will be used
+        :param Optional[Union[List[Role], List[int]]] roles: Roles allowed to use this emoji
+        :param Optional[str] reason: The reason of the creation
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -2216,12 +2233,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Deletes an emoji of the guild.
 
-        :param emoji: The emoji or the id of the emoji to delete
-        :type emoji: Union[Emoji, int]
-        :param reason?: The reason of the deletion
-        :type reason?: Optional[str]
+        :param Union[Emoji, int] emoji: The emoji or the id of the emoji to delete
+        :param Optional[str] reason: The reason of the deletion
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -2240,6 +2257,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_stickers(self) -> Optional[List[Sticker]]:
         """
+        .. versionadded:: 4.3.2
+
         Get the stickers for a guild.
 
         :return: List of stickers of the guild.
@@ -2257,6 +2276,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_nitro_sticker_packs(self) -> List[StickerPack]:
         """
+        .. versionadded:: 4.3.2
+
         Gets the list of sticker packs available to Nitro subscribers.
 
         :return: List of sticker packs.
@@ -2278,18 +2299,15 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Sticker:
         """
+        .. versionadded:: 4.3.2
+
         Creates a new sticker for the guild.
 
-        :param file: The file of the sticker.
-        :type file: File
-        :param tags: The tags of the sticker.
-        :type tags: str
-        :param name?: The name of the sticker.
-        :type name?: Optional[str]
-        :param description?: The description of the sticker.
-        :type description?: Optional[str]
-        :param reason?: The reason of the creation.
-        :type reason?: Optional[str]
+        :param File file: The file of the sticker.
+        :param str tags: The tags of the sticker.
+        :param Optional[str] name: The name of the sticker.
+        :param Optional[str] description: The description of the sticker.
+        :param Optional[str] reason: The reason of the creation.
         :return: Created sticker for the guild.
         :rtype: Sticker
         """
@@ -2301,8 +2319,10 @@ class Guild(ClientSerializerMixin, IDMixin):
         payload: dict = {
             "name": _name,
             "tags": tags,
-            "description": description if description is not MISSING else None,
         }
+
+        if description is not MISSING:
+            payload["description"] = description
 
         res = await self._client.create_guild_sticker(
             payload=payload, file=file, guild_id=int(self.id), reason=reason
@@ -2323,16 +2343,14 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Sticker:
         """
+        .. versionadded:: 4.3.2
+
         Modifies the sticker of the guild.
 
-        :param sticker_id: The sticker or ID of the sticker.
-        :type sticker_id: Union[Sticker, Snowflake, int]
-        :param name?: The name of the sticker.
-        :type name?: Optional[str]
-        :param description?: The description of the sticker.
-        :type description?: Optional[str]
-        :param reason?: The reason of the modification.
-        :type reason?: Optional[str]
+        :param Union[Sticker, Snowflake, int] sticker_id: The sticker or ID of the sticker.
+        :param Optional[str] name: The name of the sticker.
+        :param Optional[str] description: The description of the sticker.
+        :param Optional[str] reason: The reason of the modification.
         :return: Modified sticker.
         :rtype: Sticker
         """
@@ -2367,12 +2385,13 @@ class Guild(ClientSerializerMixin, IDMixin):
         sticker_id: Union[Sticker, Snowflake, int, str],
         reason: Optional[str] = None,
     ):
-        """Deletes the sticker of the guild.
+        """
+        .. versionadded:: 4.3.2
 
-        :param sticker_id: The sticker or ID of the sticker.
-        :type sticker_id: Union[Sticker, Snowflake, int]
-        :param reason?: The reason of the deletion.
-        :type reason?: Optional[str]
+        Deletes the sticker of the guild.
+
+        :param Union[Sticker, Snowflake, int] sticker_id: The sticker or ID of the sticker.
+        :param  Optional[str] reason: The reason of the deletion.
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -2396,12 +2415,12 @@ class Guild(ClientSerializerMixin, IDMixin):
         after: Optional[Union[Member, int]] = MISSING,
     ) -> List[Member]:
         """
+        .. versionadded:: 4.2.0
+
         Lists the members of a guild.
 
-        :param limit?: How many members to get from the API. Max is 1000.
-        :type limit?: Optional[int]
-        :param after?: Get only Members after this member.
-        :type after?: Optional[Union[Member, int]]
+        :param Optional[int] limit: How many members to get from the API. Max is 1000.
+        :param Optional[Union[Member, int]] after: Get only Members after this member.
         :return: A list of members
         :rtype: List[Member]
         """
@@ -2424,12 +2443,11 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def search_members(self, query: str, limit: Optional[int] = 1) -> List[Member]:
         """
+        .. versionadded:: 4.2.0
         Search the guild for members whose username or nickname starts with provided string.
 
-        :param query: The string to search for
-        :type query: str
-        :param limit?: The number of members to return.
-        :type limit?: Optional[int]
+        :param str query: The string to search for
+        :param Optional[int] limit: The number of members to return.
         :return: A list of matching members
         :rtype: List[Member]
         """
@@ -2442,6 +2460,11 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_all_members(self) -> List[Member]:
         """
+        .. versionadded:: 4.2.0
+
+        .. deprecated:: 4.3.2
+            Use :meth:`.get_members` instead.
+
         Gets all members of a guild.
 
         .. warning:: Calling this method can lead to rate-limits in larger guilds.
@@ -2477,15 +2500,14 @@ class Guild(ClientSerializerMixin, IDMixin):
         self,
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
         maximum: Optional[int] = inf,
-        check: Optional[Callable[[Member], bool]] = None,
+        check: Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] = None,
     ) -> AsyncMembersIterator:
         """
-        :param start_at?: The message to begin getting the history from
-        :type start_at?: Optional[Union[int, str, Snowflake, Member]]
-        :param maximum?: A set maximum of members to get before stopping the iteration
-        :type maximum?: Optional[int]
-        :param check?: A custom check to ignore certain members
-        :type check?: Optional[Callable[[Message], bool]]
+        .. versionadded:: 4.3.2
+
+        :param Optional[Union[int, str, Snowflake, Member]] start_at: The member to begin getting the members from
+        :param Optional[int] maximum: A set maximum of members to get before stopping the iteration
+        :param Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] check: A custom check to ignore certain members
 
         :return: An asynchronous iterator over the members of the guild
         :rtype: AsyncMembersIterator
@@ -2498,6 +2520,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         )
 
     async def get_webhooks(self) -> List[Webhook]:
+        """
+        .. versionadded:: 4.3.0
+
+        Get all webhooks of a guild.
+        """
         if not self._client:
             raise LibraryException(code=13)
 
@@ -2507,7 +2534,9 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def list_auto_moderation_rules(self) -> List["AutoModerationRule"]:
         """
-        Lists all AutoMod rules
+        .. versionadded:: 4.3.0
+
+        Lists all AutoMod rules.
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -2522,10 +2551,11 @@ class Guild(ClientSerializerMixin, IDMixin):
         self, rule_id: Union[int, Snowflake]
     ) -> "AutoModerationRule":
         """
+        .. versionadded:: 4.3.0
+
         Gets a AutoMod rule from its ID
 
-        :param rule_id: The ID of the rule to get
-        :type rule_id: Union[int, Snowflake]
+        :param Union[int, Snowflake] rule_id: The ID of the rule to get
         :return: A AutoMod rule
         :rtype: AutoModerationRule
         """
@@ -2551,24 +2581,18 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "AutoModerationRule":
         """
+        .. versionadded:: 4.3.0
+
         Creates an AutoMod rule
 
-        :param name: The name of the new rule.
-        :type name: str
-        :param trigger_type: The trigger type of the new rule.
-        :type trigger_type: AutoModTriggerType
-        :param trigger_metadata: The trigger metadata payload representation. This can be omitted based on the trigger type.
-        :type trigger_metadata: Optional[AutoModTriggerMetadata]
-        :param actions: The actions that will execute when the rule is triggered.
-        :type actions: List[AutoModAction]
-        :param enabled: Whether the rule will be enabled upon creation. False by default.
-        :type enabled: Optional[bool]
-        :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
-        :type exempt_roles: Optional[List[int]]
-        :param exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
-        :type exempt_channels: Optional[List[int]]
-        :param reason: The reason of the creation
-        :type reason: Optional[str]
+        :param str name: The name of the new rule.
+        :param AutoModTriggerType trigger_type: The trigger type of the new rule.
+        :param Optional[AutoModTriggerMetadata] trigger_metadata: The trigger metadata payload representation. This can be omitted based on the trigger type.
+        :param List[AutoModAction] actions: The actions that will execute when the rule is triggered.
+        :param Optional[bool] enabled: Whether the rule will be enabled upon creation. False by default.
+        :param Optional[List[int]] exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
+        :param Optional[List[int]] exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
+        :param Optional[str] reason: The reason of the creation
         :return: The new AutoMod rule
         :rtype: AutoModerationRule
         """
@@ -2618,26 +2642,19 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> "AutoModerationRule":  # noqa  # sourcery skip: compare-via-equals
         """
+        .. versionadded:: 4.3.0
+
         Edits an AutoMod rule
 
-        :param rule: The rule to modify
-        :type rule: Union[int, Snowflake, AutoModerationRule]
-        :param name: The name of the new rule.
-        :type name: str
-        :param trigger_type: The trigger type of the new rule.
-        :type trigger_type: AutoModTriggerType
-        :param trigger_metadata: The trigger metadata payload representation. This can be omitted based on the trigger type.
-        :type trigger_metadata: Optional[AutoModTriggerMetadata]
-        :param actions: The actions that will execute when the rule is triggered.
-        :type actions: List[AutoModAction]
-        :param enabled: Whether the rule will be enabled upon creation. False by default.
-        :type enabled: Optional[bool]
-        :param exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
-        :type exempt_roles: Optional[List[int]]
-        :param exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
-        :type exempt_channels: Optional[List[int]]
-        :param reason: The reason of the creation
-        :type reason: Optional[str]
+        :param Union[int, Snowflake, AutoModerationRule] rule: The rule to modify
+        :param str name: The name of the new rule.
+        :param AutoModTriggerType trigger_type: The trigger type of the new rule.
+        :param Optional[AutoModTriggerMetadata] trigger_metadata: The trigger metadata payload representation. This can be omitted based on the trigger type.
+        :param List[AutoModAction] actions: The actions that will execute when the rule is triggered.
+        :param Optional[bool] enabled: Whether the rule will be enabled upon creation. False by default.
+        :param Optional[List[int]] exempt_roles: The role IDs that are whitelisted by the rule, if given. The maximum is 20.
+        :param Optional[List[int]] exempt_channels: The channel IDs that are whitelisted by the rule, if given. The maximum is 20
+        :param Optional[str] reason: The reason of the creation
         :return: The new AutoMod rule
         :rtype: AutoModerationRule
         """
@@ -2686,22 +2703,20 @@ class Guild(ClientSerializerMixin, IDMixin):
         before: Optional[Union[int, Snowflake]] = MISSING,
     ) -> AuditLogs:
         """
+        .. versionadded:: 4.3.0
+
         Gets the audit logs of the guild.
 
-        :param limit?: How many entries to get, default 100
-        :type limit?: Optional[int]
-        :param user_id?: User ID snowflake. filter the log for actions made by a user.
-        :type user_id?: Optional[Union[User, int, Snowflake]]
-        :param action_type?: The Type of the audit log action.
-        :type action_type?: Optional[Union[int, AuditLogEvents]]
-        :param before?: filter the log before a certain entry id.
-        :type before?: Union[int, Snowflake]
+        :param Optional[int] limit: How many entries to get, default 100
+        :param Optional[Union[User, int, Snowflake]] user_id: User ID snowflake. filter the log for actions made by a user.
+        :param Optional[Union[int, AuditLogEvents]] action_type: The Type of the audit log action.
+        :param Union[int, Snowflake] before: filter the log before a certain entry id.
         :return: The guild audit logs
         :rtype: AuditLogs
         """
 
         _user_id = (
-            (user_id.id if isinstance(user_id, User) else user_id)
+            int(user_id.id if isinstance(user_id, User) else user_id)
             if user_id is not MISSING
             else None
         )
@@ -2729,10 +2744,30 @@ class Guild(ClientSerializerMixin, IDMixin):
         ],
     ) -> AuditLogs:
         """
+        .. versionadded:: 4.3.0
+
         Gets the latest audit log action of either a user or an action type
 
-        :param of: The user, user id or action type to look for
-        :type of: Union[User, Snowflake, AuditLogEvents, int, Tuple[Union[User, Snowflake, int], Union[AuditLogEvents, int]]]
+        :param Union[User, Snowflake, AuditLogEvents, int, Tuple[Union[User, Snowflake, int], Union[AuditLogEvents, int]]] of:
+            The user/user ID or action type to look for.
+
+            Detailed description:
+                #.
+                    :class:`.User` or :class:`.Member`, :class:`.Snowflake` or member or user ID as :class:`int`/:class:`str`:
+                        :return: The latest audit log entry of this user.
+                #.
+                    :class:`.AuditLogEvents` or and AuditLogEvent as :class:`int` representation:
+                        :return: The latest audit log entry of this type.
+                #.
+                     :class:`tuple` object:
+                        - **Length 2!**
+                        - First value of: :class:`.User` or :class:`.Member`, :class:`.Snowflake` or member or user ID as :class:`int`/:class:`str`
+                        - Second value of: :class:`.AuditLogEvents` or and AuditLogEvent as :class:`int` representation.
+
+
+                        :return: The latest audit log entry of this user AND this type combined
+
+
         :return: The latest AuditLog action that applies to the ``of`` parameter
         :rtype: AuditLogs
         """
@@ -2745,7 +2780,7 @@ class Guild(ClientSerializerMixin, IDMixin):
                     "is the user ID and the second is the action type!",
                 )
 
-            _user = of[0].id if isinstance(of[0], (Member, User)) else of[0]
+            _user = int(of[0].id if isinstance(of[0], (Member, User)) else of[0])
             res = await self._client.get_guild_auditlog(
                 guild_id=int(self.id), user_id=_user, action_type=of[1]
             )
@@ -2758,7 +2793,9 @@ class Guild(ClientSerializerMixin, IDMixin):
         else:
             if isinstance(of, (Member, User)):
                 of = of.id
-            res = await self._client.get_guild_auditlog(guild_id=int(self.id), user_id=of, limit=1)
+            res = await self._client.get_guild_auditlog(
+                guild_id=int(self.id), user_id=int(of), limit=1
+            )
 
         return AuditLogs(**res)
 
@@ -2768,19 +2805,19 @@ class Guild(ClientSerializerMixin, IDMixin):
         action_type: Optional[Union[int, AuditLogEvents]] = MISSING,
     ) -> AuditLogs:
         """
+        .. versionadded:: 4.3.0
+
         Gets the full audit log of the guild.
 
-        :param user_id?: User ID snowflake. filter the log for actions made by a user.
-        :type user_id?: Optional[Union[User, int, Snowflake]]
-        :param action_type?: The type of the audit log action.
-        :type action_type?: Optional[Union[int, AuditLogEvents]]
+        :param Optional[Union[User, int, Snowflake]] user_id: User ID snowflake. filter the log for actions made by a user.
+        :param Optional[Union[int, AuditLogEvents]] action_type: The type of the audit log action.
         :return: The full AuditLog of the guild
         :rtype: AuditLogs
         """
-
+        double = False
         _action_type = action_type if action_type is not MISSING else None
         _user_id = (
-            (user_id.id if isinstance(user_id, User) else user_id)
+            int(user_id.id if isinstance(user_id, User) else user_id)
             if user_id is not MISSING
             else None
         )
@@ -2841,6 +2878,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         guild_scheduled_event_id: Optional[int] = MISSING,
     ) -> "Invite":
         """
+        .. versionadded:: 4.3.4
+
         Gets the invite using its code.
 
         :param str invite_code: A string representing the invite code.
@@ -2870,6 +2909,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def delete_invite(self, invite_code: str, reason: Optional[str] = None) -> None:
         """
+        .. versionadded:: 4.3.4
+
         Deletes the invite using its code.
 
         :param str invite_code: A string representing the invite code.
@@ -2882,6 +2923,8 @@ class Guild(ClientSerializerMixin, IDMixin):
 
     async def get_invites(self) -> List["Invite"]:
         """
+        .. versionadded:: 4.3.4
+
         Gets invites of the guild.
 
         :return: A list of guild invites
@@ -2893,10 +2936,47 @@ class Guild(ClientSerializerMixin, IDMixin):
         res = await self._client.get_guild_invites(guild_id=int(self.id))
         return [Invite(**_, _client=self._client) for _ in res]
 
+    async def modify_bot_nick(self, new_nick: Optional[str] = MISSING) -> Member:
+        """
+        .. versionadded:: 4.4.0
+
+        Changes a nickname of the current bot user in a guild.
+
+        :param Optional[str] new_nick: The new nickname, if any.
+        :return: The modified bot member object
+        :rtype: Member
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        if new_nick is MISSING:
+            raise LibraryException(code=12, message="new nick name must either a string or `None`")
+
+        _member = Member(
+            **await self._client.modify_self_nick_in_guild(int(self.id), new_nick),
+            _client=self._client,
+        )
+        _member_id = int(_member.id)
+
+        if self.members is None:
+            self.members = []
+
+        for index, member in enumerate(self.members):
+            if int(member.id) == _member_id:
+                self.members[index] = _member
+                break
+        else:
+            self.members.append(_member)
+
+        return _member
+
     @property
     def icon_url(self) -> Optional[str]:
         """
+        .. versionadded:: 4.2.0
+
         Returns the URL of the guild's icon.
+
         :return: URL of the guild's icon (None will be returned if no icon is set)
         :rtype: str
         """
@@ -2910,7 +2990,10 @@ class Guild(ClientSerializerMixin, IDMixin):
     @property
     def banner_url(self) -> Optional[str]:
         """
+        .. versionadded:: 4.2.0
+
         Returns the URL of the guild's banner.
+
         :return: URL of the guild's banner (None will be returned if no banner is set)
         :rtype: str
         """
@@ -2924,7 +3007,10 @@ class Guild(ClientSerializerMixin, IDMixin):
     @property
     def splash_url(self) -> Optional[str]:
         """
+        .. versionadded:: 4.2.0
+
         Returns the URL of the guild's invite splash banner.
+
         :return: URL of the guild's invite splash banner (None will be returned if no banner is set)
         :rtype: str
         """
@@ -2937,7 +3023,10 @@ class Guild(ClientSerializerMixin, IDMixin):
     @property
     def discovery_splash_url(self) -> Optional[str]:
         """
+        .. versionadded:: 4.2.0
+
         Returns the URL of the guild's discovery splash banner.
+
         :return: URL of the guild's discovery splash banner (None will be returned if no banner is set)
         :rtype: str
         """
@@ -2955,14 +3044,14 @@ class GuildPreview(DictSerializerMixin, IDMixin):
 
     :ivar Snowflake id: The ID of the guild.
     :ivar str name: The name of the guild.
-    :ivar Optional[str] icon?: The icon of the guild.
-    :ivar Optional[str] splash?: The invite splash banner of the guild.
-    :ivar Optional[str] discovery_splash?: The discovery splash banner of the guild.
+    :ivar Optional[str] icon: The icon of the guild.
+    :ivar Optional[str] splash: The invite splash banner of the guild.
+    :ivar Optional[str] discovery_splash: The discovery splash banner of the guild.
     :ivar List[Emoji] emojis: The list of emojis from the guild.
     :ivar List[GuildFeatures] features: The list of features of the guild.
     :ivar int approximate_member_count: The approximate amount of members in the guild.
     :ivar int approximate_presence_count: The approximate amount of presences in the guild.
-    :ivar Optional[str] description?: The description of the guild.
+    :ivar Optional[str] description: The description of the guild.
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -3023,7 +3112,7 @@ class GuildTemplate(DictSerializerMixin):
 
     :ivar str code: The code of the guild template.
     :ivar str name: The name of the guild template.
-    :ivar Optional[str] description?: The description of the guild template, if given.
+    :ivar Optional[str] description: The description of the guild template, if given.
     :ivar int usage_count: The amount of uses on the template.
     :ivar Snowflake creator_id: User ID of the creator of this template.
     :ivar User creator: The User object of the creator of this template.
@@ -3031,7 +3120,7 @@ class GuildTemplate(DictSerializerMixin):
     :ivar datetime update_at: The time when this template was updated.
     :ivar Snowflake source_guild_id: The Guild ID that the template sourced from.
     :ivar Guild serialized_source_guild: A partial Guild object from the sourced template.
-    :ivar Optional[bool] is_dirty?: A status that denotes if the changes are unsynced.
+    :ivar Optional[bool] is_dirty: A status that denotes if the changes are unsynced.
     """
 
     code: str = field()
@@ -3052,7 +3141,7 @@ class EventMetadata(DictSerializerMixin):
     """
     A class object representing the metadata of an event entity.
 
-    :ivar Optional[str] location?: The location of the event, if any.
+    :ivar Optional[str] location: The location of the event, if any.
     """
 
     location: Optional[str] = field(default=None)
@@ -3063,24 +3152,20 @@ class ScheduledEvents(DictSerializerMixin, IDMixin):
     """
     A class object representing the scheduled events of a guild.
 
-    .. note::
-        Some attributes are optional via creator_id/creator implementation by the API:
-        "`creator_id` will be null and `creator` will not be included for events created before October 25th, 2021, when the concept of `creator_id` was introduced and tracked."
-
     :ivar Snowflake id: The ID of the scheduled event.
     :ivar Snowflake guild_id: The ID of the guild that this scheduled event belongs to.
-    :ivar Optional[Snowflake] channel_id?: The channel ID in which the scheduled event belongs to, if any.
-    :ivar Optional[Snowflake] creator_id?: The ID of the user that created the scheduled event.
+    :ivar Optional[Snowflake] channel_id: The channel ID in which the scheduled event belongs to, if any.
+    :ivar Optional[Snowflake] creator_id: The ID of the user that created the scheduled event.
     :ivar str name: The name of the scheduled event.
     :ivar str description: The description of the scheduled event.
-    :ivar datetime scheduled_start_time?: The scheduled event start time.
-    :ivar Optional[datetime] scheduled_end_time?: The scheduled event end time, if any.
+    :ivar datetime scheduled_start_time: The scheduled event start time.
+    :ivar Optional[datetime] scheduled_end_time: The scheduled event end time, if any.
     :ivar int privacy_level: The privacy level of the scheduled event.
     :ivar int entity_type: The type of the scheduled event.
-    :ivar Optional[Snowflake] entity_id?: The ID of the entity associated with the scheduled event.
-    :ivar Optional[EventMetadata] entity_metadata?: Additional metadata associated with the scheduled event.
-    :ivar Optional[User] creator?: The user that created the scheduled event.
-    :ivar Optional[int] user_count?: The number of users subscribed to the scheduled event.
+    :ivar Optional[Snowflake] entity_id: The ID of the entity associated with the scheduled event.
+    :ivar Optional[EventMetadata] entity_metadata: Additional metadata associated with the scheduled event.
+    :ivar Optional[User] creator: The user that created the scheduled event.
+    :ivar Optional[int] user_count: The number of users subscribed to the scheduled event.
     :ivar int status: The status of the scheduled event
     :ivar Optional[str] image: The hash containing the image of an event, if applicable.
     """
@@ -3162,4 +3247,10 @@ class Invite(ClientSerializerMixin):
 
     @property
     def url(self) -> str:
+        """
+        .. versionadded:: 4.3.0
+
+        Returns the URL of the invite.
+        """
+
         return f"https://discord.gg/{self.code}" if self.code else None
