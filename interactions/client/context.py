@@ -504,6 +504,7 @@ class CommandContext(_Context):
         """
         .. versionchanged::; 4.4.0
             Now returns the created message object
+
         This "defers" an interaction response, allowing up
         to a 15-minute delay between invocation and responding.
 
@@ -757,6 +758,7 @@ class ComponentContext(_Context):
         """
         .. versionchanged::; 4.4.0
             Now returns the created message object
+
         This "defers" a component response, allowing up
         to a 15-minute delay between invocation and responding.
 
