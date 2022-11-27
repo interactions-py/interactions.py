@@ -67,6 +67,8 @@ class _Context(ClientSerializerMixin):
     def deferred_ephemeral(self) -> bool:
         """
         .. versionadded:: 4.4.0
+
+        .. versionadded:: 4.4.0
         Returns whether the current interaction was deferred ephemerally.
         """
         return bool(
