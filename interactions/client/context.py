@@ -60,9 +60,15 @@ class _Context(ClientSerializerMixin):
     responded: bool = field(default=False)
     deferred: bool = field(default=False)
     app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
-    deferred_ephemeral: bool = field(default=False)
     locale: Optional[Locale] = field(converter=Locale, default=None)
     guild_locale: Optional[Locale] = field(converter=Locale, default=None)
+
+    @property
+    def deferred_ephemeral(self) -> bool:
+        return bool(
+            self.message.flags & MessageFlags.EPHEMERAL
+            and self.message.flags & MessageFlags.LOADING
+        )
 
     def __attrs_post_init__(self) -> None:
         if self.member and self.guild_id:
@@ -501,7 +507,6 @@ class CommandContext(_Context):
             self.deferred = True
             _ephemeral: int = MessageFlags.EPHEMERAL.value if ephemeral else 0
             self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-            self.deferred_ephemeral = bool(_ephemeral)
             await self._client.create_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
@@ -751,7 +756,6 @@ class ComponentContext(_Context):
 
             self.deferred = True
             _ephemeral: int = MessageFlags.EPHEMERAL.value if bool(ephemeral) else 0
-            self.deferred_ephemeral = bool(_ephemeral)
             # ephemeral doesn't change callback typings. just data json
             if edit_origin:
                 self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
