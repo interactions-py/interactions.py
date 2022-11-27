@@ -1,3 +1,5 @@
+import asyncio
+from datetime import datetime
 from logging import Logger
 from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
@@ -41,11 +43,8 @@ class _Context(ClientSerializerMixin):
     """
 
     message: Optional[Message] = field(converter=Message, default=None, add_client=True)
-    author: Member = field(converter=Member, default=None, add_client=True)
     member: Member = field(converter=Member, add_client=True)
     user: User = field(converter=User, default=None, add_client=True)
-    channel: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
-    guild: Optional[Guild] = field(converter=Guild, default=None, add_client=True)
     id: Snowflake = field(converter=Snowflake)
     application_id: Snowflake = field(converter=Snowflake)
     type: InteractionType = field(converter=InteractionType)
@@ -79,16 +78,48 @@ class _Context(ClientSerializerMixin):
         if self.member and self.guild_id:
             self.member._extras["guild_id"] = self.guild_id
 
-        self.author = self.member
-
         if self.user is None:
             self.user = self.member.user if self.member else None
 
-        if self.guild is None and self.guild_id is not None:
-            self.guild = self._client.cache[Guild].get(self.guild_id, MISSING)
+        if not self.member.user and self.user:
+            self.member.user = self.user
 
-        if self.channel is None:
-            self.channel = self._client.cache[Channel].get(self.channel_id, MISSING)
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the interaction was created.
+        """
+        return self.id.timestamp
+
+    @property
+    def author(self) -> Member:
+        """
+        Returns the author/member that invoked the interaction.
+        """
+        return self.member
+
+    @property
+    def channel(self) -> Optional[Channel]:
+        """
+        .. versionchanged:: 4.4.0
+            Channel now returns ``None`` instead of ``MISSING`` if it is not found to avoid confusion
+
+        Returns the current channel.
+        """
+        return self._client.cache[Channel].get(self.channel_id, None)
+
+    @property
+    def guild(self) -> Optional[Guild]:
+        """
+         .. versionchanged:: 4.4.0
+            Guild now returns ``None`` instead of ``MISSING`` if it is not found to avoid confusion
+
+        Returns the current guild.
+        """
+
+        return self._client.cache[Guild].get(self.guild_id, None)
 
     async def get_channel(self) -> Channel:
         """
@@ -99,10 +130,12 @@ class _Context(ClientSerializerMixin):
         :return: The channel as object
         :rtype: Channel
         """
+        if channel := self.channel:
+            await asyncio.sleep(0)
+            return channel
 
         res = await self._client.get_channel(int(self.channel_id))
-        self.channel = Channel(**res, _client=self._client)
-        return self.channel
+        return Channel(**res, _client=self._client)
 
     async def get_guild(self) -> Guild:
         """
@@ -114,9 +147,12 @@ class _Context(ClientSerializerMixin):
         :rtype: Guild
         """
 
+        if guild := self.guild:
+            await asyncio.sleep(0)
+            return guild
+
         res = await self._client.get_guild(int(self.guild_id))
-        self.guild = Guild(**res, _client=self._client)
-        return self.guild
+        return Guild(**res, _client=self._client)
 
     async def send(
         self,
@@ -389,10 +425,7 @@ class CommandContext(_Context):
     :ivar str token: The token of the interaction response.
     :ivar Snowflake guild_id: The ID of the current guild.
     :ivar Snowflake channel_id: The ID of the current channel.
-    :ivar Member author: The member data model.
     :ivar User user: The user data model.
-    :ivar Optional[Channel] channel: The channel data model.
-    :ivar Optional[Guild] guild: The guild data model.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
@@ -661,10 +694,7 @@ class ComponentContext(_Context):
     :ivar Snowflake guild_id: The ID of the current guild.
     :ivar Snowflake channel_id: The ID of the current channel.
     :ivar Optional[Message] message: The message data model.
-    :ivar Member author: The member data model.
     :ivar User user: The user data model.
-    :ivar Optional[Channel] channel: The channel data model.
-    :ivar Optional[Guild] guild: The guild data model.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar str locale: The selected language of the user invoking the interaction.
