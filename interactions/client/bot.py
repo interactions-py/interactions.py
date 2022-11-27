@@ -1806,6 +1806,14 @@ class Client:
 
         return ctx, fields
 
+    async def get_self_user(self) -> User:
+        """
+        .. versionadded:: 4.4.0
+
+        Gets the bot's user information.
+        """
+        return User(**await self._http.get_self(), _client=self._http)
+
 
 class Extension:
     """
