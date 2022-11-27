@@ -63,6 +63,18 @@ class _Context(ClientSerializerMixin):
     locale: Optional[Locale] = field(converter=Locale, default=None)
     guild_locale: Optional[Locale] = field(converter=Locale, default=None)
 
+    @property
+    def deferred_ephemeral(self) -> bool:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns whether the current interaction was deferred ephemerally.
+        """
+        return bool(
+            self.message.flags & MessageFlags.EPHEMERAL
+            and self.message.flags & MessageFlags.LOADING
+        )
+
     def __attrs_post_init__(self) -> None:
         if self.member and self.guild_id:
             self.member._extras["guild_id"] = self.guild_id
@@ -488,25 +500,37 @@ class CommandContext(_Context):
 
         return msg if msg is not None else Message(**payload, _client=self._client)
 
-    async def defer(self, ephemeral: Optional[bool] = False) -> None:
+    async def defer(self, ephemeral: Optional[bool] = False) -> Message:
         """
+        .. versionchanged:: 4.4.0
+            Now returns the created message object
+
         This "defers" an interaction response, allowing up
         to a 15-minute delay between invocation and responding.
 
         :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
+        :return: The deferred message
+        :rtype: Message
         """
         if not self.responded:
             self.deferred = True
             _ephemeral: int = MessageFlags.EPHEMERAL.value if ephemeral else 0
             self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-
             await self._client.create_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
                 data={"type": self.callback.value, "data": {"flags": _ephemeral}},
             )
-
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = Message(**_msg, _client=self._client)
             self.responded = True
+            return self.message
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload, files = await super().send(content, **kwargs)
@@ -730,19 +754,23 @@ class ComponentContext(_Context):
 
     async def defer(
         self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
-    ) -> None:
+    ) -> Message:
         """
+        .. versionchanged:: 4.4.0
+            Now returns the created message object
+
         This "defers" a component response, allowing up
         to a 15-minute delay between invocation and responding.
 
         :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
         :param Optional[bool] edit_origin: Whether you want to edit the original message or send a followup message
+        :return: The deferred message
+        :rtype: Message
         """
         if not self.responded:
 
             self.deferred = True
             _ephemeral: int = MessageFlags.EPHEMERAL.value if bool(ephemeral) else 0
-
             # ephemeral doesn't change callback typings. just data json
             if edit_origin:
                 self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
@@ -754,8 +782,16 @@ class ComponentContext(_Context):
                 application_id=int(self.id),
                 data={"type": self.callback.value, "data": {"flags": _ephemeral}},
             )
-
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = Message(**_msg, _client=self._client)
             self.responded = True
+            return self.message
 
     async def disable_all_components(
         self, respond_to_interaction: Optional[bool] = True, **other_kwargs: Optional[dict]
