@@ -502,7 +502,7 @@ class CommandContext(_Context):
 
     async def defer(self, ephemeral: Optional[bool] = False) -> Message:
         """
-        .. versionchanged::; 4.4.0
+        .. versionchanged:: 4.4.0
             Now returns the created message object
 
         This "defers" an interaction response, allowing up
