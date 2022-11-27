@@ -66,6 +66,7 @@ class _Context(ClientSerializerMixin):
     responded: bool = field(default=False)
     deferred: bool = field(default=False)
     app_permissions: Permissions = field(converter=convert_int(Permissions), default=None)
+    deferred_ephemeral: bool = field(default=False)
 
     def __attrs_post_init__(self) -> None:
         if self.member:
@@ -369,6 +370,7 @@ class CommandContext(_Context):
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar str locale?: The selected language of the user invoking the interaction.
+    :ivar bool deferred_ephemeral: Whether the response was deferred and ephemeral.
     :ivar str guild_locale?: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions?: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     :ivar Client client: The client instance that the command belongs to.
@@ -472,13 +474,20 @@ class CommandContext(_Context):
             self.deferred = True
             _ephemeral: int = (1 << 6) if ephemeral else 0
             self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-
+            self.deferred_ephemeral = bool(_ephemeral)
             await self._client.create_interaction_response(
                 token=self.token,
                 application_id=int(self.id),
                 data={"type": self.callback.value, "data": {"flags": _ephemeral}},
             )
-
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = Message(**_msg, _client=self._client)
             self.responded = True
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
@@ -694,7 +703,7 @@ class ComponentContext(_Context):
 
             self.deferred = True
             _ephemeral: int = (1 << 6) if bool(ephemeral) else 0
-
+            self.deferred_ephemeral = bool(_ephemeral)
             # ephemeral doesn't change callback typings. just data json
             if edit_origin:
                 self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
@@ -706,7 +715,14 @@ class ComponentContext(_Context):
                 application_id=int(self.id),
                 data={"type": self.callback.value, "data": {"flags": _ephemeral}},
             )
-
+            try:
+                _msg = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+            except LibraryException:
+                pass
+            else:
+                self.message = Message(**_msg, _client=self._client)
             self.responded = True
 
     async def disable_all_components(
