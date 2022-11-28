@@ -94,7 +94,7 @@ class _Context(ClientSerializerMixin):
         return self.id.timestamp
 
     @property
-    def author(self) -> Member:
+    def author(self) -> Optional[Member]:
         """
         Returns the author/member that invoked the interaction.
         """
