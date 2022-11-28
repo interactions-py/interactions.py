@@ -43,7 +43,7 @@ class _Context(ClientSerializerMixin):
     """
 
     message: Optional[Message] = field(converter=Message, default=None, add_client=True)
-    member: Member = field(default=None, converter=Member, add_client=True)  # DMs?
+    member: Optional[Member] = field(default=None, converter=Member, add_client=True)
     user: User = field(converter=User, default=None, add_client=True)
     id: Snowflake = field(converter=Snowflake)
     application_id: Snowflake = field(converter=Snowflake)
