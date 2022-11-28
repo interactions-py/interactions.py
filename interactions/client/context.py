@@ -116,7 +116,8 @@ class _Context(ClientSerializerMixin):
     @property
     def guild(self) -> Optional[Guild]:
         """
-        .. versionadded:: 4.1.0
+         .. versionadded:: 4.1.0
+
          .. versionchanged:: 4.4.0
             Guild now returns ``None`` instead of ``MISSING`` if it is not found to avoid confusion
 
