@@ -103,6 +103,7 @@ class _Context(ClientSerializerMixin):
     @property
     def channel(self) -> Optional[Channel]:
         """
+        .. versionadded:: 4.1.0
         .. versionchanged:: 4.4.0
             Channel now returns ``None`` instead of ``MISSING`` if it is not found to avoid confusion
 
