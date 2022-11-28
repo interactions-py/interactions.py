@@ -1806,6 +1806,14 @@ class Client:
 
         return ctx, fields
 
+    async def get_self_user(self) -> User:
+        """
+        .. versionadded:: 4.4.0
+
+        Gets the bot's user information.
+        """
+        return User(**await self._http.get_self(), _client=self._http)
+
 
 class Extension:
     """
@@ -1823,8 +1831,7 @@ class Extension:
             def __init__(self, client):
                 self.client = client
 
-            @command(
-                type=interactions.ApplicationCommandType.USER,
+            @extension_user_command(
                 name="User command in cog",
             )
             async def cog_user_cmd(self, ctx):
