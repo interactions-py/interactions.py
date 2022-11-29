@@ -74,3 +74,6 @@ async def test_create_role(guild):
         permissions=8,
         mentionable=True,
     )
+
+
+# todo test create/modify auto mod rule and all audit log functions!! And also modify_role_positions

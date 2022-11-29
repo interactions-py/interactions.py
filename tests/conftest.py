@@ -1,3 +1,4 @@
+import random
 from string import printable
 
 import pytest
@@ -16,7 +17,75 @@ def pytest_sessionstart(session):
             if route.method == "POST" and route.path == "/channels/123456789/messages":
                 kwargs["json"]["author"] = {}
 
-            return json if (json := kwargs.get("json")) else kwargs.get("data")
+            if route.method == "PATCH":
+                if route.path == "/guilds/987654321":
+                    kwargs["json"] = {"id": 987654321, **kwargs["json"]}
+                elif route.path.endswith("/roles"):
+                    kwargs["json"] = [{"id": 987654321, "position": 1}, {"id": 98437893445445}]
+
+            elif route.method == "POST":
+                if route.path.endswith("/channels"):
+                    kwargs["json"].pop("recipient_id", None)
+                    kwargs["json"] = {"id": random.randint(1, 1000)}
+
+            elif route.method == "GET":
+                if route.path.startswith("/channels/"):
+                    kwargs["json"] = {
+                        "name": "owo",
+                        "type": 0,
+                        "id": f"{route.path.split('channels/')[-1]}",
+                    }
+
+                elif "/threads/active" in route.path:
+                    kwargs["json"] = {"threads": [{"id": "8920370479428"}], "members": []}
+
+                elif "/bans" in route.path:
+                    kwargs["json"] = [{"user": {"id": 4124121452420}}]
+
+                elif route.path == "/sticker-packs":
+                    kwargs["json"] = {"sticker_packs": []}
+
+                elif route.path.endswith("/members"):
+                    kwargs["json"] = [{"user": {"id": 82093740240392}}]
+
+                elif route.path.endswith("/members") or route.path.endswith("/members/search"):
+                    kwargs["json"] = [{"user": {"id": 128093209}}, {"user": {"id": 125418155}}]
+
+                elif "/members/" in route.path:
+                    kwargs["json"] = {"user": {"id": "8432795240"}}
+
+                elif "auto-moderation/rules/" in route.path:
+                    kwargs["json"] = {}
+
+                elif route.path.endswith("/preview"):
+                    kwargs["json"] = {}
+
+                elif route.path.endswith("/prune"):
+                    kwargs["json"] = {"prune": "hi"}
+
+                elif "/guilds/" in route.path and "/emojis/" in route.path:
+                    kwargs["json"] = {}
+
+                elif route.path.endswith("/guilds/987654321"):
+                    kwargs["json"] = {"id": 987654321}
+
+                elif route.path.startswith("/invites/"):
+                    kwargs["json"] = {}
+
+                else:
+                    kwargs["json"] = [{"id": 128093209}, {"id": 125418155}]
+
+            if (
+                not (json := kwargs.get("json", {}))
+                and not isinstance(json, list)
+                and not json.get("id")
+            ):
+                if not json:
+                    kwargs["json"] = {"id": random.randint(0, 1000)}
+                else:
+                    kwargs["json"]["id"] = random.randint(0, 1000)
+
+            return kwargs.get("json", {})
 
     interactions.api.http.request._Request.request = _Request.request
 
@@ -67,6 +136,12 @@ def channel(fake_client):
 def guild(fake_client, channel):
     g = interactions.Guild(
         id=987654321,
+        roles=[
+            interactions.Role(id=987654321),
+            interactions.Role(id=987654321, emoji=":bleh:"),
+            interactions.Role(id=987654321, name="hi"),
+            interactions.Role(id=8974894372054),
+        ],
         _client=fake_client._http,
         channels=[
             channel,

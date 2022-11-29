@@ -330,6 +330,17 @@ class AsyncMembersIterator(DiscordPaginationIterator):
 
 
 @define()
+class EventMetadata(DictSerializerMixin):
+    """
+    A class object representing the metadata of an event entity.
+
+    :ivar Optional[str] location: The location of the event, if any.
+    """
+
+    location: Optional[str] = field(default=None)
+
+
+@define()
 class Guild(ClientSerializerMixin, IDMixin):
     """
     A class object representing how a guild is registered.
@@ -821,7 +832,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         if not self.roles:
             return
         for role in self.roles:
-            if int(role.id) == _role_id:
+            if role.id == _role_id:
                 return self.roles.remove(role)
 
     async def modify_role(
@@ -1061,7 +1072,8 @@ class Guild(ClientSerializerMixin, IDMixin):
             else await self._client.get_channel(channel_id=int(channel_id))
         )
 
-        res["permission_overwrites"] = [Overwrite(**_) for _ in res["permission_overwrites"]]
+        if res.get("permission_overwrites"):
+            res["permission_overwrites"] = [Overwrite(**_) for _ in res["permission_overwrites"]]
         for attr in {"flags", "guild_id", "id", "last_message_id", "last_pin_timestamp"}:
             res.pop(attr, None)
 
@@ -1253,7 +1265,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         if self.members is None:
             self.members = []
         for index, member in enumerate(self.members):
-            if int(member.id) == _member_id:
+            if member.id == _member_id:
                 self.members[index] = _member
                 break
         else:
@@ -1426,7 +1438,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             payload["splash"] = splash.data if isinstance(splash, Image) else splash
         if discovery_splash is not MISSING:
             payload["discovery_splash"] = (
-                splash.data if isinstance(discovery_splash, Image) else discovery_splash
+                discovery_splash.data if isinstance(discovery_splash, Image) else discovery_splash
             )
         if banner is not MISSING:
             payload["banner"] = banner.data if isinstance(banner, Image) else banner
@@ -1706,7 +1718,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         entity_type: EntityType,
         scheduled_start_time: datetime.isoformat,
         scheduled_end_time: Optional[datetime.isoformat] = MISSING,
-        entity_metadata: Optional["EventMetadata"] = MISSING,
+        entity_metadata: Optional[EventMetadata] = MISSING,
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
         image: Optional[Image] = MISSING,
@@ -1789,7 +1801,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         entity_type: Optional[EntityType] = MISSING,
         scheduled_start_time: Optional[datetime.isoformat] = MISSING,
         scheduled_end_time: Optional[datetime.isoformat] = MISSING,
-        entity_metadata: Optional["EventMetadata"] = MISSING,
+        entity_metadata: Optional[EventMetadata] = MISSING,
         channel_id: Optional[int] = MISSING,
         description: Optional[str] = MISSING,
         status: Optional[EventStatus] = MISSING,
@@ -2252,7 +2264,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         if not self.emojis:
             return
         for item in self.emojis:
-            if int(item.id) == int(emoji_id):
+            if item.id == int(emoji_id):
                 return self.emojis.remove(item)
 
     async def get_stickers(self) -> Optional[List[Sticker]]:
@@ -2956,13 +2968,12 @@ class Guild(ClientSerializerMixin, IDMixin):
             **await self._client.modify_self_nick_in_guild(int(self.id), new_nick),
             _client=self._client,
         )
-        _member_id = int(_member.id)
 
         if self.members is None:
             self.members = []
 
         for index, member in enumerate(self.members):
-            if int(member.id) == _member_id:
+            if member.id == _member.id:
                 self.members[index] = _member
                 break
         else:
@@ -3134,17 +3145,6 @@ class GuildTemplate(DictSerializerMixin):
     source_guild_id: Snowflake = field(converter=Snowflake)
     serialized_source_guild: Guild = field(converter=Guild)
     is_dirty: Optional[bool] = field(default=None)
-
-
-@define()
-class EventMetadata(DictSerializerMixin):
-    """
-    A class object representing the metadata of an event entity.
-
-    :ivar Optional[str] location: The location of the event, if any.
-    """
-
-    location: Optional[str] = field(default=None)
 
 
 @define()

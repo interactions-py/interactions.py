@@ -629,10 +629,12 @@ class Member(ClientSerializerMixin, IDMixin):
             guild = self.guild
 
         else:
-            _guild_id = int(guild_id.id) if isinstance(guild_id, Guild) else int(guild_id)
-            guild = Guild(**await self._client.get_guild(_guild_id), _client=self._client)
+            if isinstance(guild_id, Guild):
+                guild = guild_id
+            else:
+                guild = Guild(**await self._client.get_guild(int(guild_id)), _client=self._client)
 
-        if int(guild.owner_id) == int(self.id):
+        if guild.owner_id and int(guild.owner_id) == int(self.id):
             return Permissions.ALL
 
         role_everyone = await guild.get_role(int(guild.id))

@@ -56,7 +56,7 @@ class Role(ClientSerializerMixin, IDMixin):
     icon: Optional[str] = field(default=None, repr=False)
     unicode_emoji: Optional[str] = field(default=None)
     position: int = field()
-    permissions: str = field()
+    permissions: int = field(default=0)
     managed: bool = field()
     mentionable: bool = field()
     tags: Optional[RoleTags] = field(converter=RoleTags, default=None)
