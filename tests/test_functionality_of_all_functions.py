@@ -15,7 +15,7 @@ import typing
 from datetime import datetime, timezone
 from enum import Enum
 
-if sys.version_info > (3, 8):
+if sys.version_info >= (3, 9):
     from typing import ForwardRef, TypeVar, _BaseGenericAlias, get_args
 else:
     from typing import ForwardRef, TypeVar, _GenericAlias as _BaseGenericAlias, get_args
