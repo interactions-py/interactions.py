@@ -9,11 +9,16 @@ from __future__ import annotations
 import inspect
 import random
 import string
+import sys
 import types
 import typing
 from datetime import datetime, timezone
 from enum import Enum
-from typing import ForwardRef, TypeVar, _BaseGenericAlias, get_args
+
+if sys.version_info > (3, 8):
+    from typing import ForwardRef, TypeVar, _BaseGenericAlias, get_args
+else:
+    from typing import ForwardRef, TypeVar, _GenericAlias as _BaseGenericAlias, get_args
 
 import interactions
 
