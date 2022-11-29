@@ -1268,7 +1268,6 @@ class Client:
         :rtype: ApplicationCommand
         """
         key = "name" if isinstance(command, str) else "id"
-        _command: Dict
         _command_obj = next(
             (
                 ApplicationCommand(**_command)
