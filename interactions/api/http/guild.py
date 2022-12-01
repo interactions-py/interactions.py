@@ -21,10 +21,7 @@ class GuildRequest:
         pass
 
     async def get_self_guilds(
-        self,
-        limit: Optional[int] = 200,
-        before: Optional[int] = None,
-        after: Optional[int] = None
+        self, limit: Optional[int] = 200, before: Optional[int] = None, after: Optional[int] = None
     ) -> List[dict]:
         """
         Gets all guild objects associated with the current bot user.
