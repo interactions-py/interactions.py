@@ -20,13 +20,30 @@ class GuildRequest:
     def __init__(self) -> None:
         pass
 
-    async def get_self_guilds(self) -> List[dict]:
+    async def get_self_guilds(
+        self,
+        limit: Optional[int] = 200,
+        before: Optional[int] = None,
+        after: Optional[int] = None
+    ) -> List[dict]:
         """
         Gets all guild objects associated with the current bot user.
 
-        :return a list of partial guild objects the current bot user is a part of.
+        :param limit: Number of guilds to return. Defaults to 200.
+        :param before: Consider only users before the given Guild ID snowflake.
+        :param after: Consider only users after the given Guild ID snowflake.
+        :return: A list of partial guild objects the current bot user is a part of.
         """
-        request = await self._req.request(Route("GET", "/users/@me/guilds"))
+
+        params = {}
+        if limit is not None:
+            params["limit"] = limit
+        if before:
+            params["before"] = before
+        if after:
+            params["after"] = after
+
+        request = await self._req.request(Route("GET", "/users/@me/guilds"), params=params)
 
         for guild in request:
             if guild.get("id"):
