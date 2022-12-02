@@ -507,7 +507,7 @@ class Client:
         """
         await self._websocket.wait_until_ready()
 
-    async def __get_all_guilds(self) -> List[dict]:
+    async def _get_all_guilds(self) -> List[dict]:
         """
         Gets all guilds that the bot is present in.
 
@@ -539,7 +539,7 @@ class Client:
         # until then this will deliver a cache if sync is off to make autocomplete work bug-free
         # but even with sync off, we should cache all commands here always
 
-        _guilds = await self.__get_all_guilds()
+        _guilds = await self._get_all_guilds()
         _guild_ids = [int(_["id"]) for _ in _guilds]
         self._scopes.update(_guild_ids)
         _cmds = await self._http.get_application_commands(
@@ -644,7 +644,7 @@ class Client:
         # sourcery skip: low-code-quality
 
         log.debug("starting command sync")
-        _guilds = await self.__get_all_guilds()
+        _guilds = await self._get_all_guilds()
         _guild_ids = [int(_["id"]) for _ in _guilds]
         self._scopes.update(_guild_ids)
         _cmds = await self._http.get_application_commands(
