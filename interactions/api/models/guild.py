@@ -48,7 +48,6 @@ from .user import User
 from .webhook import Webhook
 
 if TYPE_CHECKING:
-    from ...client.bot import Client
     from ..http.client import HTTPClient
     from .gw import AutoModerationRule, VoiceState
     from .message import Message
@@ -3036,38 +3035,6 @@ class Guild(ClientSerializerMixin, IDMixin):
             if self.banner
             else None
         )
-
-    @classmethod
-    async def get_all_guilds(cls, client: "Client") -> List["Guild"]:
-        """
-        .. versionadded:: 4.4.0
-
-        Gets all guilds that the bot is present in.
-
-        :param Client client: The bot instance
-        :return: List of guilds
-        :rtype: List[Guild]
-        """
-
-        _after = None
-        _all: list = []
-
-        res: list = await client._http.get_self_guilds(limit=200)
-
-        while len(res) >= 200:
-
-            for guild in res:
-                _all.append(Guild(**guild))
-            _after = int(res[-1]["id"])
-
-            res = await client._http.get_self_guilds(
-                after=_after,
-            )
-
-        for guild in res:
-            _all.append(Guild(**guild))
-
-        return _all
 
 
 @define()
