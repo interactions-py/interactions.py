@@ -178,7 +178,7 @@ def spread_to_rows(
 
 
 def search_iterable(
-    iterable: Iterable[_T], check: Optional[Callable[[_T], bool]] = None, /, **kwargs
+    iterable: Iterable[_T], check: Optional[Callable[[_T], bool]] = None, **kwargs
 ) -> List[_T]:
     r"""
     .. versionadded:: 4.3.0
