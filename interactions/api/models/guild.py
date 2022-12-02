@@ -3037,12 +3037,13 @@ class Guild(ClientSerializerMixin, IDMixin):
         )
 
     @classmethod
-    async def get_all_guilds(cls, http: "HTTPClient") -> List["Guild"]:
+    async def get_all_guilds(cls, client: "Client") -> List["Guild"]:
         """
         .. versionadded:: 4.4.0
 
         Gets all guilds that the bot is present in.
 
+        :param Client client: The bot instance
         :return: List of guilds
         :rtype: List[Guild]
         """
@@ -3050,7 +3051,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         _after = None
         _all: list = []
 
-        res: list = await http.get_self_guilds(limit=200)
+        res: list = await client._http.get_self_guilds(limit=200)
 
         while len(res) >= 1000:
 
@@ -3058,7 +3059,7 @@ class Guild(ClientSerializerMixin, IDMixin):
                 _all.append(Guild(**guild))
             _after = int(res[-1]["id"])
 
-            res = await http.get_self_guilds(
+            res = await client._http.get_self_guilds(
                 after=_after,
             )
 

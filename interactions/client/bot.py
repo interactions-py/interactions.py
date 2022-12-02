@@ -513,7 +513,7 @@ class Client:
         # until then this will deliver a cache if sync is off to make autocomplete work bug-free
         # but even with sync off, we should cache all commands here always
 
-        _guilds = await Guild.get_all_guilds(self._http)
+        _guilds = await Guild.get_all_guilds(self)
         _guild_ids = [int(_.id) for _ in _guilds]
         self._scopes.update(_guild_ids)
         _cmds = await self._http.get_application_commands(
@@ -618,7 +618,7 @@ class Client:
         # sourcery skip: low-code-quality
 
         log.debug("starting command sync")
-        _guilds = await Guild.get_all_guilds(self._http)
+        _guilds = await Guild.get_all_guilds(self)
         _guild_ids = [int(_.id) for _ in _guilds]
         self._scopes.update(_guild_ids)
         _cmds = await self._http.get_application_commands(
