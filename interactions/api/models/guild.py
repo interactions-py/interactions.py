@@ -3054,7 +3054,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         res: list = await client._http.get_self_guilds(limit=200)
 
-        while len(res) >= 1000:
+        while len(res) >= 200:
 
             for guild in res:
                 _all.append(Guild(**guild))
