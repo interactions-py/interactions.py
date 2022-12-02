@@ -2067,9 +2067,9 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         for ban in res:
             ban["user"] = User(**ban["user"])
-        _all.append(res)
+        _all.extend(res)
 
-        return res
+        return _all
 
     async def prune(
         self,
