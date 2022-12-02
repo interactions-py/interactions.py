@@ -48,8 +48,8 @@ from .user import User
 from .webhook import Webhook
 
 if TYPE_CHECKING:
-    from ..http.client import HTTPClient
     from ...client.bot import Client
+    from ..http.client import HTTPClient
     from .gw import AutoModerationRule, VoiceState
     from .message import Message
 
