@@ -49,6 +49,7 @@ from .webhook import Webhook
 
 if TYPE_CHECKING:
     from ..http.client import HTTPClient
+    from ...client.bot import Client
     from .gw import AutoModerationRule, VoiceState
     from .message import Message
 
