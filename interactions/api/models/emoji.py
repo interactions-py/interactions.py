@@ -42,6 +42,7 @@ class Emoji(ClientSerializerMixin):
         .. versionadded:: 4.4.0
 
         Formats the emoji into a send-able form.
+
         :rtype: str
         """
         return (
