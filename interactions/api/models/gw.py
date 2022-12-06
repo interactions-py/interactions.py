@@ -132,7 +132,7 @@ class ApplicationCommandPermission(DictSerializerMixin):
 
     .. code-block:: python
 
-        interactions.Permission(
+        interactions.ApplicationCommandPermission(
             id=1234567890,
             type=interactions.PermissionType.USER,
             permission=True,
@@ -146,9 +146,6 @@ class ApplicationCommandPermission(DictSerializerMixin):
     id: int = field()
     type: PermissionType = field(converter=PermissionType)
     permission: bool = field()
-
-    def __attrs_post_init__(self):
-        self._json["type"] = self.type.value
 
 
 @define()
@@ -219,7 +216,7 @@ class GuildBan(ClientSerializerMixin):
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    user: User = field(converter=User)
+    user: User = field(converter=User, add_client=True)
 
 
 @define()
@@ -232,7 +229,7 @@ class GuildEmojis(ClientSerializerMixin):
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    emojis: List[Emoji] = field(converter=convert_list(Emoji))
+    emojis: List[Emoji] = field(converter=convert_list(Emoji), add_client=True)
 
 
 @define()
@@ -330,9 +327,8 @@ class GuildRole(ClientSerializerMixin):
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    role: Optional[Role] = field(converter=Role, default=None)
+    role: Optional[Role] = field(converter=Role, add_client=True, default=None)
     role_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    guild_hashes = field()  # TODO: investigate what this is.
 
 
 @define()
