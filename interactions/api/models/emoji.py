@@ -12,19 +12,19 @@ if TYPE_CHECKING:
 __all__ = ("Emoji",)
 
 
-@define(repr=False)
+@define()
 class Emoji(ClientSerializerMixin):
     """
     A class objecting representing an emoji.
 
-    :ivar Optional[Snowflake] id?: Emoji id
-    :ivar Optional[str] name?: Emoji name.
-    :ivar Optional[List[int]] roles?: Roles allowed to use this emoji
-    :ivar Optional[User] user?: User that created this emoji
-    :ivar Optional[bool] require_colons?: Status denoting of this emoji must be wrapped in colons
-    :ivar Optional[bool] managed?: Status denoting if this emoji is managed (by an integration)
-    :ivar Optional[bool] animated?: Status denoting if this emoji is animated
-    :ivar Optional[bool] available?: Status denoting if this emoji can be used. (Can be false via server boosting)
+    :ivar Optional[Snowflake] id: Emoji id
+    :ivar Optional[str] name: Emoji name.
+    :ivar Optional[List[int]] roles: Roles allowed to use this emoji
+    :ivar Optional[User] user: User that created this emoji
+    :ivar Optional[bool] require_colons: Status denoting of this emoji must be wrapped in colons
+    :ivar Optional[bool] managed: Status denoting if this emoji is managed (by an integration)
+    :ivar Optional[bool] animated: Status denoting if this emoji is animated
+    :ivar Optional[bool] available: Status denoting if this emoji can be used. (Can be false via server boosting)
     """
 
     id: Optional[Snowflake] = field(converter=Snowflake, default=None)
@@ -36,10 +36,20 @@ class Emoji(ClientSerializerMixin):
     animated: Optional[bool] = field(default=None)
     available: Optional[bool] = field(default=None)
 
-    def __repr__(self):
+    @property
+    def format(self) -> str:
+        """
+        .. versionadded:: 4.4.0
+
+        Formats the emoji into a send-able form.
+
+        :rtype: str
+        """
         return (
             f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
             if self.id is not None
+            else f":{self.name}:"
+            if self.require_colons
             else self.name
         )
 
@@ -51,14 +61,13 @@ class Emoji(ClientSerializerMixin):
         client: "HTTPClient",
     ) -> "Emoji":
         """
+        .. versionadded:: 4.2.0
+
         Gets an emoji.
 
-        :param guild_id: The id of the guild of the emoji
-        :type guild_id: Union[int, Snowflake, "Guild"]
-        :param emoji_id: The id of the emoji
-        :type emoji_id: Union[int, Snowflake]
-        :param client: The HTTPClient of your bot. Equals to ``bot._http``
-        :type client: HTTPClient
+        :param Union[int, Snowflake, Guild] guild_id: The id of the guild of the emoji
+        :param Union[int, Snowflake] emoji_id: The id of the emoji
+        :param HTTPClient client: The HTTPClient of your bot. Equals to ``bot._http``
         :return: The Emoji as object
         :rtype: Emoji
         """
@@ -75,12 +84,12 @@ class Emoji(ClientSerializerMixin):
         client: "HTTPClient",
     ) -> List["Emoji"]:
         """
+        .. versionadded:: 4.2.0
+
         Gets all emoji of a guild.
 
-        :param guild_id: The id of the guild to get the emojis of
-        :type guild_id: Union[int, Snowflake, "Guild"]
-        :param client: The HTTPClient of your bot. Equals to ``bot._http``
-        :type client: HTTPClient
+        :param Union[int, Snowflake, Guild] guild_id: The id of the guild to get the emojis of
+        :param HTTPClient client: The HTTPClient of your bot. Equals to ``bot._http``
         :return: The Emoji as list
         :rtype: List[Emoji]
         """
@@ -96,12 +105,12 @@ class Emoji(ClientSerializerMixin):
         reason: Optional[str] = None,
     ) -> None:
         """
+        .. versionadded:: 4.2.0
+
         Deletes the emoji.
 
-        :param guild_id: The guild id to delete the emoji from
-        :type guild_id: Union[int, Snowflake, "Guild"]
-        :param reason?: The reason of the deletion
-        :type reason?: Optional[str]
+        :param Union[int, Snowflake, Guild] guild_id: The guild id to delete the emoji from
+        :param Optional[str] reason: The reason for the deletion
         """
         if not self._client:
             raise LibraryException(code=13)
@@ -115,6 +124,8 @@ class Emoji(ClientSerializerMixin):
     @property
     def url(self) -> str:
         """
+        .. versionadded:: 4.2.0
+
         Returns the emoji's URL.
 
         :return: URL of the emoji

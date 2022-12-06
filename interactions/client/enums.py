@@ -170,6 +170,8 @@ class TextStyleType(IntEnum):
 
 class Locale(str, Enum):
     """
+    .. versionadded:: 4.2.0
+
     An enumerable object representing Discord locales.
     """
 

@@ -13,8 +13,7 @@ class _Heartbeat:
 
     def __init__(self, loop: AbstractEventLoop) -> None:
         """
-        :param loop: The event loop to base the asynchronous manager.
-        :type loop: AbstractEventLoop
+        :param AbstractEventLoop loop: The event loop to base the asynchronous manager.
         """
         with contextlib.suppress(TypeError):
             self.event = Event(loop=loop) if version_info < (3, 10) else Event()
