@@ -110,10 +110,9 @@ class _Context(ClientSerializerMixin):
 
         Returns the current channel, if cached.
         """
-        return (
-            self._client.cache[Channel].get(self.channel_id, None) 
-            or self._client.cache[Thread].get(self.channel_id, None)
-        )
+        return self._client.cache[Channel].get(self.channel_id, None) or self._client.cache[
+            Thread
+        ].get(self.channel_id, None)
 
     @property
     def guild(self) -> Optional[Guild]:
