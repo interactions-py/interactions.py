@@ -1,5 +1,6 @@
 # versionadded is specified in docs gen file
 
+from datetime import datetime
 from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, Union
 
@@ -71,6 +72,15 @@ class Webhook(ClientSerializerMixin, IDMixin):
         self.source_channel = (
             Channel(**self.source_channel, _client=self._client) if self.source_channel else None
         )
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the webhook was created.
+        """
+        return self.id.timestamp
 
     @classmethod
     async def create(

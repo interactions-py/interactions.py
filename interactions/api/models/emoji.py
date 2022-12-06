@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from ...utils.attrs_utils import ClientSerializerMixin, convert_list, define, field
@@ -52,6 +53,15 @@ class Emoji(ClientSerializerMixin):
             if self.require_colons
             else self.name
         )
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the emoji was created.
+        """
+        return self.id.timestamp
 
     @classmethod
     async def get(

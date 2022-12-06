@@ -577,6 +577,15 @@ class Channel(ClientSerializerMixin, IDMixin):
         states.extend(state for state in data if state.channel_id == self.id)
         return states
 
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the channel was created.
+        """
+        return self.id.timestamp
+
     def history(
         self,
         start_at: Optional[Union[int, str, Snowflake, "Message"]] = MISSING,
