@@ -48,7 +48,12 @@ __all__ = (
 
 
 class MessageType(IntEnum):
-    """An enumerable object representing the types of messages."""
+    """
+    An enumerable object representing the types of messages.
+
+    .. note::
+        There is no official name for MessageType 25, however it does represent when someone subscribes to a server for the first time.
+    """
 
     DEFAULT = 0
     RECIPIENT_ADD = 1
@@ -74,6 +79,7 @@ class MessageType(IntEnum):
     GUILD_INVITE_REMINDER = 22
     CONTEXT_MENU_COMMAND = 23
     AUTO_MODERATION_ACTION = 24
+    USER_NEWLY_SUBSCRIBED = 25
 
 
 @define()

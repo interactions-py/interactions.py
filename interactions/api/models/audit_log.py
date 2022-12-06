@@ -27,6 +27,9 @@ class AuditLogEvents(IntEnum):
     """
     A class object representing the different types of AuditLogEvents.
 
+    .. note::
+        There is no official name for AuditLogEvents type 151, however it does represent the server owner sets up the guild for monetization/server subscriptions.
+
     :ivar int GUILD_UPDATE: 1 - Server settings were updated
     :ivar int CHANNEL_CREATE: 10 - Channel was created
     :ivar int CHANNEL_UPDATE: 11 - Channel settings were updated
@@ -81,6 +84,7 @@ class AuditLogEvents(IntEnum):
     :ivar int AUTO_MODERATION_BLOCK_MESSAGE: 143 - Message was blocked by AutoMod (according to a rule)
     :ivar int AUTO_MODERATION_FLAG_TO_CHANNEL: 144 - Message was flagged by AutoMod (according to a rule)
     :ivar int AUTO_MODERATION_USER_COMMUNICATION_DISABLED: 145 - Member was timed out by AutoMod (according to a rule)
+    :ivar int GUILD_MONETIZATION_SETUP: 151 - Monetization was set up in the server.
     """
 
     # guild related
@@ -166,6 +170,10 @@ class AuditLogEvents(IntEnum):
     AUTO_MODERATION_BLOCK_MESSAGE = 143
     AUTO_MODERATION_FLAG_TO_CHANNEL = 144
     AUTO_MODERATION_USER_COMMUNICATION_DISABLED = 145
+
+    # monetization related
+
+    GUILD_MONETIZATION_SETUP = 151
 
 
 @define()
