@@ -583,6 +583,15 @@ class PartialSticker(DictSerializerMixin, IDMixin):
     name: str = field()
     format_type: int = field()
 
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the sticker was created.
+        """
+        return self.id.timestamp
+
 
 @define()
 class Sticker(PartialSticker, IDMixin):
@@ -638,6 +647,15 @@ class StickerPack(DictSerializerMixin, IDMixin):
     cover_sticker_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     description: str = field()
     banned_asset_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the sticker pack was created.
+        """
+        return self.id.timestamp
 
 
 @define()
