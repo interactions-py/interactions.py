@@ -22,13 +22,16 @@ class RoleTags(DictSerializerMixin):
     :ivar Optional[Snowflake] bot_id?: The id of the bot this role belongs to
     :ivar Optional[Snowflake] integration_id?: The id of the integration this role belongs to
     :ivar Optional[Any] premium_subscriber?: Whether if this is the guild's premium subscriber role
+    :ivar Optional[Snowflake] subscription_listing_id?: The id of the linked premium membership role, if any.
+    :ivar Optional[bool] purchasable_or_has_subscribers?: Whether the role can be purchasable via premium membership or that the role contains subscribers, if any.
     """
 
     bot_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     integration_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     premium_subscriber: Optional[Any] = field(default=None)
 
-    # TODO: Figure out what actual type it returns, all it says is null.
+    subscription_listing_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+    purchasable_or_has_subscribers: Optional[bool] = field(default=None)
 
 
 @define()

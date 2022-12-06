@@ -223,10 +223,14 @@ class GuildJoinRequest(DictSerializerMixin):
 
     :ivar Snowflake user_id: The user ID of the event.
     :ivar Snowflake guild_id: The guild ID of the event.
+    :ivar Optional[Any] request: The actual request representing the event. This pertains primarily to _CREATE, but maybe _UPDATE as well.
+    :ivar Optional[str] status: The status of the event, which pertains to _CREATE.
     """
 
     user_id: Snowflake = field(converter=Snowflake)
     guild_id: Snowflake = field(converter=Snowflake)
+    request: Optional[Any] = field(default=None)
+    status: Optional[str] = field(default=None)
 
 
 @define()
