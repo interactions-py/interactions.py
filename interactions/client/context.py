@@ -657,9 +657,7 @@ class CommandContext(_Context):
             _choices = None
         elif isinstance(choices, Choice):
             _choices.append(choices._json)
-        elif isinstance(choices, list) and all(
-            isinstance(choice, Choice) for choice in choices
-        ):
+        elif isinstance(choices, list) and all(isinstance(choice, Choice) for choice in choices):
             _choices = [choice._json for choice in choices]
         elif all(
             isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
@@ -667,9 +665,7 @@ class CommandContext(_Context):
         ):
             _choices = list(choices)
         else:
-            raise LibraryException(
-                6, message="Autocomplete choice items must be of type Choice"
-            )
+            raise LibraryException(6, message="Autocomplete choice items must be of type Choice")
 
         await self._client.create_interaction_response(
             token=self.token,

@@ -6,7 +6,7 @@ from typing import Optional
 
 log = logging.getLogger("gateway.ratelimit")
 
-__all__ = ("WSRateLimit", )
+__all__ = ("WSRateLimit",)
 
 
 class WSRateLimit:
