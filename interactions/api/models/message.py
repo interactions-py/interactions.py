@@ -726,7 +726,7 @@ class Message(ClientSerializerMixin, IDMixin):
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     message_reference: Optional[MessageReference] = field(converter=MessageReference, default=None)
     flags: Optional[MessageFlags] = field(converter=MessageFlags, default=None)
-    referenced_message: Optional[Message] = field(converter=Message, add_client=True, default=None)
+    referenced_message: Optional["Message"] = field(default=None)
     interaction: Optional[MessageInteraction] = field(
         converter=MessageInteraction, default=None, add_client=True, repr=False
     )
@@ -756,6 +756,9 @@ class Message(ClientSerializerMixin, IDMixin):
 
         if self.author and self.member:
             self.member.user = self.author
+
+        if self.referenced_message is not None:
+            self.referenced_message = Message(**self.referenced_message, _client=self._client)
 
     async def get_channel(self) -> Channel:
         """
