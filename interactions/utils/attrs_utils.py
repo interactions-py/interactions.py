@@ -201,10 +201,13 @@ def convert_type(type_: type, *, classmethod: Optional[str] = None):
     """A helper function to convert an input to a specified type."""
 
     def inner_convert_object(value):
-        if not classmethod:
-            return value if isinstance(value, type_) else type_(value)
-        else:
-            return value if isinstance(value, type_) else getattr(type_, classmethod)(value)
+        if isinstance(value, type_):
+            return value
+
+        try:
+            return type_(value) if not classmethod else getattr(type_, classmethod)(value)
+        except ValueError:
+            return value
 
     return inner_convert_object
 
