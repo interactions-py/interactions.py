@@ -682,7 +682,8 @@ class Message(ClientSerializerMixin, IDMixin):
     :ivar Optional[MessageActivity] activity: Message activity object that's sent by Rich Presence
     :ivar Optional[Application] application: Application object that's sent by Rich Presence
     :ivar Optional[MessageReference] message_reference: Data showing the source of a message (crosspost, channel follow, add, pin, or replied message)
-    :ivar int flags: Message flags
+    :ivar Optional[MessageFlags] flags: Message flags
+    :ivar Optional[referenced_message] referenced_message: The message associated with the message_reference.
     :ivar Optional[MessageInteraction] interaction: Message interaction object, if the message is sent by an interaction.
     :ivar Optional[Channel] thread: The thread that started from this message, if any, with a thread member object embedded.
     :ivar Optional[List[ActionRow]] components: Array of Action Rows associated with this message, if any.
@@ -724,8 +725,8 @@ class Message(ClientSerializerMixin, IDMixin):
     application: Optional[Application] = field(converter=Application, default=None)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     message_reference: Optional[MessageReference] = field(converter=MessageReference, default=None)
-    flags: Optional[Union[int, MessageFlags]] = field(converter=MessageFlags, default=None)
-    referenced_message: Optional[MessageReference] = field(converter=MessageReference, default=None)
+    flags: Optional[MessageFlags] = field(converter=MessageFlags, default=None)
+    referenced_message: Optional[Message] = field(converter=Message, add_client=True, default=None)
     interaction: Optional[MessageInteraction] = field(
         converter=MessageInteraction, default=None, add_client=True, repr=False
     )
