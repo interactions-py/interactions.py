@@ -683,7 +683,7 @@ class Message(ClientSerializerMixin, IDMixin):
     :ivar Optional[Application] application: Application object that's sent by Rich Presence
     :ivar Optional[MessageReference] message_reference: Data showing the source of a message (crosspost, channel follow, add, pin, or replied message)
     :ivar Optional[MessageFlags] flags: Message flags
-    :ivar Optional[referenced_message] referenced_message: The message associated with the message_reference.
+    :ivar Optional[Message] referenced_message: The message associated with the message_reference.
     :ivar Optional[MessageInteraction] interaction: Message interaction object, if the message is sent by an interaction.
     :ivar Optional[Channel] thread: The thread that started from this message, if any, with a thread member object embedded.
     :ivar Optional[List[ActionRow]] components: Array of Action Rows associated with this message, if any.
