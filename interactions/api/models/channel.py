@@ -321,7 +321,7 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
     # Maybe on post_attrs_init replace emoji object with one from cache for name population?
-    
+
     @property
     def created_at(self) -> datetime:
         """
