@@ -321,6 +321,15 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
     # Maybe on post_attrs_init replace emoji object with one from cache for name population?
+    
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the tag was created.
+        """
+        return self.id.timestamp
 
     async def delete(
         self, channel_id: Union[int, str, Snowflake, "Channel"]  # discord, why :hollow:
