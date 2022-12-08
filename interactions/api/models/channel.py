@@ -316,7 +316,7 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
 
     # TODO: Rename these to discord-docs
     name: str = field()
-    id: int = field()
+    id: Snowflake = field(converter=Snowflake)
     moderated: bool = field()
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
