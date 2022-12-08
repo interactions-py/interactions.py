@@ -308,7 +308,7 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
         If the emoji is custom, it won't have name information.
 
     :ivar str name: Name of the tag. The limit is up to 20 characters.
-    :ivar int id: ID of the tag. Can also be 0 if manually created.
+    :ivar Snowflake id: ID of the tag. Can also be 0 if manually created.
     :ivar bool moderated: A boolean denoting whether this tag can be removed/added by moderators with the :attr:`.Permissions.MANAGE_THREADS` permission.
     :ivar Optional[Emoji] emoji: The emoji to represent the tag, if any.
 
