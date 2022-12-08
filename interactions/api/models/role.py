@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from ...utils.attrs_utils import ClientSerializerMixin, DictSerializerMixin, define, field
 from ...utils.missing import MISSING
@@ -19,16 +19,21 @@ class RoleTags(DictSerializerMixin):
     """
     A class object representing the tags of a role.
 
+    .. note ::
+        With the premium_subscriber and available_for_purchase attributes currently,
+        if the attribute is present and "null" it's true, and if the attribute is not present it's false.
+
+
     :ivar Optional[Snowflake] bot_id: The id of the bot this role belongs to
     :ivar Optional[Snowflake] integration_id: The id of the integration this role belongs to
-    :ivar Optional[Any] premium_subscriber: Whether if this is the guild's server subscription role
-    :ivar Optional[Snowflake] subscription_listing_id: The id of the linked server subscription role, if any.
-    :ivar Optional[bool] purchasable_or_has_subscribers: Whether the role can be purchasable via server subscription or that the role contains subscribers, if any.
+    :ivar Optional[bool] premium_subscriber: Whether if this is the guild's booster role.
+    :ivar Optional[Snowflake] subscription_listing_id: The id of this role's subscription sku and listing, if any.
+    :ivar Optional[bool] available_for_purchase: Whether this role is available for purchase.
     """
 
     bot_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     integration_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    premium_subscriber: Optional[Any] = field(default=None)
+    premium_subscriber: Optional[bool] = field(default=None)
 
     subscription_listing_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     purchasable_or_has_subscribers: Optional[bool] = field(default=None)

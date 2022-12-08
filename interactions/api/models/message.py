@@ -80,7 +80,7 @@ class MessageType(IntEnum):
     GUILD_INVITE_REMINDER = 22
     CONTEXT_MENU_COMMAND = 23
     AUTO_MODERATION_ACTION = 24
-    USER_NEWLY_SUBSCRIBED = 25
+    ROLE_SUBSCRIPTION_PURCHASE = 25
 
     @staticmethod
     def not_deletable() -> List[int]:
