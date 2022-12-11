@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, List, Optional
 
 from ...utils.attrs_utils import ClientSerializerMixin, convert_list, define, field
@@ -117,3 +118,12 @@ class Application(ClientSerializerMixin, IDMixin):
         else:
             url = None
         return url
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the application was created.
+        """
+        return self.id.timestamp

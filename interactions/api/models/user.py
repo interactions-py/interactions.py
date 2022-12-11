@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from ...utils.attrs_utils import ClientSerializerMixin, define, field
@@ -126,6 +127,15 @@ class User(ClientSerializerMixin, IDMixin):
         from .gw import Presence
 
         return self._client.cache[Presence].get(self.id)
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the user was created.
+        """
+        return self.id.timestamp
 
     async def send(
         self,

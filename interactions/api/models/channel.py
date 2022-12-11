@@ -308,7 +308,7 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
         If the emoji is custom, it won't have name information.
 
     :ivar str name: Name of the tag. The limit is up to 20 characters.
-    :ivar int id: ID of the tag. Can also be 0 if manually created.
+    :ivar Snowflake id: ID of the tag. Can also be 0 if manually created.
     :ivar bool moderated: A boolean denoting whether this tag can be removed/added by moderators with the :attr:`.Permissions.MANAGE_THREADS` permission.
     :ivar Optional[Emoji] emoji: The emoji to represent the tag, if any.
 
@@ -316,11 +316,20 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
 
     # TODO: Rename these to discord-docs
     name: str = field()
-    id: int = field()
+    id: Snowflake = field(converter=Snowflake)
     moderated: bool = field()
     emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
     # Maybe on post_attrs_init replace emoji object with one from cache for name population?
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the tag was created.
+        """
+        return self.id.timestamp
 
     async def delete(
         self, channel_id: Union[int, str, Snowflake, "Channel"]  # discord, why :hollow:
@@ -576,6 +585,15 @@ class Channel(ClientSerializerMixin, IDMixin):
         data = self._client.cache[VoiceState].values.values()
         states.extend(state for state in data if state.channel_id == self.id)
         return states
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the channel was created.
+        """
+        return self.id.timestamp
 
     def history(
         self,

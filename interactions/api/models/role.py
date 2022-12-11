@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from ...utils.attrs_utils import ClientSerializerMixin, DictSerializerMixin, define, field
@@ -80,6 +81,15 @@ class Role(ClientSerializerMixin, IDMixin):
         :rtype: str
         """
         return f"<@&{self.id}>"
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the role was created.
+        """
+        return self.id.timestamp
 
     async def delete(
         self,

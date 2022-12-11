@@ -589,6 +589,15 @@ class PartialSticker(DictSerializerMixin, IDMixin):
     name: str = field()
     format_type: int = field()
 
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the sticker was created.
+        """
+        return self.id.timestamp
+
 
 @define()
 class Sticker(PartialSticker, IDMixin):
@@ -644,6 +653,15 @@ class StickerPack(DictSerializerMixin, IDMixin):
     cover_sticker_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     description: str = field()
     banned_asset_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the sticker pack was created.
+        """
+        return self.id.timestamp
 
 
 @define()
@@ -746,6 +764,13 @@ class Message(ClientSerializerMixin, IDMixin):
     )  # deprecated
     position: Optional[int] = field(default=None, repr=False)
 
+    def __attrs_post_init__(self):
+        if self.member and self.guild_id:
+            self.member._extras["guild_id"] = self.guild_id
+
+        if self.author and self.member:
+            self.member.user = self.author
+
     @property
     def deletable(self) -> bool:
         """
@@ -755,12 +780,14 @@ class Message(ClientSerializerMixin, IDMixin):
         """
         return self.type not in self.type.not_deletable()
 
-    def __attrs_post_init__(self):
-        if self.member and self.guild_id:
-            self.member._extras["guild_id"] = self.guild_id
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
 
-        if self.author and self.member:
-            self.member.user = self.author
+        Returns when the message was created.
+        """
+        return self.id.timestamp
 
     async def get_channel(self) -> Channel:
         """
