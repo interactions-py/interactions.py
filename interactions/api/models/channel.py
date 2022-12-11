@@ -298,7 +298,7 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
 
 
 @define()
-class Tags(ClientSerializerMixin):  # helpers, hehe :D
+class Tags(ClientSerializerMixin):
     """
     .. versionadded:: 4.3.2
 
@@ -310,17 +310,23 @@ class Tags(ClientSerializerMixin):  # helpers, hehe :D
     :ivar str name: Name of the tag. The limit is up to 20 characters.
     :ivar Snowflake id: ID of the tag. Can also be 0 if manually created.
     :ivar bool moderated: A boolean denoting whether this tag can be removed/added by moderators with the :attr:`.Permissions.MANAGE_THREADS` permission.
-    :ivar Optional[Emoji] emoji: The emoji to represent the tag, if any.
-
+    :ivar Optional[str] emoji_name: The unicode character of the emoji.
+    :ivar Optional[Snowflake] emoji_id: The id of a guild's custom emoji.
     """
 
     # TODO: Rename these to discord-docs
     name: str = field()
     id: Snowflake = field(converter=Snowflake)
     moderated: bool = field()
-    emoji: Optional[Emoji] = field(converter=Emoji, default=None)
+    emoji_name: Optional[str] = field(default=None)
+    emoji_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
 
-    # Maybe on post_attrs_init replace emoji object with one from cache for name population?
+    @property
+    def emoji(self) -> Emoji:
+        """
+        Returns an emoji of tag.
+        """
+        return Emoji(name=self.emoji_name, id=self.emoji_id, _client=self._client)
 
     @property
     def created_at(self) -> datetime:
@@ -432,6 +438,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     :ivar Optional[int] total_message_sent: Number of messages ever sent in a thread.
     :ivar Optional[int] default_thread_slowmode_delay: The default slowmode delay in seconds for threads, if this channel is a forum.
     :ivar Optional[List[Tags]] available_tags: Tags in a forum channel, if any.
+    :ivar Optional[List[Snowflake]] applied_tags: The IDs of tags that have been applied to a thread, if any.
     :ivar Optional[Emoji] default_reaction_emoji: Default reaction emoji for threads created in a forum, if any.
     """
 
@@ -483,7 +490,8 @@ class Channel(ClientSerializerMixin, IDMixin):
     default_thread_slowmode_delay: Optional[int] = field(default=None, repr=False)
     available_tags: Optional[List[Tags]] = field(
         converter=convert_list(Tags), default=None, add_client=True
-    )  # eh?
+    )
+    applied_tags: Optional[List[Snowflake]] = field(converter=convert_list(Snowflake), default=None)
     default_reaction_emoji: Optional[Emoji] = field(converter=Emoji, default=None)
 
     def __attrs_post_init__(self):  # sourcery skip: last-if-guard
