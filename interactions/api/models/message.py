@@ -350,7 +350,7 @@ class Embed(DictSerializerMixin):
 
         interactions.Embed(
             title="Embed title",
-            fields=[interaction.EmbedField(...)],
+            fields=[interactions.EmbedField(...)],
         )
 
     :ivar Optional[str] title: Title of embed

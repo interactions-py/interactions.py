@@ -192,7 +192,7 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
         http_name = f"get_{_obj.__name__.lower()}"
         kwarg_name = f"{_obj.__name__.lower()}_ids"
         _objects: List[Union[_obj, Coroutine]] = (
-            _get_cache(_obj, client, kwarg_name, _list=True, **kwargs) if force_http else []
+            [] if force_http else _get_cache(_obj, client, kwarg_name, _list=True, **kwargs)
         )  # some sourcery stuff i dunno
 
         if force_cache:
@@ -277,7 +277,7 @@ def _get_cache(
     _object: Type[_T], client: "Client", kwarg_name: str, _list: bool = False, **kwargs
 ) -> Union[Optional[_T], List[Optional[_T]]]:
     if _list:
-        _obj = []
+        _objs = []
         if _object == Member:  # Can't be more dynamic on this
             _guild_id = Snowflake(kwargs.get("guild_id"))
             _values = [
@@ -287,13 +287,19 @@ def _get_cache(
                 )
                 for _id in kwargs.get("member_ids")
             ]
-            _obj.extend(client._http.cache[_object].get(item, None) for item in _values)
+            for item in _values:
+                _obj = client._http.cache[_object].get(item, None)
+                if isinstance(_obj, _object):
+                    _obj._client = client._http
+                _objs.append(_obj)
 
         else:
-            _obj.extend(
-                client._http.cache[_object].get(Snowflake(_id), None)
-                for _id in kwargs.get(kwarg_name)
-            )
+            for _id in kwargs.get(kwarg_name):
+                _obj = client._http.cache[_object].get(Snowflake(_id), None)
+                if isinstance(_obj, _object):
+                    _obj._client = client._http
+                _objs.append(_obj)
+        return _objs
     else:
         if _object == Member:
             _values = (
@@ -304,7 +310,9 @@ def _get_cache(
             _values = Snowflake(kwargs.get(kwarg_name))
 
         _obj = client._http.cache[_object].get(_values)
-    return _obj
+        if isinstance(_obj, _object):
+            _obj._client = client._http
+        return _obj
 
 
 def _resolve_kwargs(obj, **kwargs):
