@@ -191,8 +191,7 @@ class _Context(ClientSerializerMixin):
         :param Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] components: A component, or list of components for the message.
         :param Optional[bool] ephemeral: Whether the response is hidden or not.
         :param Optional[bool] suppress_embeds: Whether embeds are not shown in the message.
-        :return: The sent message as a dict.
-        :rtype: Tuple[dict, Union[File, List[File]]]
+        :return: The sent message.
         """
         if (
             content is MISSING
@@ -299,8 +298,7 @@ class _Context(ClientSerializerMixin):
         :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
         :param Optional[MessageReference] message_reference: Include to make your message a reply.
         :param Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] components: A component, or list of components for the message.
-        :return: The edited message as a dict.
-        :rtype: dict
+        :return: The edited message.
         """
 
         payload = {}
@@ -703,8 +701,8 @@ class ComponentContext(_Context):
     :ivar User user: The user data model.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
-    :ivar str locale: The selected language of the user invoking the interaction.
-    :ivar str guild_locale: The guild's preferred language, if invoked in a guild.
+    :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
+    :ivar Optional[Locale] guild_locale: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     """
 
