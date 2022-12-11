@@ -649,39 +649,32 @@ class CommandContext(_Context):
         :rtype: List[Choice]
         """
 
-        async def func():
-            _choices: Union[list, None] = []
+        _choices: Union[list, None] = []
 
-            if not choices or (isinstance(choices, list) and len(choices) == 0):
-                _choices = None
-            elif isinstance(choices, Choice):
-                _choices.append(choices._json)
-            elif isinstance(choices, list) and all(
-                isinstance(choice, Choice) for choice in choices
-            ):
-                _choices = [choice._json for choice in choices]
-            elif all(
-                isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
-                for choice in choices
-            ):
-                _choices = list(choices)
-            else:
-                raise LibraryException(
-                    6, message="Autocomplete choice items must be of type Choice"
-                )
+        if not choices or (isinstance(choices, list) and len(choices) == 0):
+            _choices = None
+        elif isinstance(choices, Choice):
+            _choices.append(choices._json)
+        elif isinstance(choices, list) and all(isinstance(choice, Choice) for choice in choices):
+            _choices = [choice._json for choice in choices]
+        elif all(
+            isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
+            for choice in choices
+        ):
+            _choices = list(choices)
+        else:
+            raise LibraryException(6, message="Autocomplete choice items must be of type Choice")
 
-            await self._client.create_interaction_response(
-                token=self.token,
-                application_id=int(self.id),
-                data={
-                    "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
-                    "data": {"choices": _choices},
-                },
-            )
+        await self._client.create_interaction_response(
+            token=self.token,
+            application_id=int(self.id),
+            data={
+                "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
+                "data": {"choices": _choices},
+            },
+        )
 
-            return _choices
-
-        return await func()
+        return _choices
 
 
 @define()
