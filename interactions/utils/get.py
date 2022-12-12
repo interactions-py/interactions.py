@@ -192,7 +192,7 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
         http_name = f"get_{_obj.__name__.lower()}"
         kwarg_name = f"{_obj.__name__.lower()}_ids"
         _objects: List[Union[_obj, Coroutine]] = (
-            [] if force_http else _get_cache(_obj, client, kwarg_name, _list=True, **kwargs)
+            _get_cache(_obj, client, kwarg_name, _list=True, **kwargs) if not force_http else []
         )  # some sourcery stuff i dunno
 
         if force_cache:
@@ -227,7 +227,7 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
     kwarg_name = f"{obj.__name__.lower()}_id"
 
     _obj: Optional[_T] = (
-        None if force_http else _get_cache(obj, client, kwarg_name, **kwargs)
+        _get_cache(obj, client, kwarg_name, **kwargs) if not force_http else None
     )  # more sourcery stuff
 
     if force_cache:
@@ -289,14 +289,14 @@ def _get_cache(
             ]
             for item in _values:
                 _obj = client._http.cache[_object].get(item, None)
-                if isinstance(_obj, _object):
+                if _obj:
                     _obj._client = client._http
                 _objs.append(_obj)
 
         else:
             for _id in kwargs.get(kwarg_name):
                 _obj = client._http.cache[_object].get(Snowflake(_id), None)
-                if isinstance(_obj, _object):
+                if _obj:
                     _obj._client = client._http
                 _objs.append(_obj)
         return _objs
@@ -310,7 +310,7 @@ def _get_cache(
             _values = Snowflake(kwargs.get(kwarg_name))
 
         _obj = client._http.cache[_object].get(_values)
-        if isinstance(_obj, _object):
+        if _obj:
             _obj._client = client._http
         return _obj
 
