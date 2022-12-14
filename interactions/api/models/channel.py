@@ -846,10 +846,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             payload["auto_archive_duration"] = auto_archive_duration
         if locked is not MISSING:
             payload["locked"] = locked
-        if position is MISSING:
-            if self.position is not None:
-                payload["position"] = self.position
-        else:
+        if position is not MISSING:
             payload["position"] = position
 
         res = await self._client.modify_channel(
