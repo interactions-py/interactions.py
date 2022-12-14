@@ -331,6 +331,9 @@ class WebSocketClient:
             if op == OpCodeType.INVALIDATE_SESSION:
                 log.debug("INVALID_SESSION")
                 self.ready.clear()
+                self._dispatch.dispatch(
+                    "on_disconnect"
+                )  # will be followed by the on_ready event after reconnection
                 await self._reconnect(bool(data))
 
             if op == OpCodeType.RECONNECT:
