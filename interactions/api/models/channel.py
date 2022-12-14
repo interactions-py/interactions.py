@@ -808,7 +808,6 @@ class Channel(ClientSerializerMixin, IDMixin):
         _rate_limit_per_user = (
             self.rate_limit_per_user if rate_limit_per_user is MISSING else rate_limit_per_user
         )
-        _position = self.position if position is MISSING else position
         _parent_id = (
             (int(self.parent_id) if self.parent_id else None)
             if parent_id is MISSING
@@ -831,7 +830,6 @@ class Channel(ClientSerializerMixin, IDMixin):
             bitrate=_bitrate,
             user_limit=_user_limit,
             rate_limit_per_user=_rate_limit_per_user,
-            position=_position,
             parent_id=_parent_id,
             nsfw=_nsfw,
             permission_overwrites=_permission_overwrites,
@@ -848,6 +846,10 @@ class Channel(ClientSerializerMixin, IDMixin):
             payload["auto_archive_duration"] = auto_archive_duration
         if locked is not MISSING:
             payload["locked"] = locked
+        if position is MISSING and self.position is not None:
+            payload["position"] = self.position
+        else:
+            payload["position"] = position
 
         res = await self._client.modify_channel(
             channel_id=int(self.id),
