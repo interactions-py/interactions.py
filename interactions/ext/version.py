@@ -1,8 +1,8 @@
-from enum import Enum
 from hashlib import md5
 from string import ascii_lowercase
 from typing import List, Optional, Union
 
+from ..client.enums import StrEnum
 from .error import IncorrectAlphanumeric, TooManyAuthors
 
 __all__ = (
@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-class VersionAlphanumericType(str, Enum):
+class VersionAlphanumericType(StrEnum):
     ALPHA = "alpha"
     BETA = "beta"
     RELEASE_CANDIDATE = "rc"

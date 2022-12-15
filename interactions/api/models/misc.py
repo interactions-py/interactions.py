@@ -7,7 +7,6 @@
 
 import datetime
 from base64 import b64encode
-from enum import Enum, IntEnum
 from io import FileIO, IOBase
 from logging import Logger
 from math import floor
@@ -15,6 +14,7 @@ from os.path import basename
 from typing import List, Optional, Union
 
 from ...base import get_logger
+from ...client.enums import IntEnum, StrEnum
 from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
 from ...utils.missing import MISSING
 from ..error import LibraryException
@@ -413,7 +413,7 @@ class Image:
         return self._name.split("/")[-1].split(".")[0]
 
 
-class AllowedMentionType(str, Enum):
+class AllowedMentionType(StrEnum):
     """
     .. versionadded:: 4.3.2
 

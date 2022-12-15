@@ -1,8 +1,8 @@
 # versionadded declared in docs gen file
 
-from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, TypeVar
 
+from ...client.enums import IntEnum
 from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
 from .channel import Channel
 from .misc import Snowflake

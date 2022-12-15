@@ -1,6 +1,5 @@
 from asyncio import Task, create_task, get_running_loop, sleep
 from datetime import datetime, timedelta, timezone
-from enum import IntEnum
 from inspect import isawaitable
 from math import inf
 from typing import (
@@ -17,6 +16,7 @@ from typing import (
 )
 from warnings import warn
 
+from ...client.enums import IntEnum
 from ...utils.abc.base_context_managers import BaseAsyncContextManager
 from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (

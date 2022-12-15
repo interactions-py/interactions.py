@@ -1,4 +1,4 @@
-from enum import Enum
+from ..client.enums import StrEnum
 
 __all__ = (
     "ErrorType",
@@ -9,7 +9,7 @@ __all__ = (
 )
 
 
-class ErrorType(str, Enum):
+class ErrorType(StrEnum):
     """
     An enumerable object representing the type of error responses raised.
 

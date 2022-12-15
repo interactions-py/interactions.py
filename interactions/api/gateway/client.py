@@ -17,7 +17,6 @@ from asyncio import (
     wait_for,
 )
 from contextlib import suppress
-from enum import IntEnum
 from sys import platform, version_info
 from time import perf_counter
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
@@ -26,7 +25,7 @@ from zlib import decompressobj
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 
 from ...base import __version__, get_logger
-from ...client.enums import ComponentType, InteractionType, OptionType
+from ...client.enums import ComponentType, IntEnum, InteractionType, OptionType
 from ...client.models import Option
 from ...utils.missing import MISSING
 from ..dispatch import Listener

@@ -1,9 +1,9 @@
 import contextlib
 from datetime import datetime
-from enum import IntEnum
 from io import BytesIO
 from typing import TYPE_CHECKING, List, Optional, Union
 
+from ...client.enums import IntEnum
 from ...client.models.component import ActionRow, Button, SelectMenu
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
