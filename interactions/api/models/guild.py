@@ -2251,7 +2251,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param Union[int, Snowflake, Emoji] emoji_id: The id of the emoji to edit
         :param Optional[str] name: The name of the emoji. If not specified, the filename will be used
         :param Optional[Union[List[Role], List[int]]] roles: Roles allowed to use this emoji
-        :param Optional[str] reason: The reason of the creation
+        :param Optional[str] reason: The reason of the modification
         :return: The modified emoji object
         :rtype: Emoji
         """
