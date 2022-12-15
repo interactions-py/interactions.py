@@ -1,5 +1,10 @@
+import logging
 from enum import Enum
 from typing import Any, Type
+
+from ..base import get_logger
+
+log: logging.Logger = get_logger("enums")
 
 __all__ = (
     "IntEnum",
@@ -17,6 +22,8 @@ __all__ = (
 
 
 def _cursed_enum(cls: Type[Enum], obj: type, value: Any) -> Enum:
+    log.info(f"Enum class {cls.__name__} received an unexpected value `{value}`.")
+
     new = obj.__new__(cls)  # type: ignore
     new._name_ = f"UNKNOWN: {value}"
     new._value_ = value
