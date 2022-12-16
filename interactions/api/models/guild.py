@@ -2246,6 +2246,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         reason: Optional[str] = None,
     ) -> Emoji:
         """
+        .. versionadded:: 4.4.0
+
         Edits an Emoji in the guild.
 
         :param Union[int, Snowflake, Emoji] emoji_id: The id of the emoji to edit
@@ -2259,29 +2261,27 @@ class Guild(ClientSerializerMixin, IDMixin):
             raise LibraryException(code=13)
 
         if isinstance(emoji_id, Emoji):
-            emoji = emoji_id
-        else:
-            emoji = await self.get_emoji(int(emoji_id))
+            emoji_id = emoji_id.id
+        if not isinstance(emoji_id, int):
+            int(emoji_id)
 
-        _name = emoji.name if name is MISSING else name
+        payload: dict = {}
 
-        payload: dict = {
-            "name": _name,
-        }
+        if name is not MISSING:
+            payload["name"] = name
 
         if roles is not MISSING:
-            _roles = [role.id if isinstance(role, Role) else role for role in roles]
-            payload["roles"] = _roles
+            payload["roles"] = [int(role.id) if isinstance(role, Role) else role for role in roles]
 
         res = await self._client.modify_guild_emoji(
-            guild_id=int(self.id), emoji_id=int(emoji.id), payload=payload, reason=reason
+            guild_id=int(self.id), emoji_id=emoji_id, payload=payload, reason=reason
         )
 
         _emoji = Emoji(**res)
         if self.emojis is None:
             self.emojis = []
         for index, item in enumerate(self.emojis):
-            if int(item.id) == int(emoji.id):
+            if int(item.id) == emoji_id:
                 self.roles[index] = _emoji
                 break
         else:
