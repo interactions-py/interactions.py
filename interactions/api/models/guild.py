@@ -2260,10 +2260,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         if not self._client:
             raise LibraryException(code=13)
 
-        if isinstance(emoji_id, Emoji):
-            emoji_id = emoji_id.id
-        if not isinstance(emoji_id, int):
-            int(emoji_id)
+        emoji_id = int(emoji_id.id if isinstance(emoji_id, Emoji) else emoji_id)
 
         payload: dict = {}
 
