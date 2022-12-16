@@ -2277,7 +2277,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             guild_id=int(self.id), emoji_id=emoji_id, payload=payload, reason=reason
         )
 
-        _emoji = Emoji(**res)
+        _emoji = Emoji(**res, _client=self._client)
         if self.emojis is None:
             self.emojis = []
         for index, item in enumerate(self.emojis):
