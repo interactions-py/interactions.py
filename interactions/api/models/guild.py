@@ -2271,7 +2271,7 @@ class Guild(ClientSerializerMixin, IDMixin):
             payload["name"] = name
 
         if roles is not MISSING:
-            payload["roles"] = [int(role.id) if isinstance(role, Role) else role for role in roles]
+            payload["roles"] = [int(role.id if isinstance(role, Role) else role) for role in roles]
 
         res = await self._client.modify_guild_emoji(
             guild_id=int(self.id), emoji_id=emoji_id, payload=payload, reason=reason
