@@ -2281,7 +2281,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         if self.emojis is None:
             self.emojis = []
         for index, item in enumerate(self.emojis):
-            if int(item.id) == emoji_id:
+            if item.id == emoji_id:
                 self.roles[index] = _emoji
                 break
         else:
