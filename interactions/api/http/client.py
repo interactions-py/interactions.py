@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional, Tuple
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
 from .channel import ChannelRequest
 from .emoji import EmojiRequest
@@ -120,3 +120,25 @@ class HTTPClient(
         Returns info about the current authorization of the bot user
         """
         return await self._req.request(Route("GET", "/oauth2/@me"))
+
+    # TODO? - Eventually refactor this to own XYZ_Request file?
+
+    async def get_application_role_connection_metadata(self, application_id: int):
+        """
+        Returns a list of application role connection metadata objects for an application.
+        """
+        return await self._req.request(
+            Route("GET", f"/applications/{application_id}/role-connections/metadata")
+        )
+
+    async def update_application_role_connection_metadata(
+        self, application_id: int, payload: List[dict]
+    ):
+        """
+        Updates and returns a list of application role connection metadata objects for an application.
+
+        .. note:: The maximum metadata objects supported via the API is five.
+        """
+        return await self._req.request(
+            Route("PUT", f"/applications/{application_id}/role-connections/metadata"), json=payload
+        )
