@@ -121,9 +121,9 @@ class HTTPClient(
         """
         return await self._req.request(Route("GET", "/oauth2/@me"))
 
-    # TODO? - Eventually refactor this to own XYZ_Request file?
+    # ---- Role connection metadata endpoints
 
-    async def get_application_role_connection_metadata(self, application_id: int):
+    async def get_application_role_connection_metadata(self, application_id: int) -> List[dict]:
         """
         Returns a list of application role connection metadata objects for an application.
         """
@@ -133,7 +133,7 @@ class HTTPClient(
 
     async def update_application_role_connection_metadata(
         self, application_id: int, payload: List[dict]
-    ):
+    ) -> List[dict]:
         """
         Updates and returns a list of application role connection metadata objects for an application.
 
