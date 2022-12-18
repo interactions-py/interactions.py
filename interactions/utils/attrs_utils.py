@@ -126,9 +126,6 @@ class DictSerializerMixin:
                 self._extras[name] = value
                 continue
 
-            if value is None:
-                continue
-
             setattr(
                 self, name, converter(value) if (converter := attribs[name].converter) else value
             )
