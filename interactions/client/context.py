@@ -503,7 +503,7 @@ class CommandContext(_Context):
                 try:
                     res = await self._client.edit_interaction_response(
                         token=self.token,
-                        application_id=str(self.id),
+                        application_id=str(self.application_id),
                         data=payload,
                         files=files,
                         message_id=self.message.id
@@ -624,13 +624,13 @@ class CommandContext(_Context):
         """
         if self.responded and self.message is not None:
             await self._client.delete_interaction_response(
-                application_id=int(self.application_id),
+                application_id=str(self.application_id),
                 token=self.token,
                 message_id=int(self.message.id),
             )
         else:
             await self._client.delete_interaction_response(
-                application_id=int(self.application_id), token=self.token
+                application_id=str(self.application_id), token=self.token
             )
 
         self.message = None
