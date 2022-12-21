@@ -1050,6 +1050,7 @@ class Client:
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
@@ -1103,6 +1104,10 @@ class Client:
             The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
         :param Optional[Union[int, Permissions]] default_member_permissions: The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param Optional[bool] nsfw:
+            .. versionadded:: 4.4.0
+
+            Indicates whether the command is age-restricted. Defaults to ``False``
         :param Optional[bool] default_scope:
             .. versionadded:: 4.3.0
 
@@ -1121,6 +1126,7 @@ class Client:
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                nsfw=nsfw,
                 name_localizations=name_localizations,
                 description_localizations=description_localizations,
                 default_scope=default_scope,
@@ -1139,6 +1145,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
@@ -1165,6 +1172,10 @@ class Client:
             The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
         :param Optional[Union[int, Permissions]] default_member_permissions: The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param Optional[bool] nsfw:
+            .. versionadded:: 4.4.0
+
+            Indicates whether the command is age-restricted. Defaults to ``False``
         :param Optional[bool] default_scope:
             .. versionadded:: 4.3.0
 
@@ -1180,6 +1191,7 @@ class Client:
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                nsfw=nsfw,
                 name_localizations=name_localizations,
                 default_scope=default_scope,
             )(coro)
@@ -1194,6 +1206,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
@@ -1221,6 +1234,10 @@ class Client:
         :param Optional[Union[int, Permissions]] default_member_permissions:
         The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param Optional[bool] nsfw:
+            .. versionadded:: 4.4.0
+
+            Indicates whether the command is age-restricted. Defaults to ``False``
         :param Optional[bool] default_scope:
             .. versionadded:: 4.3.0
 
@@ -1236,6 +1253,7 @@ class Client:
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                nsfw=nsfw,
                 name_localizations=name_localizations,
                 default_scope=default_scope,
             )(coro)

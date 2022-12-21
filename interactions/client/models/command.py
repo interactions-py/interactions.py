@@ -175,7 +175,8 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar Optional[bool] default_permission: The default permission accessibility state of the application command.
     :ivar int version: The Application Command version autoincrement identifier.
     :ivar str default_member_permissions: The default member permission state of the application command.
-    :ivar boolean dm_permission: The application permissions if executed in a Direct Message.
+    :ivar bool dm_permission: The application permissions if executed in a Direct Message.
+    :ivar bool nsfw: Indicates whether the command is age-restricted.
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The localisation dictionary for the application command name, if any.
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The localisation dictionary for the application command description, if any.
     """
@@ -191,6 +192,7 @@ class ApplicationCommand(DictSerializerMixin):
     version: int = field(default=None)
     default_member_permissions: str = field()
     dm_permission: bool = field(default=None)
+    nsfw: bool = field(default=None)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
 
@@ -389,6 +391,7 @@ class Command(DictSerializerMixin):
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
     :ivar bool default_scope: Whether the command should use the default scope. Defaults to ``True``.
+    :ivar bool nsfw: Indicates whether the command is age-restricted. Defaults to ``False``.
 
     :ivar Dict[str, Callable[..., Awaitable]] coroutines: The dictionary of coroutines for the command.
     :ivar Dict[str, int] num_options: The dictionary of the number of options per subcommand.
@@ -410,6 +413,7 @@ class Command(DictSerializerMixin):
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     default_scope: bool = field(default=True)
+    nsfw: bool = field(default=None)
 
     coroutines: Dict[str, Callable[..., Awaitable]] = field(init=False, factory=dict)
     num_options: Dict[str, int] = field(init=False, factory=dict)
@@ -479,6 +483,7 @@ class Command(DictSerializerMixin):
             description_localizations=self.description_localizations,
             default_member_permissions=self.default_member_permissions,
             dm_permission=self.dm_permission,
+            nsfw=self.nsfw,
         )
 
     @property
