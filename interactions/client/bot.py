@@ -22,7 +22,7 @@ from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.role import Role
-from ..api.models.team import Application
+from ..api.models.team import Application, ApplicationRoleConnectionMetadata
 from ..api.models.user import User
 from ..base import get_logger
 from ..utils.attrs_utils import convert_list
@@ -1838,6 +1838,43 @@ class Client:
         Gets the bot's user information.
         """
         return User(**await self._http.get_self(), _client=self._http)
+
+    async def get_role_connection_metadata(self) -> List[ApplicationRoleConnectionMetadata]:
+        """
+        .. versionadded:: 4.4.0
+
+        Gets the bot's role connection metadata.
+
+        :return: The list of bot's role connection metadata.
+        """
+
+        res: List[dict] = await self._http.get_application_role_connection_metadata(
+            application_id=int(self.me.id)
+        )
+        return [ApplicationRoleConnectionMetadata(**metadata) for metadata in res]
+
+    async def update_role_connection_metadata(
+        self,
+        metadata: Union[List[ApplicationRoleConnectionMetadata], ApplicationRoleConnectionMetadata],
+    ) -> List[ApplicationRoleConnectionMetadata]:
+        """
+        .. versionadded:: 4.4.0
+
+        Updates the bot's role connection metadata.
+
+        .. note::
+            This method overwrites all current bot's role connection metadata.
+
+        :param List[ApplicationRoleConnectionMetadata] metadata: The list of role connection metadata. The maximum is five.
+        :return: The updated list of bot's role connection metadata.
+        """
+        if not isinstance(metadata, list):
+            metadata = [metadata]
+
+        res: List[dict] = await self._http.update_application_role_connection_metadata(
+            application_id=int(self.me.id), payload=[_._json for _ in metadata]
+        )
+        return [ApplicationRoleConnectionMetadata(**_) for _ in res]
 
 
 class Extension:
