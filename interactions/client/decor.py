@@ -104,7 +104,7 @@ def command(
                 description_localizations=_description_localizations,
                 default_member_permissions=_default_member_permissions,
                 dm_permission=_dm_permission,
-                nsfw=_nsfw
+                nsfw=_nsfw,
             )
             payloads.append(payload._json)
     else:
@@ -117,7 +117,7 @@ def command(
             description_localizations=_description_localizations,
             default_member_permissions=_default_member_permissions,
             dm_permission=_dm_permission,
-            nsfw=_nsfw
+            nsfw=_nsfw,
         )
         return payload._json
 
