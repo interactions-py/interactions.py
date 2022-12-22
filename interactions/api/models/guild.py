@@ -20,6 +20,7 @@ from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
+    convert_int,
     convert_list,
     define,
     field,
@@ -29,6 +30,7 @@ from ..error import LibraryException
 from .audit_log import AuditLogEvents, AuditLogs
 from .channel import Channel, ChannelType, Thread, ThreadMember
 from .emoji import Emoji
+from .flags import Permissions
 from .member import Member
 from .message import Sticker, StickerPack
 from .misc import (
@@ -349,7 +351,7 @@ class Guild(ClientSerializerMixin, IDMixin):
     :ivar Optional[str] discovery_splash: The discovery splash banner of the guild.
     :ivar Optional[bool] owner: Whether the guild is owned.
     :ivar Snowflake owner_id: The ID of the owner of the guild.
-    :ivar Optional[str] permissions: The permissions of the guild.
+    :ivar Optional[Permissions] permissions: The permissions of the guild.
     :ivar Optional[str] region: The geographical region of the guild.
     :ivar Optional[Snowflake] afk_channel_id: The AFK voice channel of the guild.
     :ivar int afk_timeout: The timeout of the AFK voice channel of the guild.
@@ -400,7 +402,9 @@ class Guild(ClientSerializerMixin, IDMixin):
     discovery_splash: Optional[str] = field(default=None, repr=False)
     owner: Optional[bool] = field(default=None)
     owner_id: Snowflake = field(converter=Snowflake, default=None)
-    permissions: Optional[str] = field(default=None, repr=False)
+    permissions: Optional[Permissions] = field(
+        converter=convert_int(Permissions), default=None, repr=False
+    )
     region: Optional[str] = field(default=None, repr=False)  # None, we don't do Voices.
     afk_channel_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     afk_timeout: Optional[int] = field(default=None)
@@ -703,7 +707,7 @@ class Guild(ClientSerializerMixin, IDMixin):
     async def create_role(
         self,
         name: str,
-        permissions: Optional[int] = MISSING,
+        permissions: Optional[Union[Permissions, int]] = MISSING,
         color: Optional[int] = 0,
         hoist: Optional[bool] = False,
         icon: Optional[Image] = MISSING,
@@ -718,7 +722,7 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         :param str name: The name of the role
         :param Optional[int] color: RGB color value as integer, default ``0``
-        :param Optional[int] permissions: Bitwise value of the enabled/disabled permissions
+        :param Optional[Union[Permissions, int]] permissions: Bitwise value of the enabled/disabled permissions
         :param Optional[bool] hoist: Whether the role should be displayed separately in the sidebar, default ``False``
         :param Optional[Image] icon: The role's icon image (if the guild has the ROLE_ICONS feature)
         :param Optional[str] unicode_emoji: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature)
@@ -729,7 +733,8 @@ class Guild(ClientSerializerMixin, IDMixin):
         """
         if not self._client:
             raise LibraryException(code=13)
-        _permissions = permissions if permissions is not MISSING else None
+
+        _permissions = int(permissions) if permissions is not MISSING else None
         _icon = icon if icon is not MISSING else None
         _unicode_emoji = unicode_emoji if unicode_emoji is not MISSING else None
         payload = dict(
@@ -839,7 +844,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         self,
         role_id: Union[int, Snowflake, Role],
         name: Optional[str] = MISSING,
-        permissions: Optional[int] = MISSING,
+        permissions: Optional[Union[Permissions, int]] = MISSING,
         color: Optional[int] = MISSING,
         hoist: Optional[bool] = MISSING,
         icon: Optional[Image] = MISSING,
@@ -855,7 +860,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         :param Union[int, Snowflake, Role] role_id: The id of the role to edit
         :param Optional[str] name: The name of the role, defaults to the current value of the role
         :param Optional[int] color: RGB color value as integer, defaults to the current value of the role
-        :param Optional[int] permissions: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
+        :param Optional[Union[Permissions, int]] permissions: Bitwise value of the enabled/disabled permissions, defaults to the current value of the role
         :param Optional[bool] hoist: Whether the role should be displayed separately in the sidebar, defaults to the current value of the role
         :param Optional[Image] icon: The role's icon image (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
         :param Optional[str] unicode_emoji: The role's unicode emoji as a standard emoji (if the guild has the ROLE_ICONS feature), defaults to the current value of the role
@@ -876,7 +881,7 @@ class Guild(ClientSerializerMixin, IDMixin):
         _color = role.color if color is MISSING else color
         _hoist = role.hoist if hoist is MISSING else hoist
         _mentionable = role.mentionable if mentionable is MISSING else mentionable
-        _permissions = role.permissions if permissions is MISSING else permissions
+        _permissions = int(role.permissions if permissions is MISSING else permissions)
         _icon = role.icon if icon is MISSING else icon
         _unicode_emoji = role.unicode_emoji if unicode_emoji is MISSING else unicode_emoji
 
