@@ -116,7 +116,7 @@ class Emoji(ClientSerializerMixin):
         guild_id: Union[int, Snowflake, "Guild"],
         name: Optional[str] = MISSING,
         roles: Optional[Union[List[Role], List[int]]] = MISSING,
-        reason: Optional[str] = MISSING,
+        reason: Optional[str] = None,
     ) -> "Emoji":
         """
         .. versionadded:: 4.4.0
