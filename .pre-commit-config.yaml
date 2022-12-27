@@ -45,7 +45,7 @@ repos:
       types: [file, python]
       args: [--max-line-length=100, --ignore=E203 E301 E302 E501 E402 E704 W503 W504]
   - repo: https://github.com/pycqa/isort
-    rev: v5.11.3
+    rev: 5.11.4
     hooks:
       - id: isort
         name: isort Formatting
