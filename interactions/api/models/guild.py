@@ -2238,6 +2238,53 @@ class Guild(ClientSerializerMixin, IDMixin):
         self.emojis.append(_emoji)
         return _emoji
 
+    async def modify_emoji(
+        self,
+        emoji_id: Union[int, Snowflake, Emoji],
+        name: Optional[str] = MISSING,
+        roles: Optional[Union[List[Role], List[int]]] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Emoji:
+        """
+        .. versionadded:: 4.4.0
+
+        Edits an Emoji in the guild.
+
+        :param Union[int, Snowflake, Emoji] emoji_id: The id of the emoji to edit
+        :param Optional[str] name: The name of the emoji. If not specified, the filename will be used
+        :param Optional[Union[List[Role], List[int]]] roles: Roles allowed to use this emoji
+        :param Optional[str] reason: The reason of the modification
+        :return: The modified emoji object
+        :rtype: Emoji
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        emoji_id = int(emoji_id.id if isinstance(emoji_id, Emoji) else emoji_id)
+
+        payload: dict = {}
+
+        if name is not MISSING:
+            payload["name"] = name
+
+        if roles is not MISSING:
+            payload["roles"] = [int(role.id if isinstance(role, Role) else role) for role in roles]
+
+        res = await self._client.modify_guild_emoji(
+            guild_id=int(self.id), emoji_id=emoji_id, payload=payload, reason=reason
+        )
+
+        _emoji = Emoji(**res, _client=self._client)
+        if self.emojis is None:
+            self.emojis = []
+        for index, item in enumerate(self.emojis):
+            if item.id == emoji_id:
+                self.roles[index] = _emoji
+                break
+        else:
+            self.roles.append(_emoji)
+        return _emoji
+
     async def delete_emoji(
         self,
         emoji: Union[Emoji, int],
