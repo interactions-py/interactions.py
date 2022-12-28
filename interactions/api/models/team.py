@@ -1,6 +1,15 @@
-from typing import Any, List, Optional
+from datetime import datetime
+from enum import IntEnum
+from typing import Any, Dict, List, Optional, Union
 
-from ...utils.attrs_utils import ClientSerializerMixin, convert_list, define, field
+from ...client.enums import Locale
+from ...utils.attrs_utils import (
+    ClientSerializerMixin,
+    DictSerializerMixin,
+    convert_list,
+    define,
+    field,
+)
 from .flags import AppFlags
 from .misc import IDMixin, Snowflake
 from .user import User
@@ -9,6 +18,8 @@ __all__ = (
     "Team",
     "TeamMember",
     "Application",
+    "ApplicationRoleConnectionMetadataType",
+    "ApplicationRoleConnectionMetadata",
 )
 
 
@@ -38,7 +49,7 @@ class Team(ClientSerializerMixin, IDMixin):
     """
     A class object representing a team.
 
-    :ivar Optional[str] icon?: The hash of the team's icon
+    :ivar Optional[str] icon: The hash of the team's icon
     :ivar Snowflake id: The team's unique ID
     :ivar List[TeamMember] members: The members of the team
     :ivar str name: The team name
@@ -62,22 +73,23 @@ class Application(ClientSerializerMixin, IDMixin):
 
     :ivar Snowflake id: Application ID
     :ivar str name: Application Name
-    :ivar Optional[str] icon?: Icon hash of the application
+    :ivar Optional[str] icon: Icon hash of the application
     :ivar str description: Application Description
-    :ivar Optional[List[str]] rpc_origins?: An array of rpc origin urls, if RPC is used.
+    :ivar Optional[List[str]] rpc_origins: An array of rpc origin urls, if RPC is used.
     :ivar bool bot_public: A status denoting if anyone can invite the bot to guilds
     :ivar bool bot_require_code_grant: A status denoting whether full Oauth2 is required for the app's bot to join a guild
-    :ivar Optional[str] terms_of_service_url?: URL of the app's Terms of Service
-    :ivar Optional[str] privacy_policy_url?: URL of the app's Privacy Policy
-    :ivar Optional[User] owner?: User object of the owner
+    :ivar Optional[str] terms_of_service_url: URL of the app's Terms of Service
+    :ivar Optional[str] privacy_policy_url: URL of the app's Privacy Policy
+    :ivar Optional[User] owner: User object of the owner
     :ivar str summary: Summary of the store page, if this application is a game sold on Discord
     :ivar str verify_key: Hex encoded key for verification in interactions and/or the GameSDK's GetTicket
-    :ivar Optional[Team] team?: A list of team members, if this app belongs to a team.
-    :ivar Optional[Snowflake] guild_id?: Guild ID linked, if this app is a game sold on Discord
-    :ivar Optional[int] primary_sku_id?: Game SKU ID, if this app is a game sold on Discord
-    :ivar Optional[str] slug?: URL slug that links to the store page, if this app is a game sold on Discord
-    :ivar Optional[str] cover_image?: The app's default rich presence invite cover image
-    :ivar Optional[AppFlags] flags?: The application's public flags
+    :ivar Optional[Team] team: A list of team members, if this app belongs to a team.
+    :ivar Optional[Snowflake] guild_id: Guild ID linked, if this app is a game sold on Discord
+    :ivar Optional[int] primary_sku_id: Game SKU ID, if this app is a game sold on Discord
+    :ivar Optional[str] slug: URL slug that links to the store page, if this app is a game sold on Discord
+    :ivar Optional[str] cover_image: The app's default rich presence invite cover image
+    :ivar Optional[AppFlags] flags: The application's public flags
+    :ivar Optional[str] role_connections_verification_url: The application's role connection verification URL, if given.
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -100,10 +112,13 @@ class Application(ClientSerializerMixin, IDMixin):
     flags: Optional[AppFlags] = field(converter=AppFlags, default=None)
     type: Optional[Any] = field(default=None)
     hook: Optional[Any] = field(default=None)
+    role_connections_verification_url: Optional[str] = field(default=None, repr=False)
 
     @property
     def icon_url(self) -> Optional[str]:
         """
+        .. versionadded:: 4.2.0
+
         Returns the URL of the application's icon
 
         :return: URL of the application's icon.
@@ -115,3 +130,47 @@ class Application(ClientSerializerMixin, IDMixin):
         else:
             url = None
         return url
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the application was created.
+        """
+        return self.id.timestamp
+
+
+class ApplicationRoleConnectionMetadataType(IntEnum):
+    """
+    .. versionadded:: 4.4.0
+
+    An enumerable object representing the app role connection metadata types
+    """
+
+    INTEGER_LESS_THAN_OR_EQUAL = 1
+    INTEGER_GREATER_THAN_OR_EQUAL = 2
+    INTEGER_EQUAL = 3
+    INTEGER_NOT_EQUAL = 4
+    DATETIME_LESS_THAN_OR_EQUAL = 5
+    DATETIME_GREATER_THAN_OR_EQUAL = 6
+    BOOLEAN_EQUAL = 7
+    BOOLEAN_NOT_EQUAL = 8
+
+
+@define()
+class ApplicationRoleConnectionMetadata(DictSerializerMixin):
+    """
+    .. versionadded:: 4.4.0
+
+    A class object representing role connection metadata for the application/bot/client.
+    """
+
+    type: ApplicationRoleConnectionMetadataType = field(
+        converter=ApplicationRoleConnectionMetadataType
+    )
+    key: str = field()
+    name: str = field()
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
+    description: str = field()
+    description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)

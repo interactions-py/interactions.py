@@ -1,31 +1,46 @@
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from urllib.parse import quote
 
-from ...api.cache import Cache
 from ..models.channel import Channel
 from ..models.guild import Guild
 from ..models.role import Role
 from .request import _Request
 from .route import Route
 
+if TYPE_CHECKING:
+    from ...api.cache import Cache
+
 __all__ = ("GuildRequest",)
 
 
 class GuildRequest:
-
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass
 
-    async def get_self_guilds(self) -> List[dict]:
+    async def get_self_guilds(
+        self, limit: Optional[int] = 200, before: Optional[int] = None, after: Optional[int] = None
+    ) -> List[dict]:
         """
         Gets all guild objects associated with the current bot user.
 
-        :return a list of partial guild objects the current bot user is a part of.
+        :param limit: Number of guilds to return. Defaults to 200.
+        :param before: Consider only users before the given Guild ID snowflake.
+        :param after: Consider only users after the given Guild ID snowflake.
+        :return: A list of partial guild objects the current bot user is a part of.
         """
-        request = await self._req.request(Route("GET", "/users/@me/guilds"))
+
+        params = {}
+        if limit is not None:
+            params["limit"] = limit
+        if before:
+            params["before"] = before
+        if after:
+            params["after"] = after
+
+        request = await self._req.request(Route("GET", "/users/@me/guilds"), params=params)
 
         for guild in request:
             if guild.get("id"):
@@ -277,8 +292,20 @@ class GuildRequest:
         if icon:
             payload["icon"] = icon
         return await self._req.request(
-            Route("POST", f"/guilds/templates/{template_code}", json=payload)
+            Route("POST", f"/guilds/templates/{template_code}"),
+            json=payload,
         )
+
+    async def get_guild_template(self, template_code: str) -> dict:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns a guild template.
+
+        :param template_code: The code for the template to get
+        :return: A guild template
+        """
+        return await self._req.request(Route("GET", f"/guilds/templates/{template_code}"))
 
     async def get_guild_templates(self, guild_id: int) -> List[dict]:
         """
@@ -725,7 +752,7 @@ class GuildRequest:
         :return: A dictionary containing the new automod rule.
         """
 
-        params = {
+        payload = {
             "name": name,
             "event_type": event_type,
             "trigger_type": trigger_type,
@@ -733,16 +760,14 @@ class GuildRequest:
             "enabled": enabled,
         }
         if trigger_metadata:
-            params["trigger_metadata"] = trigger_metadata
+            payload["trigger_metadata"] = trigger_metadata
         if exempt_roles:
-            params["exempt_roles"] = exempt_roles
+            payload["exempt_roles"] = exempt_roles
         if exempt_channels:
-            params["exempt_channels"] = exempt_channels
+            payload["exempt_channels"] = exempt_channels
 
         return await self._req.request(
-            Route(
-                "POST", f"/guilds/{guild_id}/auto-moderation/rules/", params=params, reason=reason
-            )
+            Route("POST", f"/guilds/{guild_id}/auto-moderation/rules"), json=payload, reason=reason
         )
 
     async def modify_auto_moderation_rule(

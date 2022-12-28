@@ -1,7 +1,10 @@
+# versionadded declared in docs gen file
+
 from asyncio import sleep
 from enum import Enum
 from inspect import isawaitable
 from logging import getLogger
+from sys import version_info
 from typing import TYPE_CHECKING, Coroutine, List, Optional, Type, TypeVar, Union, get_args
 
 try:
@@ -10,7 +13,14 @@ try:
 except ImportError:
     from typing import _BaseGenericAlias as _GenericAlias
 
-from sys import version_info
+
+if version_info < (3, 9):
+
+    class GenericAlias:
+        ...
+
+else:
+    from types import GenericAlias
 
 from ..api.error import LibraryException
 from ..api.models.emoji import Emoji
@@ -123,13 +133,13 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
 
                 # with http force
                 member = await get(
-                    client, interactions.Member, parent_id=your_guild_id, object_id=your_member_id
+                    client, interactions.Member, parent_id=your_guild_id, object_id=your_member_id, force="http",
                 )
                 # always has a value
 
                 # with cache force
-                member = await get(
-                    client, interactions.Member, parent_id=your_guild_id, object_id=your_member_id
+                member = get(
+                    client, interactions.Member, parent_id=your_guild_id, object_id=your_member_id, force="cache",
                 )
                 # because of cache only, this can be None
 
@@ -166,21 +176,7 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
 
     """
 
-    if version_info >= (3, 9):
-
-        def _check():
-            return (
-                obj == list[get_args(obj)[0]]
-                if isinstance(get_args(obj), tuple) and get_args(obj)
-                else False
-            )
-
-    else:
-
-        def _check():
-            return False
-
-    if not isinstance(obj, type) and not isinstance(obj, _GenericAlias):
+    if not isinstance(obj, type) and not isinstance(obj, (_GenericAlias, GenericAlias)):
         raise LibraryException(message="The object must not be an instance of a class!", code=12)
 
     client: "Client"
@@ -191,14 +187,13 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
     force_cache = force_arg == "cache"
     force_http = force_arg == "http"
 
-    if isinstance(obj, _GenericAlias) or _check():
+    if isinstance(obj, (_GenericAlias, GenericAlias)):
         _obj: Type[_T] = get_args(obj)[0]
         http_name = f"get_{_obj.__name__.lower()}"
         kwarg_name = f"{_obj.__name__.lower()}_ids"
-        _objects: List[Union[_obj, Coroutine]] = []
-
-        if not force_http:
-            _objects = _get_cache(_obj, client, kwarg_name, _list=True, **kwargs)
+        _objects: List[Union[_obj, Coroutine]] = (
+            _get_cache(_obj, client, kwarg_name, _list=True, **kwargs) if not force_http else []
+        )  # some sourcery stuff i dunno
 
         if force_cache:
             return _objects
@@ -231,10 +226,9 @@ def get(client: "Client", obj: Type[_T], **kwargs) -> Optional[_T]:
     http_name = f"get_{obj.__name__.lower()}"
     kwarg_name = f"{obj.__name__.lower()}_id"
 
-    _obj: Optional[_T] = None
-
-    if not force_http:
-        _obj = _get_cache(obj, client, kwarg_name, **kwargs)
+    _obj: Optional[_T] = (
+        _get_cache(obj, client, kwarg_name, **kwargs) if not force_http else None
+    )  # more sourcery stuff
 
     if force_cache:
         return _obj
@@ -253,22 +247,23 @@ async def _http_request(
     _name: str = None,
     **kwargs,
 ) -> Union[_T, List[_T]]:
-    if not request:
-        if obj in (Role, Emoji):
-            from ..api.models.guild import Guild
+    if request:
+        return (
+            [obj(**await req, _client=http) if isawaitable(req) else req for req in request]
+            if isinstance(request, list)
+            else obj(**await request, _client=http)
+        )
 
-            _guild = Guild(**await http.get_guild(kwargs.pop("guild_id")), _client=http)
-            _func = getattr(_guild, _name)
-            return await _func(**kwargs)
+    if obj in (Role, Emoji):
+        from ..api.models.guild import Guild
 
-        _func = getattr(http, _name)
-        _obj = await _func(**kwargs)
-        return obj(**_obj, _client=http)
+        _guild = Guild(**await http.get_guild(kwargs.pop("guild_id")), _client=http)
+        _func = getattr(_guild, _name)
+        return await _func(**kwargs)
 
-    if not isinstance(request, list):
-        return obj(**await request, _client=http)
-
-    return [obj(**await req, _client=http) if isawaitable(req) else req for req in request]
+    _func = getattr(http, _name)
+    _obj = await _func(**kwargs)
+    return obj(**_obj, _client=http)
 
 
 async def _return_cache(
@@ -282,7 +277,7 @@ def _get_cache(
     _object: Type[_T], client: "Client", kwarg_name: str, _list: bool = False, **kwargs
 ) -> Union[Optional[_T], List[Optional[_T]]]:
     if _list:
-        _obj = []
+        _objs = []
         if _object == Member:  # Can't be more dynamic on this
             _guild_id = Snowflake(kwargs.get("guild_id"))
             _values = [
@@ -292,13 +287,19 @@ def _get_cache(
                 )
                 for _id in kwargs.get("member_ids")
             ]
-            _obj.extend(client._http.cache[_object].get(item, None) for item in _values)
+            for item in _values:
+                _obj = client._http.cache[_object].get(item, None)
+                if _obj:
+                    _obj._client = client._http
+                _objs.append(_obj)
 
         else:
-            _obj.extend(
-                client._http.cache[_object].get(Snowflake(_id), None)
-                for _id in kwargs.get(kwarg_name)
-            )
+            for _id in kwargs.get(kwarg_name):
+                _obj = client._http.cache[_object].get(Snowflake(_id), None)
+                if _obj:
+                    _obj._client = client._http
+                _objs.append(_obj)
+        return _objs
     else:
         if _object == Member:
             _values = (
@@ -309,7 +310,9 @@ def _get_cache(
             _values = Snowflake(kwargs.get(kwarg_name))
 
         _obj = client._http.cache[_object].get(_values)
-    return _obj
+        if _obj:
+            _obj._client = client._http
+        return _obj
 
 
 def _resolve_kwargs(obj, **kwargs):
