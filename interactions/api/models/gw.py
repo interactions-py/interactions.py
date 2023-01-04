@@ -648,6 +648,21 @@ class VoiceState(ClientSerializerMixin):
         """
         return self.channel_id is not None
 
+    @property
+    def channel(self) -> Optional[Channel]:
+        """
+        Returns the current channel, if cached.
+        """
+        return self._client.cache[Channel].get(self.channel_id)
+
+    @property
+    def guild(self) -> Optional[Guild]:
+        """
+        Returns the current guild, if cached.
+        """
+
+        return self._client.cache[Guild].get(self.guild_id)
+
     async def mute_member(self, reason: Optional[str] = None) -> Member:
         """
         Mutes the current member.
@@ -689,15 +704,21 @@ class VoiceState(ClientSerializerMixin):
 
         :rtype: Channel
         """
-        return Channel(
-            **await self._client.get_channel(int(self.channel_id)),
-            _client=self._client,
-        )
+        if channel := self.channel:
+            return channel
 
-    async def get_guild(self) -> "Guild":
+        res = await self._client.get_channel(int(self.channel_id))
+        return Channel(**res, _client=self._client)
+
+    async def get_guild(self) -> Guild:
         """
         Gets the guild in what the update took place.
 
         :rtype: Guild
         """
-        return Guild(**await self._client.get_guild(int(self.guild_id)), _client=self._client)
+
+        if guild := self.guild:
+            return guild
+
+        res = await self._client.get_guild(int(self.guild_id))
+        return Guild(**res, _client=self._client)
