@@ -593,11 +593,10 @@ class Client:
             cmd.listener = self._websocket._dispatch
 
             if cmd.default_scope and self._default_scope:
-                cmd.scope = (
+                if isinstance(cmd.scope, list):
                     cmd.scope.extend(self._default_scope)
-                    if isinstance(cmd.scope, list)
-                    else self._default_scope
-                )
+                else:
+                    cmd.scope = self._default_scope
 
             data: Union[dict, List[dict]] = cmd.full_data
             coro = cmd.dispatcher
