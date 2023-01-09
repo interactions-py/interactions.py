@@ -1,3 +1,5 @@
+# versionadded declared in docs gen file
+
 from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, TypeVar
 
@@ -26,6 +28,9 @@ if TYPE_CHECKING:
 class AuditLogEvents(IntEnum):
     """
     A class object representing the different types of AuditLogEvents.
+
+    .. note::
+        There is no official name for AuditLogEvents type 151, however it does represent the server owner sets up the guild for monetization/server subscriptions.
 
     :ivar int GUILD_UPDATE: 1 - Server settings were updated
     :ivar int CHANNEL_CREATE: 10 - Channel was created
@@ -79,6 +84,9 @@ class AuditLogEvents(IntEnum):
     :ivar int AUTO_MODERATION_RULE_UPDATE: 141 - Auto Moderation rule was updated
     :ivar int AUTO_MODERATION_RULE_DELETE: 142 - Auto Moderation rule was deleted
     :ivar int AUTO_MODERATION_BLOCK_MESSAGE: 143 - Message was blocked by AutoMod (according to a rule)
+    :ivar int AUTO_MODERATION_FLAG_TO_CHANNEL: 144 - Message was flagged by AutoMod (according to a rule)
+    :ivar int AUTO_MODERATION_USER_COMMUNICATION_DISABLED: 145 - Member was timed out by AutoMod (according to a rule)
+    :ivar int GUILD_MONETIZATION_SETUP: 151 - Monetization was set up in the server.
     """
 
     # guild related
@@ -162,6 +170,12 @@ class AuditLogEvents(IntEnum):
     AUTO_MODERATION_RULE_UPDATE = 141
     AUTO_MODERATION_RULE_DELETE = 142
     AUTO_MODERATION_BLOCK_MESSAGE = 143
+    AUTO_MODERATION_FLAG_TO_CHANNEL = 144
+    AUTO_MODERATION_USER_COMMUNICATION_DISABLED = 145
+
+    # monetization related
+
+    GUILD_MONETIZATION_SETUP = 151
 
 
 @define()
@@ -169,9 +183,9 @@ class AuditLogChange(DictSerializerMixin):
     """
     A class object representing an AuditLogChange.
 
-    :ivar Optional[_T] new_value?: New value of the key
-    :ivar Optional[_T] old_value?: Old value of the key
-    :ivar str key: Name of the changed entity, with a few [exceptions](https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-exceptions)
+    :ivar Optional[_T] new_value: New value of the key
+    :ivar Optional[_T] old_value: Old value of the key
+    :ivar str key: Name of the changed entity, with a few `exceptions <https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-exceptions>`_
     """
 
     new_value: Optional[_T] = field(default=None)
@@ -184,19 +198,23 @@ class OptionalAuditEntryInfo(DictSerializerMixin):
     """
     A class object representing OptionalAuditEntryInfo.
 
-    :ivar Snowflake application_id: ID of the app whose permissions were targeted. ``AuditLogEvents``-type: 121
-    :ivar Snowflake channel_id: Channel in which the entities were targeted. ``AuditLogEvents``-types: 26, 74, 75, 72, 83, 84, 85
-    :ivar str count: Number of entities that were targeted. ``AuditLogEvents``-types: 72, 73, 27, 26
-    :ivar str delete_member_days: Number of days after which inactive members were kicked. ``AuditLogEvents``-types: 21
-    :ivar Snowflake id: ID of the overwritten entity. ``AuditLogEvents``-types: 13, 14, 15
-    :ivar str members_removed: Number of members removed by the prune. ``AuditLogEvents``-types: 21
-    :ivar Snowflake message_id: ID of the message that was targeted. ``AuditLogEvents``-types: 74, 75
-    :ivar Optional[str] role_name: Name of the role if type is "0" (not present if type is "1"). ``AuditLogEvents``-types: 13, 14, 15
-    :ivar str type: Type of overwritten entity - role ("0") or member ("1"). ``AuditLogEvents``-types: 13, 14, 15
+    :ivar Snowflake application_id: ID of the app whose permissions were targeted. Used in event :attr:`AuditLogEvents.APPLICATION_COMMAND_PERMISSION_UPDATE`.
+    :ivar str auto_moderation_rule_name: Name of the Auto Moderation rule that was triggered. Used in events :attr:`AuditLogEvents.AUTO_MODERATION_BLOCK_MESSAGE`, :attr:`AuditLogEvents.AUTO_MODERATION_FLAG_TO_CHANNEL` & :attr:`AuditLogEvents.AUTO_MODERATION_USER_COMMUNICATION_DISABLED`.
+    :ivar str auto_moderation_rule_trigger_type: Trigger type of the Auto Moderation rule that was triggered. Used in events :attr:`AuditLogEvents.AUTO_MODERATION_BLOCK_MESSAGE`, :attr:`AuditLogEvents.AUTO_MODERATION_FLAG_TO_CHANNEL` & :attr:`AuditLogEvents.AUTO_MODERATION_USER_COMMUNICATION_DISABLED`.
+    :ivar Snowflake channel_id: Channel in which the entities were targeted. Used in events :attr:`AuditLogEvents.MEMBER_MOVE`, :attr:`AuditLogEvents.MESSAGE_PIN`, :attr:`AuditLogEvents.MESSAGE_UNPIN`, :attr:`AuditLogEvents.MESSAGE_DELETE`, :attr:`AuditLogEvents.STAGE_INSTANCE_CREATE`, :attr:`AuditLogEvents.STAGE_INSTANCE_UPDATE`, :attr:`AuditLogEvents.STAGE_INSTANCE_DELETE`, :attr:`AuditLogEvents.AUTO_MODERATION_BLOCK_MESSAGE`, :attr:`AuditLogEvents.AUTO_MODERATION_FLAG_TO_CHANNEL` & :attr:`AuditLogEvents.AUTO_MODERATION_USER_COMMUNICATION_DISABLED`.
+    :ivar str count: Number of entities that were targeted. Used in events :attr:`AuditLogEvents.MESSAGE_DELETE`, :attr:`AuditLogEvents.MESSAGE_BULK_DELETE`, :attr:`AuditLogEvents.MEMBER_DISCONNECT` & :attr:`AuditLogEvents.MEMBER_MOVE`
+    :ivar str delete_member_days: Number of days after which inactive members were kicked. Used in event :attr:`AuditLogEvents.MEMBER_PRUNE`
+    :ivar Snowflake id: ID of the overwritten entity. Used in events :attr:`AuditLogEvents.CHANNEL_OVERWRITE_CREATE`, :attr:`AuditLogEvents.CHANNEL_OVERWRITE_UPDATE` & :attr:`AuditLogEvents.CHANNEL_OVERWRITE_DELETE`
+    :ivar str members_removed: Number of members removed by the prune. Used in event :attr:`AuditLogEvents.MEMBER_PRUNE`
+    :ivar Snowflake message_id: ID of the message that was targeted. Used in events :attr:`AuditLogEvents.MESSAGE_PIN` & :attr:`AuditLogEvents.MESSAGE_UNPIN`
+    :ivar Optional[str] role_name: Name of the role if type is "0" (not present if type is "1"). Used in events :attr:`AuditLogEvents.CHANNEL_OVERWRITE_CREATE`, :attr:`AuditLogEvents.CHANNEL_OVERWRITE_UPDATE` & :attr:`AuditLogEvents.CHANNEL_OVERWRITE_DELETE`
+    :ivar str type: Type of overwritten entity - role ("0") or member ("1"). Used in events :attr:`AuditLogEvents.CHANNEL_OVERWRITE_CREATE`, :attr:`AuditLogEvents.CHANNEL_OVERWRITE_UPDATE` & :attr:`AuditLogEvents.CHANNEL_OVERWRITE_DELETE`
     """
 
     application_id: Snowflake = field(converter=Snowflake)
     channel_id: Snowflake = field(converter=Snowflake)
+    auto_moderation_rule_name: str = field()
+    auto_moderation_rule_trigger_type: str = field()
     count: str = field()
     delete_member_days: str = field()
     id: Snowflake = field(converter=Snowflake)
@@ -211,13 +229,13 @@ class AuditLogEntry(DictSerializerMixin):
     """
     A class object representing an AuditLogEntry.
 
-    :ivar Optional[str] target_id?: ID of the affected entity (webhook, user, role, etc.)
-    :ivar Optional[List[AuditLogChange]] changes?: Changes made to the target_id
-    :ivar Optional[Snowflake] user_id?: User or app that made the changes
+    :ivar Optional[str] target_id: ID of the affected entity (webhook, user, role, etc.)
+    :ivar Optional[List[AuditLogChange]] changes: Changes made to the target_id
+    :ivar Optional[Snowflake] user_id: User or app that made the changes
     :ivar Snowflake id: ID of the entry
     :ivar AuditLogEvents action_type: Type of action that occurred
-    :ivar OptionalAuditEntryInfo options?: Additional info for certain event types
-    :ivar str reason?: Reason for the change (1-512 characters)
+    :ivar OptionalAuditEntryInfo options: Additional info for certain event types
+    :ivar str reason: Reason for the change (1-512 characters)
     """
 
     target_id: Optional[str] = field(default=None)

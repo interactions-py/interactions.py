@@ -1,18 +1,20 @@
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from aiohttp import FormData
 
-from ...api.cache import Cache
+from ..models.misc import File
 from .request import _Request
 from .route import Route
+
+if TYPE_CHECKING:
+    from ...api.cache import Cache
 
 __all__ = ("StickerRequest",)
 
 
 class StickerRequest:
-
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass
@@ -54,18 +56,34 @@ class StickerRequest:
         return await self._req.request(Route("GET", f"/guilds/{guild_id}/stickers/{sticker_id}"))
 
     async def create_guild_sticker(
-        self, payload: FormData, guild_id: int, reason: Optional[str] = None
+        self, payload: dict, file: File, guild_id: int, reason: Optional[str] = None
     ) -> dict:
         """
         Create a new sticker for the guild. Requires the MANAGE_EMOJIS_AND_STICKERS permission.
 
-        :param payload: the payload to send.
+        :param payload: The payload to send.
+        :param file: The file to send.
         :param guild_id: The guild to create sticker at.
         :param reason: The reason for this action.
         :return: The new sticker data on success.
         """
+        if not isinstance(file._fp, bytes):
+            file._fp = file._fp.read()
+
+        if file._fp.startswith(b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"):
+            content_type = "image/png"
+        elif file._fp.startswith(b"{"):
+            content_type = "application/json"
+        else:
+            content_type = "application/octet-stream"
+
+        data = FormData()
+        data.add_field("file", file._fp, filename=file._filename, content_type=content_type)
+        for key, value in payload.items():
+            data.add_field(key, value)
+
         return await self._req.request(
-            Route("POST", f"/guilds/{guild_id}/stickers"), json=payload, reason=reason
+            Route("POST", f"/guilds/{guild_id}/stickers"), data=data, reason=reason
         )
 
     async def modify_guild_sticker(

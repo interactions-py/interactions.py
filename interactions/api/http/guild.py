@@ -1,31 +1,46 @@
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from urllib.parse import quote
 
-from ...api.cache import Cache
 from ..models.channel import Channel
 from ..models.guild import Guild
 from ..models.role import Role
 from .request import _Request
 from .route import Route
 
+if TYPE_CHECKING:
+    from ...api.cache import Cache
+
 __all__ = ("GuildRequest",)
 
 
 class GuildRequest:
-
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass
 
-    async def get_self_guilds(self) -> List[dict]:
+    async def get_self_guilds(
+        self, limit: Optional[int] = 200, before: Optional[int] = None, after: Optional[int] = None
+    ) -> List[dict]:
         """
         Gets all guild objects associated with the current bot user.
 
-        :return a list of partial guild objects the current bot user is a part of.
+        :param limit: Number of guilds to return. Defaults to 200.
+        :param before: Consider only users before the given Guild ID snowflake.
+        :param after: Consider only users after the given Guild ID snowflake.
+        :return: A list of partial guild objects the current bot user is a part of.
         """
-        request = await self._req.request(Route("GET", "/users/@me/guilds"))
+
+        params = {}
+        if limit is not None:
+            params["limit"] = limit
+        if before:
+            params["before"] = before
+        if after:
+            params["after"] = after
+
+        request = await self._req.request(Route("GET", "/users/@me/guilds"), params=params)
 
         for guild in request:
             if guild.get("id"):
@@ -277,8 +292,20 @@ class GuildRequest:
         if icon:
             payload["icon"] = icon
         return await self._req.request(
-            Route("POST", f"/guilds/templates/{template_code}", json=payload)
+            Route("POST", f"/guilds/templates/{template_code}"),
+            json=payload,
         )
+
+    async def get_guild_template(self, template_code: str) -> dict:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns a guild template.
+
+        :param template_code: The code for the template to get
+        :return: A guild template
+        """
+        return await self._req.request(Route("GET", f"/guilds/templates/{template_code}"))
 
     async def get_guild_templates(self, guild_id: int) -> List[dict]:
         """
@@ -473,7 +500,7 @@ class GuildRequest:
         self,
         guild_id: int,
         user_id: int,
-        delete_message_days: Optional[int] = 0,
+        delete_message_seconds: Optional[int] = 0,
         reason: Optional[str] = None,
     ) -> None:
         """
@@ -481,13 +508,13 @@ class GuildRequest:
 
         :param guild_id: Guild ID snowflake
         :param user_id: User ID snowflake
-        :param delete_message_days: Number of days to delete messages, from 0 to 7. Defaults to 0
+        :param delete_message_seconds: Number of seconds to delete messages for, between 0 and 604800. Default to 0
         :param reason: Optional reason to ban.
         """
 
         return await self._req.request(
             Route("PUT", f"/guilds/{guild_id}/bans/{user_id}"),
-            json={"delete_message_days": delete_message_days},
+            json={"delete_message_seconds": delete_message_seconds},
             reason=reason,
         )
 
@@ -601,6 +628,32 @@ class GuildRequest:
             Route("DELETE", f"/guilds/{guild_id}/members/{user_id}"), reason=reason
         )
 
+    async def begin_guild_prune(
+        self,
+        guild_id: int,
+        days: int = 7,
+        compute_prune_count: bool = True,
+        include_roles: Optional[List[int]] = None,
+    ) -> dict:
+        """
+        Begins a prune operation.
+
+        :param guild_id: Guild ID snowflake
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
+        :param compute_prune_count: Whether the returned "pruned" dict contains the computed prune count or None.
+        :param include_roles: Role IDs to include, if given.
+        :return: A dict containing `{"pruned": int}` or `{"pruned": None}`
+        """
+
+        payload = {
+            "days": days,
+            "compute_prune_count": compute_prune_count,
+        }
+        if include_roles:
+            payload["include_roles"] = ", ".join(str(x) for x in include_roles)
+
+        return await self._req.request(Route("POST", f"/guilds/{guild_id}/prune"), json=payload)
+
     async def get_guild_prune_count(
         self, guild_id: int, days: int = 7, include_roles: Optional[List[int]] = None
     ) -> dict:
@@ -608,7 +661,7 @@ class GuildRequest:
         Retrieves a dict from an API that results in how many members would be pruned given the amount of days.
 
         :param guild_id: Guild ID snowflake.
-        :param days:  Number of days to count. Defaults to ``7``.
+        :param days: Number of days to count, minimum 1, maximum 30. Defaults to 7.
         :param include_roles: Role IDs to include, if given.
         :return: A dict denoting `{"pruned": int}`
         """
@@ -699,7 +752,7 @@ class GuildRequest:
         :return: A dictionary containing the new automod rule.
         """
 
-        params = {
+        payload = {
             "name": name,
             "event_type": event_type,
             "trigger_type": trigger_type,
@@ -707,16 +760,14 @@ class GuildRequest:
             "enabled": enabled,
         }
         if trigger_metadata:
-            params["trigger_metadata"] = trigger_metadata
+            payload["trigger_metadata"] = trigger_metadata
         if exempt_roles:
-            params["exempt_roles"] = exempt_roles
+            payload["exempt_roles"] = exempt_roles
         if exempt_channels:
-            params["exempt_channels"] = exempt_channels
+            payload["exempt_channels"] = exempt_channels
 
         return await self._req.request(
-            Route(
-                "POST", f"/guilds/{guild_id}/auto-moderation/rules/", params=params, reason=reason
-            )
+            Route("POST", f"/guilds/{guild_id}/auto-moderation/rules"), json=payload, reason=reason
         )
 
     async def modify_auto_moderation_rule(

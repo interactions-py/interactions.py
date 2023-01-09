@@ -1,7 +1,7 @@
 .. currentmodule:: interactions
 
-Interaction Models
-==================
+Commands & Components
+=====================
 
 .. toctree::
     :maxdepth: 2
@@ -9,4 +9,3 @@ Interaction Models
     models.command.rst
     models.component.rst
     models.misc.rst
-    models.utils.rst

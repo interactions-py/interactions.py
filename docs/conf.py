@@ -37,6 +37,7 @@ hoverxref_sphinxtabs = True
 
 # descriptions of the relevant function/method.
 autodoc_typehints = "description"
+autodoc_typehints_description_target = "documented_params"
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -45,6 +46,7 @@ extensions = [
     "hoverxref.extension",
     "sphinx_copybutton",
     "enum_tools.autoenum",
+    "sphinx.ext.viewcode",
 ]
 
 # Stackoverflow said that this is gonna cure my LaTeX errors for ref handling.
@@ -77,7 +79,7 @@ gettext_compact = True
 exclude_patterns = ["_build"]
 
 # This autodocs private attrs and also fixes wrong sort
-autodoc_default_options = {"member-order": "bysource", "private-members": True}
+autodoc_default_options = {"member-order": "bysource"}
 
 
 # -- Options for HTML output -------------------------------------------------

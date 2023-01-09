@@ -1,7 +1,7 @@
 .. currentmodule:: interactions
 
-Error Exceptions
+Emoji Models
 ================
 
-.. automodule:: interactions.api.error
+.. automodule:: interactions.api.models.emoji
     :members:

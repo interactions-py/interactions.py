@@ -23,8 +23,7 @@ class LibraryException(Exception):
         Internal function that should not be executed externally.
         Parse the error data and set the code and message.
 
-        :param _data: The error data to parse.
-        :type _data: dict
+        :param dict _data: The error data to parse.
         :return: A list of tuples containing parsed errors.
         :rtype: List[tuple]
         """
@@ -55,10 +54,8 @@ class LibraryException(Exception):
         """
         Log the error message.
 
-        :param message:
-        :type message:
+        :param str message:
         :param args:
-        :type args:
         """
         if self.severity == 0:  # NOTSET
             pass
@@ -75,6 +72,7 @@ class LibraryException(Exception):
 
     @staticmethod
     def lookup(code: int) -> str:
+        # https://discord.com/developers/docs/topics/opcodes-and-status-codes#json
         return {
             # Default error integer enum
             0: "Unknown error",
@@ -91,6 +89,7 @@ class LibraryException(Exception):
             11: "Error creating your command.",
             12: "Invalid set of arguments specified.",
             13: "No HTTPClient set!",
+            14: "Fatal conflict between object and attempted action.",
             # HTTP errors
             400: "Bad Request. The request was improperly formatted, or the server couldn't understand it.",
             401: "Not authorized. Double check your token to see if it's valid.",
@@ -199,6 +198,8 @@ class LibraryException(Exception):
             30047: "Maximum number of pinned threads in a forum channel has been reached",
             30048: "Maximum number of tags in a forum channel has been reached",
             30052: "Bitrate is too high for channel of this type",
+            30056: "Maximum number of premium emojis reached (25)",
+            31001: "Undocumented error/rate-limit related.",
             40001: "Unauthorized. Provide a valid token and try again",
             40002: "You need to verify your account in order to perform this action",
             40003: "You are opening direct messages too fast",
@@ -211,8 +212,11 @@ class LibraryException(Exception):
             40033: "This message has already been crossposted",
             40041: "An application command with that name already exists",
             40043: "Application interaction failed to send",
+            40058: "Cannot send a message in a forum channel",
             40060: "Interaction has already been acknowledged",
             40061: "Tag names must be unique",
+            40066: "There are no tags available that can be set by non-moderators",
+            40067: "A tag is required to create a forum post in this channel",
             50001: "Missing access",
             50002: "Invalid account type",
             50003: "Cannot execute action on a DM channel",
@@ -241,8 +245,7 @@ class LibraryException(Exception):
             50028: "Invalid role",
             50033: "Invalid Recipient(s)",
             50034: "A message provided was too old to bulk delete",
-            50035: "Invalid form body (returned for both application/json and multipart/form-data bodies),"
-            " or invalid Content-Type provided",
+            50035: "Invalid form body or invalid Content-Type provided",
             50036: "An invite was accepted to a guild the application's bot is not in",
             50041: "Invalid API version provided",
             50045: "File uploaded exceeds the maximum size",
@@ -265,6 +268,8 @@ class LibraryException(Exception):
             50109: "The request body contains invalid JSON.",
             50132: "Ownership cannot be transferred to a bot user",
             50138: "Failed to resize asset below the maximum size: 262144",
+            50144: "Cannot mix subscription and non subscription roles for an emoji",
+            50145: "Cannot convert between premium emoji and normal emoji",
             50146: "Uploaded file not found.",
             50600: "You do not have permission to send this sticker.",
             60003: "Two factor is required for this operation",
@@ -289,7 +294,10 @@ class LibraryException(Exception):
             180002: "Failed to create stage needed for stage event",
             200000: "Message was blocked by automatic moderation",
             200001: "Title was blocked by automatic moderation",
+            220002: "Webhooks posted to forum channels cannot have both a thread_name and thread_id",
             220003: "Webhooks can only create threads in forum channels",
+            220004: "Webhook services cannot be used in forum channels",
+            240000: "Message blocked by harmful links filter",
         }.get(code, f"Unknown error: {code}")
 
     def __init__(self, code: int = 0, message: str = None, severity: int = 0, **kwargs):
@@ -309,12 +317,29 @@ class LibraryException(Exception):
         self.log(self.message)
 
         if _fmt_error:
+
+            _flag: bool = (
+                self.message.lower() in self.lookup(self.code).lower()
+            )  # creativity is hard
+
+            _fmt = "\n".join(
+                [
+                    f"Error at {e[2]}: {e[0]} - {e[1] if e[1].endswith('.') else f'{e[1]}.'}"
+                    for e in _fmt_error
+                ]
+            )
+
             super().__init__(
-                f"{self.message} (code: {self.code}, severity {self.severity})\n"
-                + "\n".join([f"Error at {e[2]}: {e[0]} - {e[1]}" for e in _fmt_error])
+                "\n"
+                f"  Error {self.code} | {self.message if _flag else self.lookup(self.code)}\n"
+                f"  {_fmt if _flag else self.message}\n"
+                f"  {f'Severity {self.severity}.' if _flag else _fmt}\n"
+                f"  {'' if _flag else f'Severity {self.severity}.'}"
             )
         else:
             super().__init__(
-                f"An error occurred:\n"
-                f"{self.message}, with code '{self.code}' and severity '{self.severity}'"
+                "\n"
+                f"  Error {self.code} | {self.lookup(self.code)}:\n"
+                f"  {self.message}{'' if self.message.endswith('.') else '.'}\n"
+                f"  Severity {self.severity}."
             )

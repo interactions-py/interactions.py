@@ -1,6 +1,6 @@
 from enum import Enum, IntFlag
 
-__all__ = ("Intents", "AppFlags", "StatusType", "UserFlags", "Permissions")
+__all__ = ("Intents", "AppFlags", "StatusType", "UserFlags", "Permissions", "MessageFlags")
 
 
 class Intents(IntFlag):
@@ -159,6 +159,7 @@ class UserFlags(IntFlag):
     VERIFIED_DEVELOPER = 1 << 17
     DISCORD_CERTIFIED_MODERATOR = 1 << 18
     BOT_HTTP_INTERACTIONS = 1 << 19
+    ACTIVE_DEVELOPER = 1 << 22
 
 
 class AppFlags(IntFlag):
@@ -172,6 +173,7 @@ class AppFlags(IntFlag):
     EMBEDDED = 1 << 17
     GATEWAY_MESSAGE_CONTENT = 1 << 18
     GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19
+    APPLICATION_COMMAND_BADGE = 1 << 23
 
 
 class StatusType(str, Enum):
@@ -184,3 +186,31 @@ class StatusType(str, Enum):
     IDLE = "idle"
     INVISIBLE = "invisible"
     OFFLINE = "offline"
+
+
+class MessageFlags(IntFlag):
+    """
+    .. versionadded:: 4.4.0
+
+    An integer flag bitshift object representing the different message flags given by Discord.
+
+    :ivar int CROSSPOSTED: this message has been published to subscribed channels (via Channel Following)
+    :ivar int IS_CROSSPOST: this message originated from a message in another channel (via Channel Following)
+    :ivar int SUPPRESS_EMBEDS: do not include any embeds when serializing this message
+    :ivar int SOURCE_MESSAGE_DELETED: the source message for this crosspost has been deleted (via Channel Following)
+    :ivar int URGENT: this message came from the urgent message system
+    :ivar int HAS_THREAD: this message has an associated thread, with the same id as the message
+    :ivar int EPHEMERAL: this message is only visible to the user who invoked the Interaction
+    :ivar int LOADING: this message is an Interaction Response and the bot is thinking
+    :ivar int FAILED_TO_MENTION_SOME_ROLES_IN_THREAD: this message failed to mention some roles and add their members to the thread
+    """
+
+    CROSSPOSTED = 1 << 0
+    IS_CROSSPOST = 1 << 1
+    SUPPRESS_EMBEDS = 1 << 2
+    SOURCE_MESSAGE_DELETED = 1 << 3
+    URGENT = 1 << 4
+    HAS_THREAD = 1 << 5
+    EPHEMERAL = 1 << 6
+    LOADING = 1 << 7
+    FAILED_TO_MENTION_SOME_ROLES_IN_THREAD = 1 << 8

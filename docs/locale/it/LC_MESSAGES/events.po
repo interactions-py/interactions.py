@@ -9,14 +9,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: interactions.py 4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-16 17:02-0400\n"
+"POT-Creation-Date: 2022-09-26 11:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.10.3\n"
 
 #: ../../events.rst:2
 msgid "Event Documentation"
@@ -98,99 +98,104 @@ msgid "``on_command``"
 msgstr ""
 
 #: ../../events.rst:57
-msgid "``on_component``"
+msgid "``on_command_error``"
 msgstr ""
 
 #: ../../events.rst:58
-msgid "``on_autocomplete``"
+msgid "``on_component``"
 msgstr ""
 
 #: ../../events.rst:59
+msgid "``on_autocomplete``"
+msgstr ""
+
+#: ../../events.rst:60
 msgid "``on_modal``"
 msgstr ""
 
-#: ../../events.rst:61
+#: ../../events.rst:62
 msgid "Lets now have a look at those events in detail:"
 msgstr ""
 
-#: ../../events.rst:64
+#: ../../events.rst:65
 msgid "Event: ``raw_socket_create``"
 msgstr ""
 
-#: ../../events.rst:65
+#: ../../events.rst:66
 msgid ""
 "This event fires on any event sent by Discord, including ``Typing Start``"
 "  and ``Voice State Update``. ``Hello``, ``Resumed``, ``Reconnect`` and "
 "``Invalid Session`` still will not be dispatched."
 msgstr ""
 
-#: ../../events.rst:68
+#: ../../events.rst:69
 msgid ""
-"The function handling the event should take in one argument, the type of "
-"this argument is a ``dict``."
+"A function handling an event should take two arguments, the first "
+"argument is the name of the event, the second is the data of that event "
+"with type ``dict``."
 msgstr ""
 
-#: ../../events.rst:70
+#: ../../events.rst:72
 msgid ""
-"The value of the argument will be the *raw* data sent from Discord, so it"
-" is not recommended to use that event as long as you don't absolutely "
-"need it."
+"The value of the second argument will be the *raw* data sent from "
+"Discord, so it is not recommended to use that event as long as you don't "
+"absolutely need it."
 msgstr ""
 
-#: ../../events.rst:75
+#: ../../events.rst:77
 msgid "Event: ``on_start``"
 msgstr ""
 
-#: ../../events.rst:76
+#: ../../events.rst:78
 msgid "This event fires only when the bot is started."
 msgstr ""
 
-#: ../../events.rst:78 ../../events.rst:161
+#: ../../events.rst:80 ../../events.rst:173
 msgid "This function takes no arguments."
 msgstr ""
 
-#: ../../events.rst:81
+#: ../../events.rst:83
 msgid "Unlike ``on_ready``, this event will never be dispatched more than once."
 msgstr ""
 
-#: ../../events.rst:84
+#: ../../events.rst:86
 msgid "Event: ``on_interaction``"
 msgstr ""
 
-#: ../../events.rst:85
+#: ../../events.rst:87
 msgid ""
 "This event fires on any interaction (commands, components, autocomplete "
 "and modals)."
 msgstr ""
 
-#: ../../events.rst:87
+#: ../../events.rst:89
 msgid ""
 "The function needs one argument. It will have the type ``CommandContext``"
 " or ``ComponentContext``."
 msgstr ""
 
-#: ../../events.rst:89
+#: ../../events.rst:91
 msgid ""
 "Because you will have to check for everything, from the "
 "``InteractionType`` to any data inside the context, we do not recommend "
 "using this event unless you have experience with it."
 msgstr ""
 
-#: ../../events.rst:94
+#: ../../events.rst:96
 msgid "Event: ``on_command``"
 msgstr ""
 
-#: ../../events.rst:95
+#: ../../events.rst:97
 msgid ""
 "This event fires on any Application Command (slash command + context menu"
 " command) used."
 msgstr ""
 
-#: ../../events.rst:97 ../../events.rst:117 ../../events.rst:127
+#: ../../events.rst:99 ../../events.rst:129 ../../events.rst:139
 msgid "The function takes in one argument of the type ``CommandContext``."
 msgstr ""
 
-#: ../../events.rst:99
+#: ../../events.rst:101
 msgid ""
 "Using this event, you will have to manually check everything, from name "
 "to whether the used commands have sub commands, options or anything else "
@@ -198,138 +203,174 @@ msgid ""
 "it"
 msgstr ""
 
-#: ../../events.rst:104
+#: ../../events.rst:106
+msgid "Event: ``on_command_error``"
+msgstr ""
+
+#: ../../events.rst:107
+msgid "This event fires when the following conditions are met:"
+msgstr ""
+
+#: ../../events.rst:109
+msgid "There is an error in the command (or subcommand within the command)"
+msgstr ""
+
+#: ../../events.rst:110
+msgid "There is no error callback assigned to that command"
+msgstr ""
+
+#: ../../events.rst:112
+msgid ""
+"The function takes in two arguments, one of the type ``CommandContext``, "
+"and the other contains the error."
+msgstr ""
+
+#: ../../events.rst:116
 msgid "Event: ``on_component``"
 msgstr ""
 
-#: ../../events.rst:105
+#: ../../events.rst:117
 msgid ""
 "This event fires on any Component used (for now, those are Buttons and "
 "Select Menus)."
 msgstr ""
 
-#: ../../events.rst:107
+#: ../../events.rst:119
 msgid "The function takes in one argument of the type ``ComponentContext``."
 msgstr ""
 
-#: ../../events.rst:109
+#: ../../events.rst:121
 msgid ""
 "Like ``on_command``, you will have to manually check for everything, i.e "
 "for custom id and component type. Also, you will have to look through the"
 " argument to find the selected choices, if you have a select menu."
 msgstr ""
 
-#: ../../events.rst:114
+#: ../../events.rst:126
 msgid "Event: ``on_autocomplete``"
 msgstr ""
 
-#: ../../events.rst:115
+#: ../../events.rst:127
 msgid "This event fires on any autocomplete triggered."
 msgstr ""
 
-#: ../../events.rst:119
+#: ../../events.rst:131
 msgid ""
 "As already in the events above, you will have to get the important values"
 " yourself. Those values are here the autocompleted option and the user "
 "input."
 msgstr ""
 
-#: ../../events.rst:124
+#: ../../events.rst:136
 msgid "Event: ``on_modal``"
 msgstr ""
 
-#: ../../events.rst:125
+#: ../../events.rst:137
 msgid "This event fires on every modal that is submitted."
 msgstr ""
 
-#: ../../events.rst:129
+#: ../../events.rst:141
 msgid ""
 "You will have to get all values yourself and check what modal was used "
 "when using this event."
 msgstr ""
 
-#: ../../events.rst:132
+#: ../../events.rst:144
 msgid ""
 "Additionally, if you struggle with getting the values, you can check "
 ":ref:`how it is handled internally `."
 msgstr ""
 
-#: ../../events.rst:136
+#: ../../events.rst:148
 msgid "After this, let us look at events from the Discord API."
 msgstr ""
 
-#: ../../events.rst:139
+#: ../../events.rst:151
 msgid "Discord API Events"
 msgstr ""
 
-#: ../../events.rst:141
+#: ../../events.rst:153
 msgid ""
 "Events in this section do not match the name needed to put into the "
 "function. Please check :ref:`above ` for how to get the correct name."
 msgstr ""
 
-#: ../../events.rst:145
+#: ../../events.rst:157
 msgid ""
 "There are a lot of events dispatched by the Discord API. All of those can"
 " be found `here`_."
 msgstr ""
 
-#: ../../events.rst:147
+#: ../../events.rst:159
 msgid ""
 "The events ``HELLO``, ``RESUMED``, ``RECONNECT``, ``INVALID SESSION`` and"
 " ``TYPING START`` are not dispatched by the library."
 msgstr ""
 
-#: ../../events.rst:149
+#: ../../events.rst:161
 msgid ""
 "``TYPING START`` will be included in the raw socket create event. You can"
 " also listen for it if you choose to subclass the WebSocketClient"
 msgstr ""
 
-#: ../../events.rst:152
+#: ../../events.rst:164
 msgid ""
 "The event ``VOICE STATE UPDATE`` can be only received with the voice "
 ":ref:`Extension `."
 msgstr ""
 
-#: ../../events.rst:155
+#: ../../events.rst:167
 msgid "Let's now have a look at a few events:"
 msgstr ""
 
-#: ../../events.rst:158
+#: ../../events.rst:170
 msgid "Event: ``READY``"
 msgstr ""
 
-#: ../../events.rst:159
+#: ../../events.rst:171
 msgid ""
 "This event fires whenever ``READY`` is dispatched by Discord. This "
 "happens when connecting to the web socket server."
 msgstr ""
 
-#: ../../events.rst:164
+#: ../../events.rst:176
 msgid ""
 "Due to the bot reconnecting during runtime, ``on_ready`` will be "
 "dispatched multiple times. If you rely on ``on_ready`` to do certain "
 "things once, check against a global variable as shown below:"
 msgstr ""
 
-#: ../../events.rst:181
+#: ../../events.rst:193
 msgid "Events: ``GUILD MEMBER UPDATE`` and ``GUILD MEMBER ADD``"
 msgstr ""
 
-#: ../../events.rst:182
+#: ../../events.rst:194
 msgid ""
 "These events fire whenever a member joins a guild or a member of a guild "
 "gets modified."
 msgstr ""
 
-#: ../../events.rst:184
+#: ../../events.rst:196
 msgid "The function takes in one argument of the type ``GuildMember``."
 msgstr ""
 
-#: ../../events.rst:186
+#: ../../events.rst:198
 msgid ""
 "The argument has the same methods as a normal ``Member`` object, except "
 "the methods *do not take in a guild id*. Please keep that in mind when "
 "using this event."
 msgstr ""
+
+#~ msgid ""
+#~ "The function handling the event should"
+#~ " take in one argument, the type "
+#~ "of this argument is a ``dict``."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The value of the argument will be"
+#~ " the *raw* data sent from Discord,"
+#~ " so it is not recommended to "
+#~ "use that event as long as you "
+#~ "don't absolutely need it."
+#~ msgstr ""

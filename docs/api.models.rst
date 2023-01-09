@@ -1,6 +1,6 @@
 .. currentmodule:: interactions
 
-Model Objects
+API Models
 =============
 
 .. toctree::
@@ -8,6 +8,7 @@ Model Objects
 
     api.models.audit_log.rst
     api.models.channel.rst
+    api.models.emoji.rst
     api.models.guild.rst
     api.models.gw.rst
     api.models.flags.rst
@@ -19,3 +20,4 @@ Model Objects
     api.models.team.rst
     api.models.user.rst
     api.models.webhook.rst
+    enums.rst

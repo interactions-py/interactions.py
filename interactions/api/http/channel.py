@@ -1,18 +1,21 @@
-from typing import Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
-from ...api.cache import Cache
 from ..error import LibraryException
 from ..models.channel import Channel
 from ..models.message import Message
+from ..models.misc import Snowflake
 from .request import _Request
 from .route import Route
+
+if TYPE_CHECKING:
+    from ...api.cache import Cache
 
 __all__ = ("ChannelRequest",)
 
 
 class ChannelRequest:
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass
@@ -307,3 +310,124 @@ class ChannelRequest:
         return await self._req.request(
             Route("DELETE", f"/stage-instances/{channel_id}"), reason=reason
         )
+
+    async def create_tag(
+        self,
+        channel_id: int,
+        name: str,
+        moderated: bool = False,
+        emoji_id: Optional[int] = None,
+        emoji_name: Optional[str] = None,
+        reason: Optional[str] = None,
+    ) -> dict:
+        """
+        Create a new tag.
+
+        .. note::
+            Can either have an emoji_id or an emoji_name, but not both.
+            emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
+
+        :param channel_id: Channel ID snowflake.
+        :param name: The name of the tag
+        :param moderated: Whether the tag can only be assigned to moderators or not. Defaults to ``False``
+        :param emoji_id: The ID of the emoji to use for the tag
+        :param emoji_name: The name of the emoji to use for the tag
+        :param reason: The reason for the creating the tag, if any.
+        :return: A Forum tag.
+        """
+
+        # This *assumes* cache is up-to-date.
+
+        _channel = self.cache[Channel].get(Snowflake(channel_id))
+        _tags = [_._json for _ in _channel.available_tags]  # list of tags in dict form
+
+        _dct = {"name": name, "moderated": moderated}
+        if emoji_id:
+            _dct["emoji_id"] = emoji_id
+        if emoji_name:
+            _dct["emoji_name"] = emoji_name
+
+        _tags.append(_dct)
+
+        updated_channel = await self.modify_channel(
+            channel_id, {"available_tags": _tags}, reason=reason
+        )
+        _channel_obj = Channel(**updated_channel, _client=self)
+        return _channel_obj.available_tags[-1]._json
+
+    async def edit_tag(
+        self,
+        channel_id: int,
+        tag_id: int,
+        name: str,
+        moderated: Optional[bool] = None,
+        emoji_id: Optional[int] = None,
+        emoji_name: Optional[str] = None,
+        reason: Optional[str] = None,
+    ) -> dict:
+        """
+        Update a tag.
+
+        .. note::
+            Can either have an emoji_id or an emoji_name, but not both.
+            emoji_id is meant for custom emojis, emoji_name is meant for unicode emojis.
+
+            The object returns *will* have a different tag ID.
+
+        :param channel_id: Channel ID snowflake.
+        :param tag_id: The ID of the tag to update.
+        :param moderated: Whether the tag can only be assigned to moderators or not. Defaults to ``False``
+        :param name: The new name of the tag
+        :param emoji_id: The ID of the emoji to use for the tag
+        :param emoji_name: The name of the emoji to use for the tag
+        :param reason: The reason for deleting the tag, if any.
+
+        :return The updated tag object.
+        """
+
+        # This *assumes* cache is up-to-date.
+
+        _channel = self.cache[Channel].get(Snowflake(channel_id))
+        _tags = [_._json for _ in _channel.available_tags]  # list of tags in dict form
+
+        _old_tag = [tag for tag in _tags if tag["id"] == tag_id][0]
+
+        _tags.remove(_old_tag)
+
+        _dct = {"name": name, "tag_id": tag_id}
+        if moderated:
+            _dct["moderated"] = moderated
+        if emoji_id:
+            _dct["emoji_id"] = emoji_id
+        if emoji_name:
+            _dct["emoji_name"] = emoji_name
+
+        _tags.append(_dct)
+
+        updated_channel = await self.modify_channel(
+            channel_id, {"available_tags": _tags}, reason=reason
+        )
+        _channel_obj = Channel(**updated_channel, _client=self)
+
+        self.cache[Channel].merge(_channel_obj)
+
+        return [tag for tag in _channel_obj.available_tags if tag.name == name][0]
+
+    async def delete_tag(self, channel_id: int, tag_id: int, reason: Optional[str] = None) -> None:
+        """
+        Delete a forum tag.
+
+        :param channel_id: Channel ID snowflake.
+        :param tag_id: The ID of the tag to delete
+        :param reason: The reason for deleting the tag, if any.
+        """
+        _channel = self.cache[Channel].get(Snowflake(channel_id))
+        _tags = [_._json for _ in _channel.available_tags]
+
+        _old_tag = [tag for tag in _tags if tag["id"] == Snowflake(tag_id)][0]
+
+        _tags.remove(_old_tag)
+
+        request = await self.modify_channel(channel_id, {"available_tags": _tags}, reason=reason)
+
+        self.cache[Channel].merge(Channel(**request, _client=self))

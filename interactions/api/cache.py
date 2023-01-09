@@ -12,6 +12,8 @@ from typing import (
     overload,
 )
 
+import interactions
+
 if TYPE_CHECKING:
     from .models import Snowflake
 
@@ -38,17 +40,20 @@ class Storage(Generic[_T]):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} object containing {len(self.values)} items.>"
 
-    def __init__(self) -> None:
-        self.values: Dict["Key", _T] = {}
+    def __init__(self, limit: Optional[int] = None) -> None:
+        """
+        :param Optional[int] limit: The maximum number of items to store
+        """
+        if not limit:
+            limit = float("inf")
+        self.values: interactions.LRUDict["Key", _T] = interactions.LRUDict(max_items=limit)
 
     def merge(self, item: _T, id: Optional["Key"] = None) -> None:
         """
         Merges new data of an item into an already present item of the cache
 
-        :param item: The item to merge.
-        :type item: Any
-        :param id: The unique id of the item.
-        :type id: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
+        :param Any item: The item to merge.
+        :param Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]] id: The unique id of the item.
         """
         if not self.values.get(id or item.id):
             return self.add(item, id)
@@ -82,10 +87,8 @@ class Storage(Generic[_T]):
         """
         Adds a new item to the storage.
 
-        :param item: The item to add.
-        :type item: Any
-        :param id: The unique id of the item.
-        :type id: Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]]
+        :param Any item: The item to add.
+        :param Optional[Union[Snowflake, Tuple[Snowflake, Snowflake]]] id: The unique id of the item.
         """
         self.values[id or item.id] = item
 
@@ -101,10 +104,8 @@ class Storage(Generic[_T]):
         """
         Gets an item from the storage.
 
-        :param id: The ID of the item.
-        :type id: Union[Snowflake, Tuple[Snowflake, Snowflake]]
-        :param default: The default value to return if the item is not found.
-        :type default: Optional[Any]
+        :param Union[Snowflake, Tuple[Snowflake, Snowflake]] id: The ID of the item.
+        :param Optional[Any] default: The default value to return if the item is not found.
         :return: The item from the storage if any.
         :rtype: Optional[Any]
         """
@@ -114,8 +115,7 @@ class Storage(Generic[_T]):
         """
         Updates multiple items from the storage.
 
-        :param data: The data to update with.
-        :type data: dict
+        :param dict data: The data to update with.
         """
         self.values.update(data)
 
@@ -158,13 +158,14 @@ class Cache:
     :ivar defaultdict[Type, Storage] storages: A dictionary denoting the Type and the objects that correspond to the Type.
     """
 
-    __slots__ = "storages"
+    __slots__ = ("storages", "config")
 
-    def __init__(self) -> None:
-        self.storages: defaultdict[Type[_T], Storage[_T]] = defaultdict(Storage)
+    def __init__(self, config: Dict[Type[_T], int] = None) -> None:
+        self.storages: Dict[Type[_T], Storage[_T]] = defaultdict(Storage)
+
+        if config is not None:
+            for type_, limit in config.items():
+                self.storages[type_] = Storage(limit)
 
     def __getitem__(self, item: Type[_T]) -> Storage[_T]:
         return self.storages[item]
-
-
-ref_cache = Cache()  # noqa
