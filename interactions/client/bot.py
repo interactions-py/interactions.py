@@ -419,7 +419,7 @@ class Client:
             raise RuntimeError("You cannot pass a token to the bot twice!")
         elif not (self._http or token):
             raise RuntimeError("No token was passed to the bot!")
-        
+
         if token:
             self._http = token
             self._websocket._http = token  # Update the websockets token if it wasn't set before
