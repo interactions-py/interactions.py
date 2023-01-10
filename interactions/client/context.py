@@ -414,6 +414,28 @@ class _Context(ClientSerializerMixin):
         else:
             return any(perm in self.author.permissions for perm in permissions)
 
+    async def delete(self) -> None:
+        """
+        This deletes the interaction response of a message sent by
+        the contextually derived information from this class.
+
+        .. note::
+            Doing this will proceed in the context message no longer
+            being present.
+        """
+        if self.responded and self.message is not None:
+            await self._client.delete_interaction_response(
+                application_id=str(self.application_id),
+                token=self.token,
+                message_id=int(self.message.id),
+            )
+        else:
+            await self._client.delete_interaction_response(
+                application_id=str(self.application_id), token=self.token
+            )
+
+        self.message = None
+
 
 @define()
 class CommandContext(_Context):
@@ -612,28 +634,6 @@ class CommandContext(_Context):
             _client=self._client,
             author={"_client": self._client, "id": None, "username": None, "discriminator": None},
         )
-
-    async def delete(self) -> None:
-        """
-        This deletes the interaction response of a message sent by
-        the contextually derived information from this class.
-
-        .. note::
-            Doing this will proceed in the context message no longer
-            being present.
-        """
-        if self.responded and self.message is not None:
-            await self._client.delete_interaction_response(
-                application_id=str(self.application_id),
-                token=self.token,
-                message_id=int(self.message.id),
-            )
-        else:
-            await self._client.delete_interaction_response(
-                application_id=str(self.application_id), token=self.token
-            )
-
-        self.message = None
 
     async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]:
         """
