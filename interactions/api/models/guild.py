@@ -140,6 +140,8 @@ class GuildFeatures(Enum):
     PREVIEW_ENABLED = "PREVIEW_ENABLED"
     PRIVATE_THREADS = "PRIVATE_THREADS"
     ROLE_ICONS = "ROLE_ICONS"
+    ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE = "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE"
+    ROLE_SUBSCRIPTIONS_ENABLED = "ROLE_SUBSCRIPTIONS_ENABLED"
     TICKETED_EVENTS_ENABLED = "TICKETED_EVENTS_ENABLED"
     VANITY_URL = "VANITY_URL"
     VERIFIED = "VERIFIED"
@@ -493,6 +495,53 @@ class Guild(ClientSerializerMixin, IDMixin):
                 ):
                     member._extras["guild_id"] = self.id
 
+    @property
+    def voice_states(self) -> List["VoiceState"]:
+        """
+        .. versionadded:: 4.4.0
+
+        Gets all voice states of the guild.
+
+        :rtype: List[VoiceState]
+        """
+
+        if not self._client:
+            raise LibraryException(code=13)
+
+        from .gw import VoiceState
+
+        states: List[VoiceState] = []
+
+        data = self._client.cache[VoiceState].values.values()
+        states.extend(state for state in data if state.guild_id == self.id)
+        return states
+
+    @property
+    def mapped_voice_states(self) -> Dict[int, List["VoiceState"]]:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns all the voice states mapped after their channel id.
+
+        :rtype: Dict[int, List[VoiceState]]
+        """
+        states = self.voice_states
+        _states: Dict[int, List[VoiceState]] = {int(state.channel_id): [] for state in states}
+
+        for state in states:
+            _states[int(state.channel_id)].append(state)
+
+        return _states
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the guild was created.
+        """
+        return self.id.timestamp
+
     async def ban(
         self,
         member_id: Union[int, Member, Snowflake],
@@ -547,44 +596,6 @@ class Guild(ClientSerializerMixin, IDMixin):
         for member in self.members:
             if int(member.id) == _member_id:
                 return self.members.remove(member)
-
-    @property
-    def voice_states(self) -> List["VoiceState"]:
-        """
-        .. versionadded:: 4.4.0
-
-        Gets all voice states of the guild.
-
-        :rtype: List[VoiceState]
-        """
-
-        if not self._client:
-            raise LibraryException(code=13)
-
-        from .gw import VoiceState
-
-        states: List[VoiceState] = []
-
-        data = self._client.cache[VoiceState].values.values()
-        states.extend(state for state in data if state.guild_id == self.id)
-        return states
-
-    @property
-    def mapped_voice_states(self) -> Dict[int, List["VoiceState"]]:
-        """
-        .. versionadded:: 4.4.0
-
-        Returns all the voice states mapped after their channel id.
-
-        :rtype: Dict[int, List[VoiceState]]
-        """
-        states = self.voice_states
-        _states: Dict[int, List[VoiceState]] = {int(state.channel_id): [] for state in states}
-
-        for state in states:
-            _states[int(state.channel_id)].append(state)
-
-        return _states
 
     async def remove_ban(
         self,
@@ -2067,9 +2078,9 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         for ban in res:
             ban["user"] = User(**ban["user"])
-        _all.append(res)
+        _all.extend(res)
 
-        return res
+        return _all
 
     async def prune(
         self,
@@ -2225,6 +2236,53 @@ class Guild(ClientSerializerMixin, IDMixin):
 
         _emoji = Emoji(**res)
         self.emojis.append(_emoji)
+        return _emoji
+
+    async def modify_emoji(
+        self,
+        emoji_id: Union[int, Snowflake, Emoji],
+        name: Optional[str] = MISSING,
+        roles: Optional[Union[List[Role], List[int]]] = MISSING,
+        reason: Optional[str] = None,
+    ) -> Emoji:
+        """
+        .. versionadded:: 4.4.0
+
+        Edits an Emoji in the guild.
+
+        :param Union[int, Snowflake, Emoji] emoji_id: The id of the emoji to edit
+        :param Optional[str] name: The name of the emoji. If not specified, the filename will be used
+        :param Optional[Union[List[Role], List[int]]] roles: Roles allowed to use this emoji
+        :param Optional[str] reason: The reason of the modification
+        :return: The modified emoji object
+        :rtype: Emoji
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        emoji_id = int(emoji_id.id if isinstance(emoji_id, Emoji) else emoji_id)
+
+        payload: dict = {}
+
+        if name is not MISSING:
+            payload["name"] = name
+
+        if roles is not MISSING:
+            payload["roles"] = [int(role.id if isinstance(role, Role) else role) for role in roles]
+
+        res = await self._client.modify_guild_emoji(
+            guild_id=int(self.id), emoji_id=emoji_id, payload=payload, reason=reason
+        )
+
+        _emoji = Emoji(**res, _client=self._client)
+        if self.emojis is None:
+            self.emojis = []
+        for index, item in enumerate(self.emojis):
+            if item.id == emoji_id:
+                self.roles[index] = _emoji
+                break
+        else:
+            self.roles.append(_emoji)
         return _emoji
 
     async def delete_emoji(

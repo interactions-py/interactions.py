@@ -132,7 +132,7 @@ class ApplicationCommandPermission(DictSerializerMixin):
 
     .. code-block:: python
 
-        interactions.Permission(
+        interactions.ApplicationCommandPermission(
             id=1234567890,
             type=interactions.PermissionType.USER,
             permission=True,
@@ -146,9 +146,6 @@ class ApplicationCommandPermission(DictSerializerMixin):
     id: int = field()
     type: PermissionType = field(converter=PermissionType)
     permission: bool = field()
-
-    def __attrs_post_init__(self):
-        self._json["type"] = self.type.value
 
 
 @define()
@@ -219,7 +216,7 @@ class GuildBan(ClientSerializerMixin):
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    user: User = field(converter=User)
+    user: User = field(converter=User, add_client=True)
 
 
 @define()
@@ -232,7 +229,7 @@ class GuildEmojis(ClientSerializerMixin):
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    emojis: List[Emoji] = field(converter=convert_list(Emoji))
+    emojis: List[Emoji] = field(converter=convert_list(Emoji), add_client=True)
 
 
 @define()
@@ -258,10 +255,14 @@ class GuildJoinRequest(DictSerializerMixin):
 
     :ivar Snowflake user_id: The user ID of the event.
     :ivar Snowflake guild_id: The guild ID of the event.
+    :ivar Optional[Any] request: The actual request representing the event. This pertains primarily to _CREATE, but maybe _UPDATE as well.
+    :ivar Optional[str] status: The status of the event, which pertains to _CREATE.
     """
 
     user_id: Snowflake = field(converter=Snowflake)
     guild_id: Snowflake = field(converter=Snowflake)
+    request: Optional[Any] = field(default=None)
+    status: Optional[str] = field(default=None)
 
 
 @define()
@@ -330,9 +331,8 @@ class GuildRole(ClientSerializerMixin):
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
-    role: Optional[Role] = field(converter=Role, default=None)
+    role: Optional[Role] = field(converter=Role, add_client=True, default=None)
     role_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
-    guild_hashes = field()  # TODO: investigate what this is.
 
 
 @define()
@@ -648,6 +648,21 @@ class VoiceState(ClientSerializerMixin):
         """
         return self.channel_id is not None
 
+    @property
+    def channel(self) -> Optional[Channel]:
+        """
+        Returns the current channel, if cached.
+        """
+        return self._client.cache[Channel].get(self.channel_id)
+
+    @property
+    def guild(self) -> Optional[Guild]:
+        """
+        Returns the current guild, if cached.
+        """
+
+        return self._client.cache[Guild].get(self.guild_id)
+
     async def mute_member(self, reason: Optional[str] = None) -> Member:
         """
         Mutes the current member.
@@ -689,15 +704,21 @@ class VoiceState(ClientSerializerMixin):
 
         :rtype: Channel
         """
-        return Channel(
-            **await self._client.get_channel(int(self.channel_id)),
-            _client=self._client,
-        )
+        if channel := self.channel:
+            return channel
 
-    async def get_guild(self) -> "Guild":
+        res = await self._client.get_channel(int(self.channel_id))
+        return Channel(**res, _client=self._client)
+
+    async def get_guild(self) -> Guild:
         """
         Gets the guild in what the update took place.
 
         :rtype: Guild
         """
-        return Guild(**await self._client.get_guild(int(self.guild_id)), _client=self._client)
+
+        if guild := self.guild:
+            return guild
+
+        res = await self._client.get_guild(int(self.guild_id))
+        return Guild(**res, _client=self._client)

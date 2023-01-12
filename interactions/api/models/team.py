@@ -1,6 +1,15 @@
-from typing import Any, List, Optional
+from datetime import datetime
+from enum import IntEnum
+from typing import Any, Dict, List, Optional, Union
 
-from ...utils.attrs_utils import ClientSerializerMixin, convert_list, define, field
+from ...client.enums import Locale
+from ...utils.attrs_utils import (
+    ClientSerializerMixin,
+    DictSerializerMixin,
+    convert_list,
+    define,
+    field,
+)
 from .flags import AppFlags
 from .misc import IDMixin, Snowflake
 from .user import User
@@ -9,6 +18,8 @@ __all__ = (
     "Team",
     "TeamMember",
     "Application",
+    "ApplicationRoleConnectionMetadataType",
+    "ApplicationRoleConnectionMetadata",
 )
 
 
@@ -78,6 +89,7 @@ class Application(ClientSerializerMixin, IDMixin):
     :ivar Optional[str] slug: URL slug that links to the store page, if this app is a game sold on Discord
     :ivar Optional[str] cover_image: The app's default rich presence invite cover image
     :ivar Optional[AppFlags] flags: The application's public flags
+    :ivar Optional[str] role_connections_verification_url: The application's role connection verification URL, if given.
     """
 
     id: Snowflake = field(converter=Snowflake)
@@ -100,6 +112,7 @@ class Application(ClientSerializerMixin, IDMixin):
     flags: Optional[AppFlags] = field(converter=AppFlags, default=None)
     type: Optional[Any] = field(default=None)
     hook: Optional[Any] = field(default=None)
+    role_connections_verification_url: Optional[str] = field(default=None, repr=False)
 
     @property
     def icon_url(self) -> Optional[str]:
@@ -117,3 +130,47 @@ class Application(ClientSerializerMixin, IDMixin):
         else:
             url = None
         return url
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the application was created.
+        """
+        return self.id.timestamp
+
+
+class ApplicationRoleConnectionMetadataType(IntEnum):
+    """
+    .. versionadded:: 4.4.0
+
+    An enumerable object representing the app role connection metadata types
+    """
+
+    INTEGER_LESS_THAN_OR_EQUAL = 1
+    INTEGER_GREATER_THAN_OR_EQUAL = 2
+    INTEGER_EQUAL = 3
+    INTEGER_NOT_EQUAL = 4
+    DATETIME_LESS_THAN_OR_EQUAL = 5
+    DATETIME_GREATER_THAN_OR_EQUAL = 6
+    BOOLEAN_EQUAL = 7
+    BOOLEAN_NOT_EQUAL = 8
+
+
+@define()
+class ApplicationRoleConnectionMetadata(DictSerializerMixin):
+    """
+    .. versionadded:: 4.4.0
+
+    A class object representing role connection metadata for the application/bot/client.
+    """
+
+    type: ApplicationRoleConnectionMetadataType = field(
+        converter=ApplicationRoleConnectionMetadataType
+    )
+    key: str = field()
+    name: str = field()
+    name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
+    description: str = field()
+    description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)

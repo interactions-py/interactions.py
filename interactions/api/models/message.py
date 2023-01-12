@@ -49,7 +49,12 @@ __all__ = (
 
 
 class MessageType(IntEnum):
-    """An enumerable object representing the types of messages."""
+    """
+    An enumerable object representing the types of messages.
+
+    .. note::
+        There is no official name for MessageType 25, however it does represent when someone subscribes to a server for the first time.
+    """
 
     DEFAULT = 0
     RECIPIENT_ADD = 1
@@ -75,6 +80,7 @@ class MessageType(IntEnum):
     GUILD_INVITE_REMINDER = 22
     CONTEXT_MENU_COMMAND = 23
     AUTO_MODERATION_ACTION = 24
+    ROLE_SUBSCRIPTION_PURCHASE = 25
 
     @staticmethod
     def not_deletable() -> List[int]:
@@ -344,7 +350,7 @@ class Embed(DictSerializerMixin):
 
         interactions.Embed(
             title="Embed title",
-            fields=[interaction.EmbedField(...)],
+            fields=[interactions.EmbedField(...)],
         )
 
     :ivar Optional[str] title: Title of embed
@@ -583,6 +589,15 @@ class PartialSticker(DictSerializerMixin, IDMixin):
     name: str = field()
     format_type: int = field()
 
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the sticker was created.
+        """
+        return self.id.timestamp
+
 
 @define()
 class Sticker(PartialSticker, IDMixin):
@@ -639,6 +654,15 @@ class StickerPack(DictSerializerMixin, IDMixin):
     description: str = field()
     banned_asset_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
 
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the sticker pack was created.
+        """
+        return self.id.timestamp
+
 
 @define()
 class ReactionObject(DictSerializerMixin):
@@ -682,7 +706,8 @@ class Message(ClientSerializerMixin, IDMixin):
     :ivar Optional[MessageActivity] activity: Message activity object that's sent by Rich Presence
     :ivar Optional[Application] application: Application object that's sent by Rich Presence
     :ivar Optional[MessageReference] message_reference: Data showing the source of a message (crosspost, channel follow, add, pin, or replied message)
-    :ivar int flags: Message flags
+    :ivar Optional[MessageFlags] flags: Message flags
+    :ivar Optional[Message] referenced_message: The message associated with the message_reference.
     :ivar Optional[MessageInteraction] interaction: Message interaction object, if the message is sent by an interaction.
     :ivar Optional[Channel] thread: The thread that started from this message, if any, with a thread member object embedded.
     :ivar Optional[List[ActionRow]] components: Array of Action Rows associated with this message, if any.
@@ -724,8 +749,8 @@ class Message(ClientSerializerMixin, IDMixin):
     application: Optional[Application] = field(converter=Application, default=None)
     application_id: Optional[Snowflake] = field(converter=Snowflake, default=None)
     message_reference: Optional[MessageReference] = field(converter=MessageReference, default=None)
-    flags: Optional[Union[int, MessageFlags]] = field(converter=MessageFlags, default=None)
-    referenced_message: Optional[MessageReference] = field(converter=MessageReference, default=None)
+    flags: Optional[MessageFlags] = field(converter=MessageFlags, default=None)
+    referenced_message: Optional["Message"] = field(default=None)
     interaction: Optional[MessageInteraction] = field(
         converter=MessageInteraction, default=None, add_client=True, repr=False
     )
@@ -740,6 +765,13 @@ class Message(ClientSerializerMixin, IDMixin):
     )  # deprecated
     position: Optional[int] = field(default=None, repr=False)
 
+    def __attrs_post_init__(self):
+        if self.member and self.guild_id:
+            self.member._extras["guild_id"] = self.guild_id
+
+        if self.author and self.member:
+            self.member.user = self.author
+
     @property
     def deletable(self) -> bool:
         """
@@ -749,12 +781,17 @@ class Message(ClientSerializerMixin, IDMixin):
         """
         return self.type not in self.type.not_deletable()
 
-    def __attrs_post_init__(self):
-        if self.member and self.guild_id:
-            self.member._extras["guild_id"] = self.guild_id
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
 
-        if self.author and self.member:
-            self.member.user = self.author
+        Returns when the message was created.
+        """
+        return self.id.timestamp
+
+        if self.referenced_message is not None:
+            self.referenced_message = Message(**self.referenced_message, _client=self._client)
 
     async def get_channel(self) -> Channel:
         """

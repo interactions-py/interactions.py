@@ -1,8 +1,10 @@
+import asyncio
+from datetime import datetime
 from logging import Logger
 from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 from ..api.error import LibraryException
-from ..api.models.channel import Channel
+from ..api.models.channel import Channel, Thread
 from ..api.models.flags import MessageFlags, Permissions
 from ..api.models.guild import Guild
 from ..api.models.member import Member
@@ -41,11 +43,8 @@ class _Context(ClientSerializerMixin):
     """
 
     message: Optional[Message] = field(converter=Message, default=None, add_client=True)
-    author: Member = field(converter=Member, default=None, add_client=True)
-    member: Member = field(converter=Member, add_client=True)
+    member: Optional[Member] = field(default=None, converter=Member, add_client=True)
     user: User = field(converter=User, default=None, add_client=True)
-    channel: Optional[Channel] = field(converter=Channel, default=None, add_client=True)
-    guild: Optional[Guild] = field(converter=Guild, default=None, add_client=True)
     id: Snowflake = field(converter=Snowflake)
     application_id: Snowflake = field(converter=Snowflake)
     type: InteractionType = field(converter=InteractionType)
@@ -63,6 +62,16 @@ class _Context(ClientSerializerMixin):
     locale: Optional[Locale] = field(converter=Locale, default=None)
     guild_locale: Optional[Locale] = field(converter=Locale, default=None)
 
+    def __attrs_post_init__(self) -> None:
+        if self.member and self.guild_id:
+            self.member._extras["guild_id"] = self.guild_id
+
+        if self.user is None:
+            self.user = self.member.user if self.member else None
+
+        if self.member and not self.member.user and self.user:
+            self.member.user = self.user
+
     @property
     def deferred_ephemeral(self) -> bool:
         """
@@ -75,48 +84,81 @@ class _Context(ClientSerializerMixin):
             and self.message.flags & MessageFlags.LOADING
         )
 
-    def __attrs_post_init__(self) -> None:
-        if self.member and self.guild_id:
-            self.member._extras["guild_id"] = self.guild_id
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
 
-        self.author = self.member
+        Returns when the interaction was created.
+        """
+        return self.id.timestamp
 
-        if self.user is None:
-            self.user = self.member.user if self.member else None
+    @property
+    def author(self) -> Optional[Member]:
+        """
+        Returns the author/member that invoked the interaction.
+        """
+        return self.member
 
-        if self.guild is None and self.guild_id is not None:
-            self.guild = self._client.cache[Guild].get(self.guild_id, MISSING)
+    @property
+    def channel(self) -> Optional[Channel]:
+        """
+        .. versionadded:: 4.1.0
 
-        if self.channel is None:
-            self.channel = self._client.cache[Channel].get(self.channel_id, MISSING)
+        .. versionchanged:: 4.4.0
+            Channel now returns ``None`` instead of ``MISSING`` if it is not found to avoid confusion
+
+        Returns the current channel, if cached.
+        """
+        return self._client.cache[Channel].get(self.channel_id, None) or self._client.cache[
+            Thread
+        ].get(self.channel_id, None)
+
+    @property
+    def guild(self) -> Optional[Guild]:
+        """
+         .. versionadded:: 4.1.0
+
+         .. versionchanged:: 4.4.0
+            Guild now returns ``None`` instead of ``MISSING`` if it is not found to avoid confusion
+
+        Returns the current guild, if cached.
+        """
+
+        return self._client.cache[Guild].get(self.guild_id, None)
 
     async def get_channel(self) -> Channel:
         """
         .. versionadded:: 4.1.0
 
-        This gets the channel the context was invoked in.
+        This gets the channel the context was invoked in. If the channel is not cached, an HTTP request is made.
 
         :return: The channel as object
         :rtype: Channel
         """
+        if channel := self.channel:
+            await asyncio.sleep(0)
+            return channel
 
         res = await self._client.get_channel(int(self.channel_id))
-        self.channel = Channel(**res, _client=self._client)
-        return self.channel
+        return Channel(**res, _client=self._client)
 
     async def get_guild(self) -> Guild:
         """
         .. versionadded:: 4.1.0
 
-        This gets the guild the context was invoked in.
+        This gets the guild the context was invoked in. If the guild is not cached, an HTTP request is made.
 
         :return: The guild as object
         :rtype: Guild
         """
 
+        if guild := self.guild:
+            await asyncio.sleep(0)
+            return guild
+
         res = await self._client.get_guild(int(self.guild_id))
-        self.guild = Guild(**res, _client=self._client)
-        return self.guild
+        return Guild(**res, _client=self._client)
 
     async def send(
         self,
@@ -149,8 +191,7 @@ class _Context(ClientSerializerMixin):
         :param Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] components: A component, or list of components for the message.
         :param Optional[bool] ephemeral: Whether the response is hidden or not.
         :param Optional[bool] suppress_embeds: Whether embeds are not shown in the message.
-        :return: The sent message as a dict.
-        :rtype: Tuple[dict, Union[File, List[File]]]
+        :return: The sent message.
         """
         if (
             content is MISSING
@@ -257,8 +298,7 @@ class _Context(ClientSerializerMixin):
         :param Optional[Union[AllowedMentions, dict]] allowed_mentions: The allowed mentions for the message.
         :param Optional[MessageReference] message_reference: Include to make your message a reply.
         :param Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] components: A component, or list of components for the message.
-        :return: The edited message as a dict.
-        :rtype: dict
+        :return: The edited message.
         """
 
         payload = {}
@@ -389,10 +429,7 @@ class CommandContext(_Context):
     :ivar str token: The token of the interaction response.
     :ivar Snowflake guild_id: The ID of the current guild.
     :ivar Snowflake channel_id: The ID of the current channel.
-    :ivar Member author: The member data model.
     :ivar User user: The user data model.
-    :ivar Optional[Channel] channel: The channel data model.
-    :ivar Optional[Guild] guild: The guild data model.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
@@ -466,7 +503,7 @@ class CommandContext(_Context):
                 try:
                     res = await self._client.edit_interaction_response(
                         token=self.token,
-                        application_id=str(self.id),
+                        application_id=str(self.application_id),
                         data=payload,
                         files=files,
                         message_id=self.message.id
@@ -587,13 +624,13 @@ class CommandContext(_Context):
         """
         if self.responded and self.message is not None:
             await self._client.delete_interaction_response(
-                application_id=int(self.application_id),
+                application_id=str(self.application_id),
                 token=self.token,
                 message_id=int(self.message.id),
             )
         else:
             await self._client.delete_interaction_response(
-                application_id=int(self.application_id), token=self.token
+                application_id=str(self.application_id), token=self.token
             )
 
         self.message = None
@@ -612,39 +649,32 @@ class CommandContext(_Context):
         :rtype: List[Choice]
         """
 
-        async def func():
-            _choices: Union[list, None] = []
+        _choices: Union[list, None] = []
 
-            if not choices or (isinstance(choices, list) and len(choices) == 0):
-                _choices = None
-            elif isinstance(choices, Choice):
-                _choices.append(choices._json)
-            elif isinstance(choices, list) and all(
-                isinstance(choice, Choice) for choice in choices
-            ):
-                _choices = [choice._json for choice in choices]
-            elif all(
-                isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
-                for choice in choices
-            ):
-                _choices = list(choices)
-            else:
-                raise LibraryException(
-                    6, message="Autocomplete choice items must be of type Choice"
-                )
+        if not choices or (isinstance(choices, list) and len(choices) == 0):
+            _choices = None
+        elif isinstance(choices, Choice):
+            _choices.append(choices._json)
+        elif isinstance(choices, list) and all(isinstance(choice, Choice) for choice in choices):
+            _choices = [choice._json for choice in choices]
+        elif all(
+            isinstance(choice, dict) and all(isinstance(x, str) for x in choice)
+            for choice in choices
+        ):
+            _choices = list(choices)
+        else:
+            raise LibraryException(6, message="Autocomplete choice items must be of type Choice")
 
-            await self._client.create_interaction_response(
-                token=self.token,
-                application_id=int(self.id),
-                data={
-                    "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
-                    "data": {"choices": _choices},
-                },
-            )
+        await self._client.create_interaction_response(
+            token=self.token,
+            application_id=int(self.id),
+            data={
+                "type": InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT.value,
+                "data": {"choices": _choices},
+            },
+        )
 
-            return _choices
-
-        return await func()
+        return _choices
 
 
 @define()
@@ -661,14 +691,11 @@ class ComponentContext(_Context):
     :ivar Snowflake guild_id: The ID of the current guild.
     :ivar Snowflake channel_id: The ID of the current channel.
     :ivar Optional[Message] message: The message data model.
-    :ivar Member author: The member data model.
     :ivar User user: The user data model.
-    :ivar Optional[Channel] channel: The channel data model.
-    :ivar Optional[Guild] guild: The guild data model.
     :ivar bool responded: Whether an original response was made or not.
     :ivar bool deferred: Whether the response was deferred or not.
-    :ivar str locale: The selected language of the user invoking the interaction.
-    :ivar str guild_locale: The guild's preferred language, if invoked in a guild.
+    :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
+    :ivar Optional[Locale] guild_locale: The guild's preferred language, if invoked in a guild.
     :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     """
 

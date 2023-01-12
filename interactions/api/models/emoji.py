@@ -1,8 +1,11 @@
+from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from ...utils.attrs_utils import ClientSerializerMixin, convert_list, define, field
+from ...utils.missing import MISSING
 from ..error import LibraryException
 from .misc import Snowflake
+from .role import Role
 from .user import User
 
 if TYPE_CHECKING:
@@ -42,6 +45,7 @@ class Emoji(ClientSerializerMixin):
         .. versionadded:: 4.4.0
 
         Formats the emoji into a send-able form.
+
         :rtype: str
         """
         return (
@@ -51,6 +55,15 @@ class Emoji(ClientSerializerMixin):
             if self.require_colons
             else self.name
         )
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        .. versionadded:: 4.4.0
+
+        Returns when the emoji was created.
+        """
+        return self.id.timestamp
 
     @classmethod
     async def get(
@@ -97,6 +110,46 @@ class Emoji(ClientSerializerMixin):
 
         res = await client.get_all_emoji(guild_id=_guild_id)
         return [cls(**emoji, _client=client) for emoji in res]
+
+    async def modify(
+        self,
+        guild_id: Union[int, Snowflake, "Guild"],
+        name: Optional[str] = MISSING,
+        roles: Optional[Union[List[Role], List[int]]] = MISSING,
+        reason: Optional[str] = None,
+    ) -> "Emoji":
+        """
+        .. versionadded:: 4.4.0
+
+        Edits the Emoji in a guild.
+
+        :param int guild_id: The id of the guild to edit the emoji on
+        :param Optional[str] name: The name of the emoji. If not specified, the filename will be used
+        :param Optional[Union[List[Role], List[int]]] roles: Roles allowed to use this emoji
+        :param Optional[str] reason: The reason of the modification
+        :return: The modified emoji object
+        :rtype: Emoji
+        """
+        if not self._client:
+            raise LibraryException(code=13)
+
+        payload: dict = {}
+
+        if name is not MISSING:
+            payload["name"] = name
+
+        if roles is not MISSING:
+            payload["roles"] = [int(role.id if isinstance(role, Role) else role) for role in roles]
+
+        _guild_id = int(guild_id) if isinstance(guild_id, (int, Snowflake)) else int(guild_id.id)
+
+        res = await self._client.modify_guild_emoji(
+            guild_id=_guild_id, emoji_id=int(self.id), payload=payload, reason=reason
+        )
+
+        self.update(res)
+
+        return self
 
     async def delete(
         self,
