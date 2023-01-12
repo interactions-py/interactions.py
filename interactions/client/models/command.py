@@ -173,10 +173,10 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar str description: The description of the application command.
     :ivar Optional[List[Option]] options: The "options"/arguments of the application command.
     :ivar Optional[bool] default_permission: The default permission accessibility state of the application command.
+    :ivar Optional[bool] nsfw: Indicates whether the command is age-restricted.
     :ivar int version: The Application Command version autoincrement identifier.
     :ivar str default_member_permissions: The default member permission state of the application command.
     :ivar bool dm_permission: The application permissions if executed in a Direct Message.
-    :ivar bool nsfw: Indicates whether the command is age-restricted.
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The localisation dictionary for the application command name, if any.
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The localisation dictionary for the application command description, if any.
     """
@@ -189,10 +189,10 @@ class ApplicationCommand(DictSerializerMixin):
     description: str = field()
     options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
     default_permission: Optional[bool] = field(default=None)
+    nsfw: Optional[bool] = field(default=None)
     version: int = field(default=None)
     default_member_permissions: str = field()
     dm_permission: bool = field(default=None)
-    nsfw: bool = field(default=None)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=None)
 
