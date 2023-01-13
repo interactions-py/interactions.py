@@ -193,7 +193,7 @@ class Client:
         """Starts the client session."""
 
         try:
-            self._loop.run_until_complete(self._ready())
+            self._loop.run_until_complete(self._ready(token=token))
         except (CancelledError, Exception) as e:
             self._loop.run_until_complete(self._logout())
             raise e from e
@@ -415,7 +415,7 @@ class Client:
             |   |___ CALLBACK
             LOOP
         """
-        if self._http and token:
+        if self._http and token and self._http is not token:
             raise RuntimeError("You cannot pass a token to the bot twice!")
         elif not (self._http or token):
             raise RuntimeError("No token was passed to the bot!")
@@ -425,7 +425,7 @@ class Client:
             self._websocket._http = token  # Update the websockets token if it wasn't set before
 
         if isinstance(self._http, str):
-            self._http = HTTPClient(self._http)
+            self._http = HTTPClient(self._http, self._cache)
 
         data = await self._http.get_current_bot_information()
         self.me = Application(**data, _client=self._http)
