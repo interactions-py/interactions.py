@@ -211,8 +211,11 @@ class EmbeddedActivity(DictSerializerMixin):
 @define()
 class GuildAuditLogEntry(AuditLogEntry):
     """
+    .. versionadded:: 4.4.0
+
     A class object representing an GuildAuditLogEntry.
     A derivation of AuditLogEntry.
+
     :ivar Snowflake guild_id: The guild ID of event.
     """
 
