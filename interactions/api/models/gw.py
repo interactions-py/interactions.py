@@ -222,8 +222,8 @@ class GuildAuditLogEntry(AuditLogEntry):
     :ivar Optional[Snowflake] user_id: User or app that made the changes
     :ivar Snowflake id: ID of the entry
     :ivar AuditLogEvents action_type: Type of action that occurred
-    :ivar OptionalAuditEntryInfo options: Additional info for certain event types
-    :ivar str reason: Reason for the change (1-512 characters)
+    :ivar Optional[AuditEntryInfo] options: Additional info for certain event types
+    :ivar Optional[str] reason: Reason for the change (1-512 characters)
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
