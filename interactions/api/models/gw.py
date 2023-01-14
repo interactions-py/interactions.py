@@ -214,9 +214,16 @@ class GuildAuditLogEntry(AuditLogEntry):
     .. versionadded:: 4.4.0
 
     A class object representing the event ``GUILD_AUDIT_LOG_ENTRY_CREATE``.
-    A derivation of AuditLogEntry.
+    A derivation of :class:`.AuditLogEntry`.
 
     :ivar Snowflake guild_id: The guild ID of event.
+    :ivar Optional[str] target_id: ID of the affected entity (webhook, user, role, etc.)
+    :ivar Optional[List[AuditLogChange]] changes: Changes made to the target_id
+    :ivar Optional[Snowflake] user_id: User or app that made the changes
+    :ivar Snowflake id: ID of the entry
+    :ivar AuditLogEvents action_type: Type of action that occurred
+    :ivar OptionalAuditEntryInfo options: Additional info for certain event types
+    :ivar str reason: Reason for the change (1-512 characters)
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
