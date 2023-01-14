@@ -40,6 +40,7 @@ __all__ = (
     "MessageDelete",
     "MessageReactionRemove",
     "MessageReaction",
+    "GuildAuditLogEntry",
     "GuildIntegrations",
     "GuildBan",
     "Webhooks",
@@ -204,6 +205,17 @@ class EmbeddedActivity(DictSerializerMixin):
     guild_id: Snowflake = field(converter=Snowflake)
     embedded_activity: PresenceActivity = field(converter=PresenceActivity)
     channel_id: Snowflake = field(converter=Snowflake)
+
+
+@define()
+class GuildAuditLogEntry(DictSerializerMixin):
+    """
+    A class object representing the gateway event ``GUILD_AUDIT_LOG_ENTRY_CREATE``
+
+    :ivar Snowflake guild_id: The guild ID of event.
+    """
+
+    guild_id: Snowflake = field(converter=Snowflake)
 
 
 @define()
