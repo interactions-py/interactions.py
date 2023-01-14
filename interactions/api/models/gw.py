@@ -9,6 +9,7 @@ from ...utils.attrs_utils import (
     define,
     field,
 )
+from .audit_log import AuditLogEntry
 from .channel import Channel, ThreadMember
 from .emoji import Emoji
 from .guild import EventMetadata, Guild
@@ -40,6 +41,7 @@ __all__ = (
     "MessageDelete",
     "MessageReactionRemove",
     "MessageReaction",
+    "GuildAuditLogEntry",
     "GuildIntegrations",
     "GuildBan",
     "Webhooks",
@@ -204,6 +206,20 @@ class EmbeddedActivity(DictSerializerMixin):
     guild_id: Snowflake = field(converter=Snowflake)
     embedded_activity: PresenceActivity = field(converter=PresenceActivity)
     channel_id: Snowflake = field(converter=Snowflake)
+
+
+@define()
+class GuildAuditLogEntry(AuditLogEntry):
+    """
+    .. versionadded:: 4.4.0
+
+    A class object representing the event ``GUILD_AUDIT_LOG_ENTRY_CREATE``.
+    A derivation of AuditLogEntry.
+
+    :ivar Snowflake guild_id: The guild ID of event.
+    """
+
+    guild_id: Snowflake = field(converter=Snowflake)
 
 
 @define()
