@@ -213,7 +213,7 @@ class GuildAuditLogEntry(AuditLogEntry):
     """
     .. versionadded:: 4.4.0
 
-    A class object representing an GuildAuditLogEntry.
+    A class object representing the event ``GUILD_AUDIT_LOG_ENTRY_CREATE``.
     A derivation of AuditLogEntry.
 
     :ivar Snowflake guild_id: The guild ID of event.
