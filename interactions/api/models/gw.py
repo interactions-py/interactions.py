@@ -9,6 +9,7 @@ from ...utils.attrs_utils import (
     define,
     field,
 )
+from .audit_log import AuditLogEntry
 from .channel import Channel, ThreadMember
 from .emoji import Emoji
 from .guild import EventMetadata, Guild
@@ -213,9 +214,11 @@ class GuildAuditLogEntry(DictSerializerMixin):
     A class object representing the gateway event ``GUILD_AUDIT_LOG_ENTRY_CREATE``
 
     :ivar Snowflake guild_id: The guild ID of event.
+    :ivar AuditLogEntry audit_log_entry: The AuditLogEntry of event.
     """
 
     guild_id: Snowflake = field(converter=Snowflake)
+    audit_log_entry: AuditLogEntry = field(converter=AuditLogEntry)
 
 
 @define()
