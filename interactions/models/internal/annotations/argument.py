@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from interactions.client.errors import BadArgument
-from interactions.models.internal.context import Context, PrefixedContext
+from interactions.models.internal.context import Context
 from interactions.models.internal.converters import NoArgumentConverter
 
 __all__ = ("CMD_ARGS", "CMD_AUTHOR", "CMD_BODY", "CMD_CHANNEL")

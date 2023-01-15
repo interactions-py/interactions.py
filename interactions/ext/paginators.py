@@ -14,7 +14,6 @@ from interactions import (
     spread_to_rows,
     ComponentCommand,
     Context,
-    PrefixedContext,
     Message,
     MISSING,
     Snowflake_Type,

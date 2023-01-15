@@ -38,7 +38,7 @@ from interactions.api.gateway.gateway import GatewayClient
 from interactions.api.gateway.state import ConnectionState
 from interactions.api.http.http_client import HTTPClient
 from interactions.client import errors
-from interactions.client.const import GLOBAL_SCOPE, MISSING, MENTION_PREFIX, Absent, EMBED_MAX_DESC_LENGTH, get_logger
+from interactions.client.const import GLOBAL_SCOPE, MISSING, Absent, EMBED_MAX_DESC_LENGTH, get_logger
 from interactions.client.errors import (
     BotException,
     ExtensionLoadException,
@@ -70,17 +70,13 @@ from interactions.models import (
     InteractionCommand,
     SlashCommand,
     OptionTypes,
-    HybridCommand,
-    PrefixedCommand,
     BaseCommand,
     to_snowflake,
     to_snowflake_list,
     ComponentContext,
     InteractionContext,
     ModalContext,
-    PrefixedContext,
     AutocompleteContext,
-    HybridContext,
     ComponentCommand,
     application_commands_to_dict,
     sync_needed,
@@ -97,7 +93,6 @@ from interactions.models.discord.modal import Modal
 from interactions.models.internal.active_voice_state import ActiveVoiceState
 from interactions.models.internal.application_commands import ContextMenu, ModalCommand
 from interactions.models.internal.auto_defer import AutoDefer
-from interactions.models.internal.hybrid_commands import _prefixed_from_slash, _base_subcommand_generator
 from interactions.models.internal.listener import Listener
 from interactions.models.internal.tasks import Task
 
@@ -201,7 +196,6 @@ class Client(
     Args:
         intents: The intents to use
 
-        default_prefix: The default prefix (or prefixes) to use for prefixed commands. Defaults to your bot being mentioned.
         generate_prefixes: A coroutine that returns a string or an iterable of strings to determine prefixes.
         status: The status the bot should log in with (IE ONLINE, DND, IDLE)
         activity: The activity the bot should log in "playing"
@@ -214,11 +208,9 @@ class Client(
 
         auto_defer: AutoDefer: A system to automatically defer commands after a set duration
         interaction_context: Type[InteractionContext]: InteractionContext: The object to instantiate for Interaction Context
-        prefixed_context: Type[PrefixedContext]: The object to instantiate for Prefixed Context
         component_context: Type[ComponentContext]: The object to instantiate for Component Context
         autocomplete_context: Type[AutocompleteContext]: The object to instantiate for Autocomplete Context
         modal_context: Type[ModalContext]: The object to instantiate for Modal Context
-        hybrid_context: Type[HybridContext]: The object to instantiate for Hybrid Context
 
         total_shards: The total number of shards in use
         shard_id: The zero based int ID of this shard
@@ -250,12 +242,10 @@ class Client(
         autocomplete_context: Type[AutocompleteContext] = AutocompleteContext,
         component_context: Type[ComponentContext] = ComponentContext,
         debug_scope: Absent["Snowflake_Type"] = MISSING,
-        default_prefix: str | Iterable[str] = MENTION_PREFIX,
         delete_unused_application_cmds: bool = False,
         disable_dm_commands: bool = False,
         enforce_interaction_perms: bool = True,
         fetch_members: bool = False,
-        generate_prefixes: Absent[Callable[..., Coroutine]] = MISSING,
         global_post_run_callback: Absent[Callable[..., Coroutine]] = MISSING,
         global_pre_run_callback: Absent[Callable[..., Coroutine]] = MISSING,
         intents: Union[int, Intents] = Intents.DEFAULT,
@@ -263,8 +253,6 @@ class Client(
         logger: logging.Logger = MISSING,
         owner_ids: Iterable["Snowflake_Type"] = (),
         modal_context: Type[ModalContext] = ModalContext,
-        prefixed_context: Type[PrefixedContext] = PrefixedContext,
-        hybrid_context: Type[HybridContext] = HybridContext,
         send_command_tracebacks: bool = True,
         shard_id: int = 0,
         status: Status = Status.ONLINE,
@@ -298,10 +286,6 @@ class Client(
         """Should we sync whenever a extension is (un)loaded"""
         self.debug_scope = to_snowflake(debug_scope) if debug_scope is not MISSING else MISSING
         """Sync global commands as guild for quicker command updates during debug"""
-        self.default_prefix = default_prefix
-        """The default prefix to be used for prefixed commands"""
-        self.generate_prefixes = generate_prefixes if generate_prefixes is not MISSING else self.generate_prefixes
-        """A coroutine that returns a prefix or an iterable of prefixes, for dynamic prefixes"""
         self.send_command_tracebacks: bool = send_command_tracebacks
         """Should the traceback of command errors be sent in reply to the command invocation"""
         if auto_defer is True:
@@ -320,16 +304,12 @@ class Client(
         # context objects
         self.interaction_context: Type[InteractionContext] = interaction_context
         """The object to instantiate for Interaction Context"""
-        self.prefixed_context: Type[PrefixedContext] = prefixed_context
-        """The object to instantiate for Prefixed Context"""
         self.component_context: Type[ComponentContext] = component_context
         """The object to instantiate for Component Context"""
         self.autocomplete_context: Type[AutocompleteContext] = autocomplete_context
         """The object to instantiate for Autocomplete Context"""
         self.modal_context: Type[ModalContext] = modal_context
         """The object to instantiate for Modal Context"""
-        self.hybrid_context: Type[HybridContext] = hybrid_context
-        """The object to instantiate for Hybrid Context"""
 
         # flags
         self._ready = asyncio.Event()
@@ -365,8 +345,6 @@ class Client(
         self._app: Absent[Application] = MISSING
 
         # collections
-        self.prefixed_commands: Dict[str, PrefixedCommand] = {}
-        """A dictionary of registered prefixed commands: `{name: command}`"""
         self.interactions: Dict["Snowflake_Type", Dict[str, InteractionCommand]] = {}
         """A dictionary of registered application commands: `{cmd_id: command}`"""
         self.interaction_tree: Dict[
@@ -502,11 +480,9 @@ class Client(
         self.logger.debug("Running client sanity checks...")
         contexts = {
             self.interaction_context: InteractionContext,
-            self.prefixed_context: PrefixedContext,
             self.component_context: ComponentContext,
             self.autocomplete_context: AutocompleteContext,
             self.modal_context: ModalContext,
-            self.hybrid_context: HybridContext,
         }
         for obj, expected in contexts.items():
             if not issubclass(obj, expected):
@@ -692,16 +668,8 @@ class Client(
         Listen to the `CommandCompletion` event to overwrite this behaviour.
 
         """
-        if isinstance(event.ctx, PrefixedContext):
-            symbol = "@"
-        elif isinstance(event.ctx, InteractionContext):
-            symbol = "/"
-        elif isinstance(event.ctx, HybridContext):
-            symbol = "@/"
-        else:
-            symbol = "?"  # likely custom context
         self.logger.info(
-            f"Command Called: {symbol}{event.ctx.invoke_target} with {event.ctx.args = } | {event.ctx.kwargs = }"
+            f"Command Called: /{event.ctx.invoke_target} with {event.ctx.args = } | {event.ctx.kwargs = }"
         )
 
     @Listener.create(is_default_listener=True)
@@ -1225,73 +1193,6 @@ class Client(
 
         return True
 
-    def add_hybrid_command(self, command: HybridCommand) -> bool:
-        if self.debug_scope:
-            command.scopes = [self.debug_scope]
-
-        if command.callback is None:
-            return False
-
-        if command.is_subcommand:
-            prefixed_base = self.prefixed_commands.get(str(command.name))
-            if not prefixed_base:
-                prefixed_base = _base_subcommand_generator(
-                    str(command.name), list(command.name.to_locale_dict().values()), str(command.description)
-                )
-                self.add_prefixed_command(prefixed_base)
-
-            if command.group_name:  # if this is a group command
-                _prefixed_cmd = prefixed_base
-                prefixed_base = prefixed_base.subcommands.get(str(command.group_name))
-
-                if not prefixed_base:
-                    prefixed_base = _base_subcommand_generator(
-                        str(command.group_name),
-                        list(command.group_name.to_locale_dict().values()),
-                        str(command.group_description),
-                        group=True,
-                    )
-                    _prefixed_cmd.add_command(prefixed_base)
-
-            new_command = _prefixed_from_slash(command)
-            new_command._parse_parameters()
-            prefixed_base.add_command(new_command)
-        else:
-            new_command = _prefixed_from_slash(command)
-            self.add_prefixed_command(new_command)
-
-        return self.add_interaction(command)
-
-    def add_prefixed_command(self, command: PrefixedCommand) -> None:
-        """
-        Add a prefixed command to the client.
-
-        Args:
-            command PrefixedCommand: The command to add
-
-        """
-        # check that the required intent is enabled or the prefix is a mention
-        prefixes = (
-            self.default_prefix
-            if not isinstance(self.default_prefix, str) and not self.default_prefix == MENTION_PREFIX
-            else (self.default_prefix,)
-        )
-        if (MENTION_PREFIX not in prefixes) and (Intents.GUILD_MESSAGE_CONTENT not in self.intents):
-            self.logger.warning(
-                f"Prefixed commands will not work since the required intent is not set -> Requires: `{Intents.GUILD_MESSAGE_CONTENT.__repr__()}` or usage of the default `MENTION_PREFIX` as the prefix"
-            )
-
-        command._parse_parameters()
-
-        if self.prefixed_commands.get(command.name):
-            raise ValueError(f"Duplicate command! Multiple commands share the name/alias: {command.name}.")
-        self.prefixed_commands[command.name] = command
-
-        for alias in command.aliases:
-            if self.prefixed_commands.get(alias):
-                raise ValueError(f"Duplicate command! Multiple commands share the name/alias: {alias}.")
-            self.prefixed_commands[alias] = command
-
     def add_component_callback(self, command: ComponentCommand) -> None:
         """
         Add a component callback to the client.
@@ -1332,14 +1233,8 @@ class Client(
                     self.add_modal_callback(func)
                 elif isinstance(func, ComponentCommand):
                     self.add_component_callback(func)
-                elif isinstance(func, HybridCommand):
-                    self.add_hybrid_command(func)
                 elif isinstance(func, InteractionCommand):
                     self.add_interaction(func)
-                elif (
-                    isinstance(func, PrefixedCommand) and not func.is_subcommand
-                ):  # subcommands will be added with main comamnds
-                    self.add_prefixed_command(func)
                 elif isinstance(func, Listener):
                     self.add_listener(func)
 
@@ -1566,93 +1461,31 @@ class Client(
                                 self.interactions[scope][f"{cmd_data['name']} {sc['name']} {_sc['name']}"].cmd_id[
                                     scope
                                 ] = int(cmd_data["id"])
-
-    @overload
-    async def get_context(self, data: ComponentChannelInteractionData, interaction: Literal[True]) -> ComponentContext:
-        ...
-
-    @overload
-    async def get_context(
-        self, data: AutocompleteChannelInteractionData, interaction: Literal[True]
-    ) -> AutocompleteContext:
-        ...
-
-    # as of right now, discord_typings doesn't include anything like this
-    # @overload
-    # async def get_context(self, data: ModalSubmitInteractionData, interaction: Literal[True]) -> ModalContext:
-    #     ...
-
-    @overload
-    async def get_context(self, data: InteractionData, interaction: Literal[True]) -> InteractionContext:
-        ...
-
-    @overload
-    async def get_context(
-        self, data: dict, interaction: Literal[True]
-    ) -> ComponentContext | AutocompleteContext | ModalContext | InteractionContext:
-        # fallback case since some data isn't typehinted properly
-        ...
-
-    @overload
-    async def get_context(self, data: Message, interaction: Literal[False] = False) -> PrefixedContext:
-        ...
-
-    async def get_context(
-        self, data: InteractionData | dict | Message, interaction: bool = False
-    ) -> ComponentContext | AutocompleteContext | ModalContext | InteractionContext | PrefixedContext:
-        """
-        Return a context object based on data passed.
-
-        !!! note
-            If you want to use custom context objects, this is the method to override. Your replacement must take the same arguments as this, and return a Context-like object.
-
-        Args:
-            data: The data of the event
-            interaction: Is this an interaction or not?
-
-        Returns:
-            Context object
-
-        """
-        # this line shuts up IDE warnings
-        cls: ComponentContext | AutocompleteContext | ModalContext | InteractionContext | PrefixedContext
-
-        if interaction:
-            match data["type"]:
-                case InteractionTypes.MESSAGE_COMPONENT:
-                    cls = self.component_context.from_dict(data, self)
-
-                case InteractionTypes.AUTOCOMPLETE:
-                    cls = self.autocomplete_context.from_dict(data, self)
-
-                case InteractionTypes.MODAL_RESPONSE:
-                    cls = self.modal_context.from_dict(data, self)
-
-                case _:
-                    cls = self.interaction_context.from_dict(data, self)
-
-            if not cls.channel:
-                try:
-                    cls.channel = await self.cache.fetch_channel(data["channel_id"])
-                except Forbidden:
-                    cls.channel = BaseChannel.from_dict_factory(
-                        {"id": data["channel_id"], "type": ChannelTypes.GUILD_TEXT}, self
-                    )
-
-        else:
-            cls = self.prefixed_context.from_message(self, data)
-            if not cls.channel:
-                cls.channel = await self.cache.fetch_channel(data._channel_id)
-
+    async def get_context(self, data: dict) -> InteractionContext:
+        match data["type"]:
+            case InteractionTypes.MESSAGE_COMPONENT:
+                cls = self.component_context.from_dict(data, self)
+            case InteractionTypes.AUTOCOMPLETE:
+                cls = self.autocomplete_context.from_dict(data, self)
+            case InteractionTypes.MODAL_RESPONSE:
+                cls = self.modal_context.from_dict(data, self)
+            case InteractionTypes.APPLICATION_COMMAND:
+                cls = self.slash_context.from_dict(data, self)
+            case _:
+                self.logger.warning(f"Unknown interaction type [{data['type']}] - please update or report this.")
+                cls = self.interaction_context.from_dict(data, self)
+        if not cls.channel:
+            # fallback channel if not provided
+            try:
+                cls.channel = await self.cache.fetch_channel(data["channel_id"])
+            except Forbidden:
+                cls.channel = BaseChannel.from_dict({"id": data["channel_id"], "type": ChannelTypes.GUILD_TEXT}, self)
         return cls
 
     async def _run_slash_command(self, command: SlashCommand, ctx: InteractionContext) -> Any:
         """Overrideable method that executes slash commands, can be used to wrap callback execution"""
         return await command(ctx, **ctx.kwargs)
 
-    async def _run_prefixed_command(self, command: PrefixedCommand, ctx: PrefixedContext) -> Any:
-        """Overrideable method that executes prefixed commands, can be used to wrap callback execution"""
-        return await command(ctx)
 
     @processors.Processor.define("raw_interaction_create")
     async def _dispatch_interaction(self, event: RawGatewayEvent) -> None:
@@ -1751,129 +1584,6 @@ class Client(
 
         else:
             raise NotImplementedError(f"Unknown Interaction Received: {interaction_data['type']}")
-
-    @Listener.create("raw_message_create", is_default_listener=True)
-    async def _dispatch_prefixed_commands(self, event: RawGatewayEvent) -> None:
-        """Determine if a prefixed command is being triggered, and dispatch it."""
-        # don't waste time processing this if there are no prefixed commands
-        if not self.prefixed_commands:
-            return
-
-        data = event.data
-
-        # many bots will not have the message content intent, and so will not have content
-        # for most messages. since there's nothing for prefixed commands to work off of,
-        # we might as well not waste time
-        if not data.get("content"):
-            return
-
-        # webhooks and users labeled with the bot property are bots, and should be ignored
-        if data.get("webhook_id") or data["author"].get("bot", False):
-            return
-
-        # now, we've done the basic filtering out, but everything from here on out relies
-        # on a proper message object, so now we either hope its already in the cache or wait
-        # on the processor
-
-        # first, let's check the cache...
-        message = self.cache.get_message(int(data["channel_id"]), int(data["id"]))
-
-        # this huge if statement basically checks if the message hasn't been fully processed by
-        # the processor yet, which would mean that these fields aren't fully filled
-        if message and (
-            (not message._guild_id and event.data.get("guild_id"))
-            or (message._guild_id and not message.guild)
-            or not message.channel
-        ):
-            message = None
-
-        # if we didn't get a message, then we know we should wait for the message create event
-        if not message:
-            try:
-                # i think 2 seconds is a very generous timeout limit
-                event: MessageCreate = await self.wait_for(
-                    MessageCreate, checks=lambda e: int(e.message.id) == int(data["id"]), timeout=2
-                )
-                message = event.message
-            except asyncio.TimeoutError:
-                return
-
-        # here starts the actual prefixed command parsing part
-        prefixes: str | Iterable[str] = await self.generate_prefixes(self, message)
-
-        if isinstance(prefixes, str) or prefixes == MENTION_PREFIX:
-            # its easier to treat everything as if it may be an iterable
-            # rather than building a special case for this
-            prefixes = (prefixes,)  # type: ignore
-
-        prefix_used = None
-
-        for prefix in prefixes:
-            if prefix == MENTION_PREFIX:
-                if mention := self._mention_reg.search(message.content):  # type: ignore
-                    prefix = mention.group()
-                else:
-                    continue
-
-            if message.content.startswith(prefix):
-                prefix_used = prefix
-                break
-
-        if not prefix_used:
-            return
-
-        context = await self.get_context(message)
-        context.prefix = prefix_used
-
-        # interestingly enough, we cannot count on ctx.invoke_target
-        # being correct as its hard to account for newlines and the like
-        # with the way we get subcommands here
-        # we'll have to reconstruct it by getting the content_parameters
-        # then removing the prefix and the parameters from the message
-        # content
-        content_parameters = message.content.removeprefix(prefix_used)  # type: ignore
-        command: "Client | PrefixedCommand" = self  # yes, this is a hack
-
-        while True:
-            first_word: str = get_first_word(content_parameters)  # type: ignore
-            if isinstance(command, PrefixedCommand):
-                new_command = command.subcommands.get(first_word)
-            else:
-                new_command = command.prefixed_commands.get(first_word)
-            if not new_command or not new_command.enabled:
-                break
-
-            command = new_command
-            content_parameters = content_parameters.removeprefix(first_word).strip()
-
-            if command.subcommands and command.hierarchical_checking:
-                try:
-                    await new_command._can_run(context)  # will error out if we can't run this command
-                except Exception as e:
-                    if new_command.error_callback:
-                        await new_command.error_callback(e, context)
-                    elif new_command.extension and new_command.extension.extension_error:
-                        await new_command.extension.extension_error(e, context)
-                    else:
-                        self.dispatch(events.CommandError(ctx=context, error=e))
-                    return
-
-        if not isinstance(command, PrefixedCommand) or not command.enabled:
-            return
-
-        context.command = command
-        context.invoke_target = message.content.removeprefix(prefix_used).removesuffix(content_parameters).strip()  # type: ignore
-        context.args = get_args(context.content_parameters)
-        try:
-            if self.pre_run_callback:
-                await self.pre_run_callback(context)
-            await self._run_prefixed_command(command, context)
-            if self.post_run_callback:
-                await self.post_run_callback(context)
-        except Exception as e:
-            self.dispatch(events.CommandError(ctx=context, error=e))
-        finally:
-            self.dispatch(events.CommandCompletion(ctx=context))
 
     @Listener.create("disconnect", is_default_listener=True)
     async def _disconnect(self) -> None:
