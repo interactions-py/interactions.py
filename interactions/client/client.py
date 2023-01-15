@@ -1505,19 +1505,15 @@ class Client(
         interaction_data = event.data
 
         if interaction_data["type"] in (
-            InteractionTypes.PING,
             InteractionTypes.APPLICATION_COMMAND,
             InteractionTypes.AUTOCOMPLETE,
         ):
             interaction_id = interaction_data["data"]["id"]
             name = interaction_data["data"]["name"]
-            scope = self._interaction_scopes.get(str(interaction_id))
 
-            if scope in self.interactions:
-                ctx = await self.get_context(interaction_data, True)
-
-                ctx.command: SlashCommand = self.interactions[scope][ctx.invoke_target]  # type: ignore
-                self.logger.debug(f"{scope} :: {ctx.command.name} should be called")
+            ctx = await self.get_context(interaction_data)
+            if ctx.command:
+                self.logger.debug(f"{ctx.command_id}::{ctx.command.name} should be called")
 
                 if ctx.command.auto_defer:
                     auto_defer = ctx.command.auto_defer
@@ -1527,70 +1523,92 @@ class Client(
                     auto_defer = self.auto_defer
 
                 if auto_opt := getattr(ctx, "focussed_option", None):
-                    try:
-                        await ctx.command.autocomplete_callbacks[auto_opt](ctx, **ctx.kwargs)
-                    except Exception as e:
-                        self.dispatch(events.AutocompleteError(ctx=ctx, error=e))
-                    finally:
-                        self.dispatch(events.AutocompleteCompletion(ctx=ctx))
+                    await self.__dispatch_interaction(
+                        ctx=ctx,
+                        callback=ctx.command.autocomplete_callbacks[auto_opt](ctx, **ctx.kwargs),
+                        callback_kwargs=ctx.kwargs,
+                        error_callback=events.AutocompleteError,
+                        completion_callback=events.AutocompleteCompletion,
+                    )
                 else:
-                    try:
-                        await auto_defer(ctx)
-                        if self.pre_run_callback:
-                            await self.pre_run_callback(ctx, **ctx.kwargs)
-                        await self._run_slash_command(ctx.command, ctx)
-                        if self.post_run_callback:
-                            await self.post_run_callback(ctx, **ctx.kwargs)
-                    except Exception as e:
-                        self.dispatch(events.CommandError(ctx=ctx, error=e))
-                    finally:
-                        self.dispatch(events.CommandCompletion(ctx=ctx))
+                    await auto_defer(ctx)
+                    await self.__dispatch_interaction(
+                        ctx=ctx,
+                        callback=self._run_slash_command(ctx.command, ctx),
+                        callback_kwargs=ctx.kwargs,
+                        error_callback=events.CommandError,
+                        completion_callback=events.CommandCompletion,
+                    )
             else:
                 self.logger.error(f"Unknown cmd_id received:: {interaction_id} ({name})")
 
         elif interaction_data["type"] == InteractionTypes.MESSAGE_COMPONENT:
             # Buttons, Selects, ContextMenu::Message
-            ctx = await self.get_context(interaction_data, True)
+            ctx = await self.get_context(interaction_data)
             component_type = interaction_data["data"]["component_type"]
 
             self.dispatch(events.Component(ctx=ctx))
             if callback := self._component_callbacks.get(ctx.custom_id):
-                ctx.command = callback
-                try:
-                    if self.pre_run_callback:
-                        await self.pre_run_callback(ctx)
-                    await callback(ctx)
-                    if self.post_run_callback:
-                        await self.post_run_callback(ctx)
-                except Exception as e:
-                    self.dispatch(events.ComponentError(ctx=ctx, error=e))
-                finally:
-                    self.dispatch(events.ComponentCompletion(ctx=ctx))
+                await self.__dispatch_interaction(
+                    ctx=ctx,
+                    callback=callback(ctx),
+                    error_callback=events.ComponentError,
+                    completion_callback=events.ComponentCompletion,
+                )
+
             if component_type == ComponentTypes.BUTTON:
                 self.dispatch(events.ButtonPressed(ctx))
+
             if component_type == ComponentTypes.STRING_SELECT:
                 self.dispatch(events.Select(ctx))
 
         elif interaction_data["type"] == InteractionTypes.MODAL_RESPONSE:
-            ctx = await self.get_context(interaction_data, True)
+            ctx = await self.get_context(interaction_data)
             self.dispatch(events.ModalCompletion(ctx=ctx))
 
-            # todo: Polls remove this icky code duplication - love from past-polls ❤️
             if callback := self._modal_callbacks.get(ctx.custom_id):
-                ctx.command = callback
-
-                try:
-                    if self.pre_run_callback:
-                        await self.pre_run_callback(ctx)
-                    await callback(ctx)
-                    if self.post_run_callback:
-                        await self.post_run_callback(ctx)
-                except Exception as e:
-                    self.dispatch(events.ModalError(ctx=ctx, error=e))
+                await self.__dispatch_interaction(ctx=ctx, callback=callback(ctx), error_callback=events.ModalError)
 
         else:
             raise NotImplementedError(f"Unknown Interaction Received: {interaction_data['type']}")
 
+    # todo add typing once context is re-implemented
+    async def __dispatch_interaction(
+        self,
+        ctx,
+        callback: Coroutine,
+        error_callback: Type[BaseEvent],
+        completion_callback: Type[BaseEvent] | None = None,
+        callback_kwargs: dict | None = None,
+    ):
+        if callback_kwargs is None:
+            callback_kwargs = {}
+
+        try:
+            if self.pre_run_callback:
+                await self.pre_run_callback(ctx, **callback_kwargs)
+
+            # allow interactions to be responded by returning a string or an embed
+            response = await callback
+            if not getattr(ctx, "responded", True) and response:
+                if isinstance(response, Embed) or (
+                    isinstance(response, list) and all(isinstance(item, Embed) for item in response)
+                ):
+                    await ctx.send(embeds=response)
+                else:
+                    if not isinstance(response, str):
+                        self.logger.warning(
+                            "Command callback returned non-string value - casting to string and sending"
+                        )
+                    await ctx.send(str(response))
+
+            if self.post_run_callback:
+                asyncio.create_task(self.post_run_callback(ctx, **callback_kwargs))
+        except Exception as e:
+            self.dispatch(error_callback(ctx=ctx, error=e))
+        finally:
+            if completion_callback:
+                self.dispatch(completion_callback(ctx=ctx))
     @Listener.create("disconnect", is_default_listener=True)
     async def _disconnect(self) -> None:
         self._ready.clear()
