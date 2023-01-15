@@ -388,10 +388,10 @@ class Command(DictSerializerMixin):
     :ivar Optional[Union[int, Guild, List[int], List[Guild]]] scope: The scope of the command.
     :ivar Optional[str] default_member_permissions: The default member permissions of the command.
     :ivar Optional[bool] dm_permission: The DM permission of the command.
+    :ivar Optional[bool] nsfw: Indicates whether the command is age-restricted. Defaults to ``False``.
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
     :ivar bool default_scope: Whether the command should use the default scope. Defaults to ``True``.
-    :ivar bool nsfw: Indicates whether the command is age-restricted. Defaults to ``False``.
 
     :ivar Dict[str, Callable[..., Awaitable]] coroutines: The dictionary of coroutines for the command.
     :ivar Dict[str, int] num_options: The dictionary of the number of options per subcommand.
@@ -410,10 +410,10 @@ class Command(DictSerializerMixin):
     scope: Optional[Union[int, Guild, List[int], List[Guild]]] = field(default=MISSING)
     default_member_permissions: Optional[str] = field(default=MISSING)
     dm_permission: Optional[bool] = field(default=MISSING)
+    nsfw: Optional[bool] = field(default=None)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     default_scope: bool = field(default=True)
-    nsfw: bool = field(default=None)
 
     coroutines: Dict[str, Callable[..., Awaitable]] = field(init=False, factory=dict)
     num_options: Dict[str, int] = field(init=False, factory=dict)
