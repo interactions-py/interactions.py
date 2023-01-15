@@ -21,19 +21,11 @@ from typing import (
     Sequence,
     Type,
     Union,
-    overload,
-    Literal,
-)
-
-from discord_typings.interactions.receiving import (
-    ComponentChannelInteractionData,
-    AutocompleteChannelInteractionData,
-    InteractionData,
 )
 
 import interactions.api.events as events
 import interactions.client.const as constants
-from interactions.api.events import BaseEvent, Component, RawGatewayEvent, processors, MessageCreate
+from interactions.api.events import BaseEvent, Component, RawGatewayEvent, processors
 from interactions.api.gateway.gateway import GatewayClient
 from interactions.api.gateway.state import ConnectionState
 from interactions.api.http.http_client import HTTPClient
@@ -50,7 +42,6 @@ from interactions.client.errors import (
 )
 from interactions.client.smart_cache import GlobalCache
 from interactions.client.utils import NullCache
-from interactions.client.utils.input_utils import get_first_word, get_args
 from interactions.client.utils.misc_utils import get_event_name, wrap_partial
 from interactions.client.utils.serializer import to_image_data
 from interactions.models import (
