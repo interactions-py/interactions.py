@@ -152,7 +152,7 @@ class Select(Component):
 class CommandCompletion(BaseEvent):
     """Dispatched after the library ran any command callback."""
 
-    ctx: "InteractionContext | PrefixedContext | HybridContext" = attrs.field(
+    ctx: "InteractionContext | HybridContext" = attrs.field(
         repr=False, metadata=docs("The command context")
     )
 
