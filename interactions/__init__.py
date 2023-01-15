@@ -1,15 +1,20 @@
-"""
-interactions.py
+from .client import *
+from .client.const import *
+from .models import *
+from .api import *
+from . import ext
 
-Easy, simple, scalable and modular: a Python library for interactions.
-
-To see the documentation, please head over to the link here:
-    https://interactionspy.rtfd.io/en/latest for ``stable`` builds.
-    https://interactionspy.rtfd.io/en/unstable for ``unstable`` builds.
-
-(c) 2021 interactions-py.
-"""
-from .client import *  # noqa: F401 F403 isort: skip
-from .api import *  # noqa: F401 F403
-from .base import *  # noqa: F401 F403
-from .utils import *  # noqa: F401 F403
+########################################################################################################################
+# Credits
+# LordOfPolls -- Lead Contributor
+# AlbertUnruh -- Contributor
+# artem30801 -- Contributor
+# Astrea49 -- Contributor
+# benwoo1110 -- Contributor
+# Bluenix2 -- Contributor
+# Kigstn -- Contributor
+# leestarb -- Contributor
+# silasary -- Contributor
+# Wolfhound905 -- Contributor
+# zevaryx -- Contributor
+########################################################################################################################
