@@ -421,6 +421,7 @@ class Client:
             raise RuntimeError("No token was passed to the bot!")
 
         if token:
+            self._token = token
             self._http = token
             self._websocket._http = token  # Update the websockets token if it wasn't set before
 
