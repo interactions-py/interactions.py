@@ -891,12 +891,27 @@ class Client(
             This is the recommended method to start the bot
         """
         try:
-            asyncio.run(self.astart(token))
+            import uvloop
+
+            has_uvloop = True
+        except ImportError:
+            has_uvloop = False
+
+        try:
+            if has_uvloop:
+                self.logger.info("uvloop is installed, using it")
+                if sys.version_info >= (3, 11):
+                    with asyncio.Runner(loop_factory=uvloop.new_event_loop) as runner:  # noqa: F821
+                        runner.run(self.astart(token))
+                else:
+                    uvloop.install()
+                    asyncio.run(self.astart(token))
+            else:
+                asyncio.run(self.astart(token))
         except KeyboardInterrupt:
             # ignore, cus this is useless and can be misleading to the
             # user
             pass
-
     async def start_gateway(self) -> None:
         """Starts the gateway connection."""
         try:
