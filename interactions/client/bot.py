@@ -71,7 +71,7 @@ class Client:
 
     def __init__(
         self,
-        token: str,
+        token: Optional[str] = None,
         cache_limits: Optional[Dict[type, int]] = None,
         intents: Intents = Intents.DEFAULT,
         shards: Optional[List[Tuple[int]]] = None,
@@ -189,11 +189,15 @@ class Client:
 
         return self._websocket.latency * 1000
 
-    def start(self) -> None:
-        """Starts the client session."""
+    def start(self, token: Optional[str] = None) -> None:
+        """
+        Starts the client session.
+
+        :param Optional[str] token: The token of bot.
+        """
 
         try:
-            self._loop.run_until_complete(self._ready())
+            self._loop.run_until_complete(self._ready(token=token))
         except (CancelledError, Exception) as e:
             self._loop.run_until_complete(self._logout())
             raise e from e
@@ -396,7 +400,7 @@ class Client:
 
         return clean, _command
 
-    async def _ready(self) -> None:
+    async def _ready(self, token: Optional[str] = None) -> None:
         """
         Prepares the client with an internal "ready" check to ensure
         that all conditions have been met in a chronological order:
@@ -414,7 +418,19 @@ class Client:
             |   |___ SYNCHRONIZE
             |   |___ CALLBACK
             LOOP
+
+        :param Optional[str] token: The token of bot.
         """
+        if self._http and token and self._http is not token:
+            raise RuntimeError("You cannot pass a token to the bot twice!")
+        elif not (self._http or token):
+            raise RuntimeError("No token was passed to the bot!")
+
+        if token:
+            self._token = token
+            self._http = token
+            self._websocket._http = token  # Update the websockets token if it wasn't set before
+
         if isinstance(self._http, str):
             self._http = HTTPClient(self._http, self._cache)
 
