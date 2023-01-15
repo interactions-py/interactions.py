@@ -190,7 +190,11 @@ class Client:
         return self._websocket.latency * 1000
 
     def start(self, token: Optional[str] = None) -> None:
-        """Starts the client session."""
+        """
+        Starts the client session.
+
+        :param Optional[str] token: The token of bot.
+        """
 
         try:
             self._loop.run_until_complete(self._ready(token=token))
