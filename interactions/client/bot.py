@@ -71,7 +71,7 @@ class Client:
 
     def __init__(
         self,
-        token: str = None,
+        token: Optional[str] = None,
         cache_limits: Optional[Dict[type, int]] = None,
         intents: Intents = Intents.DEFAULT,
         shards: Optional[List[Tuple[int]]] = None,
@@ -189,7 +189,7 @@ class Client:
 
         return self._websocket.latency * 1000
 
-    def start(self, token: str = None) -> None:
+    def start(self, token: Optional[str] = None) -> None:
         """Starts the client session."""
 
         try:
@@ -396,7 +396,7 @@ class Client:
 
         return clean, _command
 
-    async def _ready(self, token) -> None:
+    async def _ready(self, token: Optional[str] = None) -> None:
         """
         Prepares the client with an internal "ready" check to ensure
         that all conditions have been met in a chronological order:
