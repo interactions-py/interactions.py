@@ -273,6 +273,9 @@ class Member(DiscordObject, _SendDMMixin):
         repr=False, factory=list, converter=list_converter(to_snowflake), metadata=docs("The roles IDs this user has")
     )
 
+    _user_ref: frozenset = MISSING
+    """A lookup reference to the user object"""
+
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
         if "user" in data:
@@ -319,9 +322,12 @@ class Member(DiscordObject, _SendDMMixin):
 
     def __getattr__(self, name: str) -> Any:
         # this allows for transparent access to user attributes
-        try:
+        if not self.__class__._user_ref:
+            self.__class__._user_ref = frozenset(dir(User))
+
+        if name in self._user_ref:
             return getattr(self.user, name)
-        except AttributeError as e:
+        else:
             raise AttributeError(f"Neither `User` or `Member` have attribute {name}") from e
 
     @property
