@@ -1908,21 +1908,10 @@ class Client(
             return ext[0]
         return None
 
-    def load_extension(self, name: str, package: str | None = None, **load_kwargs: Any) -> None:
+    def __load_module(self, module, module_name, **load_kwargs) -> None:
         """
-        Load an extension with given arguments.
-
-        Args:
-            name: The name of the extension.
-            package: The package the extension is in
-            **load_kwargs: The auto-filled mapping of the load keyword arguments
-
+        Internal method that handles loading a module.
         """
-        module_name = importlib.util.resolve_name(name, package)
-        if module_name in self.__modules:
-            raise Exception(f"{module_name} already loaded")
-
-        module = importlib.import_module(module_name, package)
         try:
             setup = getattr(module, "setup", None)
             if setup:
@@ -1943,7 +1932,7 @@ class Client(
         except ExtensionLoadException:
             raise
         except Exception as e:
-            del sys.modules[module_name]
+            sys.modules.pop(module_name, None)
             raise ExtensionLoadException(f"Unexpected Error loading {module_name}") from e
 
         else:
@@ -1957,20 +1946,44 @@ class Client(
                     return
                 asyncio.create_task(self.synchronise_interactions())
 
-    def unload_extension(self, name: str, package: str | None = None, **unload_kwargs: Any) -> None:
+    def load_extension(
+        self,
+        name: str,
+        package: str | None = None,
+        **load_kwargs: Any,
+    ) -> None:
+        """
+        Load an extension with given arguments.
+
+        Args:
+            name: The name of the extension.
+            package: The package the extension is in
+            **load_kwargs: The auto-filled mapping of the load keyword arguments
+        """
+        module_name = importlib.util.resolve_name(name, package)
+        if module_name in self.__modules:
+            raise Exception(f"{module_name} already loaded")
+
+        module = importlib.import_module(module_name, package)
+        self.__load_module(module, module_name, **load_kwargs)
+
+    def unload_extension(
+        self, name: str, package: str | None = None, force: bool = False, **unload_kwargs: Any
+    ) -> None:
         """
         Unload an extension with given arguments.
 
         Args:
             name: The name of the extension.
             package: The package the extension is in
+            force: Whether to force unload the extension - for use in reversions
             **unload_kwargs: The auto-filled mapping of the unload keyword arguments
 
         """
         name = importlib.util.resolve_name(name, package)
         module = self.__modules.get(name)
 
-        if module is None:
+        if module is None and not force:
             raise ExtensionNotFound(f"No extension called {name} is loaded")
 
         try:
@@ -1982,8 +1995,8 @@ class Client(
         for ext in self.get_extensions(name):
             ext.drop(**unload_kwargs)
 
-        del sys.modules[name]
-        del self.__modules[name]
+        sys.modules.pop(name, None)
+        self.__modules.pop(name, None)
 
         if self.sync_ext and self._ready.is_set():
             if self.sync_ext and self._ready.is_set():
@@ -2018,15 +2031,30 @@ class Client(
             self.logger.warning("Attempted to reload extension thats not loaded. Loading extension instead")
             return self.load_extension(name, package)
 
-        if not load_kwargs:
-            load_kwargs = {}
-        if not unload_kwargs:
-            unload_kwargs = {}
+        backup = module
 
-        self.unload_extension(name, package, **unload_kwargs)
-        self.load_extension(name, package, **load_kwargs)
+        try:
+            if not load_kwargs:
+                load_kwargs = {}
+            if not unload_kwargs:
+                unload_kwargs = {}
 
-        # todo: maybe add an ability to revert to the previous version if unable to load the new one
+            self.unload_extension(name, package, **unload_kwargs)
+            self.load_extension(name, package, **load_kwargs)
+        except Exception as e:
+            try:
+                self.logger.error(f"Error reloading extension {name}: {e} - attempting to revert to previous state")
+                try:
+                    self.unload_extension(name, package, force=True, **unload_kwargs)  # make sure no remnants are left
+                except Exception as t:
+                    self.logger.debug(f"Suppressing error unloading extension {name} during reload revert: {t}")
+
+                sys.modules[name] = backup
+                self.__load_module(backup, name, **load_kwargs)
+                self.logger.info(f"Reverted extension {name} to previous state")
+            except Exception as ex:
+                sys.modules.pop(name, None)
+                raise ex from e
 
     async def fetch_guild(self, guild_id: "Snowflake_Type") -> Optional[Guild]:
         """
