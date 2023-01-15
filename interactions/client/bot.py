@@ -418,6 +418,8 @@ class Client:
             |   |___ SYNCHRONIZE
             |   |___ CALLBACK
             LOOP
+
+        :param Optional[str] token: The token of bot.
         """
         if self._http and token and self._http is not token:
             raise RuntimeError("You cannot pass a token to the bot twice!")
