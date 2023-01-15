@@ -1,8 +1,10 @@
 import asyncio
 import inspect
+import typing
 from typing import Awaitable, Dict, List, TYPE_CHECKING, Callable, Coroutine, Optional
 
-import interactions.models.internal as naff
+import interactions.models.internal as models
+import interactions.api.events as events
 from interactions.client.const import MISSING
 from interactions.client.utils.misc_utils import wrap_partial
 from interactions.models.internal import ContextMenu
@@ -57,89 +59,65 @@ class Extension:
     _listeners: List
     auto_defer: "AutoDefer"
 
-    def __new__(cls, bot: "Client", *args, **kwargs) -> "Extension":
-        new_cls = super().__new__(cls)
-        new_cls.bot = bot
-        new_cls.name = cls.__name__
-        new_cls.extension_checks = []
-        new_cls.extension_prerun = []
-        new_cls.extension_postrun = []
-        new_cls.extension_error = None
-        new_cls.interaction_tree = {}
-        new_cls.auto_defer = MISSING
+    class Metadata:
+        name: str
+        """The name of this Extension"""
+        version: str
+        """The version of this Extension"""
+        url: str
+        """The repository url of this Extension"""
+        description: str
+        """A description of this Extension"""
+        requirements: List[str]
+        """A list of requirements for this Extension"""
 
-        new_cls.description = kwargs.get("Description", None)
-        if not new_cls.description:
-            new_cls.description = inspect.cleandoc(cls.__doc__) if cls.__doc__ else None
+    def __new__(cls, bot: "Client", *args, **kwargs) -> "Extension":
+        instance = super().__new__(cls)
+        instance.bot = bot
+        instance.client = bot
+
+        instance.name = cls.__name__
+        instance.extension_checks = []
+        instance.extension_prerun = []
+        instance.extension_postrun = []
+        instance.extension_error = None
+        instance.interaction_tree = {}
+        instance.auto_defer = MISSING
+
+        instance.description = kwargs.get("Description", None)
+        if not instance.description:
+            instance.description = inspect.cleandoc(cls.__doc__) if cls.__doc__ else None
 
         # load commands from class
-        new_cls._commands = []
-        new_cls._listeners = []
+        instance._commands = []
+        instance._listeners = []
 
-        for _name, val in inspect.getmembers(
-            new_cls, predicate=lambda x: isinstance(x, (internal.BaseCommand, internal.Listener, Task))
-        ):
-            if isinstance(val, internal.BaseCommand):
-                val.extension = new_cls
-                val = wrap_partial(val, new_cls)
-
-                if not isinstance(val, internal.PrefixedCommand) or not val.is_subcommand:
-                    # we do not want to add prefixed subcommands
-                    new_cls._commands.append(val)
-
-                    if isinstance(val, internal.ModalCommand):
-                        bot.add_modal_callback(val)
-                    elif isinstance(val, internal.ComponentCommand):
-                        bot.add_component_callback(val)
-                    elif isinstance(val, internal.HybridCommand):
-                        bot.add_hybrid_command(val)
-                    elif isinstance(val, internal.InteractionCommand):
-                        if not bot.add_interaction(val):
-                            continue
-                        base, group, sub, *_ = val.resolved_name.split(" ") + [None, None]
-                        for scope in val.scopes:
-                            if scope not in new_cls.interaction_tree:
-                                new_cls.interaction_tree[scope] = {}
-                            if group is None or isinstance(val, ContextMenu):
-                                new_cls.interaction_tree[scope][val.resolved_name] = val
-                            elif group is not None:
-                                if not (current := new_cls.interaction_tree[scope].get(base)) or isinstance(
-                                    current, internal.InteractionCommand
-                                ):
-                                    new_cls.interaction_tree[scope][base] = {}
-                                if sub is None:
-                                    new_cls.interaction_tree[scope][base][group] = val
-                                else:
-                                    if not (current := new_cls.interaction_tree[scope][base].get(group)) or isinstance(
-                                        current, internal.InteractionCommand
-                                    ):
-                                        new_cls.interaction_tree[scope][base][group] = {}
-                                    new_cls.interaction_tree[scope][base][group][sub] = val
-                    else:
-                        bot.add_prefixed_command(val)
-
-            elif isinstance(val, internal.Listener):
-                val = val.copy_with_binding(new_cls)
-                bot.add_listener(val)
-                new_cls.listeners.append(val)
-            elif isinstance(val, Task):
-                wrap_partial(val, new_cls)
-
-        bot.logger.debug(
-            f"{len(new_cls._commands)} commands and {len(new_cls.listeners)} listeners"
-            f" have been loaded from `{new_cls.name}`"
+        callables: list[tuple[str, typing.Callable]] = inspect.getmembers(
+            instance, predicate=lambda x: isinstance(x, (models.BaseCommand, models.Listener, Task))
         )
 
-        new_cls.extension_name = inspect.getmodule(new_cls).__name__
-        new_cls.bot.ext[new_cls.name] = new_cls
+        for _name, val in callables:
+            if isinstance(val, models.BaseCommand):
+                val.extension = instance
+                val = wrap_partial(val, instance)
+                bot.add_command(val)
+                instance._commands.append(val)
 
-        if hasattr(new_cls, "async_start"):
-            if inspect.iscoroutinefunction(new_cls.async_start):
-                bot.async_startup_tasks.append(new_cls.async_start())
+            elif isinstance(val, Task):
+                wrap_partial(val, instance)
+        bot.dispatch(events.ExtensionCommandParse(instance, callables))
+
+        instance.extension_name = inspect.getmodule(instance).__name__
+        instance.bot.ext[instance.name] = instance
+
+        if hasattr(instance, "async_start"):
+            if inspect.iscoroutinefunction(instance.async_start):
+                bot.async_startup_tasks.append(instance.async_start())
             else:
                 raise TypeError("async_start is a reserved method and must be a coroutine")
 
-        return new_cls
+        bot.dispatch(events.ExtensionLoad(instance))
+        return instance
 
     @property
     def __name__(self) -> str:
@@ -157,71 +135,25 @@ class Extension:
 
     def drop(self) -> None:
         """Called when this Extension is being removed."""
+
         for func in self._commands:
-            if isinstance(func, internal.ModalCommand):
+            if isinstance(func, models.ModalCommand):
                 for listener in func.listeners:
                     # noinspection PyProtectedMember
                     self.bot._modal_callbacks.pop(listener)
-            elif isinstance(func, internal.ComponentCommand):
+            elif isinstance(func, models.ComponentCommand):
                 for listener in func.listeners:
                     # noinspection PyProtectedMember
                     self.bot._component_callbacks.pop(listener)
-            elif isinstance(func, internal.InteractionCommand):
+            elif isinstance(func, models.InteractionCommand):
                 for scope in func.scopes:
-                    if self.bot.interactions.get(scope):
-                        self.bot.interactions[scope].pop(func.resolved_name, [])
-
-                if isinstance(func, internal.HybridCommand):
-                    # here's where things get complicated - we need to unload the prefixed command
-                    # by necessity, there's a lot of logic here to determine what needs to be unloaded
-                    if not func.callback:  # not like it was added
-                        return
-
-                    if func.is_subcommand:
-                        prefixed_base = self.bot.prefixed_commands.get(str(func.name))
-                        _base_cmd = prefixed_base
-                        if not prefixed_base:
-                            # if something weird happened here, here's a safeguard
-                            continue
-
-                        if func.group_name:
-                            prefixed_base = prefixed_base.subcommands.get(str(func.group_name))
-                            if not prefixed_base:
-                                continue
-
-                        prefixed_base.remove_command(str(func.sub_cmd_name))
-
-                        if not prefixed_base.subcommands:
-                            # the base cmd is now empty, delete it
-                            if func.group_name:
-                                _base_cmd.remove_command(str(func.group_name))  # type: ignore
-
-                                # and now the base command is empty
-                                if not _base_cmd.subcommands:  # type: ignore
-                                    # in case you're curious, i did try to put the below behavior
-                                    # in a function here, but then it turns out a weird python
-                                    # bug can happen if i did that
-                                    if cmd := self.bot.prefixed_commands.pop(str(func.name), None):
-                                        for alias in cmd.aliases:
-                                            self.bot.prefixed_commands.pop(alias, None)
-
-                            elif cmd := self.bot.prefixed_commands.pop(str(func.name), None):
-                                for alias in cmd.aliases:
-                                    self.bot.prefixed_commands.pop(alias, None)
-
-                    elif cmd := self.bot.prefixed_commands.pop(str(func.name), None):
-                        for alias in cmd.aliases:
-                            self.bot.prefixed_commands.pop(alias, None)
-
-            elif isinstance(func, internal.PrefixedCommand):
-                if not func.is_subcommand:
-                    self.bot.prefixed_commands.pop(func.name, None)
-                    for alias in func.aliases:
-                        self.bot.prefixed_commands.pop(alias, None)
+                    if self.bot.interactions_by_scope.get(scope):
+                        self.bot.interactions_by_scope[scope].pop(func.resolved_name, [])
         for func in self.listeners:
             self.bot.listeners[func.event].remove(func)
 
         self.bot.ext.pop(self.name, None)
+        self.bot.dispatch(events.ExtensionUnload(self))
         self.bot.logger.debug(f"{self.name} has been drop")
 
     def add_ext_auto_defer(self, ephemeral: bool = False, time_until_defer: float = 0.0) -> None:
@@ -233,7 +165,7 @@ class Extension:
             time_until_defer: How long to wait before deferring automatically
 
         """
-        self.auto_defer = internal.AutoDefer(enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer)
+        self.auto_defer = models.AutoDefer(enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer)
 
     def add_ext_check(self, coroutine: Callable[["Context"], Awaitable[bool]]) -> None:
         """
