@@ -696,7 +696,7 @@ class Client:
                             raise LibraryException(50001, message="Missing Access |")
                         if _guild_id not in _guild_ids:
                             log.warning(f"The bot is not in guild with id {_guild_id}")
-                            raise LibraryException(50001, message="Missing Access |")
+                            continue
                         if _guild_command["name"] not in __check_guild_commands[_guild_id]:
                             self.__guild_commands[_guild_id]["clean"] = False
                             self.__guild_commands[_guild_id]["commands"].append(_guild_command)
