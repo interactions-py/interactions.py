@@ -4,7 +4,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Optional, Union
 
 if TYPE_CHECKING:
-    from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models.discord.snowflake import Snowflake_Type, Snowflake
 
 __all__ = ("TimestampStyles", "Timestamp")
 
@@ -91,7 +91,7 @@ class Timestamp(datetime):
         t = time.time()
         return cls.utcfromtimestamp(t)
 
-    def to_snowflake(self, high: bool = False) -> Union[str, int]:
+    def to_snowflake(self, high: bool = False) -> Union[str, "Snowflake"]:
         """
         Returns a numeric snowflake pretending to be created at the given date.
 
