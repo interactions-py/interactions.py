@@ -1,4 +1,5 @@
 import asyncio
+import functools
 import importlib.util
 import inspect
 import json
@@ -25,7 +26,8 @@ from typing import (
 
 import interactions.api.events as events
 import interactions.client.const as constants
-from interactions.api.events import BaseEvent, Component, RawGatewayEvent, processors
+from interactions.api.events import BaseEvent, RawGatewayEvent, processors
+from interactions.api.events.internal import CallbackAdded
 from interactions.api.gateway.gateway import GatewayClient
 from interactions.api.gateway.state import ConnectionState
 from interactions.api.http.http_client import HTTPClient
@@ -61,13 +63,7 @@ from interactions.models import (
     InteractionCommand,
     SlashCommand,
     OptionTypes,
-    BaseCommand,
     to_snowflake,
-    to_snowflake_list,
-    ComponentContext,
-    InteractionContext,
-    ModalContext,
-    AutocompleteContext,
     ComponentCommand,
     application_commands_to_dict,
     sync_needed,
@@ -80,10 +76,19 @@ from interactions.models.discord.components import get_components_ids, BaseCompo
 from interactions.models.discord.embed import Embed
 from interactions.models.discord.enums import ComponentTypes, Intents, InteractionTypes, Status, ChannelTypes
 from interactions.models.discord.file import UPLOADABLE_TYPE
-from interactions.models.discord.modal import Modal
+from interactions.models.discord.snowflake import Snowflake, to_snowflake_list
 from interactions.models.internal.active_voice_state import ActiveVoiceState
 from interactions.models.internal.application_commands import ContextMenu, ModalCommand
 from interactions.models.internal.auto_defer import AutoDefer
+from interactions.models.internal.command import BaseCommand
+from interactions.models.internal.context import (
+    BaseContext,
+    InteractionContext,
+    SlashContext,
+    ModalContext,
+    ComponentContext,
+    AutocompleteContext,
+)
 from interactions.models.internal.listener import Listener
 from interactions.models.internal.tasks import Task
 
@@ -187,7 +192,6 @@ class Client(
     Args:
         intents: The intents to use
 
-        generate_prefixes: A coroutine that returns a string or an iterable of strings to determine prefixes.
         status: The status the bot should log in with (IE ONLINE, DND, IDLE)
         activity: The activity the bot should log in "playing"
 
@@ -230,8 +234,8 @@ class Client(
         *,
         activity: Union[Activity, str] = None,
         auto_defer: Absent[Union[AutoDefer, bool]] = MISSING,
-        autocomplete_context: Type[AutocompleteContext] = AutocompleteContext,
-        component_context: Type[ComponentContext] = ComponentContext,
+        autocomplete_context: Type[BaseContext] = AutocompleteContext,
+        component_context: Type[BaseContext] = ComponentContext,
         debug_scope: Absent["Snowflake_Type"] = MISSING,
         delete_unused_application_cmds: bool = False,
         disable_dm_commands: bool = False,
@@ -243,9 +247,10 @@ class Client(
         interaction_context: Type[InteractionContext] = InteractionContext,
         logger: logging.Logger = MISSING,
         owner_ids: Iterable["Snowflake_Type"] = (),
-        modal_context: Type[ModalContext] = ModalContext,
+        modal_context: Type[BaseContext] = ModalContext,
         send_command_tracebacks: bool = True,
         shard_id: int = 0,
+        slash_context: Type[BaseContext] = SlashContext,
         status: Status = Status.ONLINE,
         sync_interactions: bool = True,
         sync_ext: bool = True,
@@ -292,15 +297,17 @@ class Client(
         self.http: HTTPClient = HTTPClient(logger=self.logger)
         """The HTTP client to use when interacting with discord endpoints"""
 
-        # context objects
-        self.interaction_context: Type[InteractionContext] = interaction_context
+        # context factories
+        self.interaction_context: Type[BaseContext] = interaction_context
         """The object to instantiate for Interaction Context"""
-        self.component_context: Type[ComponentContext] = component_context
+        self.component_context: Type[BaseContext] = component_context
         """The object to instantiate for Component Context"""
-        self.autocomplete_context: Type[AutocompleteContext] = autocomplete_context
+        self.autocomplete_context: Type[BaseContext] = autocomplete_context
         """The object to instantiate for Autocomplete Context"""
-        self.modal_context: Type[ModalContext] = modal_context
+        self.modal_context: Type[BaseContext] = modal_context
         """The object to instantiate for Modal Context"""
+        self.slash_context: Type[BaseContext] = slash_context
+        """The object to instantiate for Slash Context"""
 
         # flags
         self._ready = asyncio.Event()
@@ -314,7 +321,7 @@ class Client(
 
         # Sharding
         self.total_shards = total_shards
-        self._connection_state: ConnectionState = ConnectionState(self, intents, shard_id)
+        self._connection_state: ConnectionState = ConnectionState(self, intents, shard_id=shard_id)
 
         self.enforce_interaction_perms = enforce_interaction_perms
 
@@ -336,15 +343,16 @@ class Client(
         self._app: Absent[Application] = MISSING
 
         # collections
-        self.interactions: Dict["Snowflake_Type", Dict[str, InteractionCommand]] = {}
-        """A dictionary of registered application commands: `{cmd_id: command}`"""
+        self.interactions_by_scope: Dict["Snowflake_Type", Dict[str, InteractionCommand]] = {}
+        """A dictionary of registered application commands: `{scope: [commands]}`"""
+        self._interaction_lookup: dict[Snowflake, InteractionCommand] = {}
+        """A dictionary of registered application commands: `{id: command}`"""
         self.interaction_tree: Dict[
             "Snowflake_Type", Dict[str, InteractionCommand | Dict[str, InteractionCommand]]
         ] = {}
         """A dictionary of registered application commands in a tree"""
         self._component_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self._modal_callbacks: Dict[str, Callable[..., Coroutine]] = {}
-        self._interaction_scopes: Dict["Snowflake_Type", "Snowflake_Type"] = {}
         self.processors: Dict[str, Callable[..., Coroutine]] = {}
         self.__modules = {}
         self.ext = {}
@@ -453,8 +461,8 @@ class Client(
     def application_commands(self) -> List[InteractionCommand]:
         """A list of all application commands registered within the bot."""
         commands = []
-        for scope in self.interactions.keys():
-            commands += [cmd for cmd in self.interactions[scope].values() if cmd not in commands]
+        for scope in self.interactions_by_scope.keys():
+            commands += [cmd for cmd in self.interactions_by_scope[scope].values() if cmd not in commands]
 
         return commands
 
@@ -505,33 +513,6 @@ class Client(
             if isinstance(_cache_obj, NullCache):
                 self.logger.warning(f"{cache} has been disabled")
 
-    async def generate_prefixes(self, bot: "Client", message: Message) -> str | Iterable[str]:
-        """
-        A method to get the bot's default_prefix, can be overridden to add dynamic prefixes.
-
-        !!! note
-            To easily override this method, simply use the `generate_prefixes` parameter when instantiating the client
-
-        Args:
-            bot: A reference to the client
-            message: A message to determine the prefix from.
-
-        Example:
-            ```python
-            async def generate_prefixes(bot, message):
-                if message.guild.id == 870046872864165888:
-                    return ["!"]
-                return bot.default_prefix
-
-            bot = Client(generate_prefixes=generate_prefixes, ...)
-            ```
-
-        Returns:
-            A string or an iterable of strings to use as a prefix. By default, this will return `client.default_prefix`
-
-        """
-        return self.default_prefix
-
     def _queue_task(self, coro: Listener, event: BaseEvent, *args, **kwargs) -> asyncio.Task:
         async def _async_wrap(_coro: Listener, _event: BaseEvent, *_args, **_kwargs) -> None:
             try:
@@ -540,7 +521,7 @@ class Client(
                         await self.wait_until_ready()
 
                 if len(_event.__attrs_attrs__) == 2:
-                    # override_name & bot
+                    # override_name & bot & logging
                     await _coro()
                 else:
                     await _coro(_event, *_args, **_kwargs)
@@ -554,8 +535,11 @@ class Client(
                     self.dispatch(events.Error(source=repr(event), error=e))
 
         wrapped = _async_wrap(coro, event, *args, **kwargs)
-
-        return asyncio.create_task(wrapped, name=f"interactions:: {event.resolved_name}")
+        try:
+            return asyncio.create_task(wrapped, name=f"interactions:: {event.resolved_name}")
+        except RuntimeError:
+            self.logger.debug("Event loop is closed; queuing task for execution on startup")
+            self.async_startup_tasks.append(wrapped)
 
     @staticmethod
     def default_error_handler(source: str, error: BaseException) -> None:
@@ -659,9 +643,7 @@ class Client(
         Listen to the `CommandCompletion` event to overwrite this behaviour.
 
         """
-        self.logger.info(
-            f"Command Called: /{event.ctx.invoke_target} with {event.ctx.args = } | {event.ctx.kwargs = }"
-        )
+        self.logger.info(f"Command Called: {event.ctx.invoke_target} with {event.ctx.args = } | {event.ctx.kwargs = }")
 
     @Listener.create(is_default_listener=True)
     async def on_component_error(self, event: events.ComponentError) -> None:
@@ -783,7 +765,7 @@ class Client(
         self._user._add_guilds(expected_guilds)
 
         if not self._startup:
-            while True:
+            while len(self.guilds) != len(expected_guilds):
                 try:  # wait to let guilds cache
                     await asyncio.wait_for(self._guild_event.wait(), self.guild_event_timeout)
                 except asyncio.TimeoutError:
@@ -793,10 +775,6 @@ class Client(
                     self.logger.debug("Timeout waiting for guilds cache")
                     break
                 self._guild_event.clear()
-
-                if len(self.cache.guild_cache) == len(expected_guilds):
-                    # all guilds cached
-                    break
 
             if self.fetch_members:
                 # ensure all guilds have completed chunking
@@ -849,7 +827,7 @@ class Client(
         # i needed somewhere to put this call,
         # login will always run after initialisation
         # so im gathering commands here
-        self._gather_commands()
+        self._gather_callbacks()
 
         self.logger.debug("Attempting to login")
         me = await self.http.login(token.strip())
@@ -887,6 +865,8 @@ class Client(
         """
         Start the bot.
 
+        If `uvloop` is installed, it will be used.
+
         info:
             This is the recommended method to start the bot
         """
@@ -912,6 +892,7 @@ class Client(
             # ignore, cus this is useless and can be misleading to the
             # user
             pass
+
     async def start_gateway(self) -> None:
         """Starts the gateway connection."""
         try:
@@ -994,7 +975,7 @@ class Client(
         modal: "Modal",
         author: Optional["Snowflake_Type"] = None,
         timeout: Optional[float] = None,
-    ) -> ModalContext:
+    ) -> "ModalContext":
         """
         Wait for a modal response.
 
@@ -1059,7 +1040,7 @@ class Client(
         if custom_ids and not all(isinstance(x, str) for x in custom_ids):
             custom_ids = [str(i) for i in custom_ids]
 
-        def _check(event: Component) -> bool:
+        def _check(event: BaseComponent) -> bool:
             ctx: ComponentContext = event.ctx
             # if custom_ids is empty or there is a match
             wanted_message = not message_ids or ctx.message.id in (
@@ -1169,16 +1150,16 @@ class Client(
         base, group, sub, *_ = command.resolved_name.split(" ") + [None, None]
 
         for scope in command.scopes:
-            if scope not in self.interactions:
-                self.interactions[scope] = {}
-            elif command.resolved_name in self.interactions[scope]:
-                old_cmd = self.interactions[scope][command.resolved_name]
+            if scope not in self.interactions_by_scope:
+                self.interactions_by_scope[scope] = {}
+            elif command.resolved_name in self.interactions_by_scope[scope]:
+                old_cmd = self.interactions_by_scope[scope][command.resolved_name]
                 raise ValueError(f"Duplicate Command! {scope}::{old_cmd.resolved_name}")
 
-            if self.enforce_interaction_perms:
-                command.checks.append(command._permission_enforcer)  # noqa : w0212
+            # if self.enforce_interaction_perms:
+            #     command.checks.append(command._permission_enforcer)  # noqa : w0212
 
-            self.interactions[scope][command.resolved_name] = command
+            self.interactions_by_scope[scope][command.resolved_name] = command
 
             if scope not in self.interaction_tree:
                 self.interaction_tree[scope] = {}
@@ -1229,33 +1210,56 @@ class Client(
             else:
                 raise ValueError(f"Duplicate Component! Multiple modal callbacks for `{listener}`")
 
-    def _gather_commands(self) -> None:
-        """Gathers commands from __main__ and self."""
+    def add_command(self, func: Callable) -> None:
+        """
+        Add a command to the client.
 
-        def process(_cmds) -> None:
+        Args:
+            func: The command to add
+        """
+        if isinstance(func, ModalCommand):
+            self.add_modal_callback(func)
+        elif isinstance(func, ComponentCommand):
+            self.add_component_callback(func)
+        elif isinstance(func, InteractionCommand):
+            self.add_interaction(func)
+        elif isinstance(func, Listener):
+            self.add_listener(func)
+        elif not isinstance(func, BaseCommand):
+            raise TypeError("Invalid command type")
 
-            for func in _cmds:
-                if isinstance(func, ModalCommand):
-                    self.add_modal_callback(func)
-                elif isinstance(func, ComponentCommand):
-                    self.add_component_callback(func)
-                elif isinstance(func, InteractionCommand):
-                    self.add_interaction(func)
-                elif isinstance(func, Listener):
-                    self.add_listener(func)
+        if isinstance(func.callback, functools.partial):
+            ext = getattr(func, "extension", None)
+            self.logger.debug(f"Added callback: {f'{ext.name}.' if ext else ''}{func.callback.func.__name__}")
+        else:
+            self.logger.debug(f"Added callback: {func.callback.__name__}")
 
-            self.logger.debug(f"{len(_cmds)} commands have been loaded from `__main__` and `client`")
+        self.dispatch(CallbackAdded(func, func.extension if hasattr(func, "extension") else None))
 
-        process(
-            [obj for _, obj in inspect.getmembers(sys.modules["__main__"]) if isinstance(obj, (BaseCommand, Listener))]
-        )
-        process(
-            [
-                obj.copy_with_binding(self)
-                for _, obj in inspect.getmembers(self)
-                if isinstance(obj, (BaseCommand, Listener))
-            ]
-        )
+    def _gather_callbacks(self) -> None:
+        """Gathers callbacks from __main__ and self."""
+
+        def process(callables, location: str) -> None:
+            added = 0
+            for func in callables:
+                try:
+                    self.add_command(func)
+                    added += 1
+                except TypeError:
+                    self.logger.debug(f"Failed to add callback {func} from {location}")
+                    continue
+            self.logger.debug(f"{added} callbacks have been loaded from {location}.")
+
+        main_commands = [
+            obj for _, obj in inspect.getmembers(sys.modules["__main__"]) if isinstance(obj, (BaseCommand, Listener))
+        ]
+        client_commands = [
+            obj.copy_with_binding(self)
+            for _, obj in inspect.getmembers(self)
+            if isinstance(obj, (BaseCommand, Listener))
+        ]
+        process(main_commands, "__main__")
+        process(client_commands, self.__class__.__name__)
 
         [wrap_partial(obj, self) for _, obj in inspect.getmembers(self) if isinstance(obj, Task)]
 
@@ -1283,18 +1287,16 @@ class Client(
             bot_scopes = {g.id for g in self.cache.guild_cache.values()}
             bot_scopes.add(GLOBAL_SCOPE)
         else:
-            bot_scopes = set(self.interactions)
+            bot_scopes = set(self.interactions_by_scope)
 
-        req_lock = asyncio.Lock()
+        sem = asyncio.Semaphore(5)
 
         async def wrap(*args, **kwargs) -> Absent[List[Dict]]:
-            async with req_lock:
-                # throttle this
-                await asyncio.sleep(0.1)
-            try:
-                return await self.http.get_application_commands(*args, **kwargs)
-            except Forbidden:
-                return MISSING
+            async with sem:
+                try:
+                    return await self.http.get_application_commands(*args, **kwargs)
+                except Forbidden:
+                    return MISSING
 
         results = await asyncio.gather(*[wrap(self.app.id, scope) for scope in bot_scopes])
         results = dict(zip(bot_scopes, results))
@@ -1305,9 +1307,10 @@ class Client(
                 continue
 
             remote_cmds = {cmd_data["name"]: cmd_data for cmd_data in remote_cmds}
-            found = set()  # this is a temporary hack to fix subcommand detection
-            if scope in self.interactions:
-                for cmd in self.interactions[scope].values():
+
+            found = set()
+            if scope in self.interactions_by_scope:
+                for cmd in self.interactions_by_scope[scope].values():
                     cmd_name = str(cmd.name)
                     cmd_data = remote_cmds.get(cmd_name, MISSING)
                     if cmd_data is MISSING:
@@ -1320,7 +1323,7 @@ class Client(
                         continue
                     else:
                         found.add(cmd_name)
-                    self._interaction_scopes[str(cmd_data["id"])] = scope
+                    self._interaction_lookup[Snowflake(cmd_data["id"])] = cmd
                     cmd.cmd_id[scope] = int(cmd_data["id"])
 
             if warn_missing:
@@ -1351,9 +1354,9 @@ class Client(
             cmd_scopes = [to_snowflake(g_id) for g_id in self._user._guild_ids] + [GLOBAL_SCOPE]
         else:
             # if we're not deleting, just check the scopes we have cmds registered in
-            cmd_scopes = list(set(self.interactions) | {GLOBAL_SCOPE})
+            cmd_scopes = list(set(self.interactions_by_scope) | {GLOBAL_SCOPE})
 
-        local_cmds_json = application_commands_to_dict(self.interactions, self)
+        local_cmds_json = application_commands_to_dict(self.interactions_by_scope, self)
 
         async def sync_scope(cmd_scope) -> None:
 
@@ -1367,7 +1370,7 @@ class Client(
                     self.logger.warning(f"Bot is lacking `application.commands` scope in {cmd_scope}!")
                     return
 
-                for local_cmd in self.interactions.get(cmd_scope, {}).values():
+                for local_cmd in self.interactions_by_scope.get(cmd_scope, {}).values():
                     # get remote equivalent of this command
                     remote_cmd_json = next(
                         (v for v in remote_commands if int(v["id"]) == local_cmd.cmd_id.get(cmd_scope)), None
@@ -1423,13 +1426,7 @@ class Client(
             The command, if one with the given ID exists internally, otherwise None
 
         """
-        scope = self._interaction_scopes.get(str(cmd_id), MISSING)
-        cmd_id = int(cmd_id)  # ensure int ID
-        if scope != MISSING:
-            for cmd in self.interactions[scope].values():
-                if int(cmd.cmd_id.get(scope)) == cmd_id:
-                    return cmd
-        return None
+        return self._interaction_lookup.get(Snowflake(cmd_id))
 
     def _raise_sync_exception(self, e: HTTPException, cmds_json: dict, cmd_scope: "Snowflake_Type") -> NoReturn:
         try:
@@ -1450,36 +1447,48 @@ class Client(
 
     def _cache_sync_response(self, sync_response: list[dict], scope: "Snowflake_Type") -> None:
         for cmd_data in sync_response:
-            self._interaction_scopes[cmd_data["id"]] = scope
-            if cmd_data["name"] in self.interactions[scope]:
-                self.interactions[scope][cmd_data["name"]].cmd_id[scope] = int(cmd_data["id"])
+            command_id = Snowflake(cmd_data["id"])
+            command_name = cmd_data["name"]
+
+            command = self.interactions_by_scope[scope].get(command_name)
+            if command:
+                command.cmd_id[scope] = command_id
+                self._interaction_lookup[command_id] = command
+                continue
             else:
-                # sub_cmd
-                for sc in cmd_data["options"]:
-                    if sc["type"] == OptionTypes.SUB_COMMAND:
-                        if f"{cmd_data['name']} {sc['name']}" in self.interactions[scope]:
-                            self.interactions[scope][f"{cmd_data['name']} {sc['name']}"].cmd_id[scope] = int(
-                                cmd_data["id"]
-                            )
-                    elif sc["type"] == OptionTypes.SUB_COMMAND_GROUP:
-                        for _sc in sc["options"]:
-                            if f"{cmd_data['name']} {sc['name']} {_sc['name']}" in self.interactions[scope]:
-                                self.interactions[scope][f"{cmd_data['name']} {sc['name']} {_sc['name']}"].cmd_id[
-                                    scope
-                                ] = int(cmd_data["id"])
+                for subcommand in cmd_data.get("options", []):
+                    if subcommand["TYPE"] in (OptionTypes.SUB_COMMAND, OptionTypes.SUB_COMMAND_GROUP):
+                        subcommand_name = f"{command_name} {subcommand['name']}"
+                        if subcommand["type"] == OptionTypes.SUB_COMMAND_GROUP:
+                            for _sc in subcommand.get("options", []):
+                                subcommand_name = f"{subcommand_name} {_sc['name']}"
+                                command = self.interactions_by_scope[scope].get(subcommand_name)
+                                if command:
+                                    command.cmd_id[scope] = command_id
+                                    self._interaction_lookup[command_id] = command
+                                    continue
+                        else:
+                            command = self.interactions_by_scope[scope].get(subcommand_name)
+                            if command:
+                                command.cmd_id[scope] = command_id
+                                self._interaction_lookup[command_id] = command
+                                continue
+                        self.logger.warning(f"Could not find command {subcommand_name} in internal cache!")
+            self.logger.warning(f"Could not find command {command_name} in internal cache!")
+
     async def get_context(self, data: dict) -> InteractionContext:
         match data["type"]:
             case InteractionTypes.MESSAGE_COMPONENT:
-                cls = self.component_context.from_dict(data, self)
+                cls = self.component_context.from_dict(self, data)
             case InteractionTypes.AUTOCOMPLETE:
-                cls = self.autocomplete_context.from_dict(data, self)
+                cls = self.autocomplete_context.from_dict(self, data)
             case InteractionTypes.MODAL_RESPONSE:
-                cls = self.modal_context.from_dict(data, self)
+                cls = self.modal_context.from_dict(self, data)
             case InteractionTypes.APPLICATION_COMMAND:
-                cls = self.slash_context.from_dict(data, self)
+                cls = self.slash_context.from_dict(self, data)
             case _:
                 self.logger.warning(f"Unknown interaction type [{data['type']}] - please update or report this.")
-                cls = self.interaction_context.from_dict(data, self)
+                cls = self.interaction_context.from_dict(self, data)
         if not cls.channel:
             # fallback channel if not provided
             try:
@@ -1488,10 +1497,9 @@ class Client(
                 cls.channel = BaseChannel.from_dict({"id": data["channel_id"], "type": ChannelTypes.GUILD_TEXT}, self)
         return cls
 
-    async def _run_slash_command(self, command: SlashCommand, ctx: InteractionContext) -> Any:
+    async def _run_slash_command(self, command: SlashCommand, ctx: "InteractionContext") -> Any:
         """Overrideable method that executes slash commands, can be used to wrap callback execution"""
         return await command(ctx, **ctx.kwargs)
-
 
     @processors.Processor.define("raw_interaction_create")
     async def _dispatch_interaction(self, event: RawGatewayEvent) -> None:
@@ -1609,6 +1617,7 @@ class Client(
         finally:
             if completion_callback:
                 self.dispatch(completion_callback(ctx=ctx))
+
     @Listener.create("disconnect", is_default_listener=True)
     async def _disconnect(self) -> None:
         self._ready.clear()
