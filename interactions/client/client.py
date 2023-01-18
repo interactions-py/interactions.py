@@ -1055,6 +1055,12 @@ class Client(
 
         return await self.wait_for("component", checks=_check, timeout=timeout)
 
+    def command(self, *args, **kwargs) -> Callable:
+        """
+        A decorator that registers a command. Aliases `interactions.slash_command`
+        """
+        raise NotImplementedError  # TODO: implement
+
     def listen(self, event_name: Absent[str] = MISSING) -> Listener:
         """
         A decorator to be used in situations that Naff can't automatically hook your listeners. Ideally, the standard listen decorator should be used, not this.
@@ -1073,6 +1079,8 @@ class Client(
             return listener
 
         return wrapper
+
+    event = listen  # alias for easier migration
 
     def add_event_processor(self, event_name: Absent[str] = MISSING) -> Callable[..., Coroutine]:
         """
@@ -1115,6 +1123,11 @@ class Client(
                         self.logger.warning(
                             f"Event `{listener.event}` will not work since the required intent is not set -> Requires any of: `{required_intents}`"
                         )
+
+        # prevent the same callback being added twice
+        if listener in self.listeners.get(listener.event, []):
+            self.logger.debug(f"Listener {listener} has already been hooked, not re-hooking it again")
+            return
 
         if listener.event not in self.listeners:
             self.listeners[listener.event] = []
@@ -1234,7 +1247,7 @@ class Client(
         else:
             self.logger.debug(f"Added callback: {func.callback.__name__}")
 
-        self.dispatch(CallbackAdded(func, func.extension if hasattr(func, "extension") else None))
+        self.dispatch(CallbackAdded(callback=func, extension=func.extension if hasattr(func, "extension") else None))
 
     def _gather_callbacks(self) -> None:
         """Gathers callbacks from __main__ and self."""
@@ -1245,9 +1258,11 @@ class Client(
                 try:
                     self.add_command(func)
                     added += 1
-                except TypeError:
+                except TypeError as e:
                     self.logger.debug(f"Failed to add callback {func} from {location}")
+                    breakpoint()
                     continue
+
             self.logger.debug(f"{added} callbacks have been loaded from {location}.")
 
         main_commands = [

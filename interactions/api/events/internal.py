@@ -244,12 +244,14 @@ class ExtensionLoad(BaseEvent):
         return None
 
 
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class ExtensionUnload(ExtensionLoad):
     """Dispatched when an extension is unloaded."""
 
     ...
 
 
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class ExtensionCommandParse(ExtensionLoad):
     """Dispatched when an extension is parsed for commands."""
 
@@ -257,6 +259,7 @@ class ExtensionCommandParse(ExtensionLoad):
     """The callables that were parsed for commands"""
 
 
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class CallbackAdded(BaseEvent):
     """Dispatched when a callback is added to the client."""
 

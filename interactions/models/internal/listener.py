@@ -43,6 +43,9 @@ class Listener(CallbackObject):
         self.is_default_listener = is_default_listener
         self.disable_default_listeners = disable_default_listeners
 
+    def __repr__(self) -> str:
+        return f"<Listener event={self.event!r} callback={self.callback!r}>"
+
     @classmethod
     def create(
         cls,
