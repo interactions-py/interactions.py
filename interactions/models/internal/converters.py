@@ -34,7 +34,7 @@ from interactions.models.discord.message import Message
 from interactions.models.discord.role import Role
 from interactions.models.discord.snowflake import SnowflakeObject
 from interactions.models.discord.user import User, Member
-from interactions.models.internal.context import Context
+from interactions.models.internal.context import BaseContext
 from interactions.models.internal.protocols import Converter
 
 __all__ = (
@@ -84,7 +84,7 @@ class _LiteralConverter(Converter):
     def __init__(self, args: Any) -> None:
         self.values = {arg: type(arg) for arg in args}
 
-    async def convert(self, ctx: Context, argument: str) -> Any:
+    async def convert(self, ctx: BaseContext, argument: str) -> Any:
         for arg, converter in self.values.items():
             try:
                 if (converted := converter(argument)) == arg:
@@ -111,7 +111,7 @@ class IDConverter(Converter[T_co]):
 class SnowflakeConverter(IDConverter[SnowflakeObject]):
     """Converts a string argument to a SnowflakeObject."""
 
-    async def convert(self, ctx: Context, argument: str) -> SnowflakeObject:
+    async def convert(self, ctx: BaseContext, argument: str) -> SnowflakeObject:
         """
         Converts a given string to a SnowflakeObject.
 
@@ -142,7 +142,7 @@ class ChannelConverter(IDConverter[T_co]):
     def _check(self, result: BaseChannel) -> bool:
         return True
 
-    async def convert(self, ctx: Context, argument: str) -> T_co:
+    async def convert(self, ctx: BaseContext, argument: str) -> T_co:
         """
         Converts a given string to a Channel object.
 
@@ -266,7 +266,7 @@ class MessageableChannelConverter(ChannelConverter[TYPE_MESSAGEABLE_CHANNEL]):
 class UserConverter(IDConverter[User]):
     """Converts a string argument to a User object."""
 
-    async def convert(self, ctx: Context, argument: str) -> User:
+    async def convert(self, ctx: BaseContext, argument: str) -> User:
         """
         Converts a given string to a User object.
 
@@ -319,7 +319,7 @@ class MemberConverter(IDConverter[Member]):
 
         return result
 
-    async def convert(self, ctx: Context, argument: str) -> Member:
+    async def convert(self, ctx: BaseContext, argument: str) -> Member:
         """
         Converts a given string to a Member object. This will only work in guilds.
 
@@ -376,7 +376,7 @@ class MessageConverter(Converter[Message]):
         r"https?://[\S]*?discord(?:app)?\.com/channels/(?P<guild_id>[0-9]{15,}|@me)/(?P<channel_id>[0-9]{15,})/(?P<message_id>[0-9]{15,})\/?$"
     )
 
-    async def convert(self, ctx: Context, argument: str) -> Message:
+    async def convert(self, ctx: BaseContext, argument: str) -> Message:
         """
         Converts a given string to a Message object.
 
@@ -424,7 +424,7 @@ class MessageConverter(Converter[Message]):
 class GuildConverter(IDConverter[Guild]):
     """Converts a string argument to a Guild object."""
 
-    async def convert(self, ctx: Context, argument: str) -> Guild:
+    async def convert(self, ctx: BaseContext, argument: str) -> Guild:
         """
         Converts a given string to a Guild object.
 
@@ -458,7 +458,7 @@ class GuildConverter(IDConverter[Guild]):
 class RoleConverter(IDConverter[Role]):
     """Converts a string argument to a Role object."""
 
-    async def convert(self, ctx: Context, argument: str) -> Role:
+    async def convert(self, ctx: BaseContext, argument: str) -> Role:
         """
         Converts a given string to a Role object.
 
@@ -497,7 +497,7 @@ class RoleConverter(IDConverter[Role]):
 class PartialEmojiConverter(IDConverter[PartialEmoji]):
     """Converts a string argument to a PartialEmoji object."""
 
-    async def convert(self, ctx: Context, argument: str) -> PartialEmoji:
+    async def convert(self, ctx: BaseContext, argument: str) -> PartialEmoji:
         """
         Converts a given string to a PartialEmoji object.
 
@@ -523,7 +523,7 @@ class PartialEmojiConverter(IDConverter[PartialEmoji]):
 class CustomEmojiConverter(IDConverter[CustomEmoji]):
     """Converts a string argument to a CustomEmoji object."""
 
-    async def convert(self, ctx: Context, argument: str) -> CustomEmoji:
+    async def convert(self, ctx: BaseContext, argument: str) -> CustomEmoji:
         """
         Converts a given string to a CustomEmoji object.
 

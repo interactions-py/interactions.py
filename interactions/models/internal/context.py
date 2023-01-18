@@ -1,390 +1,342 @@
+import abc
 import datetime
-from logging import Logger
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Protocol, Union, runtime_checkable, Sequence
+import typing
 
-import attrs
+import discord_typings
 from aiohttp import FormData
 
-import interactions.models as models
-import interactions.models.discord.message as message
-from interactions.client.const import Absent, MISSING, get_logger
-from interactions.client.errors import AlreadyDeferred
+from interactions.models.internal.command import BaseCommand
+from interactions.client.mixins.modal import ModalMixin
+
+from interactions.client.errors import HTTPException
 from interactions.client.mixins.send import SendMixin
-from interactions.client.utils.attr_converters import optional
-from interactions.client.utils.attr_utils import docs
-from interactions.models.discord.enums import MessageFlags, CommandTypes, Permissions
-from interactions.models.discord.file import UPLOADABLE_TYPE
+from interactions.models.discord.enums import Permissions, MessageFlags, InteractionTypes
 from interactions.models.discord.message import Attachment
-from interactions.models.discord.snowflake import to_snowflake, to_optional_snowflake
-from interactions.models.discord.timestamp import Timestamp
-from interactions.models.internal.application_commands import CallbackTypes, OptionTypes
-
-if TYPE_CHECKING:
-    from io import IOBase
-    from pathlib import Path
-
-    from interactions.client import Client
-    from interactions.models.discord.channel import TYPE_MESSAGEABLE_CHANNEL
-    from interactions.models.discord.components import BaseComponent
-    from interactions.models.discord.embed import Embed
-    from interactions.models.discord.file import File
-    from interactions.models.discord.guild import Guild
-    from interactions.models.discord.message import AllowedMentions, Message
-    from interactions.models.discord.user import User, Member
-    from interactions.models.discord.snowflake import Snowflake_Type
-    from interactions.models.discord.message import MessageReference
-    from interactions.models.discord.sticker import Sticker
-    from interactions.models.discord.role import Role
-    from interactions.models.discord.modal import Modal
-    from interactions.models.internal.active_voice_state import ActiveVoiceState
-    from interactions.models.internal.command import BaseCommand
-
-__all__ = (
-    "Resolved",
-    "Context",
-    "InteractionContext",
-    "ComponentContext",
-    "AutocompleteContext",
-    "ModalContext",
-    "SendableContext",
+from interactions.models.discord.snowflake import Snowflake
+from interactions.models.internal.application_commands import (
+    OptionTypes,
+    CallbackTypes,
+    SlashCommandOption,
+    InteractionCommand,
 )
 
+if typing.TYPE_CHECKING:
+    import interactions
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+T_Context = typing.TypeVar("T_Context", bound="BaseContext")
+T_Resolved = typing.TypeVar("T_Resolved", bound="ResolvedContext")
+
+
 class Resolved:
     """Represents resolved data in an interaction."""
 
-    channels: Dict["Snowflake_Type", "TYPE_MESSAGEABLE_CHANNEL"] = attrs.field(
-        repr=False, factory=dict, metadata=docs("A dictionary of channels mentioned in the interaction")
-    )
-    members: Dict["Snowflake_Type", "Member"] = attrs.field(
-        repr=False, factory=dict, metadata=docs("A dictionary of members mentioned in the interaction")
-    )
-    users: Dict["Snowflake_Type", "User"] = attrs.field(
-        repr=False, factory=dict, metadata=docs("A dictionary of users mentioned in the interaction")
-    )
-    roles: Dict["Snowflake_Type", "Role"] = attrs.field(
-        repr=False, factory=dict, metadata=docs("A dictionary of roles mentioned in the interaction")
-    )
-    messages: Dict["Snowflake_Type", "Message"] = attrs.field(
-        repr=False, factory=dict, metadata=docs("A dictionary of messages mentioned in the interaction")
-    )
-    attachments: Dict["Snowflake_Type", "Attachment"] = attrs.field(
-        repr=False, factory=dict, metadata=docs("A dictionary of attachments tied to the interaction")
-    )
+    channels: dict[Snowflake, "interactions.TYPE_MESSAGEABLE_CHANNEL"]
+    """A dictionary of channels resolved from the interaction."""
+    members: dict[Snowflake, "interactions.Member"]
+    """A dictionary of members resolved from the interaction."""
+    users: dict[Snowflake, "interactions.User"]
+    """A dictionary of users resolved from the interaction."""
+    roles: dict[Snowflake, "interactions.Role"]
+    """A dictionary of roles resolved from the interaction."""
+    messages: dict[Snowflake, "interactions.Message"]
+    """A dictionary of messages resolved from the interaction."""
+    attachments: dict[Snowflake, "interactions.Attachment"]
+    """A dictionary of attachments resolved from the interaction."""
+
+    def __bool__(self) -> bool:
+        """Returns whether any resolved data is present."""
+        return (
+            bool(self.channels)
+            or bool(self.members)
+            or bool(self.users)
+            or bool(self.roles)
+            or bool(self.messages)
+            or bool(self.attachments)
+        )
 
     @classmethod
-    def from_dict(cls, client: "Client", data: dict, guild_id: Optional["Snowflake_Type"] = None) -> "Resolved":
-        new_cls = cls()
+    def from_dict(cls, client: "interactions.Client", data: dict, guild_id: None | Snowflake = None) -> T_Resolved:
+        instance = cls()
 
         if channels := data.get("channels"):
             for key, _channel in channels.items():
-                new_cls.channels[key] = client.cache.place_channel_data(_channel)
+                instance.channels[key] = client.cache.place_channel_data(_channel)
 
         if members := data.get("members"):
             for key, _member in members.items():
-                new_cls.members[key] = client.cache.place_member_data(
+                instance.members[key] = client.cache.place_member_data(
                     guild_id, {**_member, "user": {**data["users"][key]}}
                 )
 
         if users := data.get("users"):
             for key, _user in users.items():
-                new_cls.users[key] = client.cache.place_user_data(_user)
+                instance.users[key] = client.cache.place_user_data(_user)
 
         if roles := data.get("roles"):
             for key, _role in roles.items():
-                new_cls.roles[key] = client.cache.get_role(to_snowflake(key))
+                instance.roles[key] = client.cache.get_role(Snowflake(key))
 
         if messages := data.get("messages"):
             for key, _msg in messages.items():
-                new_cls.messages[key] = client.cache.place_message_data(_msg)
+                instance.messages[key] = client.cache.place_message_data(_msg)
 
         if attachments := data.get("attachments"):
             for key, _attach in attachments.items():
-                new_cls.attachments[key] = Attachment.from_dict(_attach, client)
+                instance.attachments[key] = Attachment.from_dict(_attach, client)
 
-        return new_cls
+        return
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class Context:
-    """Represents the context of a command."""
+class BaseContext(metaclass=abc.ABCMeta):
+    """
+    Base context class for all contexts.
 
-    _client: "Client" = attrs.field(repr=False, default=None)
-    invoke_target: str = attrs.field(repr=False, default=None, metadata=docs("The name of the command to be invoked"))
-    command: Optional["BaseCommand"] = attrs.field(repr=False, default=None, metadata=docs("The command to be invoked"))
+    Define your own context class by inheriting from this class. For compatibility with the library, you must define a `from_dict` classmethod that takes a dict and returns an instance of your context class.
 
-    args: List = attrs.field(
-        repr=False, factory=list, metadata=docs("The list of arguments to be passed to the command")
-    )
-    kwargs: Dict = attrs.field(repr=False, factory=dict, metadata=docs("The list of keyword arguments to be passed"))
+    """
 
-    author: Union["Member", "User"] = attrs.field(repr=False, default=None, metadata=docs("The author of the message"))
-    channel: "TYPE_MESSAGEABLE_CHANNEL" = attrs.field(
-        repr=False, default=None, metadata=docs("The channel this was sent within")
-    )
-    guild_id: "Snowflake_Type" = attrs.field(
-        repr=False,
-        default=None,
-        converter=to_optional_snowflake,
-        metadata=docs("The guild this was sent within, if not a DM"),
-    )
-    message: "Message" = attrs.field(
-        repr=False, default=None, metadata=docs("The message associated with this context")
-    )
+    client: "interactions.Client"
+    """The client that created this context."""
 
-    logger: Logger = attrs.field(repr=False, init=False, factory=get_logger)
+    command: BaseCommand
+    """The command this context invokes."""
+
+    author_id: "interactions.User"
+    """The id of the user that invoked this context."""
+    channel_id: "interactions.BaseChannel"
+    """The id of the channel this context was invoked in."""
+    message_id: "interactions.Message"
+    """The id of the message that invoked this context."""
+
+    guild_id: typing.Optional[Snowflake]
+    """The id of the guild this context was invoked in, if any."""
+
+    def __init__(self, client: "interactions.Client"):
+        self.client = client
 
     @property
-    def guild(self) -> Optional["Guild"]:
-        return self._client.cache.get_guild(self.guild_id)
+    def guild(self) -> typing.Optional["interactions.Guild"]:
+        """The guild this context was invoked in."""
+        return self.client.cache.get_guild(self.guild_id)
 
     @property
-    def bot(self) -> "Client":
-        """A reference to the bot instance."""
-        return self._client
+    def author(self) -> "interactions.User":
+        """The user that invoked this context."""
+        return self.client.cache.get_user(self.author_id)
 
     @property
-    def voice_state(self) -> Optional["ActiveVoiceState"]:
-        return self._client.cache.get_bot_voice_state(self.guild_id)
+    def channel(self) -> "interactions.TYPE_MESSAGEABLE_CHANNEL":
+        """The channel this context was invoked in."""
+        return self.client.cache.get_channel(self.channel_id)
 
+    @property
+    def message(self) -> typing.Optional["interactions.Message"]:
+        """The message that invoked this context, if any."""
+        return self.client.cache.get_message(self.message_id)
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class _BaseInteractionContext(Context):
-    """An internal object used to define the attributes of interaction context and its children."""
-
-    _token: str = attrs.field(repr=False, default=None, metadata=docs("The token for the interaction"))
-    _context_type: int = attrs.field(
-        repr=False,
-    )  # we don't want to convert this in case of a new context type, which is expected
-    interaction_id: "Snowflake_Type" = attrs.field(
-        repr=False, default=None, metadata=docs("The id of the interaction"), converter=to_snowflake
-    )
-    target_id: "Snowflake_Type" = attrs.field(
-        default=None,
-        metadata=docs("The ID of the target, used for context menus to show what was clicked on"),
-        converter=optional(to_snowflake),
-    )
-    app_permissions: Permissions = attrs.field(
-        repr=False, default=0, converter=Permissions, metadata=docs("The permissions this interaction has")
-    )
-    locale: str = attrs.field(
-        default=None,
-        metadata=docs(
-            "The selected language of the invoking user \n(https://discord.com/developers/docs/reference#locales)"
-        ),
-    )
-    guild_locale: str = attrs.field(repr=False, default=None, metadata=docs("The guild's preferred locale"))
-
-    deferred: bool = attrs.field(repr=False, default=False, metadata=docs("Is this interaction deferred?"))
-    responded: bool = attrs.field(repr=False, default=False, metadata=docs("Have we responded to the interaction?"))
-    ephemeral: bool = attrs.field(
-        repr=False, default=False, metadata=docs("Are responses to this interaction *hidden*")
-    )
-
-    resolved: Resolved = attrs.field(
-        repr=False, default=Resolved(), metadata=docs("Discord objects mentioned within this interaction")
-    )
-
-    data: Dict = attrs.field(repr=False, factory=dict, metadata=docs("The raw data of this interaction"))
+    @property
+    def bot(self) -> "interactions.Client":
+        return self.client
 
     @classmethod
-    def from_dict(cls, data: Dict, client: "Client") -> "Context":
-        """Create a context object from a dictionary."""
-        new_cls = cls(
-            client=client,
-            token=data["token"],
-            interaction_id=data["id"],
-            data=data,
-            invoke_target=data["data"].get("name"),
-            guild_id=data.get("guild_id"),
-            context_type=data["data"].get("type", 0),
-            locale=data.get("locale"),
-            guild_locale=data.get("guild_locale"),
-            app_permissions=data.get("app_permissions", 0),
-        )
-        new_cls.data = data
+    @abc.abstractmethod
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+        """
+        Create a context instance from a dict.
 
-        if res_data := data["data"].get("resolved"):
-            new_cls.resolved = Resolved.from_dict(client, res_data, new_cls.guild_id)
+        Args:
+            client: The client creating this context.
+            payload: The dict to create the context from.
 
-        if new_cls.guild_id:
-            new_cls.author = client.cache.place_member_data(new_cls.guild_id, data["member"].copy())
-            client.cache.place_user_data(data["member"]["user"])
-            new_cls.channel = client.cache.get_channel(to_snowflake(data["channel_id"]))
+        Returns:
+            The context instance.
+
+        """
+        raise NotImplementedError
+
+
+class BaseInteractionContext(BaseContext):
+    token: str
+    """The interaction token."""
+    id: Snowflake
+    """The interaction ID."""
+
+    app_permissions: Permissions
+    """The permissions available to this interaction"""
+    locale: str
+    """The selected locale of the invoking user (https://discord.com/developers/docs/reference#locales)"""
+    guild_locale: str
+    """The selected locale of the invoking user's guild (https://discord.com/developers/docs/reference#locales)"""
+    resolved: Resolved
+    """The resolved data for this interaction."""
+
+    # state info
+    deferred: bool
+    """Whether the interaction has been deferred."""
+    responded: bool
+    """Whether the interaction has been responded to."""
+    ephemeral: bool
+    """Whether the interaction response is ephemeral."""
+
+    _context_type: int
+    """The context type of the interaction."""
+    command_id: Snowflake
+    """The command ID of the interaction."""
+    _command_name: str
+    """The command name of the interaction."""
+
+    args: list[typing.Any]
+    """The arguments passed to the interaction."""
+    kwargs: dict[str, typing.Any]
+    """The keyword arguments passed to the interaction."""
+
+    def __init__(self, client: "interactions.Client"):
+        super().__init__(client)
+        self.deferred = False
+        self.responded = False
+        self.ephemeral = False
+
+    @classmethod
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+        instance = cls(client=client)
+        instance.token = payload["token"]
+        instance.id = Snowflake(payload["id"])
+        instance.app_permissions = Permissions(payload.get("app_permissions", 0))
+        instance.locale = payload["locale"]
+        instance.guild_locale = payload["guild_locale"]
+        instance._context_type = payload.get("type", 0)
+        instance.resolved = Resolved.from_dict(client, payload.get("resolved", {}), payload.get("guild_id"))
+
+        instance.channel_id = Snowflake(payload["channel_id"])
+        if member := payload.get("member"):
+            instance.author_id = Snowflake(member["user"]["id"])
+            instance.guild_id = Snowflake(payload["guild_id"])
         else:
-            new_cls.author = client.cache.place_user_data(data["user"])
-            new_cls.channel = client.cache.get_channel(new_cls.author.id)
+            instance.author_id = Snowflake(payload["user"]["id"])
+        instance.guild_id = Snowflake(payload.get("guild_id"))
 
-        new_cls.target_id = data["data"].get("target_id")
+        instance.command_id = Snowflake(payload["data"]["id"])
+        instance._command_name = payload["data"]["name"]
 
-        new_cls._process_options(data)
+        instance.process_options(payload)
 
-        return new_cls
-
-    def _process_options(self, data: dict) -> None:
-        kwargs = {}
-        guild_id = to_snowflake(data.get("guild_id", 0))
-        if options := data["data"].get("options"):
-            o_type = options[0]["type"]
-            if o_type in (OptionTypes.SUB_COMMAND, OptionTypes.SUB_COMMAND_GROUP):
-                # this is a subcommand, process accordingly
-                if o_type == OptionTypes.SUB_COMMAND:
-                    self.invoke_target = f"{self.invoke_target} {options[0]['name']}"
-                    options = options[0].get("options", [])
-                else:
-                    self.invoke_target = (
-                        f"{self.invoke_target} {options[0]['name']} "
-                        f"{next(x for x in options[0]['options'] if x['type'] == OptionTypes.SUB_COMMAND)['name']}"
-                    )
-                    options = options[0]["options"][0].get("options", [])
-            for option in options:
-                value = option.get("value")
-
-                # this block here resolves the options using the cache
-                match option["type"]:
-                    case OptionTypes.USER:
-                        value = (
-                            self._client.cache.get_member(guild_id, to_snowflake(value))
-                            or self._client.cache.get_user(to_snowflake(value))
-                        ) or value
-
-                    case OptionTypes.CHANNEL:
-                        value = self._client.cache.get_channel(to_snowflake(value)) or value
-
-                    case OptionTypes.ROLE:
-                        value = self._client.cache.get_role(to_snowflake(value)) or value
-
-                    case OptionTypes.MENTIONABLE:
-                        snow = to_snowflake(value)
-                        if user := self._client.cache.get_member(guild_id, snow) or self._client.cache.get_user(snow):
-                            value = user
-                        elif role := self._client.cache.get_role(snow):
-                            value = role
-
-                    case OptionTypes.ATTACHMENT:
-                        value = self.resolved.attachments.get(value)
-
-                if option.get("focused", False):
-                    self.focussed_option = option.get("name")
-                kwargs[option["name"].lower()] = value
-        self.kwargs = kwargs
-        self.args = list(kwargs.values())
+        return instance
 
     @property
-    def expires_at(self) -> Timestamp:
-        """The timestamp the interaction is expected to expire at."""
+    def command(self) -> InteractionCommand:
+        return self.client._interaction_lookup[self.command_id]  # noqa W0212
+
+    @property
+    def expires_at(self) -> typing.Optional[datetime.datetime]:
+        """The time at which the interaction expires."""
         if self.responded:
-            return Timestamp.from_snowflake(self.interaction_id) + datetime.timedelta(minutes=15)
-        return Timestamp.from_snowflake(self.interaction_id) + datetime.timedelta(seconds=3)
+            return self.id.created_at + datetime.timedelta(minutes=15)
+        return self.id.created_at + datetime.timedelta(seconds=3)
 
     @property
     def expired(self) -> bool:
-        """Has the interaction expired yet?"""
-        return Timestamp.utcnow() >= self.expires_at
+        """Whether the interaction has expired."""
+        return datetime.datetime.utcnow() > self.expires_at
 
     @property
-    def invoked_name(self) -> str:
-        return self.command.get_localised_name(self.locale)
+    def invoke_target(self) -> str:
+        """The invoke target of the interaction."""
+        return self._command_name
 
-    async def send_modal(self, modal: Union[dict, "Modal"]) -> Union[dict, "Modal"]:
+    def option_processing_hook(self, option: dict) -> typing.Any:
         """
-        Respond using a modal.
+        Hook for extending options processing.
+
+        This is called for each option, before the library processes it. If this returns a value, the library will not process the option further.
 
         Args:
-            modal: The modal to respond with
+            option: The option to process.
 
         Returns:
-            The modal used.
+            The processed option.
 
         """
-        payload = modal.to_dict() if not isinstance(modal, dict) else modal
+        return option
 
-        await self._client.http.post_initial_response(payload, self.interaction_id, self._token)
+    def process_options(self, data: discord_typings.InteractionCallbackData):
+        """Process the options of the interaction."""
+        self.args = []
+        self.kwargs = {}
 
-        self.responded = True
-        return modal
 
-
-@attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class InteractionContext(_BaseInteractionContext, SendMixin):
-    """
-    Represents the context of an interaction.
-
-    !!! info "Ephemeral messages:"
-        Ephemeral messages allow you to send messages that only the author of the interaction can see.
-        They are best considered as `fire-and-forget`, in the sense that you cannot edit them once they have been sent.
-
-        Should you attach a component (ie. button) to the ephemeral message,
-        you will be able to edit it when responding to a button interaction.
-
-    """
-
-    async def defer(self, ephemeral: bool = False) -> None:
+class InteractionContext(BaseInteractionContext, SendMixin):
+    async def defer(self, *, ephemeral: bool = False):
         """
-        Defers the response, showing a loading state.
+        Defer the interaction.
 
         Args:
-            ephemeral: Should the response be ephemeral
-
+            ephemeral: Whether the interaction response should be ephemeral.
         """
         if self.deferred or self.responded:
-            raise AlreadyDeferred("You have already responded to this interaction!")
+            raise RuntimeError("Interaction has already been responded to.")
 
-        payload = {"type": CallbackTypes.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE}
+        payload = {"Type": CallbackTypes.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE}
         if ephemeral:
             payload["data"] = {"flags": MessageFlags.EPHEMERAL}
 
-        await self._client.http.post_initial_response(payload, self.interaction_id, self._token)
-        self.ephemeral = ephemeral
+        await self.client.http.post_initial_response(payload, self.id, self.token)
         self.deferred = True
+        self.ephemeral = ephemeral
 
     async def _send_http_request(
-        self, message_payload: Union[dict, "FormData"], files: Iterable["UPLOADABLE_TYPE"] | None = None
+        self, message_payload: dict, files: typing.Iterable["UPLOADABLE_TYPE"] | None = None
     ) -> dict:
         if self.responded:
-            message_data = await self._client.http.post_followup(
-                message_payload, self._client.app.id, self._token, files=files
-            )
+            message_data = await self.client.http.post_followup(message_payload, self.id, self.token, files=files)
         else:
             if isinstance(message_payload, FormData) and not self.deferred:
-                await self.defer(self.ephemeral)
+                await self.defer(ephemeral=self.ephemeral)
             if self.deferred:
-                message_data = await self._client.http.edit_interaction_message(
-                    message_payload, self._client.app.id, self._token, files=files
+                message_data = await self.client.http.edit_interaction_message(
+                    message_payload, self.client.app.id, self.token, files=files
                 )
-                self.deferred = False
             else:
                 payload = {"type": CallbackTypes.CHANNEL_MESSAGE_WITH_SOURCE, "data": message_payload}
-                await self._client.http.post_initial_response(payload, self.interaction_id, self._token, files=files)
-                message_data = await self._client.http.get_interaction_message(self._client.app.id, self._token)
-            self.responded = True
+                message_data = await self.client.http.post_initial_response(payload, self.id, self.token, files=files)
 
+        if not message_data:
+            try:
+                message_data = await self.client.http.get_interaction_message(self.client.app.id, self.token)
+            except HTTPException:
+                pass
+
+        self.responded = True
         return message_data
 
     async def send(
         self,
-        content: Optional[str] = None,
+        content: typing.Optional[str] = None,
         *,
-        embeds: Optional[Union[Iterable[Union["Embed", dict]], Union["Embed", dict]]] = None,
-        embed: Optional[Union["Embed", dict]] = None,
-        components: Optional[
-            Union[
-                Iterable[Iterable[Union["BaseComponent", dict]]],
-                Iterable[Union["BaseComponent", dict]],
+        embeds: typing.Optional[
+            typing.Union[typing.Iterable[typing.Union["Embed", dict]], typing.Union["Embed", dict]]
+        ] = None,
+        embed: typing.Optional[typing.Union["Embed", dict]] = None,
+        components: typing.Optional[
+            typing.Union[
+                typing.Iterable[typing.Iterable[typing.Union["BaseComponent", dict]]],
+                typing.Iterable[typing.Union["BaseComponent", dict]],
                 "BaseComponent",
                 dict,
             ]
         ] = None,
-        stickers: Optional[Union[Iterable[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]] = None,
-        allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
-        reply_to: Optional[Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
-        files: Optional[Union[UPLOADABLE_TYPE, Iterable[UPLOADABLE_TYPE]]] = None,
-        file: Optional[UPLOADABLE_TYPE] = None,
+        stickers: typing.Optional[
+            typing.Union[typing.Iterable[typing.Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]
+        ] = None,
+        allowed_mentions: typing.Optional[typing.Union["AllowedMentions", dict]] = None,
+        reply_to: typing.Optional[typing.Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
+        files: typing.Optional[typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]] = None,
+        file: typing.Optional["UPLOADABLE_TYPE"] = None,
         tts: bool = False,
         suppress_embeds: bool = False,
-        flags: Optional[Union[int, "MessageFlags"]] = None,
+        flags: typing.Optional[typing.Union[int, "MessageFlags"]] = None,
+        delete_after: typing.Optional[float] = None,
         ephemeral: bool = False,
+        **kwargs: typing.Any,
     ) -> "Message":
         """
         Send a message.
@@ -402,23 +354,21 @@ class InteractionContext(_BaseInteractionContext, SendMixin):
             tts: Should this message use Text To Speech.
             suppress_embeds: Should embeds be suppressed on this send
             flags: Message flags to apply.
-            ephemeral bool: Should this message be sent as ephemeral (hidden)
+            delete_after: Delete message after this many seconds.
+            ephemeral: Whether the response should be ephemeral
 
         Returns:
             New message object that was sent.
-
         """
+        flags = MessageFlags(flags or 0)
         if ephemeral:
-            flags = MessageFlags.EPHEMERAL
+            flags |= MessageFlags.EPHEMERAL
             self.ephemeral = True
-
         if suppress_embeds:
-            if isinstance(flags, int):
-                flags = MessageFlags(flags)
-            flags = flags | MessageFlags.SUPPRESS_EMBEDS
+            flags |= MessageFlags.SUPPRESS_EMBEDS
 
         return await super().send(
-            content,
+            content=content,
             embeds=embeds,
             embed=embed,
             components=components,
@@ -429,248 +379,166 @@ class InteractionContext(_BaseInteractionContext, SendMixin):
             file=file,
             tts=tts,
             flags=flags,
+            delete_after=delete_after,
+            **kwargs,
         )
 
-    async def delete(self, message: "Snowflake_Type") -> None:
-        """
-        Delete a message sent in response to this interaction.
 
-        Args:
-            message: The message to delete
+class SlashContext(InteractionContext, ModalMixin):
+    @classmethod
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+        instance = super().from_dict(client, payload)
 
-        """
-        await self._client.http.delete_interaction_message(self._client.app.id, self._token, to_snowflake(message))
+        return instance
 
-    async def edit(
-        self,
-        message: "Snowflake_Type",
-        *,
-        content: Optional[str] = None,
-        embeds: Optional[Union[Sequence[Union["models.Embed", dict]], Union["models.Embed", dict]]] = None,
-        embed: Optional[Union["models.Embed", dict]] = None,
-        components: Optional[
-            Union[
-                Sequence[Sequence[Union["models.BaseComponent", dict]]],
-                Sequence[Union["models.BaseComponent", dict]],
-                "models.BaseComponent",
-                dict,
-            ]
-        ] = None,
-        allowed_mentions: Optional[Union["models.AllowedMentions", dict]] = None,
-        attachments: Optional[Optional[Sequence[Union[Attachment, dict]]]] = None,
-        files: Optional[Union[UPLOADABLE_TYPE, Sequence[UPLOADABLE_TYPE]]] = None,
-        file: Optional[UPLOADABLE_TYPE] = None,
-        tts: bool = False,
-    ) -> "models.Message":
-        message_payload = models.process_message_payload(
-            content=content,
-            embeds=embeds or embed,
-            components=components,
-            allowed_mentions=allowed_mentions,
-            attachments=attachments,
-            tts=tts,
-        )
+    def process_options(self, data: discord_typings.InteractionCallbackData):
+        if not data["type"] == InteractionTypes.APPLICATION_COMMAND:
+            self.args = []
+            self.kwargs = {}
+            return
 
-        if file:
-            if files:
-                files = [file, *files]
-            else:
-                files = [file]
+        def gather_options(_options: list[dict[str, typing.Any]]) -> dict[str, typing.Any]:
+            """Recursively gather options from an option list."""
+            kwargs = {}
+            for option in _options:
+                if hook_result := self.option_processing_hook(option):
+                    kwargs[option["name"]] = hook_result
 
-        message_data = await self._client.http.edit_interaction_message(
-            payload=message_payload,
-            application_id=self._client.app.id,
-            token=self._token,
-            message_id=to_snowflake(message),
-            files=files,
-        )
-        if message_data:
-            return self._client.cache.place_message_data(message_data)
+                if option["type"] in (OptionTypes.SUB_COMMAND, OptionTypes.SUB_COMMAND_GROUP):
+                    if option["type"] == OptionTypes.SUB_COMMAND:
+                        self._command_name = f"{self._command_name} {option['name']}"
+                    return gather_options(option["options"])
 
-    @property
-    def target(self) -> "Absent[Member | User | Message]":
-        """For context menus, this will be the object of which was clicked on."""
-        thing = MISSING
+                value = option.get("value")
 
-        match self._context_type:
-            # Only searches caches based on what kind of context menu this is
+                # resolve data using the cache
+                match option["type"]:
+                    case OptionTypes.USER:
+                        if self.guild_id:
+                            value = (
+                                self.client.cache.get_member(self.guild_id, value)
+                                or self.client.cache.get_user(value)
+                                or value
+                            )
+                        else:
+                            value = self.client.cache.get_user(value) or value
+                    case OptionTypes.CHANNEL:
+                        value = self.client.cache.get_channel(value)
+                    case OptionTypes.ROLE:
+                        value = self.client.cache.get_role(value) or value
+                    case OptionTypes.MENTIONABLE:
+                        snow = Snowflake(value)
+                        if user := (
+                            self.client.cache.get_member(self.guild_id, snow) or self.client.cache.get_user(snow)
+                        ):
+                            value = user
+                        elif channel := self.client.cache.get_channel(snow):
+                            value = channel
+                        elif role := self.client.cache.get_role(snow):
+                            value = role
 
-            case CommandTypes.USER:
-                # This can only be in the member or user cache
-                caches = (
-                    (self._client.cache.get_member, (self.guild_id, self.target_id)),
-                    (self._client.cache.get_user, (self.target_id,)),
-                )
-            case CommandTypes.MESSAGE:
-                # This can only be in the message cache
-                caches = ((self._client.cache.get_message, (self.channel.id, self.target_id)),)
-            case _:
-                # Most likely a new context type, check all rational caches for the target_id
-                self.logger.warning(f"New Context Type Detected. Please Report: {self._context_type}")
-                caches = (
-                    (self._client.cache.get_message, (self.channel.id, self.target_id)),
-                    (self._client.cache.get_member, (self.guild_id, self.target_id)),
-                    (self._client.cache.get_user, (self.target_id,)),
-                    (self._client.cache.get_channel, (self.target_id,)),
-                    (self._client.cache.get_role, (self.target_id,)),
-                    (self._client.cache.get_emoji, (self.target_id,)),  # unlikely, so check last
-                )
+                kwargs[option["name"]] = value
+            return kwargs
 
-        for cache, keys in caches:
-            thing = cache(*keys)
-            if thing is not None:
-                break
-        return thing
+        if options := data["data"].get("options"):
+            self.kwargs = gather_options(options)  # type: ignore
+        else:
+            self.kwargs = {}
+        self.args = list(self.kwargs.values())
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class ComponentContext(InteractionContext):
-    custom_id: str = attrs.field(
-        repr=False, default="", metadata=docs("The ID given to the component that has been pressed")
-    )
-    component_type: int = attrs.field(
-        repr=False, default=0, metadata=docs("The type of component that has been pressed")
-    )
+class ContextMenuContext(InteractionContext, ModalMixin):
+    target_id: Snowflake
+    """The id of the target of the context menu."""
+    editing_origin: bool
+    """Whether you have deferred the interaction and are editing the original response."""
 
-    values: List = attrs.field(repr=False, factory=list, metadata=docs("The values set"))
-
-    defer_edit_origin: bool = attrs.field(
-        repr=False, default=False, metadata=docs("Are we editing the message the component is on")
-    )
+    def __init__(self, client: "interactions.Client"):
+        super().__init__(client)
+        self.editing_origin = False
 
     @classmethod
-    def from_dict(cls, data: Dict, client: "Client") -> "ComponentContext":
-        """Create a context object from a dictionary."""
-        new_cls = super().from_dict(data, client)
-        new_cls.token = data["token"]
-        new_cls.interaction_id = data["id"]
-        new_cls.invoke_target = data["data"]["custom_id"]
-        new_cls.custom_id = data["data"]["custom_id"]
-        new_cls.component_type = data["data"]["component_type"]
-        new_cls.message = client.cache.place_message_data(data["message"])
-        new_cls.values = data["data"].get("values", [])
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+        instance = super().from_dict(client, payload)
+        instance.target_id = payload["target_id"]
+        return instance
 
-        return new_cls
-
-    async def defer(self, ephemeral: bool = False, edit_origin: bool = False) -> None:
+    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False):
         """
-        Defers the response, showing a loading state.
+        Defer the interaction.
 
         Args:
-            ephemeral: Should the response be ephemeral
-            edit_origin: Whether we intend to edit the original message
-
+            ephemeral: Whether the interaction response should be ephemeral.
+            edit_origin: Whether to edit the original message instead of sending a new one.
         """
         if self.deferred or self.responded:
-            raise AlreadyDeferred("You have already responded to this interaction!")
+            raise RuntimeError("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackTypes.DEFERRED_UPDATE_MESSAGE
-            if edit_origin
-            else CallbackTypes.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            "Type": CallbackTypes.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackTypes.DEFERRED_UPDATE_MESSAGE
         }
-
         if ephemeral:
             if edit_origin:
-                raise ValueError("`edit_origin` and `ephemeral` are mutually exclusive")
+                raise ValueError("Cannot use ephemeral and edit_origin together.")
             payload["data"] = {"flags": MessageFlags.EPHEMERAL}
 
-        await self._client.http.post_initial_response(payload, self.interaction_id, self._token)
+        await self.client.http.post_initial_response(payload, self.id, self.token)
         self.deferred = True
         self.ephemeral = ephemeral
-        self.defer_edit_origin = edit_origin
-
-    async def edit_origin(
-        self,
-        *,
-        content: str = None,
-        embeds: Optional[Union[Iterable[Union["Embed", dict]], Union["Embed", dict]]] = None,
-        embed: Optional[Union["Embed", dict]] = None,
-        components: Optional[
-            Union[
-                Iterable[Iterable[Union["BaseComponent", dict]]],
-                Iterable[Union["BaseComponent", dict]],
-                "BaseComponent",
-                dict,
-            ]
-        ] = None,
-        allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
-        files: Optional[Union[UPLOADABLE_TYPE, Iterable[UPLOADABLE_TYPE]]] = None,
-        file: Optional[UPLOADABLE_TYPE] = None,
-        tts: bool = False,
-    ) -> "Message":
-        """
-        Edits the original message of the component.
-
-        Args:
-            content: Message text content.
-            embeds: Embedded rich content (up to 6000 characters).
-            embed: Embedded rich content (up to 6000 characters).
-            components: The components to include with the message.
-            allowed_mentions: Allowed mentions for the message.
-            files: Files to send, the path, bytes or File() instance, defaults to None. You may have up to 10 files.
-            file: Files to send, the path, bytes or File() instance, defaults to None. You may have up to 10 files.
-            tts: Should this message use Text To Speech.
-
-        Returns:
-            The message after it was edited.
-
-        """
-        if not self.responded and not self.deferred and (files or file):
-            # Discord doesn't allow files at initial response, so we defer then edit.
-            await self.defer(edit_origin=True)
-
-        message_payload = message.process_message_payload(
-            content=content,
-            embeds=embeds or embed,
-            components=components,
-            allowed_mentions=allowed_mentions,
-            tts=tts,
-        )
-
-        message_data = None
-        if self.deferred:
-            if not self.defer_edit_origin:
-                self.logger.warning(
-                    "If you want to edit the original message, and need to defer, you must set the `edit_origin` kwarg to True!"
-                )
-
-            message_data = await self._client.http.edit_interaction_message(
-                message_payload, self._client.app.id, self._token
-            )
-            self.deferred = False
-            self.defer_edit_origin = False
-        else:
-            payload = {"type": CallbackTypes.UPDATE_MESSAGE, "data": message_payload}
-            await self._client.http.post_initial_response(
-                payload, self.interaction_id, self._token, files=files or file
-            )
-            message_data = await self._client.http.get_interaction_message(self._client.app.id, self._token)
-
-        if message_data:
-            self.message = self._client.cache.place_message_data(message_data)
-            return self.message
+        self.editing_origin = edit_origin
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class AutocompleteContext(_BaseInteractionContext):
-    focussed_option: str = attrs.field(
-        repr=False, default=MISSING, metadata=docs("The option the user is currently filling in")
-    )
+class ComponentContext(InteractionContext):
+    values: list[str]
+    """The values of the SelectMenu component, if any."""
+    custom_id: str
+    """The custom_id of the component."""
+    component_type: int
+    """The type of the component."""
 
     @classmethod
-    def from_dict(cls, data: Dict, client: "Client") -> "ComponentContext":
-        """Create a context object from a dictionary."""
-        new_cls = super().from_dict(data, client)
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+        instance = super().from_dict(client, payload)
+        instance.values = payload.get("values", [])
+        instance.custom_id = payload["data"]["custom_id"]
+        instance.component_type = payload["data"]["component_type"]
+        return instance
 
-        return new_cls
+
+class ModalContext(InteractionContext):
+    responses: dict[str, str]
+    """The responses of the modal. The key is the `custom_id` of the component."""
+
+    @classmethod
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+        instance = super().from_dict(client, payload)
+        instance.responses = {
+            comp["components"][0]["custom_id"]: comp["components"][0]["value"] for comp in payload["data"]["components"]
+        }
+        return instance
+
+
+class AutocompleteContext(BaseInteractionContext):
+    focused_option: SlashCommandOption  # todo: option parsing
+    """The option the user is currently filling in."""
+
+    @classmethod
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+        instance = super().from_dict(client, payload)
+        instance.focused_option = payload["data"]["focused_option"]
+        return instance
 
     @property
     def input_text(self) -> str:
-        """The text the user has entered so far."""
-        return self.kwargs.get(self.focussed_option, "")
+        """The text the user has already filled in."""
+        return self.kwargs.get(self.focused_option.name, "")
 
-    async def send(self, choices: Iterable[Union[str, int, float, Dict[str, Union[str, int, float]]]]) -> None:
+    def option_processing_hook(self, option: dict) -> None:
+        if option.get("focussed", False):
+            self.focused_option = SlashCommandOption.from_dict(option)
+        return None
+
+    async def send(self, choices: typing.Iterable[str | int | float | dict[str, int | float | str]]) -> None:
         """
         Send your autocomplete choices to discord. Choices must be either a list of strings, or a dictionary following the following format:
 
@@ -685,92 +553,25 @@ class AutocompleteContext(_BaseInteractionContext):
 
         Args:
             choices: 25 choices the user can pick
-
         """
         processed_choices = []
         for choice in choices:
-            if isinstance(choice, (int, float)):
-                processed_choices.append({"name": str(choice), "value": choice})
-            elif isinstance(choice, dict):
-                processed_choices.append(choice)
+            name = None
+            if isinstance(choice, dict):
+                name = choice["name"]
+                value = choice["value"]
             else:
-                choice = str(choice)
-                processed_choices.append({"name": choice, "value": choice.replace(" ", "_")})
+                name = str(choice)
+                value = choice
 
-        payload = {"type": CallbackTypes.AUTOCOMPLETE_RESULT, "data": {"choices": processed_choices}}
-        await self._client.http.post_initial_response(payload, self.interaction_id, self._token)
+            if self.focused_option.type == OptionTypes.STRING:
+                if not isinstance(value, str):
+                    value = str(value)
+            elif self.focused_option.type == OptionTypes.INTEGER:
+                if not isinstance(value, int):
+                    value = int(value)
+            elif self.focused_option.type == OptionTypes.NUMBER:
+                if not isinstance(value, float):
+                    value = float(value)
 
-
-@attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class ModalContext(InteractionContext):
-    custom_id: str = attrs.field(repr=False, default="")
-
-    @classmethod
-    def from_dict(cls, data: Dict, client: "Client") -> "ModalContext":
-        new_cls = super().from_dict(data, client)
-
-        new_cls.kwargs = {
-            comp["components"][0]["custom_id"]: comp["components"][0]["value"] for comp in data["data"]["components"]
-        }
-        new_cls.custom_id = data["data"]["custom_id"]
-        return new_cls
-
-    @property
-    def responses(self) -> dict[str, str]:
-        """
-        Get the responses to this modal.
-
-        Returns:
-            A dictionary of responses. Keys are the custom_ids of your components.
-        """
-        return self.kwargs
-
-@runtime_checkable
-class SendableContext(Protocol):
-    """
-    A protocol that supports any context that can send messages.
-
-    Use it to type hint something that accepts both PrefixedContext and InteractionContext.
-    """
-
-    channel: "TYPE_MESSAGEABLE_CHANNEL"
-    invoke_target: str
-
-    author: Union["Member", "User"]
-    guild_id: "Snowflake_Type"
-    message: "Message"
-
-    @property
-    def bot(self) -> "Client":
-        ...
-
-    @property
-    def guild(self) -> Optional["Guild"]:
-        ...
-
-    async def send(
-        self,
-        content: Optional[str] = None,
-        *,
-        embeds: Optional[Union[Iterable[Union["Embed", dict]], Union["Embed", dict]]] = None,
-        embed: Optional[Union["Embed", dict]] = None,
-        components: Optional[
-            Union[
-                Iterable[Iterable[Union["BaseComponent", dict]]],
-                Iterable[Union["BaseComponent", dict]],
-                "BaseComponent",
-                dict,
-            ]
-        ] = None,
-        stickers: Optional[Union[Iterable[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]] = None,
-        allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
-        reply_to: Optional[Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
-        files: Optional[Union["UPLOADABLE_TYPE", Iterable["UPLOADABLE_TYPE"]]] = None,
-        file: Optional["UPLOADABLE_TYPE"] = None,
-        tts: bool = False,
-        suppress_embeds: bool = False,
-        flags: Optional[Union[int, "MessageFlags"]] = None,
-        delete_after: Optional[float] = None,
-        **kwargs: Any,
-    ) -> "Message":
-        ...
+            processed_choices.append({"name": name, "value": value})
