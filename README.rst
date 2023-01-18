@@ -1,6 +1,17 @@
 interactions.py
 ===============
 
+This branch is incredibly unstable and is not recommended for production use. You have been warned.
+=====================================================================================================
+Scary warnings aside, this branch is for the merge between Interactions.py and `NAFF`_.
+Contributions are welcome.
+
+What's broken?
+--------------
+Yes. Like the header says, this is not recommended for production use. A beta release will be made in due time.
+
+----------------
+
 **Easy, simple, scalable and modular: a Python API wrapper for interactions.**
 
 .. image:: https://img.shields.io/pypi/dm/discord-py-slash-command.svg
@@ -92,3 +103,4 @@ Feel free to begin making `Pull Requests`_ and `Issues`_ on our GitHub!
 .. _MIT License: https://github.com/goverfl0w/interactions-py/library/blob/stable/LICENSE
 .. _Pull Requests: https://github.com/interactions-py/library/pulls
 .. _Issues: https://github.com/interactions-py/library/issues
+.. _NAFF: https://github.com/NAFTeam/NAFF/
