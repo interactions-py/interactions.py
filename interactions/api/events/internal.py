@@ -21,12 +21,16 @@ These are events dispatched by the client. This is intended as a reference so yo
 
 """
 import re
-from typing import Any, Optional, TYPE_CHECKING
+import typing
+from typing import Any, Optional, TYPE_CHECKING, Type
 
 import attrs
 
 from interactions.api.events.base import BaseEvent, RawGatewayEvent
 from interactions.client.utils.attr_utils import docs
+
+if typing.TYPE_CHECKING:
+    from interactions import Extension
 
 __all__ = (
     "ButtonPressed",
@@ -50,6 +54,10 @@ __all__ = (
     "ComponentCompletion",
     "AutocompleteCompletion",
     "ModalCompletion",
+    "ExtensionLoad",
+    "ExtensionUnload",
+    "ExtensionCommandParse",
+    "CallbackAdded",
 )
 
 
@@ -152,9 +160,7 @@ class Select(Component):
 class CommandCompletion(BaseEvent):
     """Dispatched after the library ran any command callback."""
 
-    ctx: "InteractionContext | HybridContext" = attrs.field(
-        repr=False, metadata=docs("The command context")
-    )
+    ctx: "InteractionContext | HybridContext" = attrs.field(repr=False, metadata=docs("The command context"))
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -221,3 +227,40 @@ class ModalError(_Error):
     """Dispatched when the library encounters an error in a modal."""
 
     ctx: "ModalContext" = attrs.field(repr=False, metadata=docs("The modal context"))
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class ExtensionLoad(BaseEvent):
+    """Dispatched when an extension is loaded."""
+
+    extension: "Extension" = attrs.field(repr=False)
+    """The extension in question"""
+
+    @property
+    def metadata(self) -> "Type[Extension.Metadata] | None":
+        """The metadata of the extension, if it has any."""
+        if self.extension.Metadata:
+            return self.extension.Metadata
+        return None
+
+
+class ExtensionUnload(ExtensionLoad):
+    """Dispatched when an extension is unloaded."""
+
+    ...
+
+
+class ExtensionCommandParse(ExtensionLoad):
+    """Dispatched when an extension is parsed for commands."""
+
+    callables: list[tuple[str, typing.Callable]] = attrs.field(repr=False, default=None)
+    """The callables that were parsed for commands"""
+
+
+class CallbackAdded(BaseEvent):
+    """Dispatched when a callback is added to the client."""
+
+    callback: "BaseCommand | Listener" = attrs.field(repr=False)
+    """The callback that was added"""
+    extension: "Extension | None" = attrs.field(repr=False, default=None)
+    """The extension that the command was added from, if any"""
