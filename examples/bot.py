@@ -10,13 +10,12 @@ import interactions
 # When you make a bot, we refer to it as the "client."
 # The client is the main object that interacts with the Gateway, what talks to Discord.
 # The client is also the main object that interacts with the API, what makes requests with Discord.
-client = interactions.Client("your bot token will go here.")
-
+client = interactions.Client()
 
 # With our client established, let's have the library inform us when the client is ready.
 # These are known as event listeners. An event listener can be established in one of two ways.
 # You can provide the name of the event, prefixed by an "on_", or by telling the event decorator what event it is.
-@client.event
+@interactions.listen()
 async def on_ready():
     # We can use the client "me" attribute to get information about the bot.
     print(f"We're online! We've logged in as {client.me.name}.")
@@ -25,7 +24,7 @@ async def on_ready():
     print(f"Our latency is {round(client.latency)} ms.")
 
 
-@client.event(name="on_message_create")
+@interactions.listen("on_message_create")
 async def name_this_however_you_want(message: interactions.Message):
     # Whenever we specify any other event type that isn't "READY," the function underneath
     # the decorator will most likely have an argument required. This argument is the data
@@ -37,9 +36,7 @@ async def name_this_however_you_want(message: interactions.Message):
     # We can use the data model to access the data we need.
     # Keep in mind that you can only access the message content if your bot has the MESSAGE_CONTENT intent.
     # You can find more information on this in the migration section of the quickstart guide.
-    print(
-        f"We've received a message from {message.author.username}. The message is: {message.content}."
-    )
+    print(f"We've received a message from {message.author.username}. The message is: {message.content}.")
 
 
 # Now, let's create a command.
@@ -47,8 +44,8 @@ async def name_this_however_you_want(message: interactions.Message):
 # The command is called with a context object, which contains information about the user, the channel, and the guild.
 # Context is what we call the described information given from an interaction response, what comes from a command.
 # The context object in this case is a class for commands, but can also be one for components if used that way.
-@client.command(name="hello-world", description='A command that says "hello world!"')
-async def hello_world(ctx: interactions.CommandContext):
+@interactions.slash_command(name="hello-world", description='A command that says "hello world!"')
+async def hello_world(ctx: interactions.SlashContext):
     # "ctx" is an abbreviation of the context object.
     # You don't need to type hint this, but it's recommended to do so.
 
@@ -69,4 +66,4 @@ async def hello_world(ctx: interactions.CommandContext):
 # - we are not setting a presence.
 # - we are not automatically sharding, and registering the connection under 1 shard.
 # - we are using default intents, which are Gateway intents excluding privileged ones.
-client.start()
+client.start("Your token here.")
