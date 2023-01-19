@@ -16,7 +16,7 @@ __all__ = ("SendMixin",)
 
 
 class SendMixin:
-    _client: "Client"
+    client: "Client"
 
     async def _send_http_request(self, message_payload: dict, files: Iterable["UPLOADABLE_TYPE"] | None = None) -> dict:
         raise NotImplementedError
@@ -87,7 +87,7 @@ class SendMixin:
 
         message_data = await self._send_http_request(message_payload, files=files or file)
         if message_data:
-            message = self._client.cache.place_message_data(message_data)
+            message = self.client.cache.place_message_data(message_data)
             if delete_after:
                 await message.delete(delay=delete_after)
             return message
