@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.api.events.discord import (
-    AuditLogEntryCreate,
+    GuildAuditLogEntryCreate,
     GuildEmojisUpdate,
     IntegrationCreate,
     IntegrationUpdate,
@@ -130,7 +130,7 @@ class GuildEvents(EventMixinTemplate):
     @Processor.define()
     async def _on_raw_guild_audit_log_entry_create(self, event: "RawGatewayEvent") -> None:
         self.dispatch(
-            AuditLogEntryCreate(
+            GuildAuditLogEntryCreate(
                 event.data.get("guild_id"),
                 AuditLogEntry.from_dict(event.data, self)
             )
