@@ -5,7 +5,7 @@ import interactions.api.events as events
 from interactions.api.events.discord import (
     BanCreate,
     BanRemove,
-    GuildAuditLogEntryCreate
+    GuildAuditLogEntryCreate,
     GuildEmojisUpdate,
     GuildStickersUpdate,
     IntegrationCreate,
