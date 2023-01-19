@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, cast
 import discord_typings
 
 from interactions.models.internal.protocols import CanRequest
-
 from ..route import Route
 
 __all__ = ("EmojiRequests",)
@@ -14,9 +13,7 @@ if TYPE_CHECKING:
 
 
 class EmojiRequests(CanRequest):
-    async def get_all_guild_emoji(
-        self, guild_id: "Snowflake_Type"
-    ) -> list[discord_typings.EmojiData]:
+    async def get_all_guild_emoji(self, guild_id: "Snowflake_Type") -> list[discord_typings.EmojiData]:
         """
         Get all the emoji from a guild.
 
@@ -62,17 +59,11 @@ class EmojiRequests(CanRequest):
             The created emoji object
 
         """
-        result = await self.request(
-            Route("POST", f"/guilds/{int(guild_id)}/emojis"), payload=payload, reason=reason
-        )
+        result = await self.request(Route("POST", f"/guilds/{int(guild_id)}/emojis"), payload=payload, reason=reason)
         return cast(discord_typings.EmojiData, result)
 
     async def modify_guild_emoji(
-        self,
-        payload: dict,
-        guild_id: "Snowflake_Type",
-        emoji_id: "Snowflake_Type",
-        reason: str | None = None,
+        self, payload: dict, guild_id: "Snowflake_Type", emoji_id: "Snowflake_Type", reason: str | None = None
     ) -> discord_typings.EmojiData:
         """
         Modify an existing guild emoji.
@@ -88,9 +79,7 @@ class EmojiRequests(CanRequest):
 
         """
         result = await self.request(
-            Route("PATCH", f"/guilds/{int(guild_id)}/emojis/{int(emoji_id)}"),
-            payload=payload,
-            reason=reason,
+            Route("PATCH", f"/guilds/{int(guild_id)}/emojis/{int(emoji_id)}"), payload=payload, reason=reason
         )
         return cast(discord_typings.EmojiData, result)
 
@@ -106,6 +95,4 @@ class EmojiRequests(CanRequest):
             reason: The reason for this deletion
 
         """
-        await self.request(
-            Route("DELETE", f"/guilds/{int(guild_id)}/emojis/{int(emoji_id)}"), reason=reason
-        )
+        await self.request(Route("DELETE", f"/guilds/{int(guild_id)}/emojis/{int(emoji_id)}"), reason=reason)

@@ -1,25 +1,25 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, List, Dict, Any, Union, Optional
 
 import attrs
 
 import interactions.models as models
 from interactions.client.const import MISSING
 from interactions.client.mixins.send import SendMixin
-from interactions.client.utils.attr_converters import optional, timestamp_converter
+from interactions.client.utils.attr_converters import optional
+from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.snowflake import to_snowflake
 from interactions.models.discord.timestamp import Timestamp
-
-from .base import ClientObject, DiscordObject
+from .base import DiscordObject, ClientObject
 
 if TYPE_CHECKING:
     from aiohttp import FormData
 
-    from interactions import UPLOADABLE_TYPE, GuildForum
     from interactions.client import Client
+    from interactions.models.discord.user import User
     from interactions.models.discord.channel import TYPE_THREAD_CHANNEL
     from interactions.models.discord.snowflake import Snowflake_Type
-    from interactions.models.discord.user import User
+    from interactions import UPLOADABLE_TYPE, GuildForum
 
 __all__ = (
     "ThreadMember",
@@ -129,10 +129,7 @@ class ThreadTag(DiscordObject):
         return self._client.get_channel(self._parent_channel_id)
 
     async def edit(
-        self,
-        *,
-        name: Optional[str] = None,
-        emoji: Union["models.PartialEmoji", dict, str, None] = None
+        self, *, name: Optional[str] = None, emoji: Union["models.PartialEmoji", dict, str, None] = None
     ) -> "ThreadTag":
         """
         Edit this tag
@@ -150,13 +147,9 @@ class ThreadTag(DiscordObject):
             emoji = PartialEmoji.from_dict(emoji)
 
         if emoji.id:
-            data = await self._client.http.edit_tag(
-                self._parent_channel_id, self.id, name, emoji_id=emoji.id
-            )
+            data = await self._client.http.edit_tag(self._parent_channel_id, self.id, name, emoji_id=emoji.id)
         else:
-            data = await self._client.http.edit_tag(
-                self._parent_channel_id, self.id, name, emoji_name=emoji.name
-            )
+            data = await self._client.http.edit_tag(self._parent_channel_id, self.id, name, emoji_name=emoji.name)
 
         self._client.cache.place_channel_data(data)
 

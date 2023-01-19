@@ -1,5 +1,5 @@
 import copy
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Optional, Dict, Any
 
 import attrs
 
@@ -9,14 +9,13 @@ from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.models.discord.snowflake import to_snowflake
 from interactions.models.discord.timestamp import Timestamp
-
 from .base import ClientObject
 
 if TYPE_CHECKING:
     from interactions.client import Client
-    from interactions.models import TYPE_VOICE_CHANNEL, Guild
-    from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models import Guild, TYPE_VOICE_CHANNEL
     from interactions.models.discord.user import Member
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = ("VoiceState", "VoiceRegion")
 
@@ -47,13 +46,9 @@ class VoiceState(ClientObject):
     """the time at which the user requested to speak"""
 
     # internal for props
-    _guild_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=to_snowflake
-    )
+    _guild_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=to_snowflake)
     _channel_id: "Snowflake_Type" = attrs.field(repr=False, converter=to_snowflake)
-    _member_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=to_snowflake
-    )
+    _member_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=to_snowflake)
 
     @property
     def guild(self) -> "Guild":
@@ -87,11 +82,7 @@ class VoiceState(ClientObject):
     @property
     def member(self) -> "Member":
         """The member this voice state is for."""
-        return (
-            self._client.cache.get_member(self._guild_id, self._member_id)
-            if self._guild_id
-            else None
-        )
+        return self._client.cache.get_member(self._guild_id, self._member_id) if self._guild_id else None
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:

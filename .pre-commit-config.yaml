@@ -15,12 +15,12 @@ repos:
       name: Trailing Whitespace
       language: python
       types: [file]
-      exclude_types: ['image', 'binary', 'executable']
+      exclude_types: ['image']
     - id: end-of-file-fixer
       name: EOF Newlines
       language: python
       types: [file]
-      exclude_types: ['image', 'binary', 'executable']
+      exclude_types: ['image']
     - id: check-yaml
       name: YAML Structure
       language: python

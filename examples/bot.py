@@ -36,9 +36,7 @@ async def name_this_however_you_want(message: interactions.Message):
     # We can use the data model to access the data we need.
     # Keep in mind that you can only access the message content if your bot has the MESSAGE_CONTENT intent.
     # You can find more information on this in the migration section of the quickstart guide.
-    print(
-        f"We've received a message from {message.author.username}. The message is: {message.content}."
-    )
+    print(f"We've received a message from {message.author.username}. The message is: {message.content}.")
 
 
 # Now, let's create a command.

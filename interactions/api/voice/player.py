@@ -3,10 +3,10 @@ import shutil
 import threading
 from asyncio import AbstractEventLoop, run_coroutine_threadsafe
 from logging import Logger
-from time import perf_counter, sleep
-from typing import TYPE_CHECKING, Optional
+from time import sleep, perf_counter
+from typing import Optional, TYPE_CHECKING
 
-from interactions.api.voice.audio import AudioVolume, BaseAudio
+from interactions.api.voice.audio import BaseAudio, AudioVolume
 from interactions.api.voice.opus import Encoder
 
 if TYPE_CHECKING:
@@ -95,9 +95,7 @@ class Player(threading.Thread):
             # noinspection PyProtectedMember
             self.current_audio.volume = self.state._volume
 
-        self._encoder.set_bitrate(
-            getattr(self.current_audio, "bitrate", self.state.channel.bitrate)
-        )
+        self._encoder.set_bitrate(getattr(self.current_audio, "bitrate", self.state.channel.bitrate))
 
         self._stopped.clear()
 
@@ -130,15 +128,11 @@ class Player(threading.Thread):
                     loops = 0
 
                 if data := self.current_audio.read(self._encoder.frame_size):
-                    self.state.ws.send_packet(
-                        data, self._encoder, needs_encode=self.current_audio.needs_encode
-                    )
+                    self.state.ws.send_packet(data, self._encoder, needs_encode=self.current_audio.needs_encode)
                 else:
                     if self.current_audio.locked_stream or not self.current_audio.audio_complete:
                         # if more audio is expected
-                        self.state.ws.send_packet(
-                            b"\xF8\xFF\xFE", self._encoder, needs_encode=False
-                        )
+                        self.state.ws.send_packet(b"\xF8\xFF\xFE", self._encoder, needs_encode=False)
                     else:
                         break
 

@@ -182,25 +182,19 @@ class Encoder:
     def create_state(self) -> EncoderStructurePointer:
         """Create an opus encoder state."""
         ret = ctypes.c_int()
-        return self.lib_opus.opus_encoder_create(
-            self.sample_rate, 2, EncoderCTL.APPLICATION_AUDIO, ctypes.byref(ret)
-        )
+        return self.lib_opus.opus_encoder_create(self.sample_rate, 2, EncoderCTL.APPLICATION_AUDIO, ctypes.byref(ret))
 
     def set_bitrate(self, kbps: int) -> None:
         """Set the birate of the opus encoder"""
         self.bitrate = min(512, max(16, kbps))
-        self.lib_opus.opus_encoder_ctl(
-            self.encoder, EncoderCTL.CTL_SET_BITRATE, self.bitrate * 1024
-        )
+        self.lib_opus.opus_encoder_ctl(self.encoder, EncoderCTL.CTL_SET_BITRATE, self.bitrate * 1024)
 
     def set_signal_type(self, sig_type: str) -> None:
         """Set the signal type to encode"""
         try:
             sig_type = SignalCTL[sig_type.upper()]
         except KeyError as e:
-            raise ValueError(
-                f"`{sig_type}` is not a valid signal type. Please consult documentation"
-            ) from e
+            raise ValueError(f"`{sig_type}` is not a valid signal type. Please consult documentation") from e
 
         self.lib_opus.opus_encoder_ctl(self.encoder, EncoderCTL.CTL_SET_SIGNAL, sig_type)
 
@@ -209,9 +203,7 @@ class Encoder:
         try:
             bandwidth_type = BandCTL[bandwidth_type.upper()]
         except KeyError as e:
-            raise ValueError(
-                f"`{bandwidth_type}` is not a valid bandwidth type. Please consult documentation"
-            ) from e
+            raise ValueError(f"`{bandwidth_type}` is not a valid bandwidth type. Please consult documentation") from e
         self.lib_opus.opus_encoder_ctl(self.encoder, EncoderCTL.CTL_SET_BANDWIDTH, bandwidth_type)
 
     def set_fec(self, enabled: bool) -> None:
@@ -221,16 +213,12 @@ class Encoder:
     def set_expected_pack_loss(self, expected_packet_loss: float) -> None:
         """Set the expected packet loss amount"""
         self.expected_packet_loss = expected_packet_loss
-        self.lib_opus.opus_encoder_ctl(
-            self.encoder, EncoderCTL.CTL_SET_PLP, self.expected_packet_loss
-        )
+        self.lib_opus.opus_encoder_ctl(self.encoder, EncoderCTL.CTL_SET_PLP, self.expected_packet_loss)
 
     def encode(self, pcm: bytes) -> bytes:
         """Encode a frame of audio"""
         max_data_bytes = len(pcm)
         pcm = ctypes.cast(pcm, c_int16_ptr)
         data = (ctypes.c_char * max_data_bytes)()
-        resp = self.lib_opus.opus_encode(
-            self.encoder, pcm, self.samples_per_frame, data, max_data_bytes
-        )
+        resp = self.lib_opus.opus_encode(self.encoder, pcm, self.samples_per_frame, data, max_data_bytes)
         return array.array("b", data[:resp]).tobytes()

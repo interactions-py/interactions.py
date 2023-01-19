@@ -1,22 +1,24 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 import attrs
 
-from interactions.client.const import MISSING, Absent, get_logger
+from interactions.client.const import get_logger, MISSING, Absent
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import list_converter, optional
 from interactions.client.utils.attr_utils import docs
 from interactions.models.discord.base import ClientObject, DiscordObject
-from interactions.models.discord.enums import (
-    AutoModAction,
-    AutoModEvent,
-    AutoModLanuguageType,
-    AutoModTriggerType,
-)
-from interactions.models.discord.snowflake import to_snowflake, to_snowflake_list
+from interactions.models.discord.enums import AutoModTriggerType, AutoModAction, AutoModEvent, AutoModLanuguageType
+from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 
 if TYPE_CHECKING:
-    from interactions import Client, Guild, GuildText, Member, Message, Snowflake_Type
+    from interactions import (
+        Snowflake_Type,
+        Guild,
+        GuildText,
+        Message,
+        Client,
+        Member,
+    )
 
 __all__ = ("AutoModerationAction", "AutoModRule")
 
@@ -104,10 +106,7 @@ class KeywordTrigger(BaseTrigger):
         metadata=docs("The type of trigger"),
     )
     keyword_filter: str | list[str] = attrs.field(
-        factory=list,
-        repr=True,
-        metadata=docs("What words will trigger this"),
-        converter=_keyword_converter,
+        factory=list, repr=True, metadata=docs("What words will trigger this"), converter=_keyword_converter
     )
 
 
@@ -155,9 +154,7 @@ class MentionSpamTrigger(BaseTrigger):
 class BlockMessage(BaseAction):
     """blocks the content of a message according to the rule"""
 
-    type: AutoModAction = attrs.field(
-        repr=False, default=AutoModAction.BLOCK_MESSAGE, converter=AutoModAction
-    )
+    type: AutoModAction = attrs.field(repr=False, default=AutoModAction.BLOCK_MESSAGE, converter=AutoModAction)
     ...
 
 
@@ -166,9 +163,7 @@ class AlertMessage(BaseAction):
     """logs user content to a specified channel"""
 
     channel_id: "Snowflake_Type" = attrs.field(repr=True)
-    type: AutoModAction = attrs.field(
-        repr=False, default=AutoModAction.ALERT_MESSAGE, converter=AutoModAction
-    )
+    type: AutoModAction = attrs.field(repr=False, default=AutoModAction.ALERT_MESSAGE, converter=AutoModAction)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -176,9 +171,7 @@ class TimeoutUser(BaseAction):
     """timeout user for a specified duration"""
 
     duration_seconds: int = attrs.field(repr=True, default=60)
-    type: AutoModAction = attrs.field(
-        repr=False, default=AutoModAction.TIMEOUT_USER, converter=AutoModAction
-    )
+    type: AutoModAction = attrs.field(repr=False, default=AutoModAction.TIMEOUT_USER, converter=AutoModAction)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -202,22 +195,16 @@ class AutoModRule(DiscordObject):
         repr=False,
     )
     """The trigger for this rule"""
-    exempt_roles: list["Snowflake_Type"] = attrs.field(
-        repr=False, factory=list, converter=to_snowflake_list
-    )
+    exempt_roles: list["Snowflake_Type"] = attrs.field(repr=False, factory=list, converter=to_snowflake_list)
     """the role ids that should not be affected by the rule (Maximum of 20)"""
-    exempt_channels: list["Snowflake_Type"] = attrs.field(
-        repr=False, factory=list, converter=to_snowflake_list
-    )
+    exempt_channels: list["Snowflake_Type"] = attrs.field(repr=False, factory=list, converter=to_snowflake_list)
     """the channel ids that should not be affected by the rule (Maximum of 50)"""
 
     _guild_id: "Snowflake_Type" = attrs.field(repr=False, default=MISSING)
     """the guild which this rule belongs to"""
     _creator_id: "Snowflake_Type" = attrs.field(repr=False, default=MISSING)
     """the user which first created this rule"""
-    id: "Snowflake_Type" = attrs.field(
-        repr=False, default=MISSING, converter=optional(to_snowflake)
-    )
+    id: "Snowflake_Type" = attrs.field(repr=False, default=MISSING, converter=optional(to_snowflake))
 
     @classmethod
     def _process_dict(cls, data: dict, client: "Client") -> dict:
@@ -296,12 +283,8 @@ class AutoModRule(DiscordObject):
             trigger_type=trigger_type,
             trigger_metadata=trigger_metadata,
             actions=actions,
-            exempt_roles=to_snowflake_list(exempt_roles)
-            if exempt_roles is not MISSING
-            else MISSING,
-            exempt_channels=to_snowflake_list(exempt_channels)
-            if exempt_channels is not MISSING
-            else MISSING,
+            exempt_roles=to_snowflake_list(exempt_roles) if exempt_roles is not MISSING else MISSING,
+            exempt_channels=to_snowflake_list(exempt_channels) if exempt_channels is not MISSING else MISSING,
             event_type=event_type,
             enabled=enabled,
             reason=reason,

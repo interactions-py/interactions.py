@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.client.const import MISSING
-
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:
@@ -37,6 +36,4 @@ class MemberEvents(EventMixinTemplate):
     async def _on_raw_guild_member_update(self, event: "RawGatewayEvent") -> None:
         g_id = event.data.pop("guild_id")
         before = copy.copy(self.cache.get_member(g_id, event.data["user"]["id"])) or MISSING
-        self.dispatch(
-            events.MemberUpdate(g_id, before, self.cache.place_member_data(g_id, event.data))
-        )
+        self.dispatch(events.MemberUpdate(g_id, before, self.cache.place_member_data(g_id, event.data)))

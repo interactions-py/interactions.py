@@ -7,13 +7,12 @@ from interactions.client.const import MISSING, Absent
 from interactions.client.utils.attr_converters import optional
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.discord.snowflake import to_snowflake
-
 from .base import DiscordObject
 
 if TYPE_CHECKING:
     from interactions.models.discord.guild import Guild
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.user import User
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = ("StickerTypes", "StickerFormatTypes", "StickerItem", "Sticker", "StickerPack")
 
@@ -47,9 +46,7 @@ class StickerItem(DiscordObject):
 class Sticker(StickerItem):
     """Represents a sticker that can be sent in messages."""
 
-    pack_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=optional(to_snowflake)
-    )
+    pack_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
     """For standard stickers, id of the pack the sticker is from."""
     description: Optional[str] = attrs.field(repr=False, default=None)
     """Description of the sticker."""
@@ -62,12 +59,8 @@ class Sticker(StickerItem):
     sort_value: Optional[int] = attrs.field(repr=False, default=None)
     """The standard sticker's sort order within its pack."""
 
-    _user_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=optional(to_snowflake)
-    )
-    _guild_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=optional(to_snowflake)
-    )
+    _user_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
+    _guild_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
 
     async def fetch_creator(self) -> "User":
         """
@@ -134,9 +127,7 @@ class Sticker(StickerItem):
             raise ValueError("You can only edit guild stickers.")
 
         payload = dict_filter_none({"name": name, "description": description, "tags": tags})
-        sticker_data = await self._client.http.modify_guild_sticker(
-            payload, self._guild_id, self.id, reason
-        )
+        sticker_data = await self._client.http.modify_guild_sticker(payload, self._guild_id, self.id, reason)
         return self.update_from_dict(sticker_data)
 
     async def delete(self, reason: Optional[str] = MISSING) -> None:

@@ -74,9 +74,7 @@ class UserRequests:
             recipient_id: The recipient to open a DM channel with.
 
         """
-        return await self.request(
-            Route("POST", "/users/@me/channels"), payload={"recipient_id": recipient_id}
-        )
+        return await self.request(Route("POST", "/users/@me/channels"), payload={"recipient_id": recipient_id})
 
     async def create_group_dm(self, payload: dict) -> discord_typings.GroupDMChannelData:
         """
@@ -98,11 +96,7 @@ class UserRequests:
         return await self.request(Route("GET", "/users/@me/connections"))
 
     async def group_dm_add_recipient(
-        self,
-        channel_id: "Snowflake_Type",
-        user_id: "Snowflake_Type",
-        access_token: str,
-        nick: str = None,
+        self, channel_id: "Snowflake_Type", user_id: "Snowflake_Type", access_token: str, nick: str = None
     ) -> None:
         """
         Adds a recipient to a Group DM using their access token.
@@ -119,9 +113,7 @@ class UserRequests:
             payload={"access_token": access_token, "nick": nick},
         )
 
-    async def group_dm_remove_recipient(
-        self, channel_id: "Snowflake_Type", user_id: "Snowflake_Type"
-    ) -> None:
+    async def group_dm_remove_recipient(self, channel_id: "Snowflake_Type", user_id: "Snowflake_Type") -> None:
         """
         Remove a recipient from the group dm.
 
@@ -132,9 +124,7 @@ class UserRequests:
         """
         return await self.request(Route("DELETE", f"/channels/{channel_id}/recipients/{user_id}"))
 
-    async def modify_current_user_nick(
-        self, guild_id: "Snowflake_Type", nickname: str = None
-    ) -> None:
+    async def modify_current_user_nick(self, guild_id: "Snowflake_Type", nickname: str = None) -> None:
         """
         Modifies the nickname of the current user in a guild.
 
@@ -143,6 +133,4 @@ class UserRequests:
             nickname: The new nickname to use
 
         """
-        return await self.request(
-            Route("PATCH", f"/guilds/{guild_id}/members/@me/nick"), payload={"nick": nickname}
-        )
+        return await self.request(Route("PATCH", f"/guilds/{guild_id}/members/@me/nick"), payload={"nick": nickname})

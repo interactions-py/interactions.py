@@ -3,15 +3,14 @@ from typing import TYPE_CHECKING, Any, List, Optional
 import discord_typings
 
 from interactions.client.utils.serializer import dict_filter_none
-
 from ..route import Route
 
 __all__ = ("WebhookRequests",)
 
 
 if TYPE_CHECKING:
-    from interactions import UPLOADABLE_TYPE
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions import UPLOADABLE_TYPE
 
 
 class WebhookRequests:
@@ -30,13 +29,10 @@ class WebhookRequests:
 
         """
         return await self.request(
-            Route("POST", f"/channels/{channel_id}/webhooks"),
-            payload={"name": name, "avatar": avatar},
+            Route("POST", f"/channels/{channel_id}/webhooks"), payload={"name": name, "avatar": avatar}
         )
 
-    async def get_channel_webhooks(
-        self, channel_id: "Snowflake_Type"
-    ) -> List[discord_typings.WebhookData]:
+    async def get_channel_webhooks(self, channel_id: "Snowflake_Type") -> List[discord_typings.WebhookData]:
         """
         Return a list of channel webhook objects.
 
@@ -49,9 +45,7 @@ class WebhookRequests:
         """
         return await self.request(Route("GET", f"/channels/{channel_id}/webhooks"))
 
-    async def get_guild_webhooks(
-        self, guild_id: "Snowflake_Type"
-    ) -> List[discord_typings.WebhookData]:
+    async def get_guild_webhooks(self, guild_id: "Snowflake_Type") -> List[discord_typings.WebhookData]:
         """
         Return a list of guild webhook objects.
 
@@ -64,9 +58,7 @@ class WebhookRequests:
         """
         return await self.request(Route("GET", f"/guilds/{guild_id}/webhooks"))
 
-    async def get_webhook(
-        self, webhook_id: "Snowflake_Type", webhook_token: str = None
-    ) -> discord_typings.WebhookData:
+    async def get_webhook(self, webhook_id: "Snowflake_Type", webhook_token: str = None) -> discord_typings.WebhookData:
         """
         Return the new webhook object for the given id.
 
@@ -104,8 +96,7 @@ class WebhookRequests:
         endpoint = f"/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
 
         return await self.request(
-            Route("PATCH", endpoint),
-            payload={"name": name, "avatar": avatar, "channel_id": channel_id},
+            Route("PATCH", endpoint), payload={"name": name, "avatar": avatar, "channel_id": channel_id}
         )
 
     async def delete_webhook(self, webhook_id: "Snowflake_Type", webhook_token: str = None) -> None:
@@ -170,9 +161,7 @@ class WebhookRequests:
             A message object on success
 
         """
-        return await self.request(
-            Route("GET", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}")
-        )
+        return await self.request(Route("GET", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}"))
 
     async def edit_webhook_message(
         self,
@@ -214,6 +203,4 @@ class WebhookRequests:
             message_id: The ID of a message sent by this webhook
 
         """
-        return await self.request(
-            Route("DELETE", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}")
-        )
+        return await self.request(Route("DELETE", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}"))

@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Union, Optional
 
 import aiohttp  # type: ignore
 

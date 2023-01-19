@@ -1,13 +1,13 @@
 import time
 from asyncio import QueueEmpty
 from collections import namedtuple
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, Callable
 
 import attrs
 
 import interactions.models as models
-from interactions.client.const import DISCORD_EPOCH, MISSING, Absent
-from interactions.client.errors import NotFound, TooManyChanges, VoiceNotConnected
+from interactions.client.const import Absent, DISCORD_EPOCH, MISSING
+from interactions.client.errors import NotFound, VoiceNotConnected, TooManyChanges
 from interactions.client.mixins.send import SendMixin
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils.attr_converters import optional as optional_c
@@ -17,32 +17,25 @@ from interactions.client.utils.serializer import to_dict, to_image_data
 from interactions.models.discord.base import DiscordObject
 from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.file import UPLOADABLE_TYPE
-from interactions.models.discord.snowflake import (
-    Snowflake_Type,
-    SnowflakeObject,
-    to_optional_snowflake,
-    to_snowflake,
-)
+from interactions.models.discord.snowflake import Snowflake_Type, to_snowflake, to_optional_snowflake, SnowflakeObject
 from interactions.models.discord.thread import ThreadTag
 from interactions.models.misc.context_manager import Typing
 from interactions.models.misc.iterator import AsyncIterator
-
 from .enums import (
-    AutoArchiveDuration,
     ChannelFlags,
     ChannelTypes,
-    InviteTargetTypes,
-    MessageFlags,
     OverwriteTypes,
     Permissions,
-    StagePrivacyLevel,
     VideoQualityModes,
+    AutoArchiveDuration,
+    StagePrivacyLevel,
+    MessageFlags,
+    InviteTargetTypes,
 )
 
 if TYPE_CHECKING:
     from aiohttp import FormData
-
-    from interactions import AllowedMentions, BaseComponent, Client, Embed, Message, Sticker
+    from interactions import Client, Embed, BaseComponent, AllowedMentions, Sticker, Message
     from interactions.models.internal.active_voice_state import ActiveVoiceState
 
 __all__ = (
@@ -92,9 +85,7 @@ class ChannelHistory(AsyncIterator):
 
     """
 
-    def __init__(
-        self, channel: "BaseChannel", limit=50, before=None, after=None, around=None
-    ) -> None:
+    def __init__(self, channel: "BaseChannel", limit=50, before=None, after=None, around=None) -> None:
         self.channel: "BaseChannel" = channel
         self.before: Snowflake_Type = before
         self.after: Snowflake_Type = after
@@ -138,9 +129,7 @@ class ChannelHistory(AsyncIterator):
 
 
 class ArchivedForumPosts(AsyncIterator):
-    def __init__(
-        self, channel: "BaseChannel", limit: int = 50, before: Snowflake_Type = None
-    ) -> None:
+    def __init__(self, channel: "BaseChannel", limit: int = 50, before: Snowflake_Type = None) -> None:
         self.channel: "BaseChannel" = channel
         self.before: Snowflake_Type = before
         self._more: bool = True
@@ -154,13 +143,9 @@ class ArchivedForumPosts(AsyncIterator):
             expected = self.get_limit
 
             rcv = await self.channel._client.http.list_public_archived_threads(
-                self.channel.id,
-                limit=expected,
-                before=to_snowflake(self.last) if self.last else None,
+                self.channel.id, limit=expected, before=to_snowflake(self.last) if self.last else None
             )
-            threads = [
-                self.channel._client.cache.place_channel_data(data) for data in rcv["threads"]
-            ]
+            threads = [self.channel._client.cache.place_channel_data(data) for data in rcv["threads"]]
 
             if not rcv:
                 raise QueueEmpty
@@ -192,9 +177,7 @@ class PermissionOverwrite(SnowflakeObject, DictSerializationMixin):
     """Permissions to deny"""
 
     @classmethod
-    def for_target(
-        cls, target_type: Union["models.Role", "models.Member", "models.User"]
-    ) -> "PermissionOverwrite":
+    def for_target(cls, target_type: Union["models.Role", "models.Member", "models.User"]) -> "PermissionOverwrite":
         """
         Create a PermissionOverwrite for a role or member.
 
@@ -245,9 +228,7 @@ class MessageableMixin(SendMixin):
         repr=False, default=None
     )  # TODO May need to think of dynamically updating this.
     """The id of the last message sent in this channel (may not point to an existing or valid message)"""
-    default_auto_archive_duration: int = attrs.field(
-        repr=False, default=AutoArchiveDuration.ONE_DAY
-    )
+    default_auto_archive_duration: int = attrs.field(repr=False, default=AutoArchiveDuration.ONE_DAY)
     """Default duration that the clients (not the API) will use for newly created threads, in minutes, to automatically archive the thread after recent activity"""
     last_pin_timestamp: Optional["models.Timestamp"] = attrs.field(
         repr=False, default=None, converter=optional_c(timestamp_converter)
@@ -374,14 +355,10 @@ class MessageableMixin(SendMixin):
 
         """
         messages_data = await self._client.http.get_pinned_messages(self.id)
-        return [
-            self._client.cache.place_message_data(message_data) for message_data in messages_data
-        ]
+        return [self._client.cache.place_message_data(message_data) for message_data in messages_data]
 
     async def delete_messages(
-        self,
-        messages: List[Union[Snowflake_Type, "models.Message"]],
-        reason: Absent[Optional[str]] = MISSING,
+        self, messages: List[Union[Snowflake_Type, "models.Message"]], reason: Absent[Optional[str]] = MISSING
     ) -> None:
         """
         Bulk delete messages from channel.
@@ -400,9 +377,7 @@ class MessageableMixin(SendMixin):
         else:
             await self._client.http.bulk_delete_messages(self.id, message_ids, reason)
 
-    async def delete_message(
-        self, message: Union[Snowflake_Type, "models.Message"], reason: str = None
-    ) -> None:
+    async def delete_message(self, message: Union[Snowflake_Type, "models.Message"], reason: str = None) -> None:
         """
         Delete a single message from a channel.
 
@@ -458,9 +433,7 @@ class MessageableMixin(SendMixin):
 
         # 1209600 14 days ago in seconds, 1420070400000 is used to convert to snowflake
         fourteen_days_ago = int((time.time() - 1209600) * 1000.0 - DISCORD_EPOCH) << 22
-        async for message in self.history(
-            limit=search_limit, before=before, after=after, around=around
-        ):
+        async for message in self.history(limit=search_limit, before=before, after=after, around=around):
             if deletion_limit != 0 and len(to_delete) == deletion_limit:
                 break
 
@@ -469,10 +442,7 @@ class MessageableMixin(SendMixin):
                 continue
 
             if avoid_loading_msg:
-                if (
-                    message._author_id == self._client.user.id
-                    and MessageFlags.LOADING in message.flags
-                ):
+                if message._author_id == self._client.user.id and MessageFlags.LOADING in message.flags:
                     continue
 
             if message.id < fourteen_days_ago:
@@ -670,9 +640,7 @@ class ThreadableMixin:
             channel_id=self.id, limit=limit, before=before
         )
         threads_data.update(
-            await self._client.http.list_public_archived_threads(
-                channel_id=self.id, limit=limit, before=before
-            )
+            await self._client.http.list_public_archived_threads(channel_id=self.id, limit=limit, before=before)
         )
         threads_data["id"] = self.id
         return models.ThreadList.from_dict(threads_data, self._client)
@@ -746,9 +714,7 @@ class ThreadableMixin:
 
 @attrs.define(eq=False, order=False, hash=False, slots=False, kw_only=True)
 class WebhookMixin:
-    async def create_webhook(
-        self, name: str, avatar: Absent[UPLOADABLE_TYPE] = MISSING
-    ) -> "models.Webhook":
+    async def create_webhook(self, name: str, avatar: Absent[UPLOADABLE_TYPE] = MISSING) -> "models.Webhook":
         """
         Create a webhook in this channel.
 
@@ -892,9 +858,7 @@ class BaseChannel(DiscordObject):
             "user_limit": user_limit,
             "permission_overwrites": process_permission_overwrites(permission_overwrites),
             "parent_id": to_optional_snowflake(parent_id),
-            "rtc_region": rtc_region.id
-            if isinstance(rtc_region, models.VoiceRegion)
-            else rtc_region,
+            "rtc_region": rtc_region.id if isinstance(rtc_region, models.VoiceRegion) else rtc_region,
             "video_quality_mode": video_quality_mode,
             "default_auto_archive_duration": default_auto_archive_duration,
             "archived": archived,
@@ -936,9 +900,7 @@ class DMChannel(BaseChannel, MessageableMixin):
         data = super()._process_dict(data, client)
         if recipients := data.get("recipients", None):
             data["recipients"] = [
-                client.cache.place_user_data(recipient)
-                if isinstance(recipient, dict)
-                else recipient
+                client.cache.place_user_data(recipient) if isinstance(recipient, dict) else recipient
                 for recipient in recipients
             ]
         return data
@@ -991,10 +953,7 @@ class DMGroup(DMChannel):
         return self._client.cache.get_user(self.owner_id)
 
     async def add_recipient(
-        self,
-        user: Union["models.User", Snowflake_Type],
-        access_token: str,
-        nickname: Absent[Optional[str]] = MISSING,
+        self, user: Union["models.User", Snowflake_Type], access_token: str, nickname: Absent[Optional[str]] = MISSING
     ) -> None:
         """
         Add a recipient to this DM Group.
@@ -1032,16 +991,12 @@ class GuildChannel(BaseChannel):
     """Sorting position of the channel"""
     nsfw: bool = attrs.field(repr=False, default=False)
     """Whether the channel is nsfw"""
-    parent_id: Optional[Snowflake_Type] = attrs.field(
-        repr=False, default=None, converter=optional_c(to_snowflake)
-    )
+    parent_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None, converter=optional_c(to_snowflake))
     """id of the parent category for a channel (each parent category can contain up to 50 channels)"""
     permission_overwrites: list[PermissionOverwrite] = attrs.field(repr=False, factory=list)
     """A list of the overwritten permissions for the members and roles"""
 
-    _guild_id: Optional[Snowflake_Type] = attrs.field(
-        repr=False, default=None, converter=optional_c(to_snowflake)
-    )
+    _guild_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None, converter=optional_c(to_snowflake))
 
     @property
     def guild(self) -> "models.Guild":
@@ -1082,9 +1037,7 @@ class GuildChannel(BaseChannel):
         """
         if (is_member := isinstance(instance, models.Member)) or isinstance(instance, models.Role):
             if instance._guild_id != self._guild_id:
-                raise RuntimeError(
-                    "Unable to calculate permissions for the instance from different guild"
-                )
+                raise RuntimeError("Unable to calculate permissions for the instance from different guild")
 
             if is_member:
                 return instance.channel_permissions(self)
@@ -1112,9 +1065,7 @@ class GuildChannel(BaseChannel):
 
     async def add_permission(
         self,
-        target: Union[
-            "PermissionOverwrite", "models.Role", "models.User", "models.Member", "Snowflake_Type"
-        ],
+        target: Union["PermissionOverwrite", "models.Role", "models.User", "models.Member", "Snowflake_Type"],
         type: Optional["OverwriteTypes"] = None,
         allow: Optional[List["Permissions"] | int] = None,
         deny: Optional[List["Permissions"] | int] = None,
@@ -1147,9 +1098,7 @@ class GuildChannel(BaseChannel):
                 target = to_snowflake(target)
             else:
                 raise ValueError("Invalid target and/or type for permission")
-            overwrite = PermissionOverwrite(
-                id=target, type=type, allow=Permissions.NONE, deny=Permissions.NONE
-            )
+            overwrite = PermissionOverwrite(id=target, type=type, allow=Permissions.NONE, deny=Permissions.NONE)
             if isinstance(allow, int):
                 overwrite.allow |= allow
             else:
@@ -1172,9 +1121,7 @@ class GuildChannel(BaseChannel):
             permission_overwrites.append(overwrite)
             await self.edit(permission_overwrites=permission_overwrites)
 
-    async def edit_permission(
-        self, overwrite: PermissionOverwrite, reason: Optional[str] = None
-    ) -> None:
+    async def edit_permission(self, overwrite: PermissionOverwrite, reason: Optional[str] = None) -> None:
         """
         Edit the permissions for this channel.
 
@@ -1334,9 +1281,7 @@ class GuildChannel(BaseChannel):
         """Returns a list of humans that can see this channel."""
         return [m for m in self.guild.members if not m.bot and Permissions.VIEW_CHANNEL in m.channel_permissions(self)]  # type: ignore
 
-    async def clone(
-        self, name: Optional[str] = None, reason: Absent[Optional[str]] = MISSING
-    ) -> "TYPE_GUILD_CHANNEL":
+    async def clone(self, name: Optional[str] = None, reason: Absent[Optional[str]] = MISSING) -> "TYPE_GUILD_CHANNEL":
         """
         Clone this channel and create a new one.
 
@@ -1865,13 +1810,9 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
 
 @attrs.define(eq=False, order=False, hash=False, slots=False, kw_only=True)
 class ThreadChannel(BaseChannel, MessageableMixin, WebhookMixin):
-    parent_id: Snowflake_Type = attrs.field(
-        repr=False, default=None, converter=optional_c(to_snowflake)
-    )
+    parent_id: Snowflake_Type = attrs.field(repr=False, default=None, converter=optional_c(to_snowflake))
     """id of the text channel this thread was created"""
-    owner_id: Snowflake_Type = attrs.field(
-        repr=False, default=None, converter=optional_c(to_snowflake)
-    )
+    owner_id: Snowflake_Type = attrs.field(repr=False, default=None, converter=optional_c(to_snowflake))
     """id of the creator of the thread"""
     topic: Optional[str] = attrs.field(repr=False, default=None)
     """The thread topic (0-1024 characters)"""
@@ -1882,8 +1823,7 @@ class ThreadChannel(BaseChannel, MessageableMixin, WebhookMixin):
     archived: bool = attrs.field(repr=False, default=False)
     """Whether the thread is archived"""
     auto_archive_duration: int = attrs.field(
-        repr=False,
-        default=attrs.Factory(lambda self: self.default_auto_archive_duration, takes_self=True),
+        repr=False, default=attrs.Factory(lambda self: self.default_auto_archive_duration, takes_self=True)
     )
     """Duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080"""
     locked: bool = attrs.field(repr=False, default=False)
@@ -1899,9 +1839,7 @@ class ThreadChannel(BaseChannel, MessageableMixin, WebhookMixin):
     flags: ChannelFlags = attrs.field(repr=False, default=ChannelFlags.NONE, converter=ChannelFlags)
     """Flags for the thread"""
 
-    _guild_id: Snowflake_Type = attrs.field(
-        repr=False, default=None, converter=optional_c(to_snowflake)
-    )
+    _guild_id: Snowflake_Type = attrs.field(repr=False, default=None, converter=optional_c(to_snowflake))
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
@@ -1992,9 +1930,7 @@ class ThreadChannel(BaseChannel, MessageableMixin, WebhookMixin):
         """Leave this thread."""
         await self._client.http.leave_thread(self.id)
 
-    async def archive(
-        self, locked: bool = False, reason: Absent[str] = MISSING
-    ) -> "TYPE_THREAD_CHANNEL":
+    async def archive(self, locked: bool = False, reason: Absent[str] = MISSING) -> "TYPE_THREAD_CHANNEL":
         """
         Helper method to archive this thread.
 
@@ -2136,9 +2072,7 @@ class GuildForumPost(GuildPublicThread):
             The edited thread channel object.
         """
         if applied_tags != MISSING:
-            applied_tags = [
-                str(tag.id) if isinstance(tag, ThreadTag) else str(tag) for tag in applied_tags
-            ]
+            applied_tags = [str(tag.id) if isinstance(tag, ThreadTag) else str(tag) for tag in applied_tags]
 
         return await super().edit(
             name=name,
@@ -2157,9 +2091,7 @@ class GuildForumPost(GuildPublicThread):
         """The tags applied to this thread."""
         if not isinstance(self.parent_channel, GuildForum):
             raise AttributeError("This is only available on forum threads.")
-        return [
-            tag for tag in self.parent_channel.available_tags if str(tag.id) in self._applied_tags
-        ]
+        return [tag for tag in self.parent_channel.available_tags if str(tag.id) in self._applied_tags]
 
     @property
     def initial_post(self) -> Optional["Message"]:
@@ -2257,9 +2189,7 @@ class VoiceChannel(GuildChannel):  # May not be needed, can be directly just Gui
     """The user limit of the voice channel"""
     rtc_region: str = attrs.field(repr=False, default="auto")
     """Voice region id for the voice channel, automatic when set to None"""
-    video_quality_mode: Union[VideoQualityModes, int] = attrs.field(
-        repr=False, default=VideoQualityModes.AUTO
-    )
+    video_quality_mode: Union[VideoQualityModes, int] = attrs.field(repr=False, default=VideoQualityModes.AUTO)
     """The camera video quality mode of the voice channel, 1 when not present"""
     _voice_member_ids: list[Snowflake_Type] = attrs.field(repr=False, factory=list)
 
@@ -2323,10 +2253,7 @@ class VoiceChannel(GuildChannel):  # May not be needed, can be directly just Gui
         !!! note
             This will not be accurate if the bot was offline while users joined the channel
         """
-        return [
-            self._client.cache.get_member(self._guild_id, member_id)
-            for member_id in self._voice_member_ids
-        ]
+        return [self._client.cache.get_member(self._guild_id, member_id) for member_id in self._voice_member_ids]
 
     @property
     def voice_state(self) -> Optional["ActiveVoiceState"]:
@@ -2407,8 +2334,7 @@ class GuildStageVoice(GuildVoice):
 
         """
         self.stage_instance = models.StageInstance.from_dict(
-            await self._client.http.create_stage_instance(self.id, topic, privacy_level, reason),
-            self._client,
+            await self._client.http.create_stage_instance(self.id, topic, privacy_level, reason), self._client
         )
         return self.stage_instance
 
@@ -2455,16 +2381,9 @@ class GuildForum(GuildChannel):
         embeds: Optional[Union[List[Union["Embed", dict]], Union["Embed", dict]]] = None,
         embed: Optional[Union["Embed", dict]] = None,
         components: Optional[
-            Union[
-                List[List[Union["BaseComponent", dict]]],
-                List[Union["BaseComponent", dict]],
-                "BaseComponent",
-                dict,
-            ]
+            Union[List[List[Union["BaseComponent", dict]]], List[Union["BaseComponent", dict]], "BaseComponent", dict]
         ] = None,
-        stickers: Optional[
-            Union[List[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]
-        ] = None,
+        stickers: Optional[Union[List[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]] = None,
         allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
         files: Optional[Union["UPLOADABLE_TYPE", List["UPLOADABLE_TYPE"]]] = None,
         file: Optional["UPLOADABLE_TYPE"] = None,
@@ -2539,9 +2458,7 @@ class GuildForum(GuildChannel):
         """
         # I can guarantee this endpoint will need to be converted to an async iterator eventually
         data = await self._client.http.list_active_threads(self._guild_id)
-        threads = [
-            self._client.cache.place_channel_data(post_data) for post_data in data["threads"]
-        ]
+        threads = [self._client.cache.place_channel_data(post_data) for post_data in data["threads"]]
 
         return [thread for thread in threads if thread.parent_id == self.id]
 
@@ -2560,9 +2477,7 @@ class GuildForum(GuildChannel):
             return [thread for thread in out if not thread.archived]
         return out
 
-    def archived_posts(
-        self, limit: int = 0, before: Snowflake_Type | None = None
-    ) -> ArchivedForumPosts:
+    def archived_posts(self, limit: int = 0, before: Snowflake_Type | None = None) -> ArchivedForumPosts:
         """An async iterator for all archived posts in this channel."""
         return ArchivedForumPosts(self, limit, before)
 
@@ -2590,9 +2505,7 @@ class GuildForum(GuildChannel):
         """
         return self._client.cache.get_channel(id)
 
-    def get_tag(
-        self, value: str | Snowflake_Type, *, case_insensitive: bool = False
-    ) -> Optional["ThreadTag"]:
+    def get_tag(self, value: str | Snowflake_Type, *, case_insensitive: bool = False) -> Optional["ThreadTag"]:
         """
         Get a tag within this channel.
 
@@ -2615,9 +2528,7 @@ class GuildForum(GuildChannel):
 
         return next((tag for tag in self.available_tags if predicate(tag)), None)
 
-    async def create_tag(
-        self, name: str, emoji: Union["models.PartialEmoji", dict, str, None] = None
-    ) -> "ThreadTag":
+    async def create_tag(self, name: str, emoji: Union["models.PartialEmoji", dict, str, None] = None) -> "ThreadTag":
         """
         Create a tag for this forum.
 

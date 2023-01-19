@@ -2,12 +2,12 @@ from typing import TYPE_CHECKING
 
 import attrs
 
-from interactions.models.discord.base import ClientObject, DiscordObject
+from interactions.models.discord.base import DiscordObject, ClientObject
 from interactions.models.discord.enums import InteractionPermissionTypes
 from interactions.models.discord.snowflake import to_snowflake
 
 if TYPE_CHECKING:
-    from interactions import Guild, Snowflake_Type
+    from interactions import Snowflake_Type, Guild
 
 __all__ = ("ApplicationCommandPermission",)
 
@@ -72,11 +72,7 @@ class CommandPermissions(ClientObject):
         everyone_role = context.guild.id
         all_channels = context.guild.id - 1  # why tf discord
         return self.is_enabled(
-            context.channel.id,
-            *context.author.roles,
-            context.author.id,
-            everyone_role,
-            all_channels,
+            context.channel.id, *context.author.roles, context.author.id, everyone_role, all_channels
         )
 
     def update_permissions(self, *permissions: ApplicationCommandPermission) -> None:

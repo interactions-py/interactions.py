@@ -1,6 +1,6 @@
 import asyncio
 import inspect
-from typing import Callable, Coroutine
+from typing import Coroutine, Callable
 
 from interactions.api.events.internal import BaseEvent
 from interactions.client.const import MISSING, Absent
