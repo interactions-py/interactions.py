@@ -3,46 +3,46 @@ import time
 from asyncio import QueueEmpty
 from collections import namedtuple
 from functools import cmp_to_key
-from typing import List, Optional, Union, Set, Dict, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 from warnings import warn
 
 import attrs
 
 import interactions.models as models
-from interactions.client.const import Absent, MISSING, PREMIUM_GUILD_LIMITS
+from interactions.client.const import MISSING, PREMIUM_GUILD_LIMITS, Absent
 from interactions.client.errors import EventLocationNotProvided, NotFound
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_converters import optional
-from interactions.client.utils.attr_converters import timestamp_converter
+from interactions.client.utils.attr_converters import optional, timestamp_converter
 from interactions.client.utils.attr_utils import docs
 from interactions.client.utils.deserialise_app_cmds import deserialize_app_cmds
-from interactions.client.utils.serializer import to_image_data, no_export_meta
-from interactions.models.discord.app_perms import CommandPermissions, ApplicationCommandPermission
+from interactions.client.utils.serializer import no_export_meta, to_image_data
+from interactions.models.discord.app_perms import ApplicationCommandPermission, CommandPermissions
 from interactions.models.discord.auto_mod import AutoModRule, BaseAction, BaseTrigger
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.misc.iterator import AsyncIterator
-from .base import DiscordObject, ClientObject
+
+from .base import ClientObject, DiscordObject
 from .enums import (
-    NSFWLevels,
-    Permissions,
-    SystemChannelFlags,
-    VerificationLevels,
-    DefaultNotificationLevels,
-    ExplicitContentFilterLevels,
-    MFALevels,
-    ChannelTypes,
-    IntegrationExpireBehaviour,
-    ScheduledEventPrivacyLevel,
-    ScheduledEventType,
     AuditLogEventType,
     AutoModEvent,
     AutoModTriggerType,
+    ChannelTypes,
+    DefaultNotificationLevels,
+    ExplicitContentFilterLevels,
+    IntegrationExpireBehaviour,
+    MFALevels,
+    NSFWLevels,
+    Permissions,
+    ScheduledEventPrivacyLevel,
+    ScheduledEventType,
+    SystemChannelFlags,
+    VerificationLevels,
 )
-from .snowflake import to_snowflake, Snowflake_Type, to_optional_snowflake, to_snowflake_list
+from .snowflake import Snowflake_Type, to_optional_snowflake, to_snowflake, to_snowflake_list
 
 if TYPE_CHECKING:
-    from interactions.client.client import Client
     from interactions import InteractionCommand
+    from interactions.client.client import Client
 
 __all__ = (
     "GuildBan",
@@ -89,9 +89,13 @@ class BaseGuild(DiscordObject):
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
         if icon_hash := data.pop("icon", None):
-            data["icon"] = models.Asset.from_path_hash(client, f"icons/{data['id']}/{{}}", icon_hash)
+            data["icon"] = models.Asset.from_path_hash(
+                client, f"icons/{data['id']}/{{}}", icon_hash
+            )
         if splash_hash := data.pop("splash", None):
-            data["splash"] = models.Asset.from_path_hash(client, f"splashes/{data['id']}/{{}}", splash_hash)
+            data["splash"] = models.Asset.from_path_hash(
+                client, f"splashes/{data['id']}/{{}}", splash_hash
+            )
         if disco_splash := data.pop("discovery_splash", None):
             data["discovery_splash"] = models.Asset.from_path_hash(
                 client, f"discovery-splashes/{data['id']}/{{}}", disco_splash
@@ -160,7 +164,9 @@ class Guild(BaseGuild):
     """True if the server widget is enabled."""
     widget_channel_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
     """The channel id that the widget will generate an invite to, or None if set to no invite."""
-    verification_level: Union[VerificationLevels, int] = attrs.field(repr=False, default=VerificationLevels.NONE)
+    verification_level: Union[VerificationLevels, int] = attrs.field(
+        repr=False, default=VerificationLevels.NONE
+    )
     """The verification level required for the guild."""
     default_message_notifications: Union[DefaultNotificationLevels, int] = attrs.field(
         repr=False, default=DefaultNotificationLevels.ALL_MESSAGES
@@ -212,7 +218,9 @@ class Guild(BaseGuild):
     """The welcome screen of a Community guild, shown to new members, returned in an Invite's guild object."""
     nsfw_level: Union[NSFWLevels, int] = attrs.field(repr=False, default=NSFWLevels.DEFAULT)
     """The guild NSFW level."""
-    stage_instances: List[dict] = attrs.field(repr=False, factory=list)  # TODO stage instance objects
+    stage_instances: List[dict] = attrs.field(
+        repr=False, factory=list
+    )  # TODO stage instance objects
     """Stage instances in the guild."""
     chunked = attrs.field(repr=False, factory=asyncio.Event, metadata=no_export_meta)
     """An event that is fired when this guild has been chunked"""
@@ -237,13 +245,19 @@ class Guild(BaseGuild):
         channels_data = data.pop("channels", [])
         for c in channels_data:
             c["guild_id"] = guild_id
-        data["channel_ids"] = {client.cache.place_channel_data(channel_data).id for channel_data in channels_data}
+        data["channel_ids"] = {
+            client.cache.place_channel_data(channel_data).id for channel_data in channels_data
+        }
 
         threads_data = data.pop("threads", [])
-        data["thread_ids"] = {client.cache.place_channel_data(thread_data).id for thread_data in threads_data}
+        data["thread_ids"] = {
+            client.cache.place_channel_data(thread_data).id for thread_data in threads_data
+        }
 
         members_data = data.pop("members", [])
-        data["member_ids"] = {client.cache.place_member_data(guild_id, member_data).id for member_data in members_data}
+        data["member_ids"] = {
+            client.cache.place_member_data(guild_id, member_data).id for member_data in members_data
+        }
 
         roles_data = data.pop("roles", [])
         data["role_ids"] = set(client.cache.place_role_data(guild_id, roles_data).keys())
@@ -253,7 +267,9 @@ class Guild(BaseGuild):
 
         if voice_states := data.get("voice_states"):
             [
-                asyncio.create_task(client.cache.place_voice_state_data(state | {"guild_id": guild_id}))
+                asyncio.create_task(
+                    client.cache.place_voice_state_data(state | {"guild_id": guild_id})
+                )
                 for state in voice_states
             ]
         return data
@@ -440,7 +456,11 @@ class Guild(BaseGuild):
         # this is *very* ick, but we cache by user_id, so we have to do it this way,
         # alternative would be maintaining a lookup table in this guild object, which is inherently unreliable
         # noinspection PyProtectedMember
-        return [v_state for v_state in self._client.cache.voice_state_cache.values() if v_state._guild_id == self.id]
+        return [
+            v_state
+            for v_state in self._client.cache.voice_state_cache.values()
+            if v_state._guild_id == self.id
+        ]
 
     async def fetch_member(self, member_id: Snowflake_Type) -> Optional["models.Member"]:
         """
@@ -510,11 +530,18 @@ class Guild(BaseGuild):
             The application command permissions for this guild.
 
         """
-        data = await self._client.http.batch_get_application_command_permissions(self._client.app.id, self.id)
+        data = await self._client.http.batch_get_application_command_permissions(
+            self._client.app.id, self.id
+        )
 
         for command in data:
-            command_permissions = CommandPermissions(client=self._client, command_id=command["id"], guild=self)
-            perms = [ApplicationCommandPermission.from_dict(perm, self) for perm in command["permissions"]]
+            command_permissions = CommandPermissions(
+                client=self._client, command_id=command["id"], guild=self
+            )
+            perms = [
+                ApplicationCommandPermission.from_dict(perm, self)
+                for perm in command["permissions"]
+            ]
 
             command_permissions.update_permissions(*perms)
 
@@ -538,7 +565,9 @@ class Guild(BaseGuild):
         """
         return self._owner_id == to_snowflake(user)
 
-    async def edit_nickname(self, new_nickname: Absent[str] = MISSING, reason: Absent[str] = MISSING) -> None:
+    async def edit_nickname(
+        self, new_nickname: Absent[str] = MISSING, reason: Absent[str] = MISSING
+    ) -> None:
         """
         Alias for me.edit_nickname
 
@@ -618,10 +647,17 @@ class Guild(BaseGuild):
                 u_id = presence["user"]["id"]
                 # find the user this presence is for
                 member_index = next(
-                    (index for (index, d) in enumerate(chunk.get("members")) if d["user"]["id"] == u_id), None
+                    (
+                        index
+                        for (index, d) in enumerate(chunk.get("members"))
+                        if d["user"]["id"] == u_id
+                    ),
+                    None,
                 )
                 del presence["user"]
-                chunk["members"][member_index]["user"] = chunk["members"][member_index]["user"] | presence
+                chunk["members"][member_index]["user"] = (
+                    chunk["members"][member_index]["user"] | presence
+                )
 
         if not self._chunk_cache:
             self._chunk_cache: List = chunk.get("members")
@@ -629,7 +665,9 @@ class Guild(BaseGuild):
             self._chunk_cache = self._chunk_cache + chunk.get("members")
 
         if chunk.get("chunk_index") != chunk.get("chunk_count") - 1:
-            return self.logger.debug(f"Cached chunk of {len(chunk.get('members'))} members for {self.id}")
+            return self.logger.debug(
+                f"Cached chunk of {len(chunk.get('members'))} members for {self.id}"
+            )
         else:
             members = self._chunk_cache
             self.logger.info(f"Processing {len(members)} members for {self.id}")
@@ -673,7 +711,9 @@ class Guild(BaseGuild):
             An AuditLog object
 
         """
-        data = await self._client.http.get_audit_log(self.id, user_id, action_type, before, after, limit)
+        data = await self._client.http.get_audit_log(
+            self.id, user_id, action_type, before, after, limit
+        )
         return AuditLog.from_dict(data, self._client)
 
     def audit_log_history(
@@ -732,7 +772,9 @@ class Guild(BaseGuild):
         discovery_splash: Absent[Optional[UPLOADABLE_TYPE]] = MISSING,
         banner: Absent[Optional[UPLOADABLE_TYPE]] = MISSING,
         rules_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
-        public_updates_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
+        public_updates_channel: Absent[
+            Optional[Union["models.GuildText", Snowflake_Type]]
+        ] = MISSING,
         preferred_locale: Absent[Optional[str]] = MISSING,
         # ToDo: Fill in guild features. No idea how this works - https://discord.com/developers/docs/resources/guild#guild-object-guild-features
         features: Absent[Optional[list[str]]] = MISSING,
@@ -771,7 +813,9 @@ class Guild(BaseGuild):
             default_message_notifications=int(default_message_notifications)
             if default_message_notifications
             else MISSING,
-            explicit_content_filter=int(explicit_content_filter) if explicit_content_filter else MISSING,
+            explicit_content_filter=int(explicit_content_filter)
+            if explicit_content_filter
+            else MISSING,
             afk_channel_id=to_snowflake(afk_channel) if afk_channel else MISSING,
             afk_timeout=afk_timeout,
             icon=to_image_data(icon) if icon else MISSING,
@@ -782,7 +826,9 @@ class Guild(BaseGuild):
             system_channel_id=to_snowflake(system_channel) if system_channel else MISSING,
             system_channel_flags=int(system_channel_flags) if system_channel_flags else MISSING,
             rules_channel_id=to_snowflake(rules_channel) if rules_channel else MISSING,
-            public_updates_channel_id=to_snowflake(public_updates_channel) if public_updates_channel else MISSING,
+            public_updates_channel_id=to_snowflake(public_updates_channel)
+            if public_updates_channel
+            else MISSING,
             preferred_locale=preferred_locale,
             features=features,
             reason=reason,
@@ -814,10 +860,14 @@ class Guild(BaseGuild):
             "roles": to_snowflake_list(roles) if roles else MISSING,
         }
 
-        emoji_data = await self._client.http.create_guild_emoji(data_payload, self.id, reason=reason)
+        emoji_data = await self._client.http.create_guild_emoji(
+            data_payload, self.id, reason=reason
+        )
         return self._client.cache.place_emoji_data(self.id, emoji_data)
 
-    async def create_guild_template(self, name: str, description: Absent[str] = MISSING) -> "models.GuildTemplate":
+    async def create_guild_template(
+        self, name: str, description: Absent[str] = MISSING
+    ) -> "models.GuildTemplate":
         """
         Create a new guild template based on this guild.
 
@@ -852,7 +902,9 @@ class Guild(BaseGuild):
 
         """
         emojis_data = await self._client.http.get_all_guild_emoji(self.id)
-        return [self._client.cache.place_emoji_data(self.id, emoji_data) for emoji_data in emojis_data]
+        return [
+            self._client.cache.place_emoji_data(self.id, emoji_data) for emoji_data in emojis_data
+        ]
 
     async def fetch_custom_emoji(self, emoji_id: Snowflake_Type) -> Optional["models.CustomEmoji"]:
         """
@@ -894,7 +946,9 @@ class Guild(BaseGuild):
         topic: Absent[Optional[str]] = MISSING,
         position: Absent[Optional[int]] = MISSING,
         permission_overwrites: Absent[
-            Union[dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]]
+            Union[
+                dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]
+            ]
         ] = MISSING,
         category: Union[Snowflake_Type, "models.GuildCategory"] = None,
         nsfw: bool = False,
@@ -945,7 +999,9 @@ class Guild(BaseGuild):
         topic: Absent[Optional[str]] = MISSING,
         position: Absent[Optional[int]] = MISSING,
         permission_overwrites: Absent[
-            Union[dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]]
+            Union[
+                dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]
+            ]
         ] = MISSING,
         category: Union[Snowflake_Type, "models.GuildCategory"] = None,
         nsfw: bool = False,
@@ -987,7 +1043,9 @@ class Guild(BaseGuild):
         topic: Absent[Optional[str]] = MISSING,
         position: Absent[Optional[int]] = MISSING,
         permission_overwrites: Absent[
-            Union[dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]]
+            Union[
+                dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]
+            ]
         ] = MISSING,
         category: Union[Snowflake_Type, "models.GuildCategory"] = None,
         nsfw: bool = False,
@@ -1029,7 +1087,9 @@ class Guild(BaseGuild):
         topic: Absent[Optional[str]] = MISSING,
         position: Absent[Optional[int]] = MISSING,
         permission_overwrites: Absent[
-            Union[dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]]
+            Union[
+                dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]
+            ]
         ] = MISSING,
         category: Union[Snowflake_Type, "models.GuildCategory"] = None,
         nsfw: bool = False,
@@ -1068,7 +1128,9 @@ class Guild(BaseGuild):
         topic: Absent[Optional[str]] = MISSING,
         position: Absent[Optional[int]] = MISSING,
         permission_overwrites: Absent[
-            Union[dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]]
+            Union[
+                dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]
+            ]
         ] = MISSING,
         category: Union[Snowflake_Type, "models.GuildCategory"] = None,
         nsfw: bool = False,
@@ -1113,7 +1175,9 @@ class Guild(BaseGuild):
         topic: Absent[Optional[str]] = MISSING,
         position: Absent[Optional[int]] = MISSING,
         permission_overwrites: Absent[
-            Union[dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]]
+            Union[
+                dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]
+            ]
         ] = MISSING,
         category: Absent[Union[Snowflake_Type, "models.GuildCategory"]] = MISSING,
         bitrate: int = 64000,
@@ -1154,7 +1218,9 @@ class Guild(BaseGuild):
         name: str,
         position: Absent[Optional[int]] = MISSING,
         permission_overwrites: Absent[
-            Union[dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]]
+            Union[
+                dict, "models.PermissionOverwrite", List[Union[dict, "models.PermissionOverwrite"]]
+            ]
         ] = MISSING,
         reason: Absent[Optional[str]] = MISSING,
     ) -> "models.GuildCategory":
@@ -1203,7 +1269,9 @@ class Guild(BaseGuild):
 
         await channel.delete(reason)
 
-    async def list_scheduled_events(self, with_user_count: bool = False) -> List["models.ScheduledEvent"]:
+    async def list_scheduled_events(
+        self, with_user_count: bool = False
+    ) -> List["models.ScheduledEvent"]:
         """
         List all scheduled events in this guild.
 
@@ -1211,7 +1279,9 @@ class Guild(BaseGuild):
             A list of scheduled events.
 
         """
-        scheduled_events_data = await self._client.http.list_schedules_events(self.id, with_user_count)
+        scheduled_events_data = await self._client.http.list_schedules_events(
+            self.id, with_user_count
+        )
         return models.ScheduledEvent.from_list(scheduled_events_data, self._client)
 
     async def fetch_scheduled_event(
@@ -1298,7 +1368,9 @@ class Guild(BaseGuild):
             "image": to_image_data(cover_image) if cover_image else MISSING,
         }
 
-        scheduled_event_data = await self._client.http.create_scheduled_event(self.id, payload, reason)
+        scheduled_event_data = await self._client.http.create_scheduled_event(
+            self.id, payload, reason
+        )
         return models.ScheduledEvent.from_dict(scheduled_event_data, self._client)
 
     async def create_custom_sticker(
@@ -1357,7 +1429,9 @@ class Guild(BaseGuild):
 
         """
         try:
-            sticker_data = await self._client.http.get_guild_sticker(self.id, to_snowflake(sticker_id))
+            sticker_data = await self._client.http.get_guild_sticker(
+                self.id, to_snowflake(sticker_id)
+            )
         except NotFound:
             return None
         return models.Sticker.from_dict(sticker_data, self._client)
@@ -1459,8 +1533,12 @@ class Guild(BaseGuild):
             else:
                 payload.update({"icon": to_image_data(icon)})
 
-        result = await self._client.http.create_guild_role(guild_id=self.id, payload=payload, reason=reason)
-        return self._client.cache.place_role_data(guild_id=self.id, data=[result])[to_snowflake(result["id"])]
+        result = await self._client.http.create_guild_role(
+            guild_id=self.id, payload=payload, reason=reason
+        )
+        return self._client.cache.place_role_data(guild_id=self.id, data=[result])[
+            to_snowflake(result["id"])
+        ]
 
     def get_channel(self, channel_id: Snowflake_Type) -> Optional["models.TYPE_GUILD_CHANNEL"]:
         """
@@ -1481,7 +1559,9 @@ class Guild(BaseGuild):
             return self._client.cache.get_channel(channel_id)
         return None
 
-    async def fetch_channel(self, channel_id: Snowflake_Type) -> Optional["models.TYPE_GUILD_CHANNEL"]:
+    async def fetch_channel(
+        self, channel_id: Snowflake_Type
+    ) -> Optional["models.TYPE_GUILD_CHANNEL"]:
         """
         Returns a channel with the given `channel_id` from the API.
 
@@ -1526,7 +1606,9 @@ class Guild(BaseGuild):
             return self._client.cache.get_channel(thread_id)
         return None
 
-    async def fetch_thread(self, thread_id: Snowflake_Type) -> Optional["models.TYPE_THREAD_CHANNEL"]:
+    async def fetch_thread(
+        self, thread_id: Snowflake_Type
+    ) -> Optional["models.TYPE_THREAD_CHANNEL"]:
         """
         Returns a Thread with the given `thread_id` from the API.
 
@@ -1569,7 +1651,11 @@ class Guild(BaseGuild):
             roles = [str(to_snowflake(r)) for r in roles]
 
         resp = await self._client.http.begin_guild_prune(
-            self.id, days, include_roles=roles, compute_prune_count=compute_prune_count, reason=reason
+            self.id,
+            days,
+            include_roles=roles,
+            compute_prune_count=compute_prune_count,
+            reason=reason,
         )
         return resp["pruned"]
 
@@ -1592,7 +1678,9 @@ class Guild(BaseGuild):
         else:
             roles = []
 
-        resp = await self._client.http.get_guild_prune_count(self.id, days=days, include_roles=roles)
+        resp = await self._client.http.get_guild_prune_count(
+            self.id, days=days, include_roles=roles
+        )
         return resp["pruned"]
 
     async def leave(self) -> None:
@@ -1610,7 +1698,9 @@ class Guild(BaseGuild):
         await self._client.http.delete_guild(self.id)
 
     async def kick(
-        self, user: Union["models.User", "models.Member", Snowflake_Type], reason: Absent[str] = MISSING
+        self,
+        user: Union["models.User", "models.Member", Snowflake_Type],
+        reason: Absent[str] = MISSING,
     ) -> None:
         """
         Kick a user from the guild.
@@ -1646,11 +1736,18 @@ class Guild(BaseGuild):
 
         """
         if delete_message_days is not MISSING:
-            warn("delete_message_days is deprecated and will be removed in a future update", DeprecationWarning)
+            warn(
+                "delete_message_days is deprecated and will be removed in a future update",
+                DeprecationWarning,
+            )
             delete_message_seconds = delete_message_days * 3600
-        await self._client.http.create_guild_ban(self.id, to_snowflake(user), delete_message_seconds, reason=reason)
+        await self._client.http.create_guild_ban(
+            self.id, to_snowflake(user), delete_message_seconds, reason=reason
+        )
 
-    async def fetch_ban(self, user: Union["models.User", "models.Member", Snowflake_Type]) -> Optional[GuildBan]:
+    async def fetch_ban(
+        self, user: Union["models.User", "models.Member", Snowflake_Type]
+    ) -> Optional[GuildBan]:
         """
         Fetches the ban information for the specified user in the guild. You must have the `ban members` permission.
 
@@ -1665,7 +1762,9 @@ class Guild(BaseGuild):
             ban_info = await self._client.http.get_guild_ban(self.id, to_snowflake(user))
         except NotFound:
             return None
-        return GuildBan(reason=ban_info["reason"], user=self._client.cache.place_user_data(ban_info["user"]))
+        return GuildBan(
+            reason=ban_info["reason"], user=self._client.cache.place_user_data(ban_info["user"])
+        )
 
     async def fetch_bans(
         self,
@@ -1685,9 +1784,13 @@ class Guild(BaseGuild):
             A list containing bans and information about them.
 
         """
-        ban_infos = await self._client.http.get_guild_bans(self.id, before=before, after=after, limit=limit)
+        ban_infos = await self._client.http.get_guild_bans(
+            self.id, before=before, after=after, limit=limit
+        )
         return [
-            GuildBan(reason=ban_info["reason"], user=self._client.cache.place_user_data(ban_info["user"]))
+            GuildBan(
+                reason=ban_info["reason"], user=self._client.cache.place_user_data(ban_info["user"])
+            )
             for ban_info in ban_infos
         ]
 
@@ -1740,7 +1843,9 @@ class Guild(BaseGuild):
         data = await self._client.http.get_auto_moderation_rules(self.id)
         return [AutoModRule.from_dict(d, self._client) for d in data]
 
-    async def delete_auto_moderation_rule(self, rule: "Snowflake_Type", reason: Absent[str] = MISSING) -> None:
+    async def delete_auto_moderation_rule(
+        self, rule: "Snowflake_Type", reason: Absent[str] = MISSING
+    ) -> None:
         """
         Delete a given auto moderation rule.
 
@@ -1748,7 +1853,9 @@ class Guild(BaseGuild):
             rule: The rule to delete
             reason: The reason for deleting this rule
         """
-        await self._client.http.delete_auto_moderation_rule(self.id, to_snowflake(rule), reason=reason)
+        await self._client.http.delete_auto_moderation_rule(
+            self.id, to_snowflake(rule), reason=reason
+        )
 
     async def modify_auto_moderation_rule(
         self,
@@ -1796,8 +1903,12 @@ class Guild(BaseGuild):
             trigger_type=trigger_type,
             trigger_metadata=trigger_metadata,
             actions=actions,
-            exempt_roles=to_snowflake_list(exempt_roles) if exempt_roles is not MISSING else MISSING,
-            exempt_channels=to_snowflake_list(exempt_channels) if exempt_channels is not MISSING else MISSING,
+            exempt_roles=to_snowflake_list(exempt_roles)
+            if exempt_roles is not MISSING
+            else MISSING,
+            exempt_channels=to_snowflake_list(exempt_channels)
+            if exempt_channels is not MISSING
+            else MISSING,
             event_type=event_type,
             enabled=enabled,
             reason=reason,
@@ -1805,7 +1916,9 @@ class Guild(BaseGuild):
         return AutoModRule.from_dict(out, self._client)
 
     async def unban(
-        self, user: Union["models.User", "models.Member", Snowflake_Type], reason: Absent[str] = MISSING
+        self,
+        user: Union["models.User", "models.Member", Snowflake_Type],
+        reason: Absent[str] = MISSING,
     ) -> None:
         """
         Unban a user from the guild.
@@ -1843,7 +1956,9 @@ class Guild(BaseGuild):
             The guilds widget settings object.
 
         """
-        return await GuildWidgetSettings.from_dict(await self._client.http.get_guild_widget_settings(self.id))
+        return await GuildWidgetSettings.from_dict(
+            await self._client.http.get_guild_widget_settings(self.id)
+        )
 
     async def fetch_widget(self) -> "GuildWidget":
         """
@@ -1853,7 +1968,9 @@ class Guild(BaseGuild):
             The guilds widget object.
 
         """
-        return GuildWidget.from_dict(await self._client.http.get_guild_widget(self.id), self._client)
+        return GuildWidget.from_dict(
+            await self._client.http.get_guild_widget(self.id), self._client
+        )
 
     async def modify_widget(
         self,
@@ -1916,7 +2033,9 @@ class Guild(BaseGuild):
             A list of members matching the query.
 
         """
-        data = await self._client.http.search_guild_members(guild_id=self.id, query=query, limit=limit)
+        data = await self._client.http.search_guild_members(
+            guild_id=self.id, query=query, limit=limit
+        )
         return [self._client.cache.place_member_data(self.id, _d) for _d in data]
 
     async def fetch_voice_regions(self) -> List["models.VoiceRegion"]:
@@ -2010,16 +2129,24 @@ class Guild(BaseGuild):
 class GuildTemplate(ClientObject):
     code: str = attrs.field(repr=True, metadata=docs("the template code (unique ID)"))
     name: str = attrs.field(repr=True, metadata=docs("the name"))
-    description: Optional[str] = attrs.field(repr=False, default=None, metadata=docs("the description"))
+    description: Optional[str] = attrs.field(
+        repr=False, default=None, metadata=docs("the description")
+    )
 
-    usage_count: int = attrs.field(repr=False, default=0, metadata=docs("number of times this template has been used"))
+    usage_count: int = attrs.field(
+        repr=False, default=0, metadata=docs("number of times this template has been used")
+    )
 
-    creator_id: Snowflake_Type = attrs.field(repr=False, metadata=docs("The ID of the user who created this template"))
+    creator_id: Snowflake_Type = attrs.field(
+        repr=False, metadata=docs("The ID of the user who created this template")
+    )
     creator: Optional["models.User"] = attrs.field(
         repr=False, default=None, metadata=docs("the user who created this template")
     )
 
-    created_at: "models.Timestamp" = attrs.field(repr=False, metadata=docs("When this template was created"))
+    created_at: "models.Timestamp" = attrs.field(
+        repr=False, metadata=docs("When this template was created")
+    )
     updated_at: "models.Timestamp" = attrs.field(
         repr=False, metadata=docs("When this template was last synced to the source guild")
     )
@@ -2049,7 +2176,9 @@ class GuildTemplate(ClientObject):
         self.update_from_dict(data)
         return self
 
-    async def modify(self, name: Absent[str] = MISSING, description: Absent[str] = MISSING) -> "models.GuildTemplate":
+    async def modify(
+        self, name: Absent[str] = MISSING, description: Absent[str] = MISSING
+    ) -> "models.GuildTemplate":
         """
         Modify the template's metadata.
 
@@ -2080,7 +2209,9 @@ class GuildWelcomeChannel(ClientObject):
         repr=False, default=None, metadata=docs("Welcome Channel emoji ID if the emoji is custom")
     )
     emoji_name: Optional[str] = attrs.field(
-        repr=False, default=None, metadata=docs("Emoji name if custom, unicode character if standard")
+        repr=False,
+        default=None,
+        metadata=docs("Emoji name if custom, unicode character if standard"),
     )
 
 
@@ -2115,7 +2246,9 @@ class GuildIntegration(DiscordObject):
     """the grace period (in days) before expiring subscribers"""
     user: "models.BaseUser" = attrs.field(repr=False, default=MISSING)
     """user for this integration"""
-    synced_at: "models.Timestamp" = attrs.field(repr=False, default=MISSING, converter=optional(timestamp_converter))
+    synced_at: "models.Timestamp" = attrs.field(
+        repr=False, default=MISSING, converter=optional(timestamp_converter)
+    )
     """when this integration was last synced"""
     subscriber_count: int = attrs.field(repr=False, default=MISSING)
     """how many subscribers this integration has"""
@@ -2139,7 +2272,9 @@ class GuildIntegration(DiscordObject):
 class GuildWidgetSettings(DictSerializationMixin):
     enabled: bool = attrs.field(repr=True, default=False)
     """Whether the widget is enabled."""
-    channel_id: Optional["Snowflake_Type"] = attrs.field(repr=True, default=None, converter=to_optional_snowflake)
+    channel_id: Optional["Snowflake_Type"] = attrs.field(
+        repr=True, default=None, converter=to_optional_snowflake
+    )
     """The widget channel id. None if widget is not enabled."""
 
 
@@ -2209,15 +2344,21 @@ class GuildWidget(DiscordObject):
 class AuditLogChange(ClientObject):
     key: str = attrs.field(repr=True)
     """name of audit log change key"""
-    new_value: Optional[Union[list, str, int, bool, "Snowflake_Type"]] = attrs.field(repr=False, default=MISSING)
+    new_value: Optional[Union[list, str, int, bool, "Snowflake_Type"]] = attrs.field(
+        repr=False, default=MISSING
+    )
     """new value of the key"""
-    old_value: Optional[Union[list, str, int, bool, "Snowflake_Type"]] = attrs.field(repr=False, default=MISSING)
+    old_value: Optional[Union[list, str, int, bool, "Snowflake_Type"]] = attrs.field(
+        repr=False, default=MISSING
+    )
     """old value of the key"""
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class AuditLogEntry(DiscordObject):
-    target_id: Optional["Snowflake_Type"] = attrs.field(repr=False, converter=optional(to_snowflake))
+    target_id: Optional["Snowflake_Type"] = attrs.field(
+        repr=False, converter=optional(to_snowflake)
+    )
     """id of the affected entity (webhook, user, role, etc.)"""
     user_id: "Snowflake_Type" = attrs.field(repr=False, converter=optional(to_snowflake))
     """the user who made the changes"""
@@ -2248,7 +2389,9 @@ class AuditLog(ClientObject):
     """list of application commands that have had their permissions updated"""
     entries: Optional[List["AuditLogEntry"]] = attrs.field(repr=False, default=MISSING)
     """list of audit log entries"""
-    scheduled_events: Optional[List["models.ScheduledEvent"]] = attrs.field(repr=False, default=MISSING)
+    scheduled_events: Optional[List["models.ScheduledEvent"]] = attrs.field(
+        repr=False, default=MISSING
+    )
     """list of guild scheduled events found in the audit log"""
     integrations: Optional[List["GuildIntegration"]] = attrs.field(repr=False, default=MISSING)
     """list of partial integration objects"""

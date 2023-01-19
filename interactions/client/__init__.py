@@ -1,6 +1,4 @@
-from .const import *
-from .client import Client
+from . import errors, smart_cache, utils
 from .auto_shard_client import AutoShardedClient
-from . import smart_cache
-from . import errors
-from . import utils
+from .client import Client
+from .const import *

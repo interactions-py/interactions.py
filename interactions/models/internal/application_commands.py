@@ -3,7 +3,7 @@ import inspect
 import re
 import typing
 from enum import IntEnum
-from typing import TYPE_CHECKING, Annotated, Callable, Coroutine, Dict, List, Union, Optional, Any
+from typing import TYPE_CHECKING, Annotated, Any, Callable, Coroutine, Dict, List, Optional, Union
 
 import attrs
 from attr import Attribute
@@ -11,10 +11,10 @@ from attr import Attribute
 import interactions.models.discord.channel as channel
 from interactions.client.const import (
     GLOBAL_SCOPE,
-    SLASH_CMD_NAME_LENGTH,
-    SLASH_CMD_MAX_OPTIONS,
-    SLASH_CMD_MAX_DESC_LENGTH,
     MISSING,
+    SLASH_CMD_MAX_DESC_LENGTH,
+    SLASH_CMD_MAX_OPTIONS,
+    SLASH_CMD_NAME_LENGTH,
     Absent,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
@@ -24,16 +24,16 @@ from interactions.client.utils.misc_utils import get_parameters
 from interactions.client.utils.serializer import no_export_meta
 from interactions.models.discord.enums import ChannelTypes, CommandTypes, Permissions
 from interactions.models.discord.role import Role
-from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
+from interactions.models.discord.snowflake import to_snowflake, to_snowflake_list
 from interactions.models.discord.user import BaseUser
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.localisation import LocalisedField
 
 if TYPE_CHECKING:
+    from interactions import Client
     from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.internal.context import Context
-    from interactions import Client
 
 __all__ = (
     "OptionTypes",
@@ -63,7 +63,9 @@ __all__ = (
 
 def name_validator(_: Any, attr: Attribute, value: str) -> None:
     if value:
-        if not re.match(rf"^[\w-]{{1,{SLASH_CMD_NAME_LENGTH}}}$", value) or value != value.lower():  # noqa: W605
+        if (
+            not re.match(rf"^[\w-]{{1,{SLASH_CMD_NAME_LENGTH}}}$", value) or value != value.lower()
+        ):  # noqa: W605
             raise ValueError(
                 f"Slash Command names must be lower case and match this regex: ^[\w-]{1, {SLASH_CMD_NAME_LENGTH} }$"  # noqa: W605
             )
@@ -72,11 +74,16 @@ def name_validator(_: Any, attr: Attribute, value: str) -> None:
 def desc_validator(_: Any, attr: Attribute, value: str) -> None:
     if value:
         if not 1 <= len(value) <= SLASH_CMD_MAX_DESC_LENGTH:
-            raise ValueError(f"Description must be between 1 and {SLASH_CMD_MAX_DESC_LENGTH} characters long")
+            raise ValueError(
+                f"Description must be between 1 and {SLASH_CMD_MAX_DESC_LENGTH} characters long"
+            )
 
 
 @attrs.define(
-    eq=False, order=False, hash=False, field_transformer=attrs_validator(name_validator, skip_fields=["default_locale"])
+    eq=False,
+    order=False,
+    hash=False,
+    field_transformer=attrs_validator(name_validator, skip_fields=["default_locale"]),
 )
 class LocalisedName(LocalisedField):
     """A localisation object for names."""
@@ -86,7 +93,10 @@ class LocalisedName(LocalisedField):
 
 
 @attrs.define(
-    eq=False, order=False, hash=False, field_transformer=attrs_validator(desc_validator, skip_fields=["default_locale"])
+    eq=False,
+    order=False,
+    hash=False,
+    field_transformer=attrs_validator(desc_validator, skip_fields=["default_locale"]),
 )
 class LocalisedDesc(LocalisedField):
     """A localisation object for descriptions."""
@@ -169,7 +179,9 @@ class InteractionCommand(BaseCommand):
     """
 
     name: LocalisedName | str = attrs.field(
-        repr=False, metadata=docs("1-32 character name") | no_export_meta, converter=LocalisedName.converter
+        repr=False,
+        metadata=docs("1-32 character name") | no_export_meta,
+        converter=LocalisedName.converter,
     )
     scopes: List["Snowflake_Type"] = attrs.field(
         default=[GLOBAL_SCOPE],
@@ -177,9 +189,13 @@ class InteractionCommand(BaseCommand):
         metadata=docs("The scopes of this interaction. Global or guild ids") | no_export_meta,
     )
     default_member_permissions: Optional["Permissions"] = attrs.field(
-        repr=False, default=None, metadata=docs("What permissions members need to have by default to use this command")
+        repr=False,
+        default=None,
+        metadata=docs("What permissions members need to have by default to use this command"),
     )
-    dm_permission: bool = attrs.field(repr=False, default=True, metadata=docs("Whether this command is enabled in DMs"))
+    dm_permission: bool = attrs.field(
+        repr=False, default=True, metadata=docs("Whether this command is enabled in DMs")
+    )
     cmd_id: Dict[str, "Snowflake_Type"] = attrs.field(
         repr=False, factory=dict, metadata=docs("The unique IDs of this commands") | no_export_meta
     )  # scope: cmd_id
@@ -190,10 +206,15 @@ class InteractionCommand(BaseCommand):
     )
     auto_defer: "AutoDefer" = attrs.field(
         default=MISSING,
-        metadata=docs("A system to automatically defer this command after a set duration") | no_export_meta,
+        metadata=docs("A system to automatically defer this command after a set duration")
+        | no_export_meta,
     )
-    nsfw: bool = attrs.field(repr=False, default=False, metadata=docs("This command should only work in NSFW channels"))
-    _application_id: "Snowflake_Type" = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
+    nsfw: bool = attrs.field(
+        repr=False, default=False, metadata=docs("This command should only work in NSFW channels")
+    )
+    _application_id: "Snowflake_Type" = attrs.field(
+        repr=False, default=None, converter=optional(to_snowflake)
+    )
 
     def __attrs_post_init__(self) -> None:
         if self.callback is not None:
@@ -293,7 +314,9 @@ class ContextMenu(InteractionCommand):
     name: LocalisedField = attrs.field(
         repr=False, metadata=docs("1-32 character name"), converter=LocalisedField.converter
     )
-    type: CommandTypes = attrs.field(repr=False, metadata=docs("The type of command, defaults to 1 if not specified"))
+    type: CommandTypes = attrs.field(
+        repr=False, metadata=docs("The type of command, defaults to 1 if not specified")
+    )
 
     @type.validator
     def _type_validator(self, attribute: str, value: int) -> None:
@@ -302,7 +325,8 @@ class ContextMenu(InteractionCommand):
                 raise ValueError("Context Menu type not recognised, please consult the docs.")
         elif value == CommandTypes.CHAT_INPUT:
             raise ValueError(
-                "The CHAT_INPUT type is basically slash commands. Please use the @slash_command() " "decorator instead."
+                "The CHAT_INPUT type is basically slash commands. Please use the @slash_command() "
+                "decorator instead."
             )
 
     def to_dict(self) -> dict:
@@ -329,7 +353,11 @@ class SlashCommandChoice(DictSerializationMixin):
     )
 
     def as_dict(self) -> dict:
-        return {"name": str(self.name), "value": self.value, "name_localizations": self.name.to_locale_dict()}
+        return {
+            "name": str(self.name),
+            "value": self.value,
+            "name_localizations": self.name.to_locale_dict(),
+        }
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -445,7 +473,8 @@ class SlashCommandOption(DictSerializationMixin):
         data["name"] = str(self.name)
         data["description"] = str(self.description)
         data["choices"] = [
-            choice.as_dict() if isinstance(choice, SlashCommandChoice) else choice for choice in self.choices
+            choice.as_dict() if isinstance(choice, SlashCommandChoice) else choice
+            for choice in self.choices
         ]
         data["name_localizations"] = self.name.to_locale_dict()
         data["description_localizations"] = self.description.to_locale_dict()
@@ -464,14 +493,20 @@ class SlashCommand(InteractionCommand):
         repr=False, default=None, metadata=no_export_meta, converter=LocalisedName.converter
     )
     group_description: LocalisedDesc = attrs.field(
-        repr=False, default="No Description Set", metadata=no_export_meta, converter=LocalisedDesc.converter
+        repr=False,
+        default="No Description Set",
+        metadata=no_export_meta,
+        converter=LocalisedDesc.converter,
     )
 
     sub_cmd_name: LocalisedName | str = attrs.field(
         repr=False, default=None, metadata=no_export_meta, converter=LocalisedName.converter
     )
     sub_cmd_description: LocalisedDesc = attrs.field(
-        repr=False, default="No Description Set", metadata=no_export_meta, converter=LocalisedDesc.converter
+        repr=False,
+        default="No Description Set",
+        metadata=no_export_meta,
+        converter=LocalisedDesc.converter,
     )
 
     options: List[Union[SlashCommandOption, Dict]] = attrs.field(repr=False, factory=list)
@@ -542,10 +577,14 @@ class SlashCommand(InteractionCommand):
         if value:
             if isinstance(value, list):
                 if len(value) > SLASH_CMD_MAX_OPTIONS:
-                    raise ValueError(f"Slash commands can only hold {SLASH_CMD_MAX_OPTIONS} options")
+                    raise ValueError(
+                        f"Slash commands can only hold {SLASH_CMD_MAX_OPTIONS} options"
+                    )
                 if value != sorted(
                     value,
-                    key=lambda x: x.required if isinstance(x, SlashCommandOption) else x["required"],
+                    key=lambda x: x.required
+                    if isinstance(x, SlashCommandOption)
+                    else x["required"],
                     reverse=True,
                 ):
                     raise ValueError("Required options must go before optional options")
@@ -783,7 +822,8 @@ def subcommand(
             name=base,
             description=(base_description or base_desc) or "No Description Set",
             group_name=subcommand_group,
-            group_description=(subcommand_group_description or sub_group_desc) or "No Description Set",
+            group_description=(subcommand_group_description or sub_group_desc)
+            or "No Description Set",
             sub_cmd_name=name,
             sub_cmd_description=_description,
             default_member_permissions=base_default_member_permissions,
@@ -860,7 +900,9 @@ def component_callback(*custom_id: str) -> Callable[[Coroutine], ComponentComman
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
-        return ComponentCommand(name=f"ComponentCallback::{custom_id}", callback=func, listeners=custom_id)
+        return ComponentCommand(
+            name=f"ComponentCallback::{custom_id}", callback=func, listeners=custom_id
+        )
 
     custom_id = _unpack_helper(custom_id)
     return wrapper
@@ -918,7 +960,9 @@ def slash_option(
 
     def wrapper(func: Coroutine) -> Coroutine:
         if hasattr(func, "cmd_id"):
-            raise Exception("slash_option decorators must be positioned under a slash_command decorator")
+            raise Exception(
+                "slash_option decorators must be positioned under a slash_command decorator"
+            )
 
         option = SlashCommandOption(
             name=name,
@@ -956,7 +1000,10 @@ def slash_default_member_permission(permission: "Permissions") -> Any:
                 "slash_default_member_permission decorators must be positioned under a slash_command decorator"
             )
 
-        if not hasattr(func, "default_member_permissions") or func.default_member_permissions is None:
+        if (
+            not hasattr(func, "default_member_permissions")
+            or func.default_member_permissions is None
+        ):
             func.default_member_permissions = permission
         else:
             func.default_member_permissions = func.default_member_permissions | permission
@@ -965,7 +1012,9 @@ def slash_default_member_permission(permission: "Permissions") -> Any:
     return wrapper
 
 
-def auto_defer(ephemeral: bool = False, time_until_defer: float = 0.0) -> Callable[[Coroutine], Coroutine]:
+def auto_defer(
+    ephemeral: bool = False, time_until_defer: float = 0.0
+) -> Callable[[Coroutine], Coroutine]:
     """
     A decorator to add an auto defer to a application command.
 
@@ -977,8 +1026,12 @@ def auto_defer(ephemeral: bool = False, time_until_defer: float = 0.0) -> Callab
 
     def wrapper(func: Coroutine) -> Coroutine:
         if hasattr(func, "cmd_id"):
-            raise Exception("auto_defer decorators must be positioned under a slash_command decorator")
-        func.auto_defer = AutoDefer(enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer)
+            raise Exception(
+                "auto_defer decorators must be positioned under a slash_command decorator"
+            )
+        func.auto_defer = AutoDefer(
+            enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer
+        )
         return func
 
     return wrapper
@@ -1058,16 +1111,28 @@ def application_commands_to_dict(
             )
             nsfw = cmd_list[0].nsfw
 
-            if not all(str(c.description) in (str(base_description), "No Description Set") for c in cmd_list):
+            if not all(
+                str(c.description) in (str(base_description), "No Description Set")
+                for c in cmd_list
+            ):
                 client.logger.warning(
                     f"Conflicting descriptions found in `{cmd_list[0].name}` subcommands; `{str(base_description)}` will be used"
                 )
-            if not all(c.default_member_permissions == cmd_list[0].default_member_permissions for c in cmd_list):
-                raise ValueError(f"Conflicting `default_member_permissions` values found in `{cmd_list[0].name}`")
+            if not all(
+                c.default_member_permissions == cmd_list[0].default_member_permissions
+                for c in cmd_list
+            ):
+                raise ValueError(
+                    f"Conflicting `default_member_permissions` values found in `{cmd_list[0].name}`"
+                )
             if not all(c.dm_permission == cmd_list[0].dm_permission for c in cmd_list):
-                raise ValueError(f"Conflicting `dm_permission` values found in `{cmd_list[0].name}`")
+                raise ValueError(
+                    f"Conflicting `dm_permission` values found in `{cmd_list[0].name}`"
+                )
             if not all(c.nsfw == nsfw for c in cmd_list):
-                client.logger.warning(f"Conflicting `nsfw` values found in {cmd_list[0].name} - `True` will be used")
+                client.logger.warning(
+                    f"Conflicting `nsfw` values found in {cmd_list[0].name} - `True` will be used"
+                )
                 nsfw = True
 
             for cmd in cmd_list:
@@ -1151,9 +1216,9 @@ def _compare_options(local_opt_list: dict, remote_opt_list: dict) -> bool:
                 else:
                     for local_name, comparison_data in options_lookup.items():
                         remote_name, default_value = comparison_data
-                        if local_option.get(local_name, default_value) != post_process.get(remote_name, lambda l: l)(
-                            remote_option.get(remote_name, default_value)
-                        ):
+                        if local_option.get(local_name, default_value) != post_process.get(
+                            remote_name, lambda l: l
+                        )(remote_option.get(remote_name, default_value)):
                             return False
 
             else:

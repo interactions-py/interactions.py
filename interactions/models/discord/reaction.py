@@ -8,11 +8,12 @@ from interactions.client.const import MISSING
 from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.snowflake import to_snowflake
 from interactions.models.misc.iterator import AsyncIterator
+
 from .base import ClientObject
 
 if TYPE_CHECKING:
+    from interactions.models import TYPE_ALL_CHANNEL, Message
     from interactions.models.discord.snowflake import Snowflake_Type
-    from interactions.models import Message, TYPE_ALL_CHANNEL
     from interactions.models.discord.user import User
 
 __all__ = ("ReactionUsers", "Reaction")
@@ -29,7 +30,9 @@ class ReactionUsers(AsyncIterator):
 
     """
 
-    def __init__(self, reaction: "Reaction", limit: int = 50, after: Optional["Snowflake_Type"] = None) -> None:
+    def __init__(
+        self, reaction: "Reaction", limit: int = 50, after: Optional["Snowflake_Type"] = None
+    ) -> None:
         self.reaction: "Reaction" = reaction
         self.after: "Snowflake_Type" = after
         self._more = True
@@ -95,4 +98,6 @@ class Reaction(ClientObject):
 
     async def remove(self) -> None:
         """Remove all this emoji's reactions from the message."""
-        await self._client.http.clear_reaction(self._channel_id, self._message_id, self.emoji.req_format)
+        await self._client.http.clear_reaction(
+            self._channel_id, self._message_id, self.emoji.req_format
+        )

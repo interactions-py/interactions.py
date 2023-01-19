@@ -1,2 +1,2 @@
-from .triggers import *
 from .task import *
+from .triggers import *
