@@ -146,7 +146,6 @@ class GuildEvents(EventMixinTemplate):
     async def _on_raw_guild_audit_log_entry_create(self, event: "RawGatewayEvent") -> None:
         self.dispatch(
             GuildAuditLogEntryCreate(
-                event.data.get("guild_id"),
-                AuditLogEntry.from_dict(event.data, self)
+                event.data.get("guild_id"), AuditLogEntry.from_dict(event.data, self)
             )
         )
