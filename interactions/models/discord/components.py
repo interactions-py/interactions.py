@@ -1,20 +1,15 @@
 import uuid
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Sequence, Union
+from typing import Any, Dict, Iterator, List, Optional, Sequence, TYPE_CHECKING, Union
 
 import attrs
 
-from interactions.client.const import (
-    ACTION_ROW_MAX_ITEMS,
-    MISSING,
-    SELECT_MAX_NAME_LENGTH,
-    SELECTS_MAX_OPTIONS,
-)
+from interactions.client.const import SELECTS_MAX_OPTIONS, SELECT_MAX_NAME_LENGTH, ACTION_ROW_MAX_ITEMS, MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import list_converter
 from interactions.client.utils.attr_utils import str_validator
 from interactions.client.utils.serializer import export_converter
 from interactions.models.discord.emoji import process_emoji
-from interactions.models.discord.enums import ButtonStyles, ChannelTypes, ComponentTypes
+from interactions.models.discord.enums import ButtonStyles, ComponentTypes, ChannelTypes
 
 if TYPE_CHECKING:
     from interactions.models.discord.emoji import PartialEmoji
@@ -57,9 +52,7 @@ class BaseComponent(DictSerializationMixin):
         component_type = data.pop("type", None)
         component_class = TYPE_COMPONENT_MAPPING.get(component_type, None)
         if not component_class:
-            raise TypeError(
-                f"Unsupported component type for {data} ({component_type}), please consult the docs."
-            )
+            raise TypeError(f"Unsupported component type for {data} ({component_type}), please consult the docs.")
 
         return component_class.from_dict(data)
 
@@ -111,9 +104,7 @@ class Button(InteractiveComponent):
     @style.validator
     def _style_validator(self, attribute: str, value: int) -> None:
         if not isinstance(value, ButtonStyles) and value not in ButtonStyles.__members__.values():
-            raise ValueError(
-                f'Button style type of "{value}" not recognized, please consult the docs.'
-            )
+            raise ValueError(f'Button style type of "{value}" not recognized, please consult the docs.')
 
     def __attrs_post_init__(self) -> None:
         if self.style != ButtonStyles.URL:
@@ -212,9 +203,7 @@ class BaseSelectMenu(InteractiveComponent):
 
     # generic component attributes
     disabled: bool = attrs.field(repr=True, default=False, kw_only=True)
-    custom_id: str = attrs.field(
-        repr=True, factory=lambda: str(uuid.uuid4()), validator=str_validator, kw_only=True
-    )
+    custom_id: str = attrs.field(repr=True, factory=lambda: str(uuid.uuid4()), validator=str_validator, kw_only=True)
     type: Union[ComponentTypes, int] = attrs.field(
         repr=True, default=ComponentTypes.STRING_SELECT, init=False, on_setattr=attrs.setters.frozen
     )
@@ -258,9 +247,7 @@ class StringSelectMenu(BaseSelectMenu):
         type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
     """
 
-    options: list[SelectOption | str] = attrs.field(
-        repr=True, converter=list_converter(SelectOption.converter)
-    )
+    options: list[SelectOption | str] = attrs.field(repr=True, converter=list_converter(SelectOption.converter))
     type: Union[ComponentTypes, int] = attrs.field(
         repr=True, default=ComponentTypes.STRING_SELECT, init=False, on_setattr=attrs.setters.frozen
     )
@@ -337,10 +324,7 @@ class MentionableSelectMenu(BaseSelectMenu):
     """
 
     type: Union[ComponentTypes, int] = attrs.field(
-        repr=True,
-        default=ComponentTypes.MENTIONABLE_SELECT,
-        init=False,
-        on_setattr=attrs.setters.frozen,
+        repr=True, default=ComponentTypes.MENTIONABLE_SELECT, init=False, on_setattr=attrs.setters.frozen
     )
 
 
@@ -359,15 +343,10 @@ class ChannelSelectMenu(BaseSelectMenu):
         type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
     """
 
-    channel_types: list[ChannelTypes] = attrs.field(
-        factory=list, repr=True, converter=list_converter(ChannelTypes)
-    )
+    channel_types: list[ChannelTypes] = attrs.field(factory=list, repr=True, converter=list_converter(ChannelTypes))
 
     type: Union[ComponentTypes, int] = attrs.field(
-        repr=True,
-        default=ComponentTypes.CHANNEL_SELECT,
-        init=False,
-        on_setattr=attrs.setters.frozen,
+        repr=True, default=ComponentTypes.CHANNEL_SELECT, init=False, on_setattr=attrs.setters.frozen
     )
 
 
@@ -384,9 +363,7 @@ class ActionRow(BaseComponent):
 
     _max_items = ACTION_ROW_MAX_ITEMS
 
-    components: Sequence[Union[dict, StringSelectMenu, Button]] = attrs.field(
-        repr=True, factory=list
-    )
+    components: Sequence[Union[dict, StringSelectMenu, Button]] = attrs.field(repr=True, factory=list)
     type: Union[ComponentTypes, int] = attrs.field(
         repr=False, default=ComponentTypes.ACTION_ROW, init=False, on_setattr=attrs.setters.frozen
     )
@@ -402,9 +379,7 @@ class ActionRow(BaseComponent):
     def from_dict(cls, data) -> "ActionRow":
         return cls(*data["components"])
 
-    def _component_checks(
-        self, component: Union[dict, StringSelectMenu, Button]
-    ) -> Union[StringSelectMenu, Button]:
+    def _component_checks(self, component: Union[dict, StringSelectMenu, Button]) -> Union[StringSelectMenu, Button]:
         if isinstance(component, dict):
             component = BaseComponent.from_dict_factory(component)
 
@@ -416,14 +391,9 @@ class ActionRow(BaseComponent):
 
     def _check_object(self) -> None:
         if not (0 < len(self.components) <= ActionRow._max_items):
-            raise TypeError(
-                f"Number of components in one row should be between 1 and {ActionRow._max_items}."
-            )
+            raise TypeError(f"Number of components in one row should be between 1 and {ActionRow._max_items}.")
 
-        if (
-            any(x.type == ComponentTypes.STRING_SELECT for x in self.components)
-            and len(self.components) != 1
-        ):
+        if any(x.type == ComponentTypes.STRING_SELECT for x in self.components) and len(self.components) != 1:
             raise TypeError("Action row must have only one select component and nothing else.")
 
     def add_components(self, *components: Union[dict, Button, StringSelectMenu]) -> None:
@@ -439,12 +409,7 @@ class ActionRow(BaseComponent):
 
 def process_components(
     components: Optional[
-        Union[
-            List[List[Union[BaseComponent, Dict]]],
-            List[Union[BaseComponent, Dict]],
-            BaseComponent,
-            Dict,
-        ]
+        Union[List[List[Union[BaseComponent, Dict]]], List[Union[BaseComponent, Dict]], BaseComponent, Dict]
     ]
 ) -> List[Dict]:
     """
@@ -493,9 +458,7 @@ def process_components(
     raise ValueError(f"Invalid components: {components}")
 
 
-def spread_to_rows(
-    *components: Union[ActionRow, Button, StringSelectMenu], max_in_row: int = 5
-) -> List[ActionRow]:
+def spread_to_rows(*components: Union[ActionRow, Button, StringSelectMenu], max_in_row: int = 5) -> List[ActionRow]:
     """
     A helper function that spreads your components into `ActionRow`s of a set size.
 
@@ -564,25 +527,18 @@ def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) 
         yield component
     elif isinstance(component, dict):
         if component["type"] == ComponentTypes.actionrow:
-            yield from (
-                comp["custom_id"] for comp in component["components"] if "custom_id" in comp
-            )
+            yield from (comp["custom_id"] for comp in component["components"] if "custom_id" in comp)
         elif "custom_id" in component:
             yield component["custom_id"]
     elif c_id := getattr(component, "custom_id", None):
         yield c_id
     elif isinstance(component, ActionRow):
-        yield from (
-            comp_id for comp in component.components for comp_id in get_components_ids(comp)
-        )
+        yield from (comp_id for comp in component.components for comp_id in get_components_ids(comp))
 
     elif isinstance(component, list):
         yield from (comp_id for comp in component for comp_id in get_components_ids(comp))
     else:
-        raise ValueError(
-            f"Unknown component type of {component} ({type(component)}). "
-            f"Expected str, dict or list"
-        )
+        raise ValueError(f"Unknown component type of {component} ({type(component)}). " f"Expected str, dict or list")
 
 
 TYPE_ALL_COMPONENT = Union[ActionRow, Button, StringSelectMenu]

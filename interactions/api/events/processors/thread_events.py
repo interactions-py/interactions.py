@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.models import to_snowflake
-
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:
@@ -35,10 +34,7 @@ class ThreadEvents(EventMixinTemplate):
         # todo: when we decide how to store thread members, deal with that here
         threads = [self.cache.place_channel_data(t) for t in event.data.get("threads", [])]
         channel_ids = [to_snowflake(c) for c in event.data.get("channel_ids", [])]
-        members = [
-            self.cache.place_member_data(event.data.get("guild_id"), m)
-            for m in event.data.get("members", [])
-        ]
+        members = [self.cache.place_member_data(event.data.get("guild_id"), m) for m in event.data.get("members", [])]
 
         self.dispatch(events.ThreadListSync(channel_ids, threads, members))
 
@@ -49,10 +45,7 @@ class ThreadEvents(EventMixinTemplate):
             events.ThreadMembersUpdate(
                 event.data.get("id"),
                 event.data.get("member_count"),
-                [
-                    await self.cache.fetch_member(g_id, m["user_id"])
-                    for m in event.data.get("added_members", [])
-                ],
+                [await self.cache.fetch_member(g_id, m["user_id"]) for m in event.data.get("added_members", [])],
                 event.data.get("removed_member_ids", []),
             )
         )

@@ -3,7 +3,7 @@ import inspect
 import weakref
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from interactions.client.utils.cache import NullCache, TTLCache
+from interactions.client.utils.cache import TTLCache, NullCache
 from interactions.models import Embed, MaterialColors
 
 if TYPE_CHECKING:
@@ -96,9 +96,7 @@ def _make_solid_line(
 
     Constructs a "solid" line for the table (top, bottom, line between labels and table)
     """
-    return (
-        f"{left_char}{middle_char.join('─' * (width + 2) for width in column_widths)}{right_char}"
-    )
+    return f"{left_char}{middle_char.join('─' * (width + 2) for width in column_widths)}{right_char}"
 
 
 def _make_data_line(
@@ -117,9 +115,7 @@ def _make_data_line(
     if isinstance(aligns, str):
         aligns = [aligns for _ in column_widths]
 
-    line = (
-        f"{str(value): {align}{width}}" for width, align, value in zip(column_widths, aligns, line)
-    )
+    line = (f"{str(value): {align}{width}}" for width, align, value in zip(column_widths, aligns, line))
     return f"{left_char}{f'{middle_char}'.join(line)}{right_char}"
 
 
@@ -133,10 +129,7 @@ def _get_column_widths(columns) -> list[int]:
 
 
 def adjust_subcolumn(
-    rows: list[list[Any]],
-    column_index: int,
-    separator: str = "/",
-    aligns: Union[list[str], str] = "<",
+    rows: list[list[Any]], column_index: int, separator: str = "/", aligns: Union[list[str], str] = "<"
 ) -> None:
     """Converts column composed of list of subcolumns into aligned str representation."""
     column = list(zip(*rows))[column_index]
@@ -149,9 +142,7 @@ def adjust_subcolumn(
         row[column_index] = new_item
 
 
-def make_table(
-    rows: list[list[Any]], labels: Optional[list[Any]] = None, centered: bool = False
-) -> str:
+def make_table(rows: list[list[Any]], labels: Optional[list[Any]] = None, centered: bool = False) -> str:
     """
     Converts 2D list to str representation as table
 
@@ -171,9 +162,7 @@ def make_table(
     data_middle = " │ "
     data_right = " │"
     if labels is not None:
-        lines.append(
-            _make_data_line(column_widths, labels, data_left, data_middle, data_right, align)
-        )
+        lines.append(_make_data_line(column_widths, labels, data_left, data_middle, data_right, align))
         lines.append(_make_solid_line(column_widths, "├", "┼", "┤"))
     for row in rows:
         lines.append(_make_data_line(column_widths, row, data_left, data_middle, data_right, align))

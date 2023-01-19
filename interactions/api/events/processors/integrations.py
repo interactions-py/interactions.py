@@ -2,9 +2,8 @@ from typing import TYPE_CHECKING
 
 from interactions.models.discord.app_perms import ApplicationCommandPermission, CommandPermissions
 from interactions.models.discord.snowflake import to_snowflake
-
-from ... import events
 from ._template import EventMixinTemplate, Processor
+from ... import events
 
 if TYPE_CHECKING:
     from interactions.api.events import RawGatewayEvent
@@ -15,9 +14,7 @@ __all__ = ("IntegrationEvents",)
 class IntegrationEvents(EventMixinTemplate):
     @Processor.define()
     async def _raw_application_command_permissions_update(self, event: "RawGatewayEvent") -> None:
-        perms = [
-            ApplicationCommandPermission.from_dict(perm, self) for perm in event.data["permissions"]
-        ]
+        perms = [ApplicationCommandPermission.from_dict(perm, self) for perm in event.data["permissions"]]
         guild_id = to_snowflake(event.data["guild_id"])
         command_id = to_snowflake(event.data["id"])
 

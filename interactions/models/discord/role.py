@@ -1,23 +1,22 @@
 from functools import partial, total_ordering
-from typing import TYPE_CHECKING, Any
+from typing import Any, TYPE_CHECKING
 
 import attrs
 
-from interactions.client.const import MISSING, Missing, T
+from interactions.client.const import MISSING, T, Missing
 from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.serializer import dict_filter
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.color import COLOR_TYPES, Color, process_color
 from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.enums import Permissions
-
 from .base import DiscordObject
 
 if TYPE_CHECKING:
     from interactions.client import Client
     from interactions.models.discord.guild import Guild
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.user import Member
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = ("Role",)
 
@@ -53,9 +52,7 @@ class Role(DiscordObject):
         repr=False,
     )
     _bot_id: "Snowflake_Type | None" = attrs.field(repr=False, default=None)
-    _integration_id: "Snowflake_Type | None" = attrs.field(
-        repr=False, default=None
-    )  # todo integration object?
+    _integration_id: "Snowflake_Type | None" = attrs.field(repr=False, default=None)  # todo integration object?
 
     def __lt__(self: "Role", other: "Role") -> bool:
         if not isinstance(self, Role) or not isinstance(other, Role):
@@ -115,9 +112,7 @@ class Role(DiscordObject):
     @property
     def guild(self) -> "Guild":
         """The guild object this role is from."""
-        return self._client.cache.get_guild(
-            self._guild_id
-        )  # pyright: ignore [reportGeneralTypeIssues]
+        return self._client.cache.get_guild(self._guild_id)  # pyright: ignore [reportGeneralTypeIssues]
 
     @property
     def default(self) -> bool:
@@ -201,13 +196,7 @@ class Role(DiscordObject):
         color = process_color(color)
 
         payload = dict_filter(
-            {
-                "name": name,
-                "permissions": permissions,
-                "color": color,
-                "hoist": hoist,
-                "mentionable": mentionable,
-            }
+            {"name": name, "permissions": permissions, "color": color, "hoist": hoist, "mentionable": mentionable}
         )
 
         r_data = await self._client.http.modify_guild_role(self._guild_id, self.id, payload)

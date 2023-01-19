@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Callable, Dict
+from typing import Any, Dict, Callable
 
 import attrs
 from attr import Attribute

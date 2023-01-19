@@ -2,7 +2,7 @@ import asyncio
 from abc import ABC, abstractmethod
 from asyncio import QueueEmpty
 from collections.abc import AsyncIterator as _AsyncIterator
-from typing import Any, List
+from typing import List, Any
 
 from interactions.client.const import MISSING, Absent
 from interactions.models.discord import snowflake

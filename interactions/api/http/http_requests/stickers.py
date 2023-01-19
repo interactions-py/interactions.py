@@ -3,15 +3,14 @@ from typing import TYPE_CHECKING, Any, List, Optional
 import discord_typings
 
 from interactions.client.const import MISSING
-
 from ..route import Route
 
 __all__ = ("StickerRequests",)
 
 
 if TYPE_CHECKING:
-    from interactions import UPLOADABLE_TYPE
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions import UPLOADABLE_TYPE
 
 
 class StickerRequests:
@@ -40,9 +39,7 @@ class StickerRequests:
         """
         return await self.request(Route("GET", "/sticker-packs"))
 
-    async def list_guild_stickers(
-        self, guild_id: "Snowflake_Type"
-    ) -> List[discord_typings.StickerData]:
+    async def list_guild_stickers(self, guild_id: "Snowflake_Type") -> List[discord_typings.StickerData]:
         """
         Get the stickers for a guild.
 
@@ -72,11 +69,7 @@ class StickerRequests:
         return await self.request(Route("GET", f"/guilds/{guild_id}/stickers/{sticker_id}"))
 
     async def create_guild_sticker(
-        self,
-        payload: dict,
-        guild_id: "Snowflake_Type",
-        file: "UPLOADABLE_TYPE",
-        reason: Optional[str] = MISSING,
+        self, payload: dict, guild_id: "Snowflake_Type", file: "UPLOADABLE_TYPE", reason: Optional[str] = MISSING
     ) -> discord_typings.StickerData:
         """
         Create a new sticker for the guild. Requires the MANAGE_EMOJIS_AND_STICKERS permission.
@@ -92,18 +85,11 @@ class StickerRequests:
 
         """
         return await self.request(
-            Route("POST", f"/guild/{guild_id}/stickers"),
-            payload=payload,
-            files=[file],
-            reason=reason,
+            Route("POST", f"/guild/{guild_id}/stickers"), payload=payload, files=[file], reason=reason
         )
 
     async def modify_guild_sticker(
-        self,
-        payload: dict,
-        guild_id: "Snowflake_Type",
-        sticker_id: "Snowflake_Type",
-        reason: Optional[str] = MISSING,
+        self, payload: dict, guild_id: "Snowflake_Type", sticker_id: "Snowflake_Type", reason: Optional[str] = MISSING
     ) -> discord_typings.StickerData:
         """
         Modify the given sticker. Requires the MANAGE_EMOJIS_AND_STICKERS permission.
@@ -119,16 +105,11 @@ class StickerRequests:
 
         """
         return await self.request(
-            Route("PATCH", f"/guild/{guild_id}/stickers/{sticker_id}"),
-            payload=payload,
-            reason=reason,
+            Route("PATCH", f"/guild/{guild_id}/stickers/{sticker_id}"), payload=payload, reason=reason
         )
 
     async def delete_guild_sticker(
-        self,
-        guild_id: "Snowflake_Type",
-        sticker_id: "Snowflake_Type",
-        reason: Optional[str] = MISSING,
+        self, guild_id: "Snowflake_Type", sticker_id: "Snowflake_Type", reason: Optional[str] = MISSING
     ) -> None:
         """
         Delete the given sticker. Requires the MANAGE_EMOJIS_AND_STICKERS permission.
@@ -142,6 +123,4 @@ class StickerRequests:
             Returns 204 No Content on success.
 
         """
-        return await self.request(
-            Route("DELETE", f"/guild/{guild_id}/stickers/{sticker_id}"), reason=reason
-        )
+        return await self.request(Route("DELETE", f"/guild/{guild_id}/stickers/{sticker_id}"), reason=reason)

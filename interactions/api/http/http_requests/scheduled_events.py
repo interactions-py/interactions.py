@@ -1,9 +1,8 @@
-from typing import TYPE_CHECKING, Any, List
+from typing import Any, TYPE_CHECKING, List
 
 import discord_typings
 
 from interactions.client.const import MISSING, Absent
-
 from ..route import Route
 
 __all__ = ("ScheduledEventsRequests",)
@@ -34,10 +33,7 @@ class ScheduledEventsRequests:
         )
 
     async def get_scheduled_event(
-        self,
-        guild_id: "Snowflake_Type",
-        scheduled_event_id: "Snowflake_Type",
-        with_user_count: bool = False,
+        self, guild_id: "Snowflake_Type", scheduled_event_id: "Snowflake_Type", with_user_count: bool = False
     ) -> discord_typings.GuildScheduledEventData:
         """
         Get a scheduled event for a guild.
@@ -73,9 +69,7 @@ class ScheduledEventsRequests:
             Scheduled Event or None
 
         """
-        return await self.request(
-            Route("POST", f"/guilds/{guild_id}/scheduled-events"), payload=payload, reason=reason
-        )
+        return await self.request(Route("POST", f"/guilds/{guild_id}/scheduled-events"), payload=payload, reason=reason)
 
     async def modify_scheduled_event(
         self,
@@ -98,9 +92,7 @@ class ScheduledEventsRequests:
 
         """
         return await self.request(
-            Route("PATCH", f"/guilds/{guild_id}/scheduled-events/{scheduled_event_id}"),
-            payload=payload,
-            reason=reason,
+            Route("PATCH", f"/guilds/{guild_id}/scheduled-events/{scheduled_event_id}"), payload=payload, reason=reason
         )
 
     async def delete_scheduled_event(
@@ -119,8 +111,7 @@ class ScheduledEventsRequests:
 
         """
         return await self.request(
-            Route("DELETE", f"/guilds/{guild_id}/scheduled-events/{scheduled_event_id}"),
-            reason=reason,
+            Route("DELETE", f"/guilds/{guild_id}/scheduled-events/{scheduled_event_id}"), reason=reason
         )
 
     async def get_scheduled_event_users(

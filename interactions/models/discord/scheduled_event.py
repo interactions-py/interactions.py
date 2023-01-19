@@ -5,20 +5,21 @@ import attrs
 from interactions.client.const import MISSING, Absent
 from interactions.client.errors import EventLocationNotProvided
 from interactions.client.utils import to_image_data
-from interactions.client.utils.attr_converters import optional, timestamp_converter
+from interactions.client.utils.attr_converters import optional
+from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import Snowflake_Type, to_snowflake
 from interactions.models.discord.timestamp import Timestamp
-
 from .base import DiscordObject
-from .enums import ScheduledEventPrivacyLevel, ScheduledEventStatus, ScheduledEventType
+from .enums import ScheduledEventPrivacyLevel, ScheduledEventType, ScheduledEventStatus
 
 if TYPE_CHECKING:
     from interactions.client import Client
     from interactions.models.discord.channel import GuildStageVoice, GuildVoice
     from interactions.models.discord.guild import Guild
-    from interactions.models.discord.user import Member, User
+    from interactions.models.discord.user import Member
+    from interactions.models.discord.user import User
 
 __all__ = ("ScheduledEvent",)
 
@@ -27,15 +28,11 @@ __all__ = ("ScheduledEvent",)
 class ScheduledEvent(DiscordObject):
     name: str = attrs.field(repr=True)
     description: str = attrs.field(repr=False, default=MISSING)
-    entity_type: Union[ScheduledEventType, int] = attrs.field(
-        repr=False, converter=ScheduledEventType
-    )
+    entity_type: Union[ScheduledEventType, int] = attrs.field(repr=False, converter=ScheduledEventType)
     """The type of the scheduled event"""
     start_time: Timestamp = attrs.field(repr=False, converter=timestamp_converter)
     """A Timestamp object representing the scheduled start time of the event """
-    end_time: Optional[Timestamp] = attrs.field(
-        repr=False, default=None, converter=optional(timestamp_converter)
-    )
+    end_time: Optional[Timestamp] = attrs.field(repr=False, default=None, converter=optional(timestamp_converter))
     """Optional Timstamp object representing the scheduled end time, required if entity_type is EXTERNAL"""
     privacy_level: Union[ScheduledEventPrivacyLevel, int] = attrs.field(
         repr=False, converter=ScheduledEventPrivacyLevel
@@ -46,17 +43,11 @@ class ScheduledEvent(DiscordObject):
     ??? note
         Discord only has `GUILD_ONLY` at the momment.
     """
-    status: Union[ScheduledEventStatus, int] = attrs.field(
-        repr=False, converter=ScheduledEventStatus
-    )
+    status: Union[ScheduledEventStatus, int] = attrs.field(repr=False, converter=ScheduledEventStatus)
     """Current status of the scheduled event"""
-    entity_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=MISSING, converter=optional(to_snowflake)
-    )
+    entity_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=MISSING, converter=optional(to_snowflake))
     """The id of an entity associated with a guild scheduled event"""
-    entity_metadata: Optional[Dict[str, Any]] = attrs.field(
-        repr=False, default=MISSING
-    )  # TODO make this
+    entity_metadata: Optional[Dict[str, Any]] = attrs.field(repr=False, default=MISSING)  # TODO make this
     """The metadata associated with the entity_type"""
     user_count: int = attrs.field(repr=False, default=MISSING)
     """Amount of users subscribed to the scheduled event"""
@@ -65,12 +56,8 @@ class ScheduledEvent(DiscordObject):
 
     _guild_id: "Snowflake_Type" = attrs.field(repr=False, converter=to_snowflake)
     _creator: Optional["User"] = attrs.field(repr=False, default=MISSING)
-    _creator_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=MISSING, converter=optional(to_snowflake)
-    )
-    _channel_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=optional(to_snowflake)
-    )
+    _creator_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=MISSING, converter=optional(to_snowflake))
+    _channel_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
 
     @property
     async def creator(self) -> Optional["User"]:

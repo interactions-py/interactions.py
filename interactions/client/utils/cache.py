@@ -48,11 +48,7 @@ class TTLItem(Generic[VT]):
 
 class TTLCache(OrderedDict[KT, TTLItem[VT]]):
     def __init__(
-        self,
-        ttl: int = 600,
-        soft_limit: int = 50,
-        hard_limit: int = 250,
-        on_expire: Optional[Callable] = None,
+        self, ttl: int = 600, soft_limit: int = 50, hard_limit: int = 250, on_expire: Optional[Callable] = None
     ) -> None:
         super().__init__()
 

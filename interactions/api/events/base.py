@@ -10,8 +10,8 @@ from interactions.models.discord.snowflake import to_snowflake
 
 if TYPE_CHECKING:
     from interactions import Client
-    from interactions.models.discord.guild import Guild
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models.discord.guild import Guild
 
 __all__ = ("BaseEvent", "GuildEvent", "RawGatewayEvent")
 
@@ -64,9 +64,7 @@ class BaseEvent:
 class GuildEvent(BaseEvent):
     """A base event that adds guild_id."""
 
-    guild_id: "Snowflake_Type" = attrs.field(
-        repr=False, metadata=docs("The ID of the guild"), converter=to_snowflake
-    )
+    guild_id: "Snowflake_Type" = attrs.field(repr=False, metadata=docs("The ID of the guild"), converter=to_snowflake)
 
     @property
     def guild(self) -> "Guild":
