@@ -5,6 +5,7 @@ import interactions.api.events as events
 from interactions.client.const import MISSING
 from interactions.models.discord.channel import BaseChannel
 from interactions.models.discord.invite import Invite
+
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:
@@ -30,7 +31,11 @@ class ChannelEvents(EventMixinTemplate):
     @Processor.define()
     async def _on_raw_channel_update(self, event: "RawGatewayEvent") -> None:
         before = copy.copy(self.cache.get_channel(event.data.get("id")))
-        self.dispatch(events.ChannelUpdate(before=before or MISSING, after=self.cache.place_channel_data(event.data)))
+        self.dispatch(
+            events.ChannelUpdate(
+                before=before or MISSING, after=self.cache.place_channel_data(event.data)
+            )
+        )
 
     @Processor.define()
     async def _on_raw_channel_pins_update(self, event: "RawGatewayEvent") -> None:

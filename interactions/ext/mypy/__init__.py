@@ -19,7 +19,8 @@ plugins = "interactions.ext.mypy"
 """
 from functools import partial
 from typing import Callable, Optional, Type
-from mypy.plugin import Plugin, ClassDefContext
+
+from mypy.plugin import ClassDefContext, Plugin
 from mypy.plugins import attrs
 
 __all__ = ("plugin",)
@@ -27,7 +28,9 @@ __all__ = ("plugin",)
 
 class NaffPlugin(Plugin):
     # This could be smarter, but it does the job.
-    def get_class_decorator_hook(self, fullname: str) -> Optional[Callable[[ClassDefContext], None]]:
+    def get_class_decorator_hook(
+        self, fullname: str
+    ) -> Optional[Callable[[ClassDefContext], None]]:
         if fullname == "interactions.client.utils.attr_utils.define":
             return partial(
                 attrs.attr_class_maker_callback,

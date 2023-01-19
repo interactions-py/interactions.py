@@ -3,18 +3,19 @@ from typing import TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.api.events.discord import (
-    GuildAuditLogEntryCreate,
-    GuildEmojisUpdate,
-    IntegrationCreate,
-    IntegrationUpdate,
-    IntegrationDelete,
     BanCreate,
     BanRemove,
+    GuildAuditLogEntryCreate
+    GuildEmojisUpdate,
     GuildStickersUpdate,
+    IntegrationCreate,
+    IntegrationDelete,
+    IntegrationUpdate,
     WebhooksUpdate,
 )
 from interactions.client.const import MISSING
 from interactions.models import AuditLogEntry, GuildIntegration, Sticker, to_snowflake
+
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:
@@ -56,7 +57,9 @@ class GuildEvents(EventMixinTemplate):
     @Processor.define()
     async def _on_raw_guild_update(self, event: "RawGatewayEvent") -> None:
         before = copy.copy(await self.cache.fetch_guild(event.data.get("id")))
-        self.dispatch(events.GuildUpdate(before or MISSING, self.cache.place_guild_data(event.data)))
+        self.dispatch(
+            events.GuildUpdate(before or MISSING, self.cache.place_guild_data(event.data))
+        )
 
     @Processor.define()
     async def _on_raw_guild_delete(self, event: "RawGatewayEvent") -> None:
@@ -77,11 +80,19 @@ class GuildEvents(EventMixinTemplate):
 
     @Processor.define()
     async def _on_raw_guild_ban_add(self, event: "RawGatewayEvent") -> None:
-        self.dispatch(BanCreate(event.data.get("guild_id"), self.cache.place_user_data(event.data.get("user"))))
+        self.dispatch(
+            BanCreate(
+                event.data.get("guild_id"), self.cache.place_user_data(event.data.get("user"))
+            )
+        )
 
     @Processor.define()
     async def _on_raw_guild_ban_remove(self, event: "RawGatewayEvent") -> None:
-        self.dispatch(BanRemove(event.data.get("guild_id"), self.cache.place_user_data(event.data.get("user"))))
+        self.dispatch(
+            BanRemove(
+                event.data.get("guild_id"), self.cache.place_user_data(event.data.get("user"))
+            )
+        )
 
     @Processor.define()
     async def _on_raw_integration_create(self, event: "RawGatewayEvent") -> None:
@@ -94,7 +105,9 @@ class GuildEvents(EventMixinTemplate):
     @Processor.define()
     async def _on_raw_integration_delete(self, event: "RawGatewayEvent") -> None:
         self.dispatch(
-            IntegrationDelete(event.data.get("guild_id"), event.data.get("id"), event.data.get("application_id"))
+            IntegrationDelete(
+                event.data.get("guild_id"), event.data.get("id"), event.data.get("application_id")
+            )
         )
 
     @Processor.define()
@@ -120,7 +133,9 @@ class GuildEvents(EventMixinTemplate):
     @Processor.define()
     async def _on_raw_guild_stickers_update(self, event: "RawGatewayEvent") -> None:
         self.dispatch(
-            GuildStickersUpdate(event.data.get("guild_id"), Sticker.from_list(event.data.get("stickers", []), self))
+            GuildStickersUpdate(
+                event.data.get("guild_id"), Sticker.from_list(event.data.get("stickers", []), self)
+            )
         )
 
     @Processor.define()

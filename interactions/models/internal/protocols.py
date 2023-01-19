@@ -1,5 +1,5 @@
 import typing
-from typing import Protocol, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Protocol
 
 from interactions.api.http.route import Route
 from interactions.client.const import T_co

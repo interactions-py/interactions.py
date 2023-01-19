@@ -1,3 +1,5 @@
+from ._template import Processor
+from .auto_mod import *
 from .channel_events import *
 from .guild_events import *
 from .integrations import *
@@ -9,5 +11,3 @@ from .stage_events import *
 from .thread_events import *
 from .user_events import *
 from .voice_events import *
-from ._template import Processor
-from .auto_mod import *

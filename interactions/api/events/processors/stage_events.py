@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.models import StageInstance
+
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:

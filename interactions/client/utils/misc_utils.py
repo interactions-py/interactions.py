@@ -1,7 +1,7 @@
 import functools
 import inspect
 import re
-from typing import Callable, Iterable, List, Optional, Any, Union
+from typing import Any, Callable, Iterable, List, Optional, Union
 
 import interactions.api.events as events
 from interactions.client.const import T
@@ -165,7 +165,9 @@ def wrap_partial(obj: Any, cls: Any) -> Callable:
     if getattr(obj, "post_run_callback", None):
         obj.post_run_callback = functools.partial(obj.post_run_callback, cls)
     if getattr(obj, "autocomplete_callbacks", None):
-        obj.autocomplete_callbacks = {k: functools.partial(v, cls) for k, v in obj.autocomplete_callbacks.items()}
+        obj.autocomplete_callbacks = {
+            k: functools.partial(v, cls) for k, v in obj.autocomplete_callbacks.items()
+        }
     if getattr(obj, "subcommands", None):
         obj.subcommands = {k: wrap_partial(v, cls) for k, v in obj.subcommands.items()}
 

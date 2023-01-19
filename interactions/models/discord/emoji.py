@@ -7,8 +7,7 @@ import attrs
 import emoji
 
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_converters import list_converter
-from interactions.client.utils.attr_converters import optional
+from interactions.client.utils.attr_converters import list_converter, optional
 from interactions.client.utils.serializer import dict_filter_none, no_export_meta
 from interactions.models.discord.base import ClientObject
 from interactions.models.discord.snowflake import SnowflakeObject, to_snowflake
@@ -16,9 +15,9 @@ from interactions.models.discord.snowflake import SnowflakeObject, to_snowflake
 if TYPE_CHECKING:
     from interactions.client import Client
     from interactions.models.discord.guild import Guild
-    from interactions.models.discord.user import User, Member
     from interactions.models.discord.role import Role
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models.discord.user import Member, User
 
 __all__ = ("PartialEmoji", "CustomEmoji", "process_emoji_req_format", "process_emoji")
 
@@ -127,7 +126,9 @@ class CustomEmoji(PartialEmoji, ClientObject):
     available: bool = attrs.field(repr=False, default=False)
     """Whether this emoji can be used, may be false due to loss of Server Boosts."""
 
-    _creator_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
+    _creator_id: Optional["Snowflake_Type"] = attrs.field(
+        repr=False, default=None, converter=optional(to_snowflake)
+    )
     _role_ids: List["Snowflake_Type"] = attrs.field(
         repr=False, factory=list, converter=optional(list_converter(to_snowflake))
     )
@@ -146,7 +147,9 @@ class CustomEmoji(PartialEmoji, ClientObject):
     @classmethod
     def from_dict(cls, data: Dict[str, Any], client: "Client", guild_id: int) -> "CustomEmoji":
         data = cls._process_dict(data, client)
-        return cls(client=client, guild_id=guild_id, **cls._filter_kwargs(data, cls._get_init_keys()))
+        return cls(
+            client=client, guild_id=guild_id, **cls._filter_kwargs(data, cls._get_init_keys())
+        )
 
     @property
     def guild(self) -> "Guild":
@@ -156,9 +159,9 @@ class CustomEmoji(PartialEmoji, ClientObject):
     @property
     def creator(self) -> Optional[Union["Member", "User"]]:
         """The member that created this emoji."""
-        return self._client.cache.get_member(self._creator_id, self._guild_id) or self._client.cache.get_user(
-            self._creator_id
-        )
+        return self._client.cache.get_member(
+            self._creator_id, self._guild_id
+        ) or self._client.cache.get_user(self._creator_id)
 
     @property
     def roles(self) -> List["Role"]:
@@ -200,7 +203,9 @@ class CustomEmoji(PartialEmoji, ClientObject):
             }
         )
 
-        updated_data = await self._client.http.modify_guild_emoji(data_payload, self._guild_id, self.id, reason=reason)
+        updated_data = await self._client.http.modify_guild_emoji(
+            data_payload, self._guild_id, self.id, reason=reason
+        )
         self.update_from_dict(updated_data)
         return self
 
