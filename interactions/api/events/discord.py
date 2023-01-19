@@ -743,11 +743,8 @@ class VoiceUserLeave(BaseVoiceEvent):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
-class AuditLogEntryCreate(BaseEvent):
+class AuditLogEntryCreate(GuildEvent):
     """Dispatched when audit log entry is created"""
 
-    guild: "Guild" = attrs.field(repr=False)
-    """The guild where this entry was created"""
     audit_log_entry: interactions.models.AuditLogEntry = attrs.field(repr=False)
     """The audit log entry object"""
-
