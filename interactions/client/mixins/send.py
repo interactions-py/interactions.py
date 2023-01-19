@@ -4,21 +4,23 @@ import interactions.models as models
 
 if TYPE_CHECKING:
     from interactions.client import Client
-    from interactions.models.discord.file import UPLOADABLE_TYPE
     from interactions.models.discord.components import BaseComponent
     from interactions.models.discord.embed import Embed
-    from interactions.models.discord.message import AllowedMentions, Message, MessageReference
-    from interactions.models.discord.sticker import Sticker
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.enums import MessageFlags
+    from interactions.models.discord.file import UPLOADABLE_TYPE
+    from interactions.models.discord.message import AllowedMentions, Message, MessageReference
+    from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models.discord.sticker import Sticker
 
 __all__ = ("SendMixin",)
 
 
 class SendMixin:
-    _client: "Client"
+    client: "Client"
 
-    async def _send_http_request(self, message_payload: dict, files: Iterable["UPLOADABLE_TYPE"] | None = None) -> dict:
+    async def _send_http_request(
+        self, message_payload: dict, files: Iterable["UPLOADABLE_TYPE"] | None = None
+    ) -> dict:
         raise NotImplementedError
 
     async def send(
@@ -35,7 +37,9 @@ class SendMixin:
                 dict,
             ]
         ] = None,
-        stickers: Optional[Union[Iterable[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]] = None,
+        stickers: Optional[
+            Union[Iterable[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]
+        ] = None,
         allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
         reply_to: Optional[Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
         files: Optional[Union["UPLOADABLE_TYPE", Iterable["UPLOADABLE_TYPE"]]] = None,
@@ -87,7 +91,7 @@ class SendMixin:
 
         message_data = await self._send_http_request(message_payload, files=files or file)
         if message_data:
-            message = self._client.cache.place_message_data(message_data)
+            message = self.client.cache.place_message_data(message_data)
             if delete_after:
                 await message.delete(delay=delete_after)
             return message

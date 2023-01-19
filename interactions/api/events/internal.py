@@ -22,7 +22,7 @@ These are events dispatched by the client. This is intended as a reference so yo
 """
 import re
 import typing
-from typing import Any, Optional, TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Any, Optional, Type
 
 import attrs
 
@@ -63,13 +63,13 @@ __all__ = (
 
 if TYPE_CHECKING:
     from interactions.models.internal.context import (
+        AutocompleteContext,
         ComponentContext,
         Context,
-        AutocompleteContext,
-        ModalContext,
-        InteractionContext,
-        PrefixedContext,
         HybridContext,
+        InteractionContext,
+        ModalContext,
+        PrefixedContext,
     )
 
 _event_reg = re.compile("(?<!^)(?=[A-Z])")
@@ -143,7 +143,9 @@ class WebsocketReady(RawGatewayEvent):
 class Component(BaseEvent):
     """Dispatched when a user uses a Component."""
 
-    ctx: "ComponentContext" = attrs.field(repr=False, metadata=docs("The context of the interaction"))
+    ctx: "ComponentContext" = attrs.field(
+        repr=False, metadata=docs("The context of the interaction")
+    )
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -160,7 +162,9 @@ class Select(Component):
 class CommandCompletion(BaseEvent):
     """Dispatched after the library ran any command callback."""
 
-    ctx: "InteractionContext | HybridContext" = attrs.field(repr=False, metadata=docs("The command context"))
+    ctx: "InteractionContext | HybridContext" = attrs.field(
+        repr=False, metadata=docs("The command context")
+    )
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -196,7 +200,9 @@ class Error(_Error):
     """Dispatched when the library encounters an error."""
 
     source: str = attrs.field(repr=False, metadata=docs("The source of the error"))
-    ctx: Optional["Context"] = attrs.field(repr=False, default=None, metadata=docs("The Context, if one was active"))
+    ctx: Optional["Context"] = attrs.field(
+        repr=False, default=None, metadata=docs("The Context, if one was active")
+    )
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

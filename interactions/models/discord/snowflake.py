@@ -1,10 +1,10 @@
 import datetime
-from typing import Union, List, SupportsInt, Optional
+from typing import List, Optional, SupportsInt, Union
 
 import attrs
 
 import interactions.models as models
-from interactions.client.const import MISSING, Absent, DISCORD_EPOCH
+from interactions.client.const import DISCORD_EPOCH, MISSING, Absent
 
 __all__ = (
     "to_snowflake",
@@ -38,7 +38,9 @@ def to_snowflake(snowflake: Snowflake_Type) -> "Snowflake":
             f"Got '{snowflake}' ({type(snowflake)}) instead."
         ) from e
     except ValueError as e:
-        raise ValueError(f"ID (snowflake) should represent int. Got '{snowflake}' ({type(snowflake)}) instead.") from e
+        raise ValueError(
+            f"ID (snowflake) should represent int. Got '{snowflake}' ({type(snowflake)}) instead."
+        ) from e
 
     if 22 > snowflake.bit_length() > 64:
         raise ValueError(
@@ -49,7 +51,9 @@ def to_snowflake(snowflake: Snowflake_Type) -> "Snowflake":
     return snowflake
 
 
-def to_optional_snowflake(snowflake: Absent[Optional[Snowflake_Type]] = MISSING) -> "Optional[Snowflake]":
+def to_optional_snowflake(
+    snowflake: Absent[Optional[Snowflake_Type]] = MISSING,
+) -> "Optional[Snowflake]":
     if snowflake is MISSING:
         return MISSING
     if snowflake is None:
@@ -98,7 +102,9 @@ class Snowflake(int):
 
         :Returns:
         """
-        from interactions.models import Timestamp  # dirty i know; but it's an unavoidable circular import
+        from interactions.models import (  # dirty i know; but it's an unavoidable circular import
+            Timestamp,
+        )
 
         return Timestamp.from_snowflake(self)
 
@@ -137,7 +143,9 @@ class Snowflake(int):
 
 @attrs.define(eq=False, order=False, hash=False, slots=False)
 class SnowflakeObject:
-    id: Snowflake = attrs.field(repr=True, converter=Snowflake, metadata={"docs": "Discord unique snowflake ID"})
+    id: Snowflake = attrs.field(
+        repr=True, converter=Snowflake, metadata={"docs": "Discord unique snowflake ID"}
+    )
 
     def __eq__(self, other: "SnowflakeObject") -> bool:
         if hasattr(other, "id"):

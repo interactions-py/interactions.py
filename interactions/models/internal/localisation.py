@@ -18,14 +18,22 @@ class LocalisedField:
     default_locale: str = attrs.field(repr=False, default=const.default_locale)
 
     bulgarian: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "bg"})
-    chinese_china: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "zh-CN"})
-    chinese_taiwan: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "zh-TW"})
+    chinese_china: str | None = attrs.field(
+        repr=False, default=None, metadata={"locale-code": "zh-CN"}
+    )
+    chinese_taiwan: str | None = attrs.field(
+        repr=False, default=None, metadata={"locale-code": "zh-TW"}
+    )
     croatian: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "hr"})
     czech: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "cs"})
     danish: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "da"})
     dutch: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "nl"})
-    english_uk: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "en-GB"})
-    english_us: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "en-US"})
+    english_uk: str | None = attrs.field(
+        repr=False, default=None, metadata={"locale-code": "en-GB"}
+    )
+    english_us: str | None = attrs.field(
+        repr=False, default=None, metadata={"locale-code": "en-US"}
+    )
     finnish: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "fi"})
     french: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "fr"})
     german: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "de"})
@@ -38,8 +46,12 @@ class LocalisedField:
     lithuanian: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "lt"})
     norwegian: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "no"})
     polish: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "pl"})
-    portuguese_brazilian: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "pt-BR"})
-    romanian_romania: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "ro"})
+    portuguese_brazilian: str | None = attrs.field(
+        repr=False, default=None, metadata={"locale-code": "pt-BR"}
+    )
+    romanian_romania: str | None = attrs.field(
+        repr=False, default=None, metadata={"locale-code": "ro"}
+    )
     russian: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "ru"})
     spanish: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "es-ES"})
     swedish: str | None = attrs.field(repr=False, default=None, metadata={"locale-code": "sv-SE"})

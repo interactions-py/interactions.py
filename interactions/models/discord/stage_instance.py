@@ -5,6 +5,7 @@ import attrs
 from interactions.client.const import MISSING, Absent
 from interactions.models.discord.enums import StagePrivacyLevel
 from interactions.models.discord.snowflake import to_snowflake
+
 from .base import DiscordObject
 
 if TYPE_CHECKING:

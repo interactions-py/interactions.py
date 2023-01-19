@@ -8,10 +8,11 @@ import attrs
 
 import interactions
 from interactions.api import events
-from interactions.client.const import Absent, MISSING, get_logger
+from interactions.client.const import MISSING, Absent, get_logger
 from interactions.client.errors import NaffException, WebSocketClosed
 from interactions.models.discord.activity import Activity
-from interactions.models.discord.enums import Intents, Status, ActivityType
+from interactions.models.discord.enums import ActivityType, Intents, Status
+
 from .gateway import GatewayClient
 
 if TYPE_CHECKING:
@@ -104,7 +105,9 @@ class ConnectionState:
         """Connect to the Discord Gateway."""
         self.logger.info(f"Shard {self.shard_id} is attempting to connect to gateway...")
         try:
-            async with GatewayClient(self, (self.shard_id, self.client.total_shards)) as self.gateway:
+            async with GatewayClient(
+                self, (self.shard_id, self.client.total_shards)
+            ) as self.gateway:
                 try:
                     await self.gateway.run()
                 finally:
@@ -130,7 +133,9 @@ class ConnectionState:
             self.logger.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
 
     async def change_presence(
-        self, status: Optional[Union[str, Status]] = Status.ONLINE, activity: Absent[Union[Activity, str]] = MISSING
+        self,
+        status: Optional[Union[str, Status]] = Status.ONLINE,
+        activity: Absent[Union[Activity, str]] = MISSING,
     ) -> None:
         """
         Change the bots presence.
@@ -153,7 +158,9 @@ class ConnectionState:
 
                 if activity.type == ActivityType.STREAMING:
                     if not activity.url:
-                        self.logger.warning("Streaming activity cannot be set without a valid URL attribute")
+                        self.logger.warning(
+                            "Streaming activity cannot be set without a valid URL attribute"
+                        )
                 elif activity.type not in [
                     ActivityType.GAME,
                     ActivityType.STREAMING,
@@ -172,20 +179,26 @@ class ConnectionState:
                 try:
                     status = Status[status.upper()]
                 except KeyError:
-                    raise ValueError(f"`{status}` is not a valid status type. Please use the Status enum") from None
+                    raise ValueError(
+                        f"`{status}` is not a valid status type. Please use the Status enum"
+                    ) from None
         else:
             # in case the user set status to None
             if self.client.status:
                 status = self.client.status
             else:
-                self.logger.warning("Status must be set to a valid status type, defaulting to online")
+                self.logger.warning(
+                    "Status must be set to a valid status type, defaulting to online"
+                )
                 status = Status.ONLINE
 
         self.client._status = status
         self.client._activity = activity
         await self.gateway.change_presence(activity.to_dict() if activity else None, status)
 
-    def get_voice_state(self, guild_id: "Snowflake_Type") -> Optional["interactions.ActiveVoiceState"]:
+    def get_voice_state(
+        self, guild_id: "Snowflake_Type"
+    ) -> Optional["interactions.ActiveVoiceState"]:
         """
         Get the bot's voice state for a guild.
 
@@ -199,7 +212,11 @@ class ConnectionState:
         return self.client.cache.get_bot_voice_state(guild_id)
 
     async def voice_connect(
-        self, guild_id: "Snowflake_Type", channel_id: "Snowflake_Type", muted: bool = False, deafened: bool = False
+        self,
+        guild_id: "Snowflake_Type",
+        channel_id: "Snowflake_Type",
+        muted: bool = False,
+        deafened: bool = False,
     ) -> "interactions.ActiveVoiceState":
         """
         Connect to a voice channel.
@@ -215,7 +232,11 @@ class ConnectionState:
 
         """
         voice_state = interactions.ActiveVoiceState(
-            client=self.client, guild_id=guild_id, channel_id=channel_id, self_mute=muted, self_deaf=deafened
+            client=self.client,
+            guild_id=guild_id,
+            channel_id=channel_id,
+            self_mute=muted,
+            self_deaf=deafened,
         )
         await voice_state.connect()
         self.client.cache.place_bot_voice_state(voice_state)

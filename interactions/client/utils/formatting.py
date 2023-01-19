@@ -1,7 +1,6 @@
 import enum
 from typing import Optional
 
-
 __all__ = (
     "bold",
     "italic",

@@ -21,12 +21,12 @@ These are events dispatched by Discord. This is intended as a reference so you k
 
 """
 
-from typing import TYPE_CHECKING, List, Sequence, Union, Optional
+from typing import TYPE_CHECKING, List, Optional, Sequence, Union
 
 import attrs
 
 import interactions.models
-from interactions.api.events.base import GuildEvent, BaseEvent
+from interactions.api.events.base import BaseEvent, GuildEvent
 from interactions.client.const import Absent
 from interactions.client.utils.attr_utils import docs
 
@@ -94,29 +94,33 @@ __all__ = (
 
 
 if TYPE_CHECKING:
-    from interactions.models.discord.guild import Guild, GuildIntegration
-    from interactions.models.discord.channel import BaseChannel, TYPE_THREAD_CHANNEL, VoiceChannel
-    from interactions.models.discord.message import Message
-    from interactions.models.discord.timestamp import Timestamp
-    from interactions.models.discord.user import Member, User, BaseUser
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.activity import Activity
-    from interactions.models.discord.emoji import CustomEmoji, PartialEmoji
-    from interactions.models.discord.role import Role
-    from interactions.models.discord.sticker import Sticker
-    from interactions.models.discord.voice_state import VoiceState
-    from interactions.models.discord.stage_instance import StageInstance
-    from interactions.models.discord.auto_mod import AutoModerationAction, AutoModRule
-    from interactions.models.discord.reaction import Reaction
     from interactions.models.discord.app_perms import ApplicationCommandPermission
+    from interactions.models.discord.auto_mod import AutoModerationAction, AutoModRule
+    from interactions.models.discord.channel import TYPE_THREAD_CHANNEL, BaseChannel, VoiceChannel
+    from interactions.models.discord.emoji import CustomEmoji, PartialEmoji
+    from interactions.models.discord.guild import Guild, GuildIntegration
+    from interactions.models.discord.message import Message
+    from interactions.models.discord.reaction import Reaction
+    from interactions.models.discord.role import Role
+    from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models.discord.stage_instance import StageInstance
+    from interactions.models.discord.sticker import Sticker
+    from interactions.models.discord.timestamp import Timestamp
+    from interactions.models.discord.user import BaseUser, Member, User
+    from interactions.models.discord.voice_state import VoiceState
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class AutoModExec(BaseEvent):
     """Dispatched when an auto modation action is executed"""
 
-    execution: "AutoModerationAction" = attrs.field(repr=False, metadata=docs("The executed auto mod action"))
-    channel: "BaseChannel" = attrs.field(repr=False, metadata=docs("The channel the action was executed in"))
+    execution: "AutoModerationAction" = attrs.field(
+        repr=False, metadata=docs("The executed auto mod action")
+    )
+    channel: "BaseChannel" = attrs.field(
+        repr=False, metadata=docs("The channel the action was executed in")
+    )
     guild: "Guild" = attrs.field(repr=False, metadata=docs("The guild the action was executed in"))
 
 
@@ -157,7 +161,9 @@ class ApplicationCommandPermissionsUpdate(BaseEvent):
 class ChannelCreate(BaseEvent):
     """Dispatched when a channel is created."""
 
-    channel: "BaseChannel" = attrs.field(repr=False, metadata=docs("The channel this event is dispatched from"))
+    channel: "BaseChannel" = attrs.field(
+        repr=False, metadata=docs("The channel this event is dispatched from")
+    )
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -193,7 +199,9 @@ class ChannelPinsUpdate(ChannelCreate):
 class ThreadCreate(BaseEvent):
     """Dispatched when a thread is created, or a thread is new to the client"""
 
-    thread: "TYPE_THREAD_CHANNEL" = attrs.field(repr=False, metadata=docs("The thread this event is dispatched from"))
+    thread: "TYPE_THREAD_CHANNEL" = attrs.field(
+        repr=False, metadata=docs("The thread this event is dispatched from")
+    )
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -348,7 +356,8 @@ class MemberRemove(MemberAdd):
     """Dispatched when a member is removed from a guild."""
 
     member: Union["Member", "User"] = attrs.field(
-        repr=False, metadata=docs("The member who was added, can be user if the member is not cached")
+        repr=False,
+        metadata=docs("The member who was added, can be user if the member is not cached"),
     )
 
 
@@ -523,8 +532,12 @@ class MessageReactionAdd(BaseEvent):
     """Dispatched when a reaction is added to a message."""
 
     message: "Message" = attrs.field(repr=False, metadata=docs("The message that was reacted to"))
-    emoji: "PartialEmoji" = attrs.field(repr=False, metadata=docs("The emoji that was added to the message"))
-    author: Union["Member", "User"] = attrs.field(repr=False, metadata=docs("The user who added the reaction"))
+    emoji: "PartialEmoji" = attrs.field(
+        repr=False, metadata=docs("The emoji that was added to the message")
+    )
+    author: Union["Member", "User"] = attrs.field(
+        repr=False, metadata=docs("The user who added the reaction")
+    )
     # reaction can be None when the message is not in the cache, and it was the last reaction, and it was deleted in the event
     reaction: Optional["Reaction"] = attrs.field(
         repr=False, default=None, metadata=docs("The reaction object corresponding to the emoji")

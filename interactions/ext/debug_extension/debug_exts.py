@@ -1,10 +1,6 @@
 from interactions import Extension
 from interactions.client.errors import CommandCheckFailure, ExtensionLoadException
-from interactions.models import (
-    prefixed_command,
-    PrefixedContext,
-    Context,
-)
+from interactions.models import Context, PrefixedContext, prefixed_command
 
 __all__ = ("DebugExts",)
 
