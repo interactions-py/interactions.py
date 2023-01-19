@@ -1,8 +1,9 @@
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import interactions.api.events as events
-from interactions.models import User, Member, BaseChannel, Timestamp, to_snowflake, Activity
+from interactions.models import Activity, BaseChannel, Member, Timestamp, User, to_snowflake
 from interactions.models.discord.enums import Status
+
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:
@@ -57,5 +58,7 @@ class UserEvents(EventMixinTemplate):
             user.activities = Activity.from_list(event.data.get("activities"))
 
             self.dispatch(
-                events.PresenceUpdate(user, user.status, user.activities, event.data.get("client_status", None), g_id)
+                events.PresenceUpdate(
+                    user, user.status, user.activities, event.data.get("client_status", None), g_id
+                )
             )

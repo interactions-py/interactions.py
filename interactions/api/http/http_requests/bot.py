@@ -3,6 +3,7 @@ from typing import cast
 import discord_typings
 
 from interactions.models.internal.protocols import CanRequest
+
 from ..route import Route
 
 __all__ = ("BotRequests",)

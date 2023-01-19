@@ -8,15 +8,16 @@ from interactions.client.client import Client
 from interactions.client.const import GLOBAL_SCOPE
 from interactions.client.errors import HTTPException
 from interactions.models import (
-    slash_command,
-    InteractionContext,
     File,
+    InteractionContext,
     Message,
-    slash_option,
     OptionTypes,
     application_commands_to_dict,
     checks,
+    slash_command,
+    slash_option,
 )
+
 from .utils import debug_embed
 
 __all__ = ("DebugAppCMD",)
@@ -49,7 +50,8 @@ class DebugAppCMD(Extension):
         e.add_field("Component callbacks", str(len(self.bot._component_callbacks)))
         e.add_field("Prefixed commands", str(len(self.bot.prefixed_commands)))
         e.add_field(
-            "Tracked Scopes", str(len(Counter(scope for scope in self.bot._interaction_scopes.values()).keys()))
+            "Tracked Scopes",
+            str(len(Counter(scope for scope in self.bot._interaction_scopes.values()).keys())),
         )
 
         await ctx.send(embeds=[e])
@@ -59,7 +61,12 @@ class DebugAppCMD(Extension):
         sub_cmd_description="Search for a specified command and get its json representation",
         **app_cmds_def,
     )
-    @slash_option("cmd_id", "The ID of the command you want to lookup", opt_type=OptionTypes.STRING, required=True)
+    @slash_option(
+        "cmd_id",
+        "The ID of the command you want to lookup",
+        opt_type=OptionTypes.STRING,
+        required=True,
+    )
     @slash_option(
         "scope",
         "The scope ID of the command, if you want to search for the cmd on remote",
@@ -84,7 +91,10 @@ class DebugAppCMD(Extension):
 
             async def send(cmd_json: dict) -> None:
                 await ctx.send(
-                    file=File(io.BytesIO(pprint.pformat(cmd_json, 2).encode("utf-8")), f"{cmd_json.get('name')}.json")
+                    file=File(
+                        io.BytesIO(pprint.pformat(cmd_json, 2).encode("utf-8")),
+                        f"{cmd_json.get('name')}.json",
+                    )
                 )
 
             if not remote:
@@ -100,7 +110,9 @@ class DebugAppCMD(Extension):
                     perm_scope = scope
                     if scope == GLOBAL_SCOPE:
                         perm_scope = ctx.guild_id
-                    perms = await self.bot.http.get_application_command_permissions(self.bot.app.id, perm_scope, cmd_id)
+                    perms = await self.bot.http.get_application_command_permissions(
+                        self.bot.app.id, perm_scope, cmd_id
+                    )
                 except HTTPException:
                     perms = None
                 for cmd in data:
