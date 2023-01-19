@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 import attrs
 
-from interactions.client.errors import AlreadyDeferred, NotFound, BadRequest, HTTPException
+from interactions.client.errors import AlreadyDeferred, BadRequest, HTTPException, NotFound
 
 if TYPE_CHECKING:
     from interactions.models.internal.context import InteractionContext

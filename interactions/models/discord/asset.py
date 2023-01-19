@@ -107,7 +107,10 @@ class Asset:
         return await self._client.http.request_cdn(url, self)
 
     async def save(
-        self, fd: Union[str, bytes, "PathLike", int], extension: Optional[str] = None, size: Optional[int] = None
+        self,
+        fd: Union[str, bytes, "PathLike", int],
+        extension: Optional[str] = None,
+        size: Optional[int] = None,
     ) -> int:
         """
         Save the asset to a local file.

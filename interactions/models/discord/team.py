@@ -1,16 +1,17 @@
-from typing import TYPE_CHECKING, List, Optional, Dict, Any, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import attrs
 
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.enums import TeamMembershipState
 from interactions.models.discord.snowflake import to_snowflake
+
 from .base import DiscordObject
 
 if TYPE_CHECKING:
-    from interactions.models.discord.user import User
-    from interactions.models.discord.snowflake import Snowflake_Type, SnowflakeObject
     from interactions.client import Client
+    from interactions.models.discord.snowflake import Snowflake_Type, SnowflakeObject
+    from interactions.models.discord.user import User
 
 __all__ = ("TeamMember", "Team")
 
@@ -49,7 +50,9 @@ class Team(DiscordObject):
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
         data["members"] = TeamMember.from_list(data["members"], client)
         if data["icon"]:
-            data["icon"] = Asset.from_path_hash(client, f"team-icons/{data['id']}/{{}}", data["icon"])
+            data["icon"] = Asset.from_path_hash(
+                client, f"team-icons/{data['id']}/{{}}", data["icon"]
+            )
         return data
 
     @property

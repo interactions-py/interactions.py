@@ -32,14 +32,20 @@ from interactions.api.gateway.gateway import GatewayClient
 from interactions.api.gateway.state import ConnectionState
 from interactions.api.http.http_client import HTTPClient
 from interactions.client import errors
-from interactions.client.const import GLOBAL_SCOPE, MISSING, Absent, EMBED_MAX_DESC_LENGTH, get_logger
+from interactions.client.const import (
+    EMBED_MAX_DESC_LENGTH,
+    GLOBAL_SCOPE,
+    MISSING,
+    Absent,
+    get_logger,
+)
 from interactions.client.errors import (
     BotException,
     ExtensionLoadException,
     ExtensionNotFound,
     Forbidden,
-    InteractionMissingAccess,
     HTTPException,
+    InteractionMissingAccess,
     NotFound,
 )
 from interactions.client.smart_cache import GlobalCache
@@ -49,32 +55,38 @@ from interactions.client.utils.serializer import to_image_data
 from interactions.models import (
     Activity,
     Application,
+    ComponentCommand,
     CustomEmoji,
+    Extension,
     Guild,
     GuildTemplate,
-    Message,
-    Extension,
-    NaffUser,
-    User,
-    Member,
-    StickerPack,
-    Sticker,
-    ScheduledEvent,
     InteractionCommand,
-    SlashCommand,
+    Member,
+    Message,
+    NaffUser,
     OptionTypes,
-    to_snowflake,
-    ComponentCommand,
+    ScheduledEvent,
+    SlashCommand,
+    Sticker,
+    StickerPack,
+    User,
+    VoiceRegion,
+    Wait,
     application_commands_to_dict,
     sync_needed,
-    VoiceRegion,
+    to_snowflake,
 )
-from interactions.models import Wait
 from interactions.models.discord.channel import BaseChannel
 from interactions.models.discord.color import BrandColors
-from interactions.models.discord.components import get_components_ids, BaseComponent
+from interactions.models.discord.components import BaseComponent, get_components_ids
 from interactions.models.discord.embed import Embed
-from interactions.models.discord.enums import ComponentTypes, Intents, InteractionTypes, Status, ChannelTypes
+from interactions.models.discord.enums import (
+    ChannelTypes,
+    ComponentTypes,
+    Intents,
+    InteractionTypes,
+    Status,
+)
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import Snowflake, to_snowflake_list
 from interactions.models.internal.active_voice_state import ActiveVoiceState
@@ -82,18 +94,18 @@ from interactions.models.internal.application_commands import ContextMenu, Modal
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.context import (
-    BaseContext,
-    InteractionContext,
-    SlashContext,
-    ModalContext,
-    ComponentContext,
     AutocompleteContext,
+    BaseContext,
+    ComponentContext,
+    InteractionContext,
+    ModalContext,
+    SlashContext,
 )
 from interactions.models.internal.listener import Listener
 from interactions.models.internal.tasks import Task
 
 if TYPE_CHECKING:
-    from interactions.models import Snowflake_Type, TYPE_ALL_CHANNEL
+    from interactions.models import TYPE_ALL_CHANNEL, Snowflake_Type
 
 
 __all__ = ("Client",)
@@ -152,12 +164,20 @@ _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
     events.AutoModDeleted: [Intents.AUTO_MODERATION_CONFIGURATION, Intents.AUTO_MOD],
     # multiple intents
     events.ThreadMembersUpdate: [Intents.GUILDS, Intents.GUILD_MEMBERS],
-    events.TypingStart: [Intents.GUILD_MESSAGE_TYPING, Intents.DIRECT_MESSAGE_TYPING, Intents.TYPING],
+    events.TypingStart: [
+        Intents.GUILD_MESSAGE_TYPING,
+        Intents.DIRECT_MESSAGE_TYPING,
+        Intents.TYPING,
+    ],
     events.MessageUpdate: [Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.MESSAGES],
     events.MessageCreate: [Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.MESSAGES],
     events.MessageDelete: [Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.MESSAGES],
     events.ChannelPinsUpdate: [Intents.GUILDS, Intents.DIRECT_MESSAGES],
-    events.MessageReactionAdd: [Intents.GUILD_MESSAGE_REACTIONS, Intents.DIRECT_MESSAGE_REACTIONS, Intents.REACTIONS],
+    events.MessageReactionAdd: [
+        Intents.GUILD_MESSAGE_REACTIONS,
+        Intents.DIRECT_MESSAGE_REACTIONS,
+        Intents.REACTIONS,
+    ],
     events.MessageReactionRemove: [
         Intents.GUILD_MESSAGE_REACTIONS,
         Intents.DIRECT_MESSAGE_REACTIONS,
@@ -331,7 +351,9 @@ class Client(
         self._mention_reg = MISSING
 
         # caches
-        self.cache: GlobalCache = GlobalCache(self, **{k: v for k, v in kwargs.items() if hasattr(GlobalCache, k)})
+        self.cache: GlobalCache = GlobalCache(
+            self, **{k: v for k, v in kwargs.items() if hasattr(GlobalCache, k)}
+        )
         # these store the last sent presence data for change_presence
         self._status: Status = status
         if isinstance(activity, str):
@@ -462,7 +484,9 @@ class Client(
         """A list of all application commands registered within the bot."""
         commands = []
         for scope in self.interactions_by_scope.keys():
-            commands += [cmd for cmd in self.interactions_by_scope[scope].values() if cmd not in commands]
+            commands += [
+                cmd for cmd in self.interactions_by_scope[scope].values() if cmd not in commands
+            ]
 
         return commands
 
@@ -493,7 +517,9 @@ class Client(
             )
 
         if Intents.GUILDS not in self._connection_state.intents:
-            self.logger.warning("GUILD intent has not been enabled; this is very likely to cause errors")
+            self.logger.warning(
+                "GUILD intent has not been enabled; this is very likely to cause errors"
+            )
 
         if self.fetch_members and Intents.GUILD_MEMBERS not in self._connection_state.intents:
             raise BotException("Members Intent must be enabled in order to use fetch members")
@@ -561,7 +587,9 @@ class Client(
                 pass
 
         get_logger().error(
-            "Ignoring exception in {}:{}{}".format(source, "\n" if len(out) > 1 else " ", "".join(out)),
+            "Ignoring exception in {}:{}{}".format(
+                source, "\n" if len(out) > 1 else " ", "".join(out)
+            ),
         )
 
     @Listener.create(is_default_listener=True)
@@ -643,7 +671,9 @@ class Client(
         Listen to the `CommandCompletion` event to overwrite this behaviour.
 
         """
-        self.logger.info(f"Command Called: {event.ctx.invoke_target} with {event.ctx.args = } | {event.ctx.kwargs = }")
+        self.logger.info(
+            f"Command Called: {event.ctx.invoke_target} with {event.ctx.args = } | {event.ctx.kwargs = }"
+        )
 
     @Listener.create(is_default_listener=True)
     async def on_component_error(self, event: events.ComponentError) -> None:
@@ -1007,7 +1037,12 @@ class Client(
         self,
         messages: Union[Message, int, list] = None,
         components: Optional[
-            Union[List[List[Union["BaseComponent", dict]]], List[Union["BaseComponent", dict]], "BaseComponent", dict]
+            Union[
+                List[List[Union["BaseComponent", dict]]],
+                List[Union["BaseComponent", dict]],
+                "BaseComponent",
+                dict,
+            ]
         ] = None,
         check: Optional[Callable] = None,
         timeout: Optional[float] = None,
@@ -1032,7 +1067,11 @@ class Client(
             raise ValueError("You must specify messages or components (or both)")
 
         message_ids = (
-            to_snowflake_list(messages) if isinstance(messages, list) else to_snowflake(messages) if messages else None
+            to_snowflake_list(messages)
+            if isinstance(messages, list)
+            else to_snowflake(messages)
+            if messages
+            else None
         )
         custom_ids = list(get_components_ids(components)) if components else None
 
@@ -1119,14 +1158,18 @@ class Client(
             event_class_name = "".join([name.capitalize() for name in listener.event.split("_")])
             if event_class := globals().get(event_class_name):
                 if required_intents := _INTENT_EVENTS.get(event_class):  # noqa
-                    if not any(required_intent in self.intents for required_intent in required_intents):
+                    if not any(
+                        required_intent in self.intents for required_intent in required_intents
+                    ):
                         self.logger.warning(
                             f"Event `{listener.event}` will not work since the required intent is not set -> Requires any of: `{required_intents}`"
                         )
 
         # prevent the same callback being added twice
         if listener in self.listeners.get(listener.event, []):
-            self.logger.debug(f"Listener {listener} has already been hooked, not re-hooking it again")
+            self.logger.debug(
+                f"Listener {listener} has already been hooked, not re-hooking it again"
+            )
             return
 
         if listener.event not in self.listeners:
@@ -1134,12 +1177,18 @@ class Client(
         self.listeners[listener.event].append(listener)
 
         # check if other listeners are to be deleted
-        default_listeners = [c_listener.is_default_listener for c_listener in self.listeners[listener.event]]
-        removes_defaults = [c_listener.disable_default_listeners for c_listener in self.listeners[listener.event]]
+        default_listeners = [
+            c_listener.is_default_listener for c_listener in self.listeners[listener.event]
+        ]
+        removes_defaults = [
+            c_listener.disable_default_listeners for c_listener in self.listeners[listener.event]
+        ]
 
         if any(default_listeners) and any(removes_defaults):
             self.listeners[listener.event] = [
-                c_listener for c_listener in self.listeners[listener.event] if not c_listener.is_default_listener
+                c_listener
+                for c_listener in self.listeners[listener.event]
+                if not c_listener.is_default_listener
             ]
 
     def add_interaction(self, command: InteractionCommand) -> bool:
@@ -1180,7 +1229,9 @@ class Client(
             if group is None or isinstance(command, ContextMenu):
                 self.interaction_tree[scope][command.resolved_name] = command
             elif group is not None:
-                if not (current := self.interaction_tree[scope].get(base)) or isinstance(current, SlashCommand):
+                if not (current := self.interaction_tree[scope].get(base)) or isinstance(
+                    current, SlashCommand
+                ):
                     self.interaction_tree[scope][base] = {}
                 if sub is None:
                     self.interaction_tree[scope][base][group] = command
@@ -1207,7 +1258,9 @@ class Client(
                 self._component_callbacks[listener] = command
                 continue
             else:
-                raise ValueError(f"Duplicate Component! Multiple component callbacks for `{listener}`")
+                raise ValueError(
+                    f"Duplicate Component! Multiple component callbacks for `{listener}`"
+                )
 
     def add_modal_callback(self, command: ModalCommand) -> None:
         """
@@ -1243,11 +1296,17 @@ class Client(
 
         if isinstance(func.callback, functools.partial):
             ext = getattr(func, "extension", None)
-            self.logger.debug(f"Added callback: {f'{ext.name}.' if ext else ''}{func.callback.func.__name__}")
+            self.logger.debug(
+                f"Added callback: {f'{ext.name}.' if ext else ''}{func.callback.func.__name__}"
+            )
         else:
             self.logger.debug(f"Added callback: {func.callback.__name__}")
 
-        self.dispatch(CallbackAdded(callback=func, extension=func.extension if hasattr(func, "extension") else None))
+        self.dispatch(
+            CallbackAdded(
+                callback=func, extension=func.extension if hasattr(func, "extension") else None
+            )
+        )
 
     def _gather_callbacks(self) -> None:
         """Gathers callbacks from __main__ and self."""
@@ -1266,7 +1325,9 @@ class Client(
             self.logger.debug(f"{added} callbacks have been loaded from {location}.")
 
         main_commands = [
-            obj for _, obj in inspect.getmembers(sys.modules["__main__"]) if isinstance(obj, (BaseCommand, Listener))
+            obj
+            for _, obj in inspect.getmembers(sys.modules["__main__"])
+            if isinstance(obj, (BaseCommand, Listener))
         ]
         client_commands = [
             obj.copy_with_binding(self)
@@ -1318,7 +1379,9 @@ class Client(
 
         for scope, remote_cmds in results.items():
             if remote_cmds == MISSING:
-                self.logger.debug(f"Bot was not invited to guild {scope} with `application.commands` scope")
+                self.logger.debug(
+                    f"Bot was not invited to guild {scope} with `application.commands` scope"
+                )
                 continue
 
             remote_cmds = {cmd_data["name"]: cmd_data for cmd_data in remote_cmds}
@@ -1349,7 +1412,10 @@ class Client(
                     )
 
     async def synchronise_interactions(
-        self, *, scopes: Sequence["Snowflake_Type"] = MISSING, delete_commands: Absent[bool] = MISSING
+        self,
+        *,
+        scopes: Sequence["Snowflake_Type"] = MISSING,
+        delete_commands: Absent[bool] = MISSING,
     ) -> None:
         """
         Synchronise registered interactions with discord.
@@ -1380,18 +1446,29 @@ class Client(
 
             try:
                 try:
-                    remote_commands = await self.http.get_application_commands(self.app.id, cmd_scope)
+                    remote_commands = await self.http.get_application_commands(
+                        self.app.id, cmd_scope
+                    )
                 except Forbidden:
-                    self.logger.warning(f"Bot is lacking `application.commands` scope in {cmd_scope}!")
+                    self.logger.warning(
+                        f"Bot is lacking `application.commands` scope in {cmd_scope}!"
+                    )
                     return
 
                 for local_cmd in self.interactions_by_scope.get(cmd_scope, {}).values():
                     # get remote equivalent of this command
                     remote_cmd_json = next(
-                        (v for v in remote_commands if int(v["id"]) == local_cmd.cmd_id.get(cmd_scope)), None
+                        (
+                            v
+                            for v in remote_commands
+                            if int(v["id"]) == local_cmd.cmd_id.get(cmd_scope)
+                        ),
+                        None,
                     )
                     # get json representation of this command
-                    local_cmd_json = next((c for c in local_cmds_json[cmd_scope] if c["name"] == str(local_cmd.name)))
+                    local_cmd_json = next(
+                        (c for c in local_cmds_json[cmd_scope] if c["name"] == str(local_cmd.name))
+                    )
 
                     # this works by adding any command we *want* on Discord, to a payload, and synchronising that
                     # this allows us to delete unused commands, add new commands, or do nothing in 1 or less API calls
@@ -1402,23 +1479,31 @@ class Client(
                         sync_payload.append(local_cmd_json)
                     elif not _delete_cmds and remote_cmd_json:
                         _remote_payload = {
-                            k: v for k, v in remote_cmd_json.items() if k not in ("id", "application_id", "version")
+                            k: v
+                            for k, v in remote_cmd_json.items()
+                            if k not in ("id", "application_id", "version")
                         }
                         sync_payload.append(_remote_payload)
                     elif _delete_cmds:
                         sync_payload.append(local_cmd_json)
 
-                sync_payload = [json.loads(_dump) for _dump in {json.dumps(_cmd) for _cmd in sync_payload}]
+                sync_payload = [
+                    json.loads(_dump) for _dump in {json.dumps(_cmd) for _cmd in sync_payload}
+                ]
 
                 if sync_needed_flag or (_delete_cmds and len(sync_payload) < len(remote_commands)):
                     # synchronise commands if flag is set, or commands are to be deleted
-                    self.logger.info(f"Overwriting {cmd_scope} with {len(sync_payload)} application commands")
+                    self.logger.info(
+                        f"Overwriting {cmd_scope} with {len(sync_payload)} application commands"
+                    )
                     sync_response: list[dict] = await self.http.overwrite_application_commands(
                         self.app.id, sync_payload, cmd_scope
                     )
                     self._cache_sync_response(sync_response, cmd_scope)
                 else:
-                    self.logger.debug(f"{cmd_scope} is already up-to-date with {len(remote_commands)} commands.")
+                    self.logger.debug(
+                        f"{cmd_scope} is already up-to-date with {len(remote_commands)} commands."
+                    )
 
             except Forbidden as e:
                 raise InteractionMissingAccess(cmd_scope) from e
@@ -1443,7 +1528,9 @@ class Client(
         """
         return self._interaction_lookup.get(Snowflake(cmd_id))
 
-    def _raise_sync_exception(self, e: HTTPException, cmds_json: dict, cmd_scope: "Snowflake_Type") -> NoReturn:
+    def _raise_sync_exception(
+        self, e: HTTPException, cmds_json: dict, cmd_scope: "Snowflake_Type"
+    ) -> NoReturn:
         try:
             if isinstance(e.errors, dict):
                 for cmd_num in e.errors.keys():
@@ -1451,7 +1538,9 @@ class Client(
                     output = e.search_for_message(e.errors[cmd_num], cmd)
                     if len(output) > 1:
                         output = "\n".join(output)
-                        self.logger.error(f"Multiple Errors found in command `{cmd['name']}`:\n{output}")
+                        self.logger.error(
+                            f"Multiple Errors found in command `{cmd['name']}`:\n{output}"
+                        )
                     else:
                         self.logger.error(f"Error in command `{cmd['name']}`: {output[0]}")
             else:
@@ -1472,7 +1561,10 @@ class Client(
                 continue
             else:
                 for subcommand in cmd_data.get("options", []):
-                    if subcommand["TYPE"] in (OptionTypes.SUB_COMMAND, OptionTypes.SUB_COMMAND_GROUP):
+                    if subcommand["TYPE"] in (
+                        OptionTypes.SUB_COMMAND,
+                        OptionTypes.SUB_COMMAND_GROUP,
+                    ):
                         subcommand_name = f"{command_name} {subcommand['name']}"
                         if subcommand["type"] == OptionTypes.SUB_COMMAND_GROUP:
                             for _sc in subcommand.get("options", []):
@@ -1488,7 +1580,9 @@ class Client(
                                 command.cmd_id[scope] = command_id
                                 self._interaction_lookup[command_id] = command
                                 continue
-                        self.logger.warning(f"Could not find command {subcommand_name} in internal cache!")
+                        self.logger.warning(
+                            f"Could not find command {subcommand_name} in internal cache!"
+                        )
             self.logger.warning(f"Could not find command {command_name} in internal cache!")
 
     async def get_context(self, data: dict) -> InteractionContext:
@@ -1502,14 +1596,18 @@ class Client(
             case InteractionTypes.APPLICATION_COMMAND:
                 cls = self.slash_context.from_dict(self, data)
             case _:
-                self.logger.warning(f"Unknown interaction type [{data['type']}] - please update or report this.")
+                self.logger.warning(
+                    f"Unknown interaction type [{data['type']}] - please update or report this."
+                )
                 cls = self.interaction_context.from_dict(self, data)
         if not cls.channel:
             # fallback channel if not provided
             try:
                 cls.channel = await self.cache.fetch_channel(data["channel_id"])
             except Forbidden:
-                cls.channel = BaseChannel.from_dict({"id": data["channel_id"], "type": ChannelTypes.GUILD_TEXT}, self)
+                cls.channel = BaseChannel.from_dict(
+                    {"id": data["channel_id"], "type": ChannelTypes.GUILD_TEXT}, self
+                )
         return cls
 
     async def _run_slash_command(self, command: SlashCommand, ctx: "InteractionContext") -> Any:
@@ -1590,7 +1688,9 @@ class Client(
             self.dispatch(events.ModalCompletion(ctx=ctx))
 
             if callback := self._modal_callbacks.get(ctx.custom_id):
-                await self.__dispatch_interaction(ctx=ctx, callback=callback(ctx), error_callback=events.ModalError)
+                await self.__dispatch_interaction(
+                    ctx=ctx, callback=callback(ctx), error_callback=events.ModalError
+                )
 
         else:
             raise NotImplementedError(f"Unknown Interaction Received: {interaction_data['type']}")
@@ -1678,10 +1778,14 @@ class Client(
                 self.logger.debug("No setup function found in %s", module_name)
 
                 found = False
-                objects = {name: obj for name, obj in inspect.getmembers(module) if isinstance(obj, type)}
+                objects = {
+                    name: obj for name, obj in inspect.getmembers(module) if isinstance(obj, type)
+                }
                 for obj_name, obj in objects.items():
                     if Extension in obj.__bases__:
-                        self.logger.debug(f"Found extension class {obj_name} in {module_name}: Attempting to load")
+                        self.logger.debug(
+                            f"Found extension class {obj_name} in {module_name}: Attempting to load"
+                        )
                         obj(self, **load_kwargs)
                         found = True
                 if not found:
@@ -1786,7 +1890,9 @@ class Client(
         module = self.__modules.get(name)
 
         if module is None:
-            self.logger.warning("Attempted to reload extension thats not loaded. Loading extension instead")
+            self.logger.warning(
+                "Attempted to reload extension thats not loaded. Loading extension instead"
+            )
             return self.load_extension(name, package)
 
         backup = module
@@ -1801,11 +1907,17 @@ class Client(
             self.load_extension(name, package, **load_kwargs)
         except Exception as e:
             try:
-                self.logger.error(f"Error reloading extension {name}: {e} - attempting to revert to previous state")
+                self.logger.error(
+                    f"Error reloading extension {name}: {e} - attempting to revert to previous state"
+                )
                 try:
-                    self.unload_extension(name, package, force=True, **unload_kwargs)  # make sure no remnants are left
+                    self.unload_extension(
+                        name, package, force=True, **unload_kwargs
+                    )  # make sure no remnants are left
                 except Exception as t:
-                    self.logger.debug(f"Suppressing error unloading extension {name} during reload revert: {t}")
+                    self.logger.debug(
+                        f"Suppressing error unloading extension {name} during reload revert: {t}"
+                    )
 
                 sys.modules[name] = backup
                 self.__load_module(backup, name, **load_kwargs)
@@ -1951,7 +2063,9 @@ class Client(
         """
         return self.cache.get_user(user_id)
 
-    async def fetch_member(self, user_id: "Snowflake_Type", guild_id: "Snowflake_Type") -> Optional[Member]:
+    async def fetch_member(
+        self, user_id: "Snowflake_Type", guild_id: "Snowflake_Type"
+    ) -> Optional[Member]:
         """
         Fetch a member from a guild.
 
@@ -1990,7 +2104,10 @@ class Client(
         return self.cache.get_member(guild_id, user_id)
 
     async def fetch_scheduled_event(
-        self, guild_id: "Snowflake_Type", scheduled_event_id: "Snowflake_Type", with_user_count: bool = False
+        self,
+        guild_id: "Snowflake_Type",
+        scheduled_event_id: "Snowflake_Type",
+        with_user_count: bool = False,
     ) -> Optional["ScheduledEvent"]:
         """
         Fetch a scheduled event by id.
@@ -2005,12 +2122,16 @@ class Client(
 
         """
         try:
-            scheduled_event_data = await self.http.get_scheduled_event(guild_id, scheduled_event_id, with_user_count)
+            scheduled_event_data = await self.http.get_scheduled_event(
+                guild_id, scheduled_event_id, with_user_count
+            )
             return ScheduledEvent.from_dict(scheduled_event_data, self)
         except NotFound:
             return None
 
-    async def fetch_custom_emoji(self, emoji_id: "Snowflake_Type", guild_id: "Snowflake_Type") -> Optional[CustomEmoji]:
+    async def fetch_custom_emoji(
+        self, emoji_id: "Snowflake_Type", guild_id: "Snowflake_Type"
+    ) -> Optional[CustomEmoji]:
         """
         Fetch a custom emoji by id.
 
@@ -2091,7 +2212,11 @@ class Client(
         return regions
 
     async def connect_to_vc(
-        self, guild_id: "Snowflake_Type", channel_id: "Snowflake_Type", muted: bool = False, deafened: bool = False
+        self,
+        guild_id: "Snowflake_Type",
+        channel_id: "Snowflake_Type",
+        muted: bool = False,
+        deafened: bool = False,
     ) -> ActiveVoiceState:
         """
         Connect the bot to a voice channel.
@@ -2122,7 +2247,9 @@ class Client(
         return self._connection_state.get_voice_state(guild_id)
 
     async def change_presence(
-        self, status: Optional[Union[str, Status]] = Status.ONLINE, activity: Optional[Union[Activity, str]] = None
+        self,
+        status: Optional[Union[str, Status]] = Status.ONLINE,
+        activity: Optional[Union[Activity, str]] = None,
     ) -> None:
         """
         Change the bots presence.

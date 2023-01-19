@@ -1,13 +1,14 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Iterable, Set, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Set, Union
 from warnings import warn
 
 import attrs
 
-from interactions.client.const import Absent, MISSING
+from interactions.client.const import MISSING, Absent
 from interactions.client.errors import HTTPException, TooManyChanges
 from interactions.client.mixins.send import SendMixin
-from interactions.client.utils.attr_converters import list_converter, optional
+from interactions.client.utils.attr_converters import list_converter
+from interactions.client.utils.attr_converters import optional
 from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.client.utils.attr_utils import docs
@@ -15,19 +16,20 @@ from interactions.client.utils.serializer import to_image_data
 from interactions.models.discord.activity import Activity
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.color import Color
-from interactions.models.discord.enums import Permissions, PremiumTypes, UserFlags, Status
+from interactions.models.discord.enums import Permissions, PremiumTypes, Status, UserFlags
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.role import Role
-from interactions.models.discord.snowflake import Snowflake_Type
-from interactions.models.discord.snowflake import to_snowflake
+from interactions.models.discord.snowflake import Snowflake_Type, to_snowflake
+
 from .base import DiscordObject
 
 if TYPE_CHECKING:
     from aiohttp import FormData
-    from interactions.models.discord.guild import Guild
+
     from interactions.client import Client
-    from interactions.models.discord.timestamp import Timestamp
     from interactions.models.discord.channel import DM, TYPE_GUILD_CHANNEL
+    from interactions.models.discord.guild import Guild
+    from interactions.models.discord.timestamp import Timestamp
     from interactions.models.discord.voice_state import VoiceState
 
 __all__ = ("BaseUser", "User", "NaffUser", "Member")
@@ -47,7 +49,9 @@ class _SendDMMixin(SendMixin):
 class BaseUser(DiscordObject, _SendDMMixin):
     """Base class for User, essentially partial user discord model."""
 
-    username: str = attrs.field(repr=True, metadata=docs("The user's username, not unique across the platform"))
+    username: str = attrs.field(
+        repr=True, metadata=docs("The user's username, not unique across the platform")
+    )
     discriminator: int = attrs.field(repr=True, metadata=docs("The user's 4-digit discord-tag"))
     avatar: "Asset" = attrs.field(repr=False, metadata=docs("The user's default avatar"))
 
@@ -58,9 +62,13 @@ class BaseUser(DiscordObject, _SendDMMixin):
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
         if not isinstance(data["avatar"], Asset):
             if data["avatar"]:
-                data["avatar"] = Asset.from_path_hash(client, f"avatars/{data['id']}/{{}}", data["avatar"])
+                data["avatar"] = Asset.from_path_hash(
+                    client, f"avatars/{data['id']}/{{}}", data["avatar"]
+                )
             else:
-                data["avatar"] = Asset(client, f"{Asset.BASE}/embed/avatars/{int(data['discriminator']) % 5}")
+                data["avatar"] = Asset(
+                    client, f"{Asset.BASE}/embed/avatars/{int(data['discriminator']) % 5}"
+                )
         return data
 
     @property
@@ -100,7 +108,9 @@ class BaseUser(DiscordObject, _SendDMMixin):
             This will only be accurate if the guild members are cached internally
         """
         return [
-            guild for guild in self._client.guilds if self._client.cache.get_member(guild_id=guild.id, user_id=self.id)
+            guild
+            for guild in self._client.guilds
+            if self._client.cache.get_member(guild_id=guild.id, user_id=self.id)
         ]
 
 
@@ -109,10 +119,15 @@ class User(BaseUser):
     bot: bool = attrs.field(repr=True, default=False, metadata=docs("Is this user a bot?"))
     system: bool = attrs.field(
         default=False,
-        metadata=docs("whether the user is an Official Discord System user (part of the urgent message system)"),
+        metadata=docs(
+            "whether the user is an Official Discord System user (part of the urgent message system)"
+        ),
     )
     public_flags: "UserFlags" = attrs.field(
-        repr=True, default=0, converter=UserFlags, metadata=docs("The flags associated with this user")
+        repr=True,
+        default=0,
+        converter=UserFlags,
+        metadata=docs("The flags associated with this user"),
     )
     premium_type: "PremiumTypes" = attrs.field(
         repr=False,
@@ -121,7 +136,9 @@ class User(BaseUser):
         metadata=docs("The type of nitro subscription on a user's account"),
     )
 
-    banner: Optional["Asset"] = attrs.field(repr=False, default=None, metadata=docs("The user's banner"))
+    banner: Optional["Asset"] = attrs.field(
+        repr=False, default=None, metadata=docs("The user's banner")
+    )
     accent_color: Optional["Color"] = attrs.field(
         default=None,
         converter=optional_c(Color),
@@ -140,7 +157,9 @@ class User(BaseUser):
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
         data = super()._process_dict(data, client)
         if "banner" in data:
-            data["banner"] = Asset.from_path_hash(client, f"banners/{data['id']}/{{}}", data["banner"])
+            data["banner"] = Asset.from_path_hash(
+                client, f"banners/{data['id']}/{{}}", data["banner"]
+            )
 
         if data.get("premium_type", None) is None:
             data["premium_type"] = 0
@@ -156,16 +175,21 @@ class User(BaseUser):
             This will only be accurate if the guild members are cached internally
         """
         member_objs = [
-            self._client.cache.get_member(guild_id=guild.id, user_id=self.id) for guild in self._client.guilds
+            self._client.cache.get_member(guild_id=guild.id, user_id=self.id)
+            for guild in self._client.guilds
         ]
         return [member for member in member_objs if member]
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class NaffUser(User):
-    verified: bool = attrs.field(repr=True, metadata={"docs": "Whether the email on this account has been verified"})
+    verified: bool = attrs.field(
+        repr=True, metadata={"docs": "Whether the email on this account has been verified"}
+    )
     mfa_enabled: bool = attrs.field(
-        repr=False, default=False, metadata={"docs": "Whether the user has two factor enabled on their account"}
+        repr=False,
+        default=False,
+        metadata={"docs": "Whether the user has two factor enabled on their account"},
     )
     email: Optional[str] = attrs.field(
         repr=False, default=None, metadata={"docs": "the user's email"}
@@ -175,7 +199,10 @@ class NaffUser(User):
     )
     bio: Optional[str] = attrs.field(repr=False, default=None, metadata={"docs": ""})
     flags: "UserFlags" = attrs.field(
-        repr=False, default=0, converter=UserFlags, metadata={"docs": "the flags on a user's account"}
+        repr=False,
+        default=0,
+        converter=UserFlags,
+        metadata={"docs": "the flags on a user's account"},
     )
 
     _guild_ids: Set["Snowflake_Type"] = attrs.field(
@@ -197,7 +224,9 @@ class NaffUser(User):
         """The guilds the user is in."""
         return [self._client.cache.get_guild(g_id) for g_id in self._guild_ids]
 
-    async def edit(self, *, username: Absent[str] = MISSING, avatar: Absent[UPLOADABLE_TYPE] = MISSING) -> None:
+    async def edit(
+        self, *, username: Absent[str] = MISSING, avatar: Absent[UPLOADABLE_TYPE] = MISSING
+    ) -> None:
         """
         Edit the client's user.
 
@@ -242,9 +271,15 @@ class NaffUser(User):
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class Member(DiscordObject, _SendDMMixin):
     bot: bool = attrs.field(repr=True, default=False, metadata=docs("Is this user a bot?"))
-    nick: Optional[str] = attrs.field(repr=True, default=None, metadata=docs("The user's nickname in this guild'"))
-    deaf: bool = attrs.field(repr=False, default=False, metadata=docs("Has this user been deafened in voice channels?"))
-    mute: bool = attrs.field(repr=False, default=False, metadata=docs("Has this user been muted in voice channels?"))
+    nick: Optional[str] = attrs.field(
+        repr=True, default=None, metadata=docs("The user's nickname in this guild'")
+    )
+    deaf: bool = attrs.field(
+        repr=False, default=False, metadata=docs("Has this user been deafened in voice channels?")
+    )
+    mute: bool = attrs.field(
+        repr=False, default=False, metadata=docs("Has this user been muted in voice channels?")
+    )
     joined_at: "Timestamp" = attrs.field(
         repr=False,
         default=MISSING,
@@ -259,18 +294,27 @@ class Member(DiscordObject, _SendDMMixin):
     pending: Optional[bool] = attrs.field(
         repr=False,
         default=None,
-        metadata=docs("Whether the user has **not** passed guild's membership screening requirements"),
+        metadata=docs(
+            "Whether the user has **not** passed guild's membership screening requirements"
+        ),
     )
-    guild_avatar: "Asset" = attrs.field(repr=False, default=None, metadata=docs("The user's guild avatar"))
+    guild_avatar: "Asset" = attrs.field(
+        repr=False, default=None, metadata=docs("The user's guild avatar")
+    )
     communication_disabled_until: Optional["Timestamp"] = attrs.field(
         default=None,
         converter=optional_c(timestamp_converter),
-        metadata=docs("When a member's timeout will expire, `None` or a time in the past if the user is not timed out"),
+        metadata=docs(
+            "When a member's timeout will expire, `None` or a time in the past if the user is not timed out"
+        ),
     )
 
     _guild_id: "Snowflake_Type" = attrs.field(repr=True, metadata=docs("The ID of the guild"))
     _role_ids: List["Snowflake_Type"] = attrs.field(
-        repr=False, factory=list, converter=list_converter(to_snowflake), metadata=docs("The roles IDs this user has")
+        repr=False,
+        factory=list,
+        converter=list_converter(to_snowflake),
+        metadata=docs("The roles IDs this user has"),
     )
 
     _user_ref: frozenset = MISSING
@@ -294,7 +338,9 @@ class Member(DiscordObject, _SendDMMixin):
         if data.get("avatar"):
             try:
                 data["guild_avatar"] = Asset.from_path_hash(
-                    client, f"guilds/{data['guild_id']}/users/{data['id']}/avatars/{{}}", data.pop("avatar", None)
+                    client,
+                    f"guilds/{data['guild_id']}/users/{data['id']}/avatars/{{}}",
+                    data.pop("avatar", None),
                 )
             except Exception as e:
                 client.logger.warning(
@@ -454,11 +500,15 @@ class Member(DiscordObject, _SendDMMixin):
             )
         )
 
-        for everyone_overwrite in filter(lambda overwrite: overwrite.id == self._guild_id, overwrites):
+        for everyone_overwrite in filter(
+            lambda overwrite: overwrite.id == self._guild_id, overwrites
+        ):
             permissions &= ~everyone_overwrite.deny
             permissions |= everyone_overwrite.allow
 
-        for role_overwrite in filter(lambda overwrite: overwrite.id not in (self._guild_id, self.id), overwrites):
+        for role_overwrite in filter(
+            lambda overwrite: overwrite.id not in (self._guild_id, self.id), overwrites
+        ):
             permissions &= ~role_overwrite.deny
             permissions |= role_overwrite.allow
 
@@ -468,7 +518,9 @@ class Member(DiscordObject, _SendDMMixin):
 
         return permissions
 
-    async def edit_nickname(self, new_nickname: Absent[str] = MISSING, reason: Absent[str] = MISSING) -> None:
+    async def edit_nickname(
+        self, new_nickname: Absent[str] = MISSING, reason: Absent[str] = MISSING
+    ) -> None:
         """
         Change the user's nickname.
 
@@ -481,11 +533,17 @@ class Member(DiscordObject, _SendDMMixin):
 
         """
         if self.id == self._client.user.id:
-            await self._client.http.modify_current_member(self._guild_id, nickname=new_nickname, reason=reason)
+            await self._client.http.modify_current_member(
+                self._guild_id, nickname=new_nickname, reason=reason
+            )
         else:
-            await self._client.http.modify_guild_member(self._guild_id, self.id, nickname=new_nickname, reason=reason)
+            await self._client.http.modify_guild_member(
+                self._guild_id, self.id, nickname=new_nickname, reason=reason
+            )
 
-    async def add_role(self, role: Union[Snowflake_Type, Role], reason: Absent[str] = MISSING) -> None:
+    async def add_role(
+        self, role: Union[Snowflake_Type, Role], reason: Absent[str] = MISSING
+    ) -> None:
         """
         Add a role to this member.
 
@@ -498,7 +556,9 @@ class Member(DiscordObject, _SendDMMixin):
         await self._client.http.add_guild_member_role(self._guild_id, self.id, role, reason=reason)
         self._role_ids.append(role)
 
-    async def add_roles(self, roles: Iterable[Union[Snowflake_Type, Role]], reason: Absent[str] = MISSING) -> None:
+    async def add_roles(
+        self, roles: Iterable[Union[Snowflake_Type, Role]], reason: Absent[str] = MISSING
+    ) -> None:
         """
         Atomically add multiple roles to this member.
 
@@ -510,7 +570,9 @@ class Member(DiscordObject, _SendDMMixin):
         new_roles = set(self._role_ids) | {to_snowflake(r) for r in roles}
         await self.edit(roles=new_roles, reason=reason)
 
-    async def remove_role(self, role: Union[Snowflake_Type, Role], reason: Absent[str] = MISSING) -> None:
+    async def remove_role(
+        self, role: Union[Snowflake_Type, Role], reason: Absent[str] = MISSING
+    ) -> None:
         """
         Remove a role from this user.
 
@@ -520,13 +582,17 @@ class Member(DiscordObject, _SendDMMixin):
 
         """
         role = to_snowflake(role)
-        await self._client.http.remove_guild_member_role(self._guild_id, self.id, role, reason=reason)
+        await self._client.http.remove_guild_member_role(
+            self._guild_id, self.id, role, reason=reason
+        )
         try:
             self._role_ids.remove(role)
         except ValueError:
             pass
 
-    async def remove_roles(self, roles: Iterable[Union[Snowflake_Type, Role]], reason: Absent[str] = MISSING) -> None:
+    async def remove_roles(
+        self, roles: Iterable[Union[Snowflake_Type, Role]], reason: Absent[str] = MISSING
+    ) -> None:
         """
         Atomically remove multiple roles from this member.
 
@@ -629,7 +695,10 @@ class Member(DiscordObject, _SendDMMixin):
         await self._client.http.remove_guild_member(self._guild_id, self.id, reason=reason)
 
     async def ban(
-        self, delete_message_days: Absent[int] = MISSING, delete_message_seconds: int = 0, reason: Absent[str] = MISSING
+        self,
+        delete_message_days: Absent[int] = MISSING,
+        delete_message_seconds: int = 0,
+        reason: Absent[str] = MISSING,
     ) -> None:
         """
         Ban a member from the guild.
@@ -641,6 +710,11 @@ class Member(DiscordObject, _SendDMMixin):
 
         """
         if delete_message_days is not MISSING:
-            warn("delete_message_days  is deprecated and will be removed in a future update", DeprecationWarning)
+            warn(
+                "delete_message_days  is deprecated and will be removed in a future update",
+                DeprecationWarning,
+            )
             delete_message_seconds = delete_message_days * 3600
-        await self._client.http.create_guild_ban(self._guild_id, self.id, delete_message_seconds, reason=reason)
+        await self._client.http.create_guild_ban(
+            self._guild_id, self.id, delete_message_seconds, reason=reason
+        )

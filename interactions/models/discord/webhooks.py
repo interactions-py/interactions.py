@@ -1,31 +1,27 @@
 import re
 from enum import IntEnum
-from typing import Optional, TYPE_CHECKING, Union, Dict, Any, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import attrs
 
 from interactions.client.const import MISSING, Absent
-from interactions.client.errors import ForeignWebhookException, EmptyMessageException
+from interactions.client.errors import EmptyMessageException, ForeignWebhookException
 from interactions.client.mixins.send import SendMixin
 from interactions.client.utils.serializer import to_image_data
 from interactions.models.discord.message import process_message_payload
-from interactions.models.discord.snowflake import to_snowflake, to_optional_snowflake
+from interactions.models.discord.snowflake import to_optional_snowflake, to_snowflake
+
 from .base import DiscordObject
 
 if TYPE_CHECKING:
-    from interactions.models.discord.file import UPLOADABLE_TYPE
     from interactions.client import Client
-    from interactions.models.discord.enums import MessageFlags
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.channel import TYPE_MESSAGEABLE_CHANNEL
     from interactions.models.discord.components import BaseComponent
     from interactions.models.discord.embed import Embed
-
-    from interactions.models.discord.message import (
-        AllowedMentions,
-        Message,
-        MessageReference,
-    )
+    from interactions.models.discord.enums import MessageFlags
+    from interactions.models.discord.file import UPLOADABLE_TYPE
+    from interactions.models.discord.message import AllowedMentions, Message, MessageReference
+    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.sticker import Sticker
 
 __all__ = ("WebhookTypes", "Webhook")
@@ -84,7 +80,9 @@ class Webhook(DiscordObject, SendMixin):
             A Webhook object.
 
         """
-        match = re.search(r"discord(?:app)?\.com/api/webhooks/(?P<id>[0-9]{17,})/(?P<token>[\w\-.]{60,68})", url)
+        match = re.search(
+            r"discord(?:app)?\.com/api/webhooks/(?P<id>[0-9]{17,})/(?P<token>[\w\-.]{60,68})", url
+        )
         if match is None:
             raise ValueError("Invalid webhook URL given.")
 
@@ -176,9 +174,16 @@ class Webhook(DiscordObject, SendMixin):
         embed: Optional[Union["Embed", dict]] = None,
         embeds: Optional[Union[List[Union["Embed", dict]], Union["Embed", dict]]] = None,
         components: Optional[
-            Union[List[List[Union["BaseComponent", dict]]], List[Union["BaseComponent", dict]], "BaseComponent", dict]
+            Union[
+                List[List[Union["BaseComponent", dict]]],
+                List[Union["BaseComponent", dict]],
+                "BaseComponent",
+                dict,
+            ]
         ] = None,
-        stickers: Optional[Union[List[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]] = None,
+        stickers: Optional[
+            Union[List[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]
+        ] = None,
         allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
         reply_to: Optional[Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
         files: Optional[Union["UPLOADABLE_TYPE", List["UPLOADABLE_TYPE"]]] = None,
@@ -218,10 +223,14 @@ class Webhook(DiscordObject, SendMixin):
 
         """
         if not self.token:
-            raise ForeignWebhookException("You cannot send messages with a webhook without a token!")
+            raise ForeignWebhookException(
+                "You cannot send messages with a webhook without a token!"
+            )
 
         if not content and not (embeds or embed) and not (files or file) and not stickers:
-            raise EmptyMessageException("You cannot send a message without any content, embeds, files, or stickers")
+            raise EmptyMessageException(
+                "You cannot send a message without any content, embeds, files, or stickers"
+            )
 
         if suppress_embeds:
             if isinstance(flags, int):
@@ -243,7 +252,12 @@ class Webhook(DiscordObject, SendMixin):
         )
 
         message_data = await self._client.http.execute_webhook(
-            self.id, self.token, message_payload, wait, to_optional_snowflake(thread), files=files or file
+            self.id,
+            self.token,
+            message_payload,
+            wait,
+            to_optional_snowflake(thread),
+            files=files or file,
         )
         if message_data:
             return self._client.cache.place_message_data(message_data)
@@ -255,9 +269,16 @@ class Webhook(DiscordObject, SendMixin):
         content: Optional[str] = None,
         embeds: Optional[Union[List[Union["Embed", dict]], Union["Embed", dict]]] = None,
         components: Optional[
-            Union[List[List[Union["BaseComponent", dict]]], List[Union["BaseComponent", dict]], "BaseComponent", dict]
+            Union[
+                List[List[Union["BaseComponent", dict]]],
+                List[Union["BaseComponent", dict]],
+                "BaseComponent",
+                dict,
+            ]
         ] = None,
-        stickers: Optional[Union[List[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]] = None,
+        stickers: Optional[
+            Union[List[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]
+        ] = None,
         allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
         reply_to: Optional[Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
         files: Optional[Union["UPLOADABLE_TYPE", List["UPLOADABLE_TYPE"]]] = None,

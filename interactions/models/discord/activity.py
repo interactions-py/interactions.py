@@ -1,12 +1,12 @@
-from typing import Optional, List
+from typing import List, Optional
 
 import attrs
 
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_converters import timestamp_converter, optional
+from interactions.client.utils.attr_converters import optional, timestamp_converter
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.discord.emoji import PartialEmoji
-from interactions.models.discord.enums import ActivityType, ActivityFlags
+from interactions.models.discord.enums import ActivityFlags, ActivityType
 from interactions.models.discord.snowflake import Snowflake_Type
 from interactions.models.discord.timestamp import Timestamp
 
@@ -21,9 +21,13 @@ __all__ = (
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class ActivityTimestamps(DictSerializationMixin):
-    start: Optional[Timestamp] = attrs.field(repr=False, default=None, converter=optional(timestamp_converter))
+    start: Optional[Timestamp] = attrs.field(
+        repr=False, default=None, converter=optional(timestamp_converter)
+    )
     """The start time of the activity. Shows "elapsed" timer on discord client."""
-    end: Optional[Timestamp] = attrs.field(repr=False, default=None, converter=optional(timestamp_converter))
+    end: Optional[Timestamp] = attrs.field(
+        repr=False, default=None, converter=optional(timestamp_converter)
+    )
     """The end time of the activity. Shows "remaining" timer on discord client."""
 
 
@@ -67,7 +71,9 @@ class Activity(DictSerializationMixin):
     """The type of activity"""
     url: Optional[str] = attrs.field(repr=True, default=None)
     """Stream url, is validated when type is 1"""
-    created_at: Optional[Timestamp] = attrs.field(repr=True, default=None, converter=optional(timestamp_converter))
+    created_at: Optional[Timestamp] = attrs.field(
+        repr=True, default=None, converter=optional(timestamp_converter)
+    )
     """When the activity was added to the user's session"""
     timestamps: Optional[ActivityTimestamps] = attrs.field(
         repr=False, default=None, converter=optional(ActivityTimestamps.from_dict)
@@ -79,9 +85,13 @@ class Activity(DictSerializationMixin):
     """What the player is currently doing"""
     state: Optional[str] = attrs.field(repr=False, default=None)
     """The user's current party status"""
-    emoji: Optional[PartialEmoji] = attrs.field(repr=False, default=None, converter=optional(PartialEmoji.from_dict))
+    emoji: Optional[PartialEmoji] = attrs.field(
+        repr=False, default=None, converter=optional(PartialEmoji.from_dict)
+    )
     """The emoji used for a custom status"""
-    party: Optional[ActivityParty] = attrs.field(repr=False, default=None, converter=optional(ActivityParty.from_dict))
+    party: Optional[ActivityParty] = attrs.field(
+        repr=False, default=None, converter=optional(ActivityParty.from_dict)
+    )
     """Information for the current party of the player"""
     assets: Optional[ActivityAssets] = attrs.field(
         repr=False, default=None, converter=optional(ActivityAssets.from_dict)
@@ -93,13 +103,17 @@ class Activity(DictSerializationMixin):
     """Secrets for Rich Presence joining and spectating"""
     instance: Optional[bool] = attrs.field(repr=False, default=False)
     """Whether or not the activity is an instanced game session"""
-    flags: Optional[ActivityFlags] = attrs.field(repr=False, default=None, converter=optional(ActivityFlags))
+    flags: Optional[ActivityFlags] = attrs.field(
+        repr=False, default=None, converter=optional(ActivityFlags)
+    )
     """Activity flags bitwise OR together, describes what the payload includes"""
     buttons: List[str] = attrs.field(repr=False, factory=list)
     """The custom buttons shown in the Rich Presence (max 2)"""
 
     @classmethod
-    def create(cls, name: str, type: ActivityType = ActivityType.GAME, url: Optional[str] = None) -> "Activity":
+    def create(
+        cls, name: str, type: ActivityType = ActivityType.GAME, url: Optional[str] = None
+    ) -> "Activity":
         """
         Creates an activity object for the bot.
 

@@ -4,19 +4,23 @@ import discord_typings
 
 from interactions.client.const import GLOBAL_SCOPE
 from interactions.models.internal.protocols import CanRequest
+
 from ..route import Route
 
 __all__ = ("InteractionRequests",)
 
 
 if TYPE_CHECKING:
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions import UPLOADABLE_TYPE
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 
 class InteractionRequests(CanRequest):
     async def delete_application_command(
-        self, application_id: "Snowflake_Type", guild_id: "Snowflake_Type", command_id: "Snowflake_Type"
+        self,
+        application_id: "Snowflake_Type",
+        guild_id: "Snowflake_Type",
+        command_id: "Snowflake_Type",
     ) -> None:
         """
         Delete an existing application command for this application.
@@ -28,16 +32,22 @@ class InteractionRequests(CanRequest):
 
         """
         if guild_id == GLOBAL_SCOPE:
-            await self.request(Route("DELETE", f"/applications/{int(application_id)}/commands/{int(command_id)}"))
+            await self.request(
+                Route("DELETE", f"/applications/{int(application_id)}/commands/{int(command_id)}")
+            )
         else:
             await self.request(
                 Route(
-                    "DELETE", f"/applications/{int(application_id)}/guilds/{int(guild_id)}/commands/{int(command_id)}"
+                    "DELETE",
+                    f"/applications/{int(application_id)}/guilds/{int(guild_id)}/commands/{int(command_id)}",
                 )
             )
 
     async def get_application_commands(
-        self, application_id: "Snowflake_Type", guild_id: "Snowflake_Type", with_localisations: bool = True
+        self,
+        application_id: "Snowflake_Type",
+        guild_id: "Snowflake_Type",
+        with_localisations: bool = True,
     ) -> list[discord_typings.ApplicationCommandData]:
         """
         Get all application commands for this application from discord.
@@ -74,10 +84,13 @@ class InteractionRequests(CanRequest):
 
         """
         if guild_id == GLOBAL_SCOPE:
-            result = await self.request(Route("PUT", f"/applications/{app_id}/commands"), payload=data)
+            result = await self.request(
+                Route("PUT", f"/applications/{app_id}/commands"), payload=data
+            )
         else:
             result = await self.request(
-                Route("PUT", f"/applications/{app_id}/guilds/{int(guild_id)}/commands"), payload=data
+                Route("PUT", f"/applications/{app_id}/guilds/{int(guild_id)}/commands"),
+                payload=data,
             )
         return cast(list[discord_typings.ApplicationCommandData], result)
 
@@ -96,15 +109,22 @@ class InteractionRequests(CanRequest):
             An application command object
         """
         if guild_id == GLOBAL_SCOPE:
-            result = await self.request(Route("POST", f"/applications/{app_id}/commands"), payload=command)
+            result = await self.request(
+                Route("POST", f"/applications/{app_id}/commands"), payload=command
+            )
         else:
             result = await self.request(
-                Route("POST", f"/applications/{app_id}/guilds/{int(guild_id)}/commands"), payload=command
+                Route("POST", f"/applications/{app_id}/guilds/{int(guild_id)}/commands"),
+                payload=command,
             )
         return cast(discord_typings.ApplicationCommandData, result)
 
     async def post_initial_response(
-        self, payload: dict, interaction_id: str, token: str, files: list["UPLOADABLE_TYPE"] | None = None
+        self,
+        payload: dict,
+        interaction_id: str,
+        token: str,
+        files: list["UPLOADABLE_TYPE"] | None = None,
     ) -> None:
         """
         Post an initial response to an interaction.
@@ -117,11 +137,17 @@ class InteractionRequests(CanRequest):
 
         """
         return await self.request(
-            Route("POST", f"/interactions/{interaction_id}/{token}/callback"), payload=payload, files=files
+            Route("POST", f"/interactions/{interaction_id}/{token}/callback"),
+            payload=payload,
+            files=files,
         )
 
     async def post_followup(
-        self, payload: dict, application_id: "Snowflake_Type", token: str, files: list["UPLOADABLE_TYPE"] | None = None
+        self,
+        payload: dict,
+        application_id: "Snowflake_Type",
+        token: str,
+        files: list["UPLOADABLE_TYPE"] | None = None,
     ) -> None:
         """
         Send a followup to an interaction.
@@ -167,7 +193,10 @@ class InteractionRequests(CanRequest):
         return cast(discord_typings.MessageData, result)
 
     async def delete_interaction_message(
-        self, application_id: "Snowflake_Type", token: str, message_id: "str | Snowflake_Type" = "@original"
+        self,
+        application_id: "Snowflake_Type",
+        token: str,
+        message_id: "str | Snowflake_Type" = "@original",
     ) -> None:
         """
         Deletes an existing interaction message.
@@ -178,7 +207,9 @@ class InteractionRequests(CanRequest):
             message_id: The target message to delete. Defaults to @original which represents the initial response message.
 
         """
-        return await self.request(Route("DELETE", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}"))
+        return await self.request(
+            Route("DELETE", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}")
+        )
 
     async def get_interaction_message(
         self, application_id: "Snowflake_Type", token: str, message_id: str = "@original"
@@ -195,7 +226,9 @@ class InteractionRequests(CanRequest):
             The message data.
 
         """
-        result = await self.request(Route("GET", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}"))
+        result = await self.request(
+            Route("GET", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}")
+        )
         return cast(discord_typings.MessageData, result)
 
     async def edit_application_command_permissions(
@@ -220,14 +253,18 @@ class InteractionRequests(CanRequest):
         """
         result = await self.request(
             Route(
-                "PUT", f"/applications/{int(application_id)}/guilds/{int(scope)}/commands/{int(command_id)}/permissions"
+                "PUT",
+                f"/applications/{int(application_id)}/guilds/{int(scope)}/commands/{int(command_id)}/permissions",
             ),
             payload=permissions,
         )
         return cast(discord_typings.ApplicationCommandPermissionsData, result)
 
     async def get_application_command_permissions(
-        self, application_id: "Snowflake_Type", scope: "Snowflake_Type", command_id: "Snowflake_Type"
+        self,
+        application_id: "Snowflake_Type",
+        scope: "Snowflake_Type",
+        command_id: "Snowflake_Type",
     ) -> list[discord_typings.ApplicationCommandPermissionsData]:
         """
         Get permission data for a command.
@@ -243,7 +280,8 @@ class InteractionRequests(CanRequest):
         """
         result = await self.request(
             Route(
-                "GET", f"/applications/{int(application_id)}/guilds/{int(scope)}/commands/{int(command_id)}/permissions"
+                "GET",
+                f"/applications/{int(application_id)}/guilds/{int(scope)}/commands/{int(command_id)}/permissions",
             )
         )
         return cast(list[discord_typings.ApplicationCommandPermissionsData], result)
@@ -263,6 +301,9 @@ class InteractionRequests(CanRequest):
 
         """
         result = await self.request(
-            Route("GET", f"/applications/{int(application_id)}/guilds/{int(scope)}/commands/permissions")
+            Route(
+                "GET",
+                f"/applications/{int(application_id)}/guilds/{int(scope)}/commands/permissions",
+            )
         )
         return cast(list[discord_typings.ApplicationCommandPermissionsData], result)

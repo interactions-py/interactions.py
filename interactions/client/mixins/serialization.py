@@ -11,7 +11,9 @@ __all__ = ("DictSerializationMixin",)
 
 @attrs.define(eq=False, order=False, hash=False, slots=False)
 class DictSerializationMixin:
-    logger: Logger = attrs.field(init=False, factory=const.get_logger, metadata=serializer.no_export_meta, repr=False)
+    logger: Logger = attrs.field(
+        init=False, factory=const.get_logger, metadata=serializer.no_export_meta, repr=False
+    )
 
     @classmethod
     def _get_keys(cls) -> frozenset:
@@ -24,7 +26,9 @@ class DictSerializationMixin:
     def _get_init_keys(cls) -> frozenset:
         name = f"_init_keys_{cls.__name__}"
         if (init_keys := getattr(cls, name, None)) is None:
-            init_keys = frozenset(field.name.removeprefix("_") for field in attrs.fields(cls) if field.init)
+            init_keys = frozenset(
+                field.name.removeprefix("_") for field in attrs.fields(cls) if field.init
+            )
             setattr(cls, name, init_keys)
         return init_keys
 
