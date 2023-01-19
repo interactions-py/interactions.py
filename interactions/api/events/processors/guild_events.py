@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.api.events.discord import (
+    AuditLogEntryCreate,
     GuildEmojisUpdate,
     IntegrationCreate,
     IntegrationUpdate,
@@ -13,7 +14,7 @@ from interactions.api.events.discord import (
     WebhooksUpdate,
 )
 from interactions.client.const import MISSING
-from interactions.models import GuildIntegration, Sticker, to_snowflake
+from interactions.models import GuildIntegration, Sticker, to_snowflake, AuditLogEntry
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:
@@ -125,3 +126,10 @@ class GuildEvents(EventMixinTemplate):
     @Processor.define()
     async def _on_raw_webhook_update(self, event: "RawGatewayEvent") -> None:
         self.dispatch(WebhooksUpdate(event.data.get("guild_id"), event.data.get("channel_id")))
+
+    @Processor.define()
+    async def _on_raw_guild_audit_log_entry_create(self, event: "RawGatewayEvent") -> None:
+        guild = self.cache.get_guild(event.data.get("guild_id"))
+        audit_log_entry = AuditLogEntry.from_dict(event.data, self)
+
+        self.dispatch(AuditLogEntryCreate(guild, audit_log_entry))

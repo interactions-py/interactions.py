@@ -32,6 +32,7 @@ from interactions.client.utils.attr_utils import docs
 
 __all__ = (
     "ApplicationCommandPermissionsUpdate",
+    "AuditLogEntryCreate",
     "AutoModCreated",
     "AutoModDeleted",
     "AutoModExec",
@@ -739,3 +740,14 @@ class VoiceUserLeave(BaseVoiceEvent):
         repr=False,
     )
     """The voice channel the user left"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class AuditLogEntryCreate(BaseEvent):
+    """Dispatched when audit log entry is created"""
+
+    guild: "Guild" = attrs.field(repr=False)
+    """The guild where this entry was created"""
+    audit_log_entry: interactions.models.AuditLogEntry = attrs.field(repr=False)
+    """The audit log entry object"""
+
