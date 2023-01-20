@@ -1,55 +1,68 @@
-import re
-from codecs import open
-from os import path
+import itertools
+from pathlib import Path
 
+import tomli
 from setuptools import find_packages, setup
 
-PACKAGE_NAME = "interactions"
-HERE = path.abspath(path.dirname(__file__))
+with open("pyproject.toml", "rb") as f:
+    pyproject = tomli.load(f)
 
-with open("README.rst", "r", encoding="UTF-8") as f:
-    README = f.read()
-with open(path.join(HERE, PACKAGE_NAME, "base.py"), encoding="utf-8") as fp:
-    VERSION = re.search('__version__ = "([^"]+)"', fp.read())[1]
-
-
-def read_requirements(filename):
-    with open(filename, "r", encoding="utf-8") as fp:
-        return fp.read().strip().splitlines()
-
-
-extras = {
-    "lint": read_requirements("requirements-lint.txt"),
-    "readthedocs": read_requirements("requirements-docs.txt"),
+extras_require = {
+    "voice": ["PyNaCl>=1.5.0,<1.6"],
+    "speedup": ["aiodns", "orjson", "Brotli"],
+    "sentry": ["sentry-sdk"],
+    "jurigged": ["jurigged"],
 }
-extras["dev"] = extras["lint"] + extras["readthedocs"]
-requirements = read_requirements("requirements.txt")
+extras_require["all"] = list(itertools.chain.from_iterable(extras_require.values()))
+extras_require["docs"] = extras_require["all"] + [
+    "mkdocs-autorefs",
+    "mkdocs-awesome-pages-plugin",
+    "mkdocs-material",
+    "mkdocstrings-python",
+    "mkdocs-minify-plugin",
+    "mkdocs-git-committers-plugin-2",
+    "mkdocs-git-revision-date-localized-plugin",
+]
+extras_require["tests"] = [
+    "pytest",
+    "pytest-recording",
+    "pytest-asyncio",
+    "pytest-cov",
+    "python-dotenv",
+    "typeguard",
+]
+
 setup(
-    name="discord-py-interactions",
-    version=VERSION,
-    author="goverfl0w",
-    author_email="james.discord.interactions@gmail.com",
-    description="Easy, simple, scalable and modular: a Python API wrapper for interactions.",
-    extras_require=extras,
-    install_requires=requirements,
-    license="GPL-3.0 License",
-    long_description=README,
-    long_description_content_type="text/x-rst",
-    url="https://github.com/interactions-py/library",
+    name="interactions",
+    description=pyproject["tool"]["poetry"]["description"],
+    long_description=(Path(__file__).parent / "README.rst").read_text(),
+    long_description_content_type="text/markdown",
+    author="LordOfPolls",
+    author_email="naff@lordofpolls.com",
+    url="https://github.com/interactions-py/interactions.py",
+    version=pyproject["tool"]["poetry"]["version"],
     packages=find_packages(),
     include_package_data=True,
-    python_requires=">=3.8.6",
+    python_requires=">=3.10",
+    install_requires=(Path(__file__).parent / "requirements.txt").read_text().splitlines(),
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 3 - Alpha",
+        "Framework :: AsyncIO",
+        "Framework :: aiohttp",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
-        "Topic :: Internet",
-        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Software Development :: Libraries",
-        "Topic :: Utilities",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Documentation",
+        "Typing :: Typed",
     ],
+    project_urls={
+        "Discord": "https://discord.gg/KkgMBVuEkx",
+        "Documentation": "https://naff-docs.readthedocs.io/en/latest/",
+    },
+    extras_require=extras_require,
 )
