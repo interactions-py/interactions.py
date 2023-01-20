@@ -127,6 +127,16 @@ class BaseContext(metaclass=abc.ABCMeta):
         return self.client.cache.get_user(self.author_id)
 
     @property
+    def user(self) -> "interactions.User":
+        """The user that invoked this context. (Alias for author)"""
+        return self.client.cache.get_user(self.author_id)
+
+    @property
+    def member(self) -> "interactions.Member":
+        """The member object that invoked this context."""
+        return self.client.cache.get_member(self.guild_id, self.author_id)
+
+    @property
     def channel(self) -> "interactions.TYPE_MESSAGEABLE_CHANNEL":
         """The channel this context was invoked in."""
         return self.client.cache.get_channel(self.channel_id)
