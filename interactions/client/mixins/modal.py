@@ -12,7 +12,7 @@ class ModalMixin:
     responded: bool
     """Whether this context has been responded to."""
 
-    async def send_modal(self, modal: "interactions.Modal"):
+    async def send_modal(self, modal: "interactions.Modal") -> None:
         """Send a modal to the user."""
         if self.responded:
             raise RuntimeError("Cannot send modal after responding")

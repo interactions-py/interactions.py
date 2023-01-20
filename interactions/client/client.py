@@ -1702,7 +1702,7 @@ class Client(
         error_callback: Type[BaseEvent],
         completion_callback: Type[BaseEvent] | None = None,
         callback_kwargs: dict | None = None,
-    ):
+    ) -> None:
         if callback_kwargs is None:
             callback_kwargs = {}
 

@@ -135,7 +135,7 @@ class BaseContext(metaclass=abc.ABCMeta):
     guild_id: typing.Optional[Snowflake]
     """The id of the guild this context was invoked in, if any."""
 
-    def __init__(self, client: "interactions.Client"):
+    def __init__(self, client: "interactions.Client") -> None:
         self.client = client
 
     @property
@@ -214,7 +214,7 @@ class BaseInteractionContext(BaseContext):
     kwargs: dict[str, typing.Any]
     """The keyword arguments passed to the interaction."""
 
-    def __init__(self, client: "interactions.Client"):
+    def __init__(self, client: "interactions.Client") -> None:
         super().__init__(client)
         self.deferred = False
         self.responded = False
@@ -284,14 +284,14 @@ class BaseInteractionContext(BaseContext):
         """
         return option
 
-    def process_options(self, data: discord_typings.InteractionCallbackData):
+    def process_options(self, data: discord_typings.InteractionCallbackData) -> None:
         """Process the options of the interaction."""
         self.args = []
         self.kwargs = {}
 
 
 class InteractionContext(BaseInteractionContext, SendMixin):
-    async def defer(self, *, ephemeral: bool = False):
+    async def defer(self, *, ephemeral: bool = False) -> None:
         """
         Defer the interaction.
 
@@ -434,7 +434,7 @@ class SlashContext(InteractionContext, ModalMixin):
 
         return instance
 
-    def process_options(self, data: discord_typings.InteractionCallbackData):
+    def process_options(self, data: discord_typings.InteractionCallbackData) -> None:
         if not data["type"] == InteractionTypes.APPLICATION_COMMAND:
             self.args = []
             self.kwargs = {}
@@ -497,7 +497,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
     editing_origin: bool
     """Whether you have deferred the interaction and are editing the original response."""
 
-    def __init__(self, client: "interactions.Client"):
+    def __init__(self, client: "interactions.Client") -> None:
         super().__init__(client)
         self.editing_origin = False
 
@@ -507,7 +507,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
         instance.target_id = payload["target_id"]
         return instance
 
-    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False):
+    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
         """
         Defer the interaction.
 
