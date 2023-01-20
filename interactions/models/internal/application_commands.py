@@ -697,7 +697,7 @@ def _unpack_helper(iterable: typing.Iterable[str]) -> list[str]:
 
 
 def slash_command(
-    name: str | LocalisedName,
+    name: Absent[str | LocalisedName] = MISSING,
     *,
     description: Absent[str | LocalisedDesc] = MISSING,
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
@@ -746,13 +746,14 @@ def slash_command(
                 perm = perm | func.default_member_permissions
             else:
                 perm = func.default_member_permissions
-
+        
+        _name = name if name not in ["", MISSING] else func.__name__
         _description = description
         if _description is MISSING:
             _description = func.__doc__ if func.__doc__ else "No Description Set"
 
         cmd = SlashCommand(
-            name=name,
+            name=_name,
             group_name=group_name,
             group_description=group_description,
             sub_cmd_name=sub_cmd_name,
@@ -772,7 +773,7 @@ def slash_command(
 
 
 def subcommand(
-    base: str | LocalisedName,
+    base: Absent[str | LocalisedName] = MISSING,
     *,
     subcommand_group: Optional[str | LocalisedName] = None,
     name: Optional[str | LocalisedName] = None,
@@ -814,12 +815,13 @@ def subcommand(
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
+        _base = base if base not in ["", MISSING] else func.__name__
         _description = description
         if _description is MISSING:
             _description = func.__doc__ if func.__doc__ else "No Description Set"
 
         cmd = SlashCommand(
-            name=base,
+            name=_base,
             description=(base_description or base_desc) or "No Description Set",
             group_name=subcommand_group,
             group_description=(subcommand_group_description or sub_group_desc)
@@ -839,7 +841,7 @@ def subcommand(
 
 
 def context_menu(
-    name: str | LocalisedName,
+    name: Absent[str | LocalisedName] = MISSING,
     context_type: "CommandTypes",
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
     default_member_permissions: Optional["Permissions"] = None,
