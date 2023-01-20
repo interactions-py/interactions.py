@@ -29,7 +29,17 @@ from interactions.models.internal.application_commands import (
     InteractionCommand,
 )
 
-__all__ = ["AutocompleteContext", "BaseContext", "BaseInteractionContext", "ComponentContext", "ContextMenuContext", "InteractionContext", "ModalContext", "Resolved", "SlashContext"]
+__all__ = [
+    "AutocompleteContext",
+    "BaseContext",
+    "BaseInteractionContext",
+    "ComponentContext",
+    "ContextMenuContext",
+    "InteractionContext",
+    "ModalContext",
+    "Resolved",
+    "SlashContext",
+]
 
 
 if typing.TYPE_CHECKING:
