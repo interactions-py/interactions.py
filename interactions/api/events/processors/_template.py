@@ -49,4 +49,6 @@ class EventMixinTemplate:
     def __init__(self) -> None:
         for call in inspect.getmembers(self):
             if isinstance(call[1], Processor):
-                self.add_event_processor(call[1].event_name)(functools.partial(call[1].callback, self))
+                self.add_event_processor(call[1].event_name)(
+                    functools.partial(call[1].callback, self)
+                )

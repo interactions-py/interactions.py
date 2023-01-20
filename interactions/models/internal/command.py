@@ -46,7 +46,9 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
     """
 
     extension: Any = attrs.field(
-        repr=False, default=None, metadata=docs("The extension this command belongs to") | no_export_meta
+        repr=False,
+        default=None,
+        metadata=docs("The extension this command belongs to") | no_export_meta,
     )
 
     enabled: bool = attrs.field(
@@ -55,26 +57,36 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
     checks: list = attrs.field(
         repr=False,
         factory=list,
-        metadata=docs("Any checks that must be *checked* before the command can run") | no_export_meta,
+        metadata=docs("Any checks that must be *checked* before the command can run")
+        | no_export_meta,
     )
     cooldown: Cooldown = attrs.field(
-        repr=False, default=MISSING, metadata=docs("An optional cooldown to apply to the command") | no_export_meta
+        repr=False,
+        default=MISSING,
+        metadata=docs("An optional cooldown to apply to the command") | no_export_meta,
     )
     max_concurrency: MaxConcurrency = attrs.field(
         default=MISSING,
-        metadata=docs("An optional maximum number of concurrent instances to apply to the command") | no_export_meta,
+        metadata=docs("An optional maximum number of concurrent instances to apply to the command")
+        | no_export_meta,
     )
 
     callback: Callable[..., Coroutine] = attrs.field(
-        repr=False, default=None, metadata=docs("The coroutine to be called for this command") | no_export_meta
+        repr=False,
+        default=None,
+        metadata=docs("The coroutine to be called for this command") | no_export_meta,
     )
     error_callback: Callable[..., Coroutine] = attrs.field(
-        repr=False, default=None, metadata=no_export_meta | docs("The coroutine to be called when an error occurs")
+        repr=False,
+        default=None,
+        metadata=no_export_meta | docs("The coroutine to be called when an error occurs"),
     )
     pre_run_callback: Callable[..., Coroutine] = attrs.field(
         default=None,
         metadata=no_export_meta
-        | docs("The coroutine to be called before the command is executed, **but** after the checks"),
+        | docs(
+            "The coroutine to be called before the command is executed, **but** after the checks"
+        ),
     )
     post_run_callback: Callable[..., Coroutine] = attrs.field(
         repr=False,
@@ -141,7 +153,9 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
                 await self.max_concurrency.release(context)
 
     @staticmethod
-    def _get_converter_function(anno: type[Converter] | Converter, name: str) -> Callable[[Context, str], Any]:
+    def _get_converter_function(
+        anno: type[Converter] | Converter, name: str
+    ) -> Callable[[Context, str], Any]:
         num_params = len(get_parameters(anno.convert))
 
         # if we have three parameters for the function, it's likely it has a self parameter
@@ -165,7 +179,9 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
 
         return actual_anno.convert
 
-    async def try_convert(self, converter: Optional[Callable], context: "Context", value: Any) -> Any:
+    async def try_convert(
+        self, converter: Optional[Callable], context: "Context", value: Any
+    ) -> Any:
         if converter is None:
             return value
         return await maybe_coroutine(converter, context, value)
@@ -203,7 +219,9 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
                 # it does NOT check if the annotation is actually a subclass of Converter
                 # this is an intended behavior for Protocols with the runtime_checkable decorator
                 convert = functools.partial(
-                    self.try_convert, self._get_converter_function(param.annotation, param.name), context
+                    self.try_convert,
+                    self._get_converter_function(param.annotation, param.name),
+                    context,
                 )
             else:
                 convert = functools.partial(self.try_convert, None, context)
@@ -256,7 +274,9 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
             context: The context of the command
 
         """
-        max_conc_acquired = False  # signals if a semaphore has been acquired, for exception handling
+        max_conc_acquired = (
+            False  # signals if a semaphore has been acquired, for exception handling
+        )
 
         try:
             if not self.enabled:

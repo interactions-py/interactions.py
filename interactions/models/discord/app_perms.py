@@ -72,7 +72,11 @@ class CommandPermissions(ClientObject):
         everyone_role = context.guild.id
         all_channels = context.guild.id - 1  # why tf discord
         return self.is_enabled(
-            context.channel.id, *context.author.roles, context.author.id, everyone_role, all_channels
+            context.channel.id,
+            *context.author.roles,
+            context.author.id,
+            everyone_role,
+            all_channels,
         )
 
     def update_permissions(self, *permissions: ApplicationCommandPermission) -> None:

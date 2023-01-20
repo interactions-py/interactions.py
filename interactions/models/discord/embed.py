@@ -190,7 +190,9 @@ class Embed(DictSerializationMixin):
         default=None, repr=True, metadata=export_converter(process_color)
     )
     """The colour of the embed"""
-    url: Optional[str] = attrs.field(default=None, validator=v_optional(instance_of(str)), repr=True)
+    url: Optional[str] = attrs.field(
+        default=None, validator=v_optional(instance_of(str)), repr=True
+    )
     """The url the embed should direct to when clicked"""
     timestamp: Optional[Timestamp] = attrs.field(
         default=None,
@@ -201,7 +203,9 @@ class Embed(DictSerializationMixin):
     """Timestamp of embed content"""
     fields: List[EmbedField] = attrs.field(factory=list, converter=EmbedField.from_list, repr=True)
     """A list of [fields][interactions.models.discord.embed.EmbedField] to go in the embed"""
-    author: Optional[EmbedAuthor] = attrs.field(repr=False, default=None, converter=c_optional(EmbedAuthor.from_dict))
+    author: Optional[EmbedAuthor] = attrs.field(
+        repr=False, default=None, converter=c_optional(EmbedAuthor.from_dict)
+    )
     """The author of the embed"""
     thumbnail: Optional[EmbedAttachment] = attrs.field(
         repr=False, default=None, converter=c_optional(EmbedAttachment.from_dict)
@@ -212,17 +216,28 @@ class Embed(DictSerializationMixin):
     )
     """The image of the embed"""
     video: Optional[EmbedAttachment] = attrs.field(
-        repr=False, default=None, converter=c_optional(EmbedAttachment.from_dict), metadata=no_export_meta
+        repr=False,
+        default=None,
+        converter=c_optional(EmbedAttachment.from_dict),
+        metadata=no_export_meta,
     )
     """The video of the embed, only used by system embeds"""
-    footer: Optional[EmbedFooter] = attrs.field(repr=False, default=None, converter=c_optional(EmbedFooter.converter))
+    footer: Optional[EmbedFooter] = attrs.field(
+        repr=False, default=None, converter=c_optional(EmbedFooter.converter)
+    )
     """The footer of the embed"""
     provider: Optional[EmbedProvider] = attrs.field(
-        repr=False, default=None, converter=c_optional(EmbedProvider.from_dict), metadata=no_export_meta
+        repr=False,
+        default=None,
+        converter=c_optional(EmbedProvider.from_dict),
+        metadata=no_export_meta,
     )
     """The provider of the embed, only used for system embeds"""
     type: EmbedTypes = attrs.field(
-        repr=False, default=EmbedTypes.RICH, converter=c_optional(EmbedTypes), metadata=no_export_meta
+        repr=False,
+        default=EmbedTypes.RICH,
+        converter=c_optional(EmbedTypes),
+        metadata=no_export_meta,
     )
 
     @title.validator
@@ -241,7 +256,9 @@ class Embed(DictSerializationMixin):
         if value is not None:
             if isinstance(value, str):
                 if len(value) > EMBED_MAX_DESC_LENGTH:
-                    raise ValueError(f"Description cannot exceed {EMBED_MAX_DESC_LENGTH} characters")
+                    raise ValueError(
+                        f"Description cannot exceed {EMBED_MAX_DESC_LENGTH} characters"
+                    )
                 return
             raise TypeError("Description must be of type String")
 
@@ -373,7 +390,9 @@ class Embed(DictSerializationMixin):
                 raise TypeError(f"Expected EmbedField, str or dict, got {type(_field).__name__}")
 
 
-def process_embeds(embeds: Optional[Union[List[Union[Embed, Dict]], Union[Embed, Dict]]]) -> Optional[List[dict]]:
+def process_embeds(
+    embeds: Optional[Union[List[Union[Embed, Dict]], Union[Embed, Dict]]]
+) -> Optional[List[dict]]:
     """
     Process the passed embeds into a format discord will understand.
 

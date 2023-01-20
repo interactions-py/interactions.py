@@ -49,7 +49,9 @@ class Timeout:
                 await asyncio.wait_for(self.ping.wait(), timeout=self.paginator.timeout_interval)
             except asyncio.TimeoutError:
                 if self.paginator.message:
-                    await self.paginator.message.edit(components=self.paginator.create_components(True))
+                    await self.paginator.message.edit(
+                        components=self.paginator.create_components(True)
+                    )
                 return
             else:
                 self.ping.clear()
@@ -135,7 +137,9 @@ class Paginator:
     """The default title to show on the embeds"""
     default_color: Color = attrs.field(repr=False, default=BrandColors.BLURPLE)
     """The default colour to show on the embeds"""
-    default_button_color: Union[ButtonStyles, int] = attrs.field(repr=False, default=ButtonStyles.BLURPLE)
+    default_button_color: Union[ButtonStyles, int] = attrs.field(
+        repr=False, default=ButtonStyles.BLURPLE
+    )
     """The color of the buttons"""
 
     _uuid: str = attrs.field(repr=False, factory=uuid.uuid4)
@@ -185,7 +189,13 @@ class Paginator:
 
     @classmethod
     def create_from_string(
-        cls, client: "Client", content: str, prefix: str = "", suffix: str = "", page_size: int = 4000, timeout: int = 0
+        cls,
+        client: "Client",
+        content: str,
+        prefix: str = "",
+        suffix: str = "",
+        page_size: int = 4000,
+        timeout: int = 0,
     ) -> "Paginator":
         """
         Create a paginator system from a string.
@@ -265,7 +275,9 @@ class Paginator:
             output.append(
                 StringSelectMenu(
                     [
-                        SelectOption(f"{i+1} {p.get_summary if isinstance(p, Page) else p.title}", str(i))
+                        SelectOption(
+                            f"{i+1} {p.get_summary if isinstance(p, Page) else p.title}", str(i)
+                        )
                         for i, p in enumerate(self.pages)
                     ],
                     custom_id=f"{self._uuid}|select",
@@ -338,7 +350,10 @@ class Paginator:
         if not page.color:
             page.color = self.default_color
 
-        return {"embeds": [page.to_dict()], "components": [c.to_dict() for c in self.create_components()]}
+        return {
+            "embeds": [page.to_dict()],
+            "components": [c.to_dict() for c in self.create_components()],
+        }
 
     async def send(self, ctx: Context) -> Message:
         """

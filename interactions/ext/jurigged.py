@@ -68,7 +68,9 @@ class Jurigged(Extension):
         self.watcher.prerun.register(self.jurigged_prerun)
         self.watcher.postrun.register(self.jurigged_postrun)
 
-    def jurigged_log(self, event: WatchOperation | AddOperation | DeleteOperation | UpdateOperation) -> None:
+    def jurigged_log(
+        self, event: WatchOperation | AddOperation | DeleteOperation | UpdateOperation
+    ) -> None:
         """
         Log a jurigged event
 
@@ -101,7 +103,9 @@ class Jurigged(Extension):
             if not action:
                 self.bot.logger.debug(event)
             else:
-                self.bot.logger.debug(event_str.format(action=action, dotpath=dotpath, lineno=lineno, extra=extra))
+                self.bot.logger.debug(
+                    event_str.format(action=action, dotpath=dotpath, lineno=lineno, extra=extra)
+                )
 
     def jurigged_prerun(self, _path: str, cf: CodeFile) -> None:
         """
@@ -183,7 +187,9 @@ class Jurigged(Extension):
                             try:
                                 self.bot.reload_extension(module)
                             except Exception:
-                                self.bot.logger.exception(f"Failed to update module {module}", exc_info=True)
+                                self.bot.logger.exception(
+                                    f"Failed to update module {module}", exc_info=True
+                                )
 
                         # Check if arg names have changed
                         elif len(set(old_arg_names) - set(new_arg_names)) > 0:
@@ -191,7 +197,9 @@ class Jurigged(Extension):
                             try:
                                 self.bot.reload_extension(module)
                             except Exception:
-                                self.bot.logger.exception(f"Failed to update module {module}", exc_info=True)
+                                self.bot.logger.exception(
+                                    f"Failed to update module {module}", exc_info=True
+                                )
 
                         # Check if arg types have changed
                         elif any(new_args[idx].type != x.type for idx, x in enumerate(old_args)):
@@ -199,7 +207,9 @@ class Jurigged(Extension):
                             try:
                                 self.bot.reload_extension(module)
                             except Exception:
-                                self.bot.logger.exception(f"Failed to update module {module}", exc_info=True)
+                                self.bot.logger.exception(
+                                    f"Failed to update module {module}", exc_info=True
+                                )
                         else:
                             self.bot.logger.debug("No changes detected")
             self.command_cache.clear()

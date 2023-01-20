@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 class ReactionRequests:
     request: Any
 
-    async def create_reaction(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type", emoji: str) -> None:
+    async def create_reaction(
+        self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type", emoji: str
+    ) -> None:
         """
         Create a reaction for a message.
 
@@ -58,7 +60,11 @@ class ReactionRequests:
         )
 
     async def remove_user_reaction(
-        self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type", emoji: str, user_id: "Snowflake_Type"
+        self,
+        channel_id: "Snowflake_Type",
+        message_id: "Snowflake_Type",
+        emoji: str,
+        user_id: "Snowflake_Type",
     ) -> None:
         """
         Remove user's reaction from a message.
@@ -81,7 +87,9 @@ class ReactionRequests:
             )
         )
 
-    async def clear_reaction(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type", emoji: str) -> None:
+    async def clear_reaction(
+        self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type", emoji: str
+    ) -> None:
         """
         Remove specific reaction from a message.
 
@@ -101,7 +109,9 @@ class ReactionRequests:
             )
         )
 
-    async def clear_reactions(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type") -> None:
+    async def clear_reactions(
+        self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type"
+    ) -> None:
         """
         Remove reactions from a message.
 
@@ -110,7 +120,9 @@ class ReactionRequests:
             message_id: The message to clear reactions from.
 
         """
-        return await self.request(Route("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions"))
+        return await self.request(
+            Route("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions")
+        )
 
     async def get_reactions(
         self,

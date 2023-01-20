@@ -114,8 +114,12 @@ if TYPE_CHECKING:
 class AutoModExec(BaseEvent):
     """Dispatched when an auto modation action is executed"""
 
-    execution: "AutoModerationAction" = attrs.field(repr=False, metadata=docs("The executed auto mod action"))
-    channel: "BaseChannel" = attrs.field(repr=False, metadata=docs("The channel the action was executed in"))
+    execution: "AutoModerationAction" = attrs.field(
+        repr=False, metadata=docs("The executed auto mod action")
+    )
+    channel: "BaseChannel" = attrs.field(
+        repr=False, metadata=docs("The channel the action was executed in")
+    )
     guild: "Guild" = attrs.field(repr=False, metadata=docs("The guild the action was executed in"))
 
 
@@ -156,7 +160,9 @@ class ApplicationCommandPermissionsUpdate(BaseEvent):
 class ChannelCreate(BaseEvent):
     """Dispatched when a channel is created."""
 
-    channel: "BaseChannel" = attrs.field(repr=False, metadata=docs("The channel this event is dispatched from"))
+    channel: "BaseChannel" = attrs.field(
+        repr=False, metadata=docs("The channel this event is dispatched from")
+    )
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -192,7 +198,9 @@ class ChannelPinsUpdate(ChannelCreate):
 class ThreadCreate(BaseEvent):
     """Dispatched when a thread is created, or a thread is new to the client"""
 
-    thread: "TYPE_THREAD_CHANNEL" = attrs.field(repr=False, metadata=docs("The thread this event is dispatched from"))
+    thread: "TYPE_THREAD_CHANNEL" = attrs.field(
+        repr=False, metadata=docs("The thread this event is dispatched from")
+    )
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -347,7 +355,8 @@ class MemberRemove(MemberAdd):
     """Dispatched when a member is removed from a guild."""
 
     member: Union["Member", "User"] = attrs.field(
-        repr=False, metadata=docs("The member who was added, can be user if the member is not cached")
+        repr=False,
+        metadata=docs("The member who was added, can be user if the member is not cached"),
     )
 
 
@@ -522,8 +531,12 @@ class MessageReactionAdd(BaseEvent):
     """Dispatched when a reaction is added to a message."""
 
     message: "Message" = attrs.field(repr=False, metadata=docs("The message that was reacted to"))
-    emoji: "PartialEmoji" = attrs.field(repr=False, metadata=docs("The emoji that was added to the message"))
-    author: Union["Member", "User"] = attrs.field(repr=False, metadata=docs("The user who added the reaction"))
+    emoji: "PartialEmoji" = attrs.field(
+        repr=False, metadata=docs("The emoji that was added to the message")
+    )
+    author: Union["Member", "User"] = attrs.field(
+        repr=False, metadata=docs("The user who added the reaction")
+    )
     # reaction can be None when the message is not in the cache, and it was the last reaction, and it was deleted in the event
     reaction: Optional["Reaction"] = attrs.field(
         repr=False, default=None, metadata=docs("The reaction object corresponding to the emoji")

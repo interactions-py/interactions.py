@@ -57,5 +57,7 @@ class UserEvents(EventMixinTemplate):
             user.activities = Activity.from_list(event.data.get("activities"))
 
             self.dispatch(
-                events.PresenceUpdate(user, user.status, user.activities, event.data.get("client_status", None), g_id)
+                events.PresenceUpdate(
+                    user, user.status, user.activities, event.data.get("client_status", None), g_id
+                )
             )

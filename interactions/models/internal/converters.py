@@ -128,7 +128,9 @@ class SnowflakeConverter(IDConverter[SnowflakeObject]):
         Returns:
             SnowflakeObject: The converted object.
         """
-        match = self._get_id_match(argument) or re.match(r"<(?:@(?:!|&)?|#)([0-9]{15,})>$", argument)
+        match = self._get_id_match(argument) or re.match(
+            r"<(?:@(?:!|&)?|#)([0-9]{15,})>$", argument
+        )
 
         if match is None:
             raise BadArgument(argument)
@@ -170,7 +172,9 @@ class ChannelConverter(IDConverter[T_co]):
         elif ctx.guild:
             result = next((c for c in ctx.guild.channels if c.name == argument), None)
         else:
-            result = next((c for c in ctx.bot.cache.channel_cache.values() if c.name == argument), None)
+            result = next(
+                (c for c in ctx.bot.cache.channel_cache.values() if c.name == argument), None
+            )
 
         if not result:
             raise BadArgument(f'Channel "{argument}" not found.')
@@ -294,10 +298,14 @@ class UserConverter(IDConverter[User]):
             result = await ctx.bot.fetch_user(int(match.group(1)))
         else:
             if len(argument) > 5 and argument[-5] == "#":
-                result = next((u for u in ctx.bot.cache.user_cache.values() if u.tag == argument), None)
+                result = next(
+                    (u for u in ctx.bot.cache.user_cache.values() if u.tag == argument), None
+                )
 
             if not result:
-                result = next((u for u in ctx.bot.cache.user_cache.values() if u.username == argument), None)
+                result = next(
+                    (u for u in ctx.bot.cache.user_cache.values() if u.username == argument), None
+                )
 
         if not result:
             raise BadArgument(f'User "{argument}" not found.')
@@ -315,7 +323,10 @@ class MemberConverter(IDConverter[Member]):
             result = next((m for m in members if m.user.tag == argument), None)
 
         if not result:
-            result = next((m for m in members if m.display_name == argument or m.user.username == argument), None)
+            result = next(
+                (m for m in members if m.display_name == argument or m.user.username == argument),
+                None,
+            )
 
         return result
 
@@ -545,7 +556,9 @@ class CustomEmojiConverter(IDConverter[CustomEmoji]):
         if not ctx.guild:
             raise BadArgument("This command cannot be used in private messages.")
 
-        match = self._get_id_match(argument) or re.match(r"<a?:[a-zA-Z0-9\_]{1,32}:([0-9]{15,})>$", argument)
+        match = self._get_id_match(argument) or re.match(
+            r"<a?:[a-zA-Z0-9\_]{1,32}:([0-9]{15,})>$", argument
+        )
         result = None
 
         if match:

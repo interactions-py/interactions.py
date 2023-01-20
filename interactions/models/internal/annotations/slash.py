@@ -18,7 +18,14 @@ __all__ = (
 
 if TYPE_CHECKING:
     from interactions.models.internal import SlashCommandChoice
-    from interactions.models.discord import User, Member, Role, BaseChannel, ChannelTypes, Attachment
+    from interactions.models.discord import (
+        User,
+        Member,
+        Role,
+        BaseChannel,
+        ChannelTypes,
+        Attachment,
+    )
 
 
 def slash_str_option(
@@ -262,7 +269,10 @@ def slash_attachment_option(
 
     """
     option = SlashCommandOption(
-        name="placeholder", description=description, required=required, type=models.OptionTypes.ATTACHMENT
+        name="placeholder",
+        description=description,
+        required=required,
+        type=models.OptionTypes.ATTACHMENT,
     )
 
     return option  # type: ignore
