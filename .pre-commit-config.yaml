@@ -15,12 +15,12 @@ repos:
       name: Trailing Whitespace
       language: python
       types: [file]
-      exclude_types: ['image']
+      exclude_types: ['image', 'binary', 'executable']
     - id: end-of-file-fixer
       name: EOF Newlines
       language: python
       types: [file]
-      exclude_types: ['image']
+      exclude_types: ['image', 'binary', 'executable']
     - id: check-yaml
       name: YAML Structure
       language: python
@@ -44,6 +44,16 @@ repos:
       language: python
       types: [file, python]
       args: [--max-line-length=100, --ignore=E203 E301 E302 E501 E402 E704 W503 W504]
+      additional_dependencies:
+        # - flake8-annotations
+        # - flake8-bandit
+        # - flake8-docstrings
+        # - flake8-bugbear
+        # - flake8-comprehensions
+        # - flake8-raise
+        - flake8-deprecated
+        # - flake8-print
+        - git+https://github.com/python-formate/flake8-dunder-all
 #  - repo: https://github.com/pycqa/isort
 #    rev: 5.11.4
 #    hooks:
