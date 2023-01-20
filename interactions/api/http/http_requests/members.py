@@ -49,7 +49,9 @@ class MemberRequests(CanRequest):
         }
         payload = dict_filter_none(payload)
 
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/members"), params=payload)
+        result = await self.request(
+            Route("GET", f"/guilds/{int(guild_id)}/members"), params=payload
+        )
         return cast(list[discord_typings.GuildMemberData], result)
 
     async def search_guild_members(
@@ -65,7 +67,8 @@ class MemberRequests(CanRequest):
 
         """
         result = await self.request(
-            Route("GET", f"/guilds/{int(guild_id)}/members/search"), params={"query": query, "limit": limit}
+            Route("GET", f"/guilds/{int(guild_id)}/members/search"),
+            params={"query": query, "limit": limit},
         )
         return cast(list[discord_typings.GuildMemberData], result)
 
@@ -162,7 +165,8 @@ class MemberRequests(CanRequest):
 
         """
         await self.request(
-            Route("PUT", f"/guilds/{int(guild_id)}/members/{int(user_id)}/roles/{int(role_id)}"), reason=reason
+            Route("PUT", f"/guilds/{int(guild_id)}/members/{int(user_id)}/roles/{int(role_id)}"),
+            reason=reason,
         )
 
     async def remove_guild_member_role(
@@ -183,5 +187,6 @@ class MemberRequests(CanRequest):
 
         """
         await self.request(
-            Route("DELETE", f"/guilds/{int(guild_id)}/members/{int(user_id)}/roles/{int(role_id)}"), reason=reason
+            Route("DELETE", f"/guilds/{int(guild_id)}/members/{int(user_id)}/roles/{int(role_id)}"),
+            reason=reason,
         )

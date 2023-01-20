@@ -2,14 +2,23 @@ from base64 import b64encode
 from datetime import datetime, timezone
 from io import IOBase
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from attr import fields, has
 
 from interactions.client.const import MISSING, T
-from interactions.models.discord.file import UPLOADABLE_TYPE, File
 
-__all__ = ("no_export_meta", "export_converter", "to_dict", "dict_filter_none", "dict_filter", "to_image_data")
+if TYPE_CHECKING:
+    from interactions.models.discord.file import UPLOADABLE_TYPE, File
+
+__all__ = (
+    "no_export_meta",
+    "export_converter",
+    "to_dict",
+    "dict_filter_none",
+    "dict_filter",
+    "to_image_data",
+)
 
 no_export_meta = {"no_export": True}
 
@@ -120,7 +129,7 @@ def dict_filter(data: dict) -> dict:
     return filtered
 
 
-def to_image_data(imagefile: Optional[UPLOADABLE_TYPE]) -> Optional[str]:
+def to_image_data(imagefile: Optional["UPLOADABLE_TYPE"]) -> Optional[str]:
     """
     Converts an image file to base64 encoded image data for discord api.
 

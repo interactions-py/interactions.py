@@ -2,7 +2,16 @@ import asyncio
 import platform
 import tracemalloc
 
-from interactions import Client, Extension, listen, slash_command, InteractionContext, Timestamp, TimestampStyles, Intents
+from interactions import (
+    Client,
+    Extension,
+    listen,
+    slash_command,
+    InteractionContext,
+    Timestamp,
+    TimestampStyles,
+    Intents,
+)
 from interactions.client.const import get_logger, __version__, __py_version__
 from interactions.models.internal import checks
 from .debug_application_cmd import DebugAppCMD
@@ -62,7 +71,9 @@ class DebugExtension(DebugExec, DebugAppCMD, DebugExts, Extension):
 
         await ctx.send(embeds=[e])
 
-    @debug_info.subcommand("cache", sub_cmd_description="Get information about the current cache state")
+    @debug_info.subcommand(
+        "cache", sub_cmd_description="Get information about the current cache state"
+    )
     async def cache_info(self, ctx: InteractionContext) -> None:
         await ctx.defer()
         e = debug_embed("Cache")

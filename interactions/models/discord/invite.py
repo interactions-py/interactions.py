@@ -34,7 +34,9 @@ class Invite(ClientObject):
     """max number of times this invite can be used"""
     max_age: int = attrs.field(repr=False, default=0)
     """duration (in seconds) after which the invite expires"""
-    created_at: Timestamp = attrs.field(default=MISSING, converter=optional_c(timestamp_converter), repr=True)
+    created_at: Timestamp = attrs.field(
+        default=MISSING, converter=optional_c(timestamp_converter), repr=True
+    )
     """when this invite was created"""
     temporary: bool = attrs.field(default=False, repr=True)
     """whether this invite only grants temporary membership"""
@@ -52,7 +54,9 @@ class Invite(ClientObject):
         default=None, converter=optional_c(to_snowflake), repr=True
     )
     """guild scheduled event data, only included if `guild_scheduled_event_id` contains a valid guild scheduled event id"""
-    expires_at: Optional[Timestamp] = attrs.field(default=None, converter=optional_c(timestamp_converter), repr=True)
+    expires_at: Optional[Timestamp] = attrs.field(
+        default=None, converter=optional_c(timestamp_converter), repr=True
+    )
     """the expiration date of this invite, returned from the `GET /invites/<code>` endpoint when `with_expiration` is `True`"""
     stage_instance: Optional[StageInstance] = attrs.field(repr=False, default=None)
     """stage instance data if there is a public Stage instance in the Stage channel this invite is for (deprecated)"""
@@ -63,7 +67,9 @@ class Invite(ClientObject):
 
     # internal for props
     _channel_id: "Snowflake_Type" = attrs.field(converter=to_snowflake, repr=True)
-    _inviter_id: Optional["Snowflake_Type"] = attrs.field(default=None, converter=optional_c(to_snowflake), repr=True)
+    _inviter_id: Optional["Snowflake_Type"] = attrs.field(
+        default=None, converter=optional_c(to_snowflake), repr=True
+    )
     _target_user_id: Optional["Snowflake_Type"] = attrs.field(
         repr=False, default=None, converter=optional_c(to_snowflake)
     )
