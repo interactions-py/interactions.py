@@ -95,7 +95,7 @@ class SendMixin:
             if delete_after:
                 await message.delete(delay=delete_after)
             return message
-        
+
     async def respond(
         self,
         content: Optional[str] = None,
@@ -138,5 +138,5 @@ class SendMixin:
             suppress_embeds=suppress_embeds,
             flags=flags,
             delete_after=delete_after,
-            **kwargs
+            **kwargs,
         )

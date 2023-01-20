@@ -746,7 +746,7 @@ def slash_command(
                 perm = perm | func.default_member_permissions
             else:
                 perm = func.default_member_permissions
-        
+
         _name = name if name not in ["", MISSING] else func.__name__
         _description = description
         if _description is MISSING:
