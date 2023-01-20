@@ -63,6 +63,7 @@ from interactions.models import (
     NaffUser,
     User,
     Member,
+    Modal,
     StickerPack,
     Sticker,
     ScheduledEvent,
@@ -1046,7 +1047,7 @@ class Client(
         ] = None,
         check: Optional[Callable] = None,
         timeout: Optional[float] = None,
-    ) -> "Component":
+    ) -> "BaseComponent":
         """
         Waits for a component to be sent to the bot.
 
@@ -1317,7 +1318,7 @@ class Client(
                 try:
                     self.add_command(func)
                     added += 1
-                except TypeError as e:
+                except TypeError:
                     self.logger.debug(f"Failed to add callback {func} from {location}")
                     breakpoint()
                     continue

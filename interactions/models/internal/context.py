@@ -4,6 +4,9 @@ import typing
 
 import discord_typings
 from aiohttp import FormData
+from interactions.models.discord.components import BaseComponent
+from interactions.models.discord.file import UPLOADABLE_TYPE
+from interactions.models.discord.sticker import Sticker
 
 from interactions.models.internal.command import BaseCommand
 from interactions.client.mixins.modal import ModalMixin
@@ -11,8 +14,14 @@ from interactions.client.mixins.modal import ModalMixin
 from interactions.client.errors import HTTPException
 from interactions.client.mixins.send import SendMixin
 from interactions.models.discord.enums import Permissions, MessageFlags, InteractionTypes
-from interactions.models.discord.message import Attachment
-from interactions.models.discord.snowflake import Snowflake
+from interactions.models.discord.message import (
+    AllowedMentions,
+    Attachment,
+    Message,
+    MessageReference,
+)
+from interactions.models.discord.snowflake import Snowflake, Snowflake_Type
+from interactions.models.discord.embed import Embed
 from interactions.models.internal.application_commands import (
     OptionTypes,
     CallbackTypes,
@@ -20,11 +29,14 @@ from interactions.models.internal.application_commands import (
     InteractionCommand,
 )
 
+__all__ = ["AutocompleteContext", "BaseContext", "BaseInteractionContext", "ComponentContext", "ContextMenuContext", "InteractionContext", "ModalContext", "Resolved", "SlashContext"]
+
+
 if typing.TYPE_CHECKING:
     import interactions
 
 T_Context = typing.TypeVar("T_Context", bound="BaseContext")
-T_Resolved = typing.TypeVar("T_Resolved", bound="ResolvedContext")
+T_Resolved = typing.TypeVar("T_Resolved", bound="Resolved")
 
 
 class Resolved:
@@ -358,7 +370,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         delete_after: typing.Optional[float] = None,
         ephemeral: bool = False,
         **kwargs: typing.Any,
-    ) -> "Message":
+    ) -> "interactions.Message":
         """
         Send a message.
 

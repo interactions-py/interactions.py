@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from interactions.models.discord.user import Member, User
 
 from interactions.models.internal.context import BaseContext
 from interactions.models.internal.converters import NoArgumentConverter

@@ -24,6 +24,7 @@ from interactions import (
 )
 from interactions.client.utils.serializer import export_converter
 from interactions.models.discord.emoji import process_emoji
+from interactions.models.internal.context import PrefixedContext
 
 if TYPE_CHECKING:
     from interactions import Client
