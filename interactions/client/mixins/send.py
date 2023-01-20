@@ -95,3 +95,48 @@ class SendMixin:
             if delete_after:
                 await message.delete(delay=delete_after)
             return message
+        
+    async def respond(
+        self,
+        content: Optional[str] = None,
+        *,
+        embeds: Optional[Union[Iterable[Union["Embed", dict]], Union["Embed", dict]]] = None,
+        embed: Optional[Union["Embed", dict]] = None,
+        components: Optional[
+            Union[
+                Iterable[Iterable[Union["BaseComponent", dict]]],
+                Iterable[Union["BaseComponent", dict]],
+                "BaseComponent",
+                dict,
+            ]
+        ] = None,
+        stickers: Optional[
+            Union[Iterable[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]
+        ] = None,
+        allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
+        reply_to: Optional[Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
+        files: Optional[Union["UPLOADABLE_TYPE", Iterable["UPLOADABLE_TYPE"]]] = None,
+        file: Optional["UPLOADABLE_TYPE"] = None,
+        tts: bool = False,
+        suppress_embeds: bool = False,
+        flags: Optional[Union[int, "MessageFlags"]] = None,
+        delete_after: Optional[float] = None,
+        **kwargs: Any,
+    ) -> "Message":
+        """An alias of the send method for messages."""
+        return await self.send(
+            content,
+            embeds=embeds,
+            embed=embed,
+            components=components,
+            stickers=stickers,
+            allowed_mentions=allowed_mentions,
+            reply_to=reply_to,
+            files=files,
+            file=file,
+            tts=tts,
+            suppress_embeds=suppress_embeds,
+            flags=flags,
+            delete_after=delete_after,
+            **kwargs
+        )
