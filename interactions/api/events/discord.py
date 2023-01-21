@@ -43,6 +43,7 @@ __all__ = (
     "ChannelDelete",
     "ChannelPinsUpdate",
     "ChannelUpdate",
+    "GuildAuditLogEntryCreate",
     "GuildEmojisUpdate",
     "GuildJoin",
     "GuildLeft",
@@ -752,3 +753,11 @@ class VoiceUserLeave(BaseVoiceEvent):
         repr=False,
     )
     """The voice channel the user left"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildAuditLogEntryCreate(GuildEvent):
+    """Dispatched when audit log entry is created"""
+
+    audit_log_entry: interactions.models.AuditLogEntry = attrs.field(repr=False)
+    """The audit log entry object"""
