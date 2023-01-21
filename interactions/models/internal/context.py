@@ -247,8 +247,11 @@ class BaseInteractionContext(BaseContext):
         if member := payload.get("member"):
             instance.author_id = Snowflake(member["user"]["id"])
             instance.guild_id = Snowflake(payload["guild_id"])
+            client.cache.place_member_data(instance.guild_id, member)
         else:
             instance.author_id = Snowflake(payload["user"]["id"])
+            client.cache.place_user_data(payload["user"])
+
         instance.guild_id = Snowflake(payload.get("guild_id"))
 
         instance.command_id = Snowflake(payload["data"]["id"])
