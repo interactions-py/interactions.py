@@ -39,4 +39,28 @@ async def ping(ctx):
     await ctx.send("Pong!", components=action_rows, embeds=embed)
 
 
+@slash_command("components")
+async def components(ctx):
+    selects = [
+        [interactions.ChannelSelectMenu()],
+        [interactions.RoleSelectMenu()],
+        [interactions.UserSelectMenu()],
+        [interactions.MentionableSelectMenu()],
+        [interactions.StringSelectMenu("test", "test 2", "test 3")],
+    ]
+    await ctx.send("Select menus", components=selects)
+    await ctx.send(
+        "Buttons",
+        components=[interactions.Button(label="test", style=interactions.ButtonStyles.PRIMARY)]
+    )
+
+@listen()
+async def on_component(event: interactions.events.Component):
+    ctx: interactions.ComponentContext = event.ctx
+
+    if ctx.values:
+        await ctx.send(f"Selected {ctx.values}")
+    else:
+        await ctx.send(f"Clicked {ctx.custom_id}")
+
 bot.start(os.environ["TOKEN"])
