@@ -62,6 +62,8 @@ class Extension:
     auto_defer: "AutoDefer"
 
     class Metadata:
+        """Info about the Extension"""
+
         name: str
         """The name of this Extension"""
         version: str
@@ -137,7 +139,6 @@ class Extension:
 
     def drop(self) -> None:
         """Called when this Extension is being removed."""
-
         for func in self._commands:
             if isinstance(func, models.ModalCommand):
                 for listener in func.listeners:

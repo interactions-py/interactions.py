@@ -372,7 +372,7 @@ class Member(DiscordObject, _SendDMMixin):
         if name in self._user_ref:
             return getattr(self.user, name)
         else:
-            raise AttributeError(f"Neither `User` or `Member` have attribute {name}") from e
+            raise AttributeError(f"Neither `User` or `Member` have attribute {name}")
 
     @property
     def nickname(self) -> str:

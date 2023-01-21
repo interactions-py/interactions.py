@@ -30,7 +30,7 @@ from interactions.api.events.base import BaseEvent, RawGatewayEvent
 from interactions.client.utils.attr_utils import docs
 
 if typing.TYPE_CHECKING:
-    from interactions import Extension
+    from interactions import Extension, BaseCommand, Listener
 
 __all__ = (
     "ButtonPressed",

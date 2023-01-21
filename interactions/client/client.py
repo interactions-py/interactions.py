@@ -63,6 +63,7 @@ from interactions.models import (
     NaffUser,
     User,
     Member,
+    Modal,
     StickerPack,
     Sticker,
     ScheduledEvent,
@@ -1047,7 +1048,7 @@ class Client(
         ] = None,
         check: Optional[Callable] = None,
         timeout: Optional[float] = None,
-    ) -> "Component":
+    ) -> "BaseComponent":
         """
         Waits for a component to be sent to the bot.
 
@@ -1096,9 +1097,7 @@ class Client(
         return await self.wait_for("component", checks=_check, timeout=timeout)
 
     def command(self, *args, **kwargs) -> Callable:
-        """
-        A decorator that registers a command. Aliases `interactions.slash_command`
-        """
+        """A decorator that registers a command. Aliases `interactions.slash_command`"""
         raise NotImplementedError  # TODO: implement
 
     def listen(self, event_name: Absent[str] = MISSING) -> Listener:
@@ -1318,7 +1317,7 @@ class Client(
                 try:
                     self.add_command(func)
                     added += 1
-                except TypeError as e:
+                except TypeError:
                     self.logger.debug(f"Failed to add callback {func} from {location}")
                     breakpoint()
                     continue
@@ -1704,7 +1703,7 @@ class Client(
         error_callback: Type[BaseEvent],
         completion_callback: Type[BaseEvent] | None = None,
         callback_kwargs: dict | None = None,
-    ):
+    ) -> None:
         if callback_kwargs is None:
             callback_kwargs = {}
 
@@ -1768,9 +1767,7 @@ class Client(
         return None
 
     def __load_module(self, module, module_name, **load_kwargs) -> None:
-        """
-        Internal method that handles loading a module.
-        """
+        """Internal method that handles loading a module."""
         try:
             setup = getattr(module, "setup", None)
             if setup:
@@ -1925,7 +1922,7 @@ class Client(
                 self.logger.info(f"Reverted extension {name} to previous state")
             except Exception as ex:
                 sys.modules.pop(name, None)
-                raise ex from e
+                raise ex from e  # noqa: R101
 
     async def fetch_guild(self, guild_id: "Snowflake_Type") -> Optional[Guild]:
         """
