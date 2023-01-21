@@ -1,7 +1,7 @@
 from enum import Enum, EnumMeta, IntEnum, IntFlag
 from functools import reduce
 from operator import or_
-from typing import Iterator, Tuple, Type, TypeVar
+from typing import Iterator, Tuple, TypeVar, Type
 
 from interactions.client.const import get_logger
 

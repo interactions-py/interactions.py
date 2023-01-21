@@ -1,23 +1,22 @@
 from functools import partial, total_ordering
-from typing import TYPE_CHECKING, Any
+from typing import Any, TYPE_CHECKING
 
 import attrs
 
-from interactions.client.const import MISSING, Missing, T
+from interactions.client.const import MISSING, T, Missing
 from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.serializer import dict_filter
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.color import COLOR_TYPES, Color, process_color
 from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.enums import Permissions
-
 from .base import DiscordObject
 
 if TYPE_CHECKING:
     from interactions.client import Client
     from interactions.models.discord.guild import Guild
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.user import Member
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = ("Role",)
 

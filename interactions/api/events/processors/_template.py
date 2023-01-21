@@ -3,12 +3,12 @@ import functools
 import inspect
 from typing import TYPE_CHECKING, Callable, Coroutine
 
-from interactions.client.const import MISSING, Absent
+from interactions.client.const import Absent, MISSING
 from interactions.models.discord.user import NaffUser
 
 if TYPE_CHECKING:
-    from interactions.api.events.internal import BaseEvent
     from interactions.client.smart_cache import GlobalCache
+    from interactions.api.events.internal import BaseEvent
 
 __all__ = ("Processor", "EventMixinTemplate")
 

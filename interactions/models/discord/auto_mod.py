@@ -1,22 +1,29 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 import attrs
 
-from interactions.client.const import MISSING, Absent, get_logger
+from interactions.client.const import get_logger, MISSING, Absent
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import list_converter, optional
 from interactions.client.utils.attr_utils import docs
 from interactions.models.discord.base import ClientObject, DiscordObject
 from interactions.models.discord.enums import (
+    AutoModTriggerType,
     AutoModAction,
     AutoModEvent,
     AutoModLanuguageType,
-    AutoModTriggerType,
 )
-from interactions.models.discord.snowflake import to_snowflake, to_snowflake_list
+from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 
 if TYPE_CHECKING:
-    from interactions import Client, Guild, GuildText, Member, Message, Snowflake_Type
+    from interactions import (
+        Snowflake_Type,
+        Guild,
+        GuildText,
+        Message,
+        Client,
+        Member,
+    )
 
 __all__ = ("AutoModerationAction", "AutoModRule")
 

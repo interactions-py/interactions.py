@@ -2,7 +2,6 @@ import copy
 from typing import TYPE_CHECKING
 
 import interactions.api.events as events
-
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:

@@ -3,7 +3,7 @@ import inspect
 import re
 import typing
 from enum import IntEnum
-from typing import TYPE_CHECKING, Annotated, Any, Callable, Coroutine, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Annotated, Callable, Coroutine, Dict, List, Union, Optional, Any
 
 import attrs
 from attr import Attribute
@@ -11,10 +11,10 @@ from attr import Attribute
 import interactions.models.discord.channel as channel
 from interactions.client.const import (
     GLOBAL_SCOPE,
-    MISSING,
-    SLASH_CMD_MAX_DESC_LENGTH,
-    SLASH_CMD_MAX_OPTIONS,
     SLASH_CMD_NAME_LENGTH,
+    SLASH_CMD_MAX_OPTIONS,
+    SLASH_CMD_MAX_DESC_LENGTH,
+    MISSING,
     Absent,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
@@ -24,16 +24,16 @@ from interactions.client.utils.misc_utils import get_parameters
 from interactions.client.utils.serializer import no_export_meta
 from interactions.models.discord.enums import ChannelTypes, CommandTypes, Permissions
 from interactions.models.discord.role import Role
-from interactions.models.discord.snowflake import to_snowflake, to_snowflake_list
+from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 from interactions.models.discord.user import BaseUser
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.localisation import LocalisedField
 
 if TYPE_CHECKING:
-    from interactions import Client
     from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.internal.context import Context
+    from interactions import Client
 
 __all__ = (
     "OptionTypes",

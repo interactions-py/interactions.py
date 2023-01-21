@@ -3,15 +3,14 @@ from typing import TYPE_CHECKING, Any, List, Optional
 import discord_typings
 
 from interactions.client.const import MISSING
-
 from ..route import Route
 
 __all__ = ("StickerRequests",)
 
 
 if TYPE_CHECKING:
-    from interactions import UPLOADABLE_TYPE
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions import UPLOADABLE_TYPE
 
 
 class StickerRequests:

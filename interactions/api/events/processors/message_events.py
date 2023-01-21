@@ -2,8 +2,7 @@ import copy
 from typing import TYPE_CHECKING
 
 import interactions.api.events as events
-from interactions.models import BaseMessage, to_snowflake
-
+from interactions.models import to_snowflake, BaseMessage
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:

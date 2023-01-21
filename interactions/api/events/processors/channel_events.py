@@ -5,7 +5,6 @@ import interactions.api.events as events
 from interactions.client.const import MISSING
 from interactions.models.discord.channel import BaseChannel
 from interactions.models.discord.invite import Invite
-
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:

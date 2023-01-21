@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union, Dict, Any
 
 import attrs
 
@@ -11,14 +11,13 @@ from interactions.models.discord.guild import GuildPreview
 from interactions.models.discord.snowflake import to_snowflake
 from interactions.models.discord.stage_instance import StageInstance
 from interactions.models.discord.timestamp import Timestamp
-
 from .base import ClientObject
 
 if TYPE_CHECKING:
     from interactions.client import Client
     from interactions.models import TYPE_GUILD_CHANNEL
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.user import User
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = ("Invite",)
 

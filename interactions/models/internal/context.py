@@ -5,19 +5,20 @@ import typing
 import discord_typings
 from aiohttp import FormData
 
-from interactions.client.errors import HTTPException
+from interactions.models.internal.command import BaseCommand
 from interactions.client.mixins.modal import ModalMixin
+
+from interactions.client.errors import HTTPException
 from interactions.client.mixins.send import SendMixin
-from interactions.models.discord.enums import InteractionTypes, MessageFlags, Permissions
+from interactions.models.discord.enums import Permissions, MessageFlags, InteractionTypes
 from interactions.models.discord.message import Attachment
 from interactions.models.discord.snowflake import Snowflake
 from interactions.models.internal.application_commands import (
-    CallbackTypes,
-    InteractionCommand,
     OptionTypes,
+    CallbackTypes,
     SlashCommandOption,
+    InteractionCommand,
 )
-from interactions.models.internal.command import BaseCommand
 
 if typing.TYPE_CHECKING:
     import interactions

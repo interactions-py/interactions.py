@@ -33,10 +33,10 @@ from interactions.api.gateway.state import ConnectionState
 from interactions.api.http.http_client import HTTPClient
 from interactions.client import errors
 from interactions.client.const import (
-    EMBED_MAX_DESC_LENGTH,
     GLOBAL_SCOPE,
     MISSING,
     Absent,
+    EMBED_MAX_DESC_LENGTH,
     get_logger,
 )
 from interactions.client.errors import (
@@ -44,8 +44,8 @@ from interactions.client.errors import (
     ExtensionLoadException,
     ExtensionNotFound,
     Forbidden,
-    HTTPException,
     InteractionMissingAccess,
+    HTTPException,
     NotFound,
 )
 from interactions.client.smart_cache import GlobalCache
@@ -55,37 +55,37 @@ from interactions.client.utils.serializer import to_image_data
 from interactions.models import (
     Activity,
     Application,
-    ComponentCommand,
     CustomEmoji,
-    Extension,
     Guild,
     GuildTemplate,
-    InteractionCommand,
-    Member,
     Message,
+    Extension,
     NaffUser,
-    OptionTypes,
-    ScheduledEvent,
-    SlashCommand,
-    Sticker,
-    StickerPack,
     User,
-    VoiceRegion,
-    Wait,
+    Member,
+    StickerPack,
+    Sticker,
+    ScheduledEvent,
+    InteractionCommand,
+    SlashCommand,
+    OptionTypes,
+    to_snowflake,
+    ComponentCommand,
     application_commands_to_dict,
     sync_needed,
-    to_snowflake,
+    VoiceRegion,
 )
+from interactions.models import Wait
 from interactions.models.discord.channel import BaseChannel
 from interactions.models.discord.color import BrandColors
-from interactions.models.discord.components import BaseComponent, get_components_ids
+from interactions.models.discord.components import get_components_ids, BaseComponent
 from interactions.models.discord.embed import Embed
 from interactions.models.discord.enums import (
-    ChannelTypes,
     ComponentTypes,
     Intents,
     InteractionTypes,
     Status,
+    ChannelTypes,
 )
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import Snowflake, to_snowflake_list
@@ -94,18 +94,18 @@ from interactions.models.internal.application_commands import ContextMenu, Modal
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.context import (
-    AutocompleteContext,
     BaseContext,
-    ComponentContext,
     InteractionContext,
-    ModalContext,
     SlashContext,
+    ModalContext,
+    ComponentContext,
+    AutocompleteContext,
 )
 from interactions.models.internal.listener import Listener
 from interactions.models.internal.tasks import Task
 
 if TYPE_CHECKING:
-    from interactions.models import TYPE_ALL_CHANNEL, Snowflake_Type
+    from interactions.models import Snowflake_Type, TYPE_ALL_CHANNEL
 
 
 __all__ = ("Client",)

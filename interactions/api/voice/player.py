@@ -3,10 +3,10 @@ import shutil
 import threading
 from asyncio import AbstractEventLoop, run_coroutine_threadsafe
 from logging import Logger
-from time import perf_counter, sleep
-from typing import TYPE_CHECKING, Optional
+from time import sleep, perf_counter
+from typing import Optional, TYPE_CHECKING
 
-from interactions.api.voice.audio import AudioVolume, BaseAudio
+from interactions.api.voice.audio import BaseAudio, AudioVolume
 from interactions.api.voice.opus import Encoder
 
 if TYPE_CHECKING:

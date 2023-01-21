@@ -1,9 +1,8 @@
-from typing import TYPE_CHECKING, Union
+from typing import Union, TYPE_CHECKING
 
 import interactions.api.events as events
-from interactions.models import Activity, BaseChannel, Member, Timestamp, User, to_snowflake
+from interactions.models import User, Member, BaseChannel, Timestamp, to_snowflake, Activity
 from interactions.models.discord.enums import Status
-
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:

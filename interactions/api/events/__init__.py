@@ -1,7 +1,7 @@
 from . import processors
-from .base import *
 from .discord import *
 from .internal import *
+from .base import *
 
 __all__ = (
     "ApplicationCommandPermissionsUpdate",

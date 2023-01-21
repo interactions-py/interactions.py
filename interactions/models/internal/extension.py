@@ -1,10 +1,10 @@
 import asyncio
 import inspect
 import typing
-from typing import TYPE_CHECKING, Awaitable, Callable, Coroutine, Dict, List, Optional
+from typing import Awaitable, Dict, List, TYPE_CHECKING, Callable, Coroutine, Optional
 
-import interactions.api.events as events
 import interactions.models.internal as models
+import interactions.api.events as events
 from interactions.client.const import MISSING
 from interactions.client.utils.misc_utils import wrap_partial
 from interactions.models.internal import ContextMenu
@@ -13,13 +13,8 @@ from interactions.models.internal.tasks import Task
 if TYPE_CHECKING:
     from interactions.client import Client
     from interactions.models.discord import Snowflake_Type
-    from interactions.models.internal import (
-        AutoDefer,
-        BaseCommand,
-        Context,
-        InteractionCommand,
-        Listener,
-    )
+    from interactions.models.internal import AutoDefer, BaseCommand, InteractionCommand, Listener
+    from interactions.models.internal import Context
 
 
 __all__ = ("Extension",)

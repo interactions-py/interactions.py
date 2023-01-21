@@ -22,7 +22,7 @@ These are events dispatched by the client. This is intended as a reference so yo
 """
 import re
 import typing
-from typing import TYPE_CHECKING, Any, Optional, Type
+from typing import Any, Optional, TYPE_CHECKING, Type
 
 import attrs
 
@@ -63,13 +63,13 @@ __all__ = (
 
 if TYPE_CHECKING:
     from interactions.models.internal.context import (
-        AutocompleteContext,
         ComponentContext,
         Context,
-        HybridContext,
-        InteractionContext,
+        AutocompleteContext,
         ModalContext,
+        InteractionContext,
         PrefixedContext,
+        HybridContext,
     )
 
 _event_reg = re.compile("(?<!^)(?=[A-Z])")

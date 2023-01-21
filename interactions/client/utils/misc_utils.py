@@ -1,7 +1,7 @@
 import functools
 import inspect
 import re
-from typing import Any, Callable, Iterable, List, Optional, Union
+from typing import Callable, Iterable, List, Optional, Any, Union
 
 import interactions.api.events as events
 from interactions.client.const import T

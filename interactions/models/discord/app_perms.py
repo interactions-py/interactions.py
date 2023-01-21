@@ -2,12 +2,12 @@ from typing import TYPE_CHECKING
 
 import attrs
 
-from interactions.models.discord.base import ClientObject, DiscordObject
+from interactions.models.discord.base import DiscordObject, ClientObject
 from interactions.models.discord.enums import InteractionPermissionTypes
 from interactions.models.discord.snowflake import to_snowflake
 
 if TYPE_CHECKING:
-    from interactions import Guild, Snowflake_Type
+    from interactions import Snowflake_Type, Guild
 
 __all__ = ("ApplicationCommandPermission",)
 

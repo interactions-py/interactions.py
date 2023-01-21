@@ -1,10 +1,10 @@
 import datetime
-from typing import List, Optional, SupportsInt, Union
+from typing import Union, List, SupportsInt, Optional
 
 import attrs
 
 import interactions.models as models
-from interactions.client.const import DISCORD_EPOCH, MISSING, Absent
+from interactions.client.const import MISSING, Absent, DISCORD_EPOCH
 
 __all__ = (
     "to_snowflake",
@@ -102,9 +102,9 @@ class Snowflake(int):
 
         :Returns:
         """
-        from interactions.models import (  # dirty i know; but it's an unavoidable circular import
+        from interactions.models import (
             Timestamp,
-        )
+        )  # dirty i know; but it's an unavoidable circular import
 
         return Timestamp.from_snowflake(self)
 

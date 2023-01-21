@@ -4,14 +4,19 @@ from types import ModuleType
 from typing import Callable, Dict
 
 from interactions import Extension, SlashCommand, listen
-from interactions.client.const import get_logger
 from interactions.client.errors import ExtensionLoadException, ExtensionNotFound
 from interactions.client.utils.misc_utils import find
+from interactions.client.const import get_logger
 
 try:
-    from jurigged import CodeFile, watch
-    from jurigged.codetools import AddOperation, DeleteOperation, LineDefinition, UpdateOperation
+    from jurigged import watch, CodeFile
     from jurigged.live import WatchOperation
+    from jurigged.codetools import (
+        AddOperation,
+        DeleteOperation,
+        UpdateOperation,
+        LineDefinition,
+    )
 except ModuleNotFoundError:
     get_logger().error(
         "jurigged not installed, cannot enable jurigged integration.  Install with `pip install interactions[jurigged]`"

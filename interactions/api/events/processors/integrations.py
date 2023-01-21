@@ -2,9 +2,8 @@ from typing import TYPE_CHECKING
 
 from interactions.models.discord.app_perms import ApplicationCommandPermission, CommandPermissions
 from interactions.models.discord.snowflake import to_snowflake
-
-from ... import events
 from ._template import EventMixinTemplate, Processor
+from ... import events
 
 if TYPE_CHECKING:
     from interactions.api.events import RawGatewayEvent

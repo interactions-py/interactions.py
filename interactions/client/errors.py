@@ -1,16 +1,15 @@
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Optional, SupportsInt, Union
+from typing import Dict, Any, TYPE_CHECKING, Callable, Coroutine, List, Optional, SupportsInt, Union
 
 import aiohttp
 
 from interactions.client.utils.misc_utils import escape_mentions
-
 from . import const
 
 if TYPE_CHECKING:
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.internal.command import BaseCommand
     from interactions.models.internal.context import Context
     from interactions.models.internal.cooldowns import CooldownSystem, MaxConcurrency
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = (
     "NaffException",

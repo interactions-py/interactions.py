@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING
 
 from interactions.models.discord.auto_mod import AutoModerationAction, AutoModRule
-
-from ... import events
 from ._template import EventMixinTemplate, Processor
+from ... import events
 
 if TYPE_CHECKING:
     from interactions.api.events import RawGatewayEvent

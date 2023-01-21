@@ -1,12 +1,12 @@
-from typing import List, Optional
+from typing import Optional, List
 
 import attrs
 
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_converters import optional, timestamp_converter
+from interactions.client.utils.attr_converters import timestamp_converter, optional
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.discord.emoji import PartialEmoji
-from interactions.models.discord.enums import ActivityFlags, ActivityType
+from interactions.models.discord.enums import ActivityType, ActivityFlags
 from interactions.models.discord.snowflake import Snowflake_Type
 from interactions.models.discord.timestamp import Timestamp
 

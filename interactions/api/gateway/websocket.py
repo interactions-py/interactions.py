@@ -5,7 +5,7 @@ import time
 import zlib
 from abc import abstractmethod
 from types import TracebackType
-from typing import TYPE_CHECKING, TypeVar
+from typing import TypeVar, TYPE_CHECKING
 
 from aiohttp import WSMsgType
 

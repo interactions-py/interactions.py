@@ -1,13 +1,13 @@
 import uuid
 from enum import IntEnum
-from typing import List, Optional, Union
+from typing import Union, Optional, List
 
 import attrs
 
 from interactions.client.const import MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils.attr_utils import str_validator
-from interactions.models.discord.components import ComponentTypes, InteractiveComponent
+from interactions.models.discord.components import InteractiveComponent, ComponentTypes
 from interactions.models.internal.application_commands import CallbackTypes
 
 __all__ = ("InputText", "Modal", "ParagraphText", "ShortText", "TextStyles")

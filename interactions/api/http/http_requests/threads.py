@@ -12,8 +12,8 @@ __all__ = ("ThreadRequests",)
 
 
 if TYPE_CHECKING:
-    from interactions import UPLOADABLE_TYPE
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions import UPLOADABLE_TYPE
 
 
 class ThreadRequests:

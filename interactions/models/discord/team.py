@@ -1,17 +1,16 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Dict, Any, Union
 
 import attrs
 
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.enums import TeamMembershipState
 from interactions.models.discord.snowflake import to_snowflake
-
 from .base import DiscordObject
 
 if TYPE_CHECKING:
-    from interactions.client import Client
-    from interactions.models.discord.snowflake import Snowflake_Type, SnowflakeObject
     from interactions.models.discord.user import User
+    from interactions.models.discord.snowflake import Snowflake_Type, SnowflakeObject
+    from interactions.client import Client
 
 __all__ = ("TeamMember", "Team")
 

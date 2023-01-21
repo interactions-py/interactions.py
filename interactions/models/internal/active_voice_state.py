@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, Optional
+from typing import Optional, TYPE_CHECKING
 
 import attrs
 from discord_typings import VoiceStateData
@@ -13,8 +13,8 @@ from interactions.models.discord.snowflake import Snowflake_Type, to_snowflake
 from interactions.models.discord.voice_state import VoiceState
 
 if TYPE_CHECKING:
-    from interactions.api.gateway.gateway import GatewayClient
     from interactions.api.voice.audio import BaseAudio
+    from interactions.api.gateway.gateway import GatewayClient
 
 __all__ = ("ActiveVoiceState",)
 

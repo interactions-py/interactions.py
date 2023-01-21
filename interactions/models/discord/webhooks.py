@@ -1,27 +1,31 @@
 import re
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import Optional, TYPE_CHECKING, Union, Dict, Any, List
 
 import attrs
 
 from interactions.client.const import MISSING, Absent
-from interactions.client.errors import EmptyMessageException, ForeignWebhookException
+from interactions.client.errors import ForeignWebhookException, EmptyMessageException
 from interactions.client.mixins.send import SendMixin
 from interactions.client.utils.serializer import to_image_data
 from interactions.models.discord.message import process_message_payload
-from interactions.models.discord.snowflake import to_optional_snowflake, to_snowflake
-
+from interactions.models.discord.snowflake import to_snowflake, to_optional_snowflake
 from .base import DiscordObject
 
 if TYPE_CHECKING:
+    from interactions.models.discord.file import UPLOADABLE_TYPE
     from interactions.client import Client
+    from interactions.models.discord.enums import MessageFlags
+    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.channel import TYPE_MESSAGEABLE_CHANNEL
     from interactions.models.discord.components import BaseComponent
     from interactions.models.discord.embed import Embed
-    from interactions.models.discord.enums import MessageFlags
-    from interactions.models.discord.file import UPLOADABLE_TYPE
-    from interactions.models.discord.message import AllowedMentions, Message, MessageReference
-    from interactions.models.discord.snowflake import Snowflake_Type
+
+    from interactions.models.discord.message import (
+        AllowedMentions,
+        Message,
+        MessageReference,
+    )
     from interactions.models.discord.sticker import Sticker
 
 __all__ = ("WebhookTypes", "Webhook")

@@ -7,7 +7,8 @@ import attrs
 import emoji
 
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_converters import list_converter, optional
+from interactions.client.utils.attr_converters import list_converter
+from interactions.client.utils.attr_converters import optional
 from interactions.client.utils.serializer import dict_filter_none, no_export_meta
 from interactions.models.discord.base import ClientObject
 from interactions.models.discord.snowflake import SnowflakeObject, to_snowflake
@@ -15,9 +16,9 @@ from interactions.models.discord.snowflake import SnowflakeObject, to_snowflake
 if TYPE_CHECKING:
     from interactions.client import Client
     from interactions.models.discord.guild import Guild
+    from interactions.models.discord.user import User, Member
     from interactions.models.discord.role import Role
     from interactions.models.discord.snowflake import Snowflake_Type
-    from interactions.models.discord.user import Member, User
 
 __all__ = ("PartialEmoji", "CustomEmoji", "process_emoji_req_format", "process_emoji")
 

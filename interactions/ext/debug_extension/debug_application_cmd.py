@@ -8,16 +8,15 @@ from interactions.client.client import Client
 from interactions.client.const import GLOBAL_SCOPE
 from interactions.client.errors import HTTPException
 from interactions.models import (
-    File,
+    slash_command,
     InteractionContext,
+    File,
     Message,
+    slash_option,
     OptionTypes,
     application_commands_to_dict,
     checks,
-    slash_command,
-    slash_option,
 )
-
 from .utils import debug_embed
 
 __all__ = ("DebugAppCMD",)

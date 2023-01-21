@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Any, List
 import discord_typings
 
 from interactions.client.const import MISSING, Absent
-
 from ..route import Route
 
 __all__ = ("ReactionRequests",)

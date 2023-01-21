@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.models import PartialEmoji, Reaction
-
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:

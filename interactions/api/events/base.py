@@ -10,8 +10,8 @@ from interactions.models.discord.snowflake import to_snowflake
 
 if TYPE_CHECKING:
     from interactions import Client
-    from interactions.models.discord.guild import Guild
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models.discord.guild import Guild
 
 __all__ = ("BaseEvent", "GuildEvent", "RawGatewayEvent")
 

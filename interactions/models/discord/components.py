@@ -1,20 +1,20 @@
 import uuid
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Sequence, Union
+from typing import Any, Dict, Iterator, List, Optional, Sequence, TYPE_CHECKING, Union
 
 import attrs
 
 from interactions.client.const import (
+    SELECTS_MAX_OPTIONS,
+    SELECT_MAX_NAME_LENGTH,
     ACTION_ROW_MAX_ITEMS,
     MISSING,
-    SELECT_MAX_NAME_LENGTH,
-    SELECTS_MAX_OPTIONS,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import list_converter
 from interactions.client.utils.attr_utils import str_validator
 from interactions.client.utils.serializer import export_converter
 from interactions.models.discord.emoji import process_emoji
-from interactions.models.discord.enums import ButtonStyles, ChannelTypes, ComponentTypes
+from interactions.models.discord.enums import ButtonStyles, ComponentTypes, ChannelTypes
 
 if TYPE_CHECKING:
     from interactions.models.discord.emoji import PartialEmoji

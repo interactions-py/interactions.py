@@ -8,12 +8,11 @@ from interactions.client.const import MISSING
 from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.snowflake import to_snowflake
 from interactions.models.misc.iterator import AsyncIterator
-
 from .base import ClientObject
 
 if TYPE_CHECKING:
-    from interactions.models import TYPE_ALL_CHANNEL, Message
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models import Message, TYPE_ALL_CHANNEL
     from interactions.models.discord.user import User
 
 __all__ = ("ReactionUsers", "Reaction")

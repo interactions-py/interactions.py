@@ -1,18 +1,17 @@
-from typing import TYPE_CHECKING, Any, List, Mapping, cast
+from typing import TYPE_CHECKING, List, cast, Mapping, Any
 
 import discord_typings
 
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.internal.protocols import CanRequest
-
-from ..route import PAYLOAD_TYPE, Route
+from ..route import Route, PAYLOAD_TYPE
 
 __all__ = ("GuildRequests",)
 
 
 if TYPE_CHECKING:
-    from interactions.models.discord.enums import AuditLogEventType
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models.discord.enums import AuditLogEventType
 
 
 class GuildRequests(CanRequest):

@@ -1,5 +1,5 @@
 import copy
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Optional, Dict, Any
 
 import attrs
 
@@ -9,14 +9,13 @@ from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.models.discord.snowflake import to_snowflake
 from interactions.models.discord.timestamp import Timestamp
-
 from .base import ClientObject
 
 if TYPE_CHECKING:
     from interactions.client import Client
-    from interactions.models import TYPE_VOICE_CHANNEL, Guild
-    from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models import Guild, TYPE_VOICE_CHANNEL
     from interactions.models.discord.user import Member
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = ("VoiceState", "VoiceRegion")
 

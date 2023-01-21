@@ -5,20 +5,21 @@ import attrs
 from interactions.client.const import MISSING, Absent
 from interactions.client.errors import EventLocationNotProvided
 from interactions.client.utils import to_image_data
-from interactions.client.utils.attr_converters import optional, timestamp_converter
+from interactions.client.utils.attr_converters import optional
+from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import Snowflake_Type, to_snowflake
 from interactions.models.discord.timestamp import Timestamp
-
 from .base import DiscordObject
-from .enums import ScheduledEventPrivacyLevel, ScheduledEventStatus, ScheduledEventType
+from .enums import ScheduledEventPrivacyLevel, ScheduledEventType, ScheduledEventStatus
 
 if TYPE_CHECKING:
     from interactions.client import Client
     from interactions.models.discord.channel import GuildStageVoice, GuildVoice
     from interactions.models.discord.guild import Guild
-    from interactions.models.discord.user import Member, User
+    from interactions.models.discord.user import Member
+    from interactions.models.discord.user import User
 
 __all__ = ("ScheduledEvent",)
 

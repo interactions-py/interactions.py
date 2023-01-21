@@ -4,13 +4,13 @@ import interactions.models as models
 
 if TYPE_CHECKING:
     from interactions.client import Client
+    from interactions.models.discord.file import UPLOADABLE_TYPE
     from interactions.models.discord.components import BaseComponent
     from interactions.models.discord.embed import Embed
-    from interactions.models.discord.enums import MessageFlags
-    from interactions.models.discord.file import UPLOADABLE_TYPE
     from interactions.models.discord.message import AllowedMentions, Message, MessageReference
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.sticker import Sticker
+    from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models.discord.enums import MessageFlags
 
 __all__ = ("SendMixin",)
 

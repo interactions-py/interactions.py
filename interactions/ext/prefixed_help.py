@@ -8,7 +8,7 @@ from interactions import Embed, get_logger
 from interactions.ext.paginators import Paginator
 from interactions.models.discord.color import BrandColors, Color
 from interactions.models.internal.context import PrefixedContext
-from interactions.models.internal.prefixed_commands import PrefixedCommand, prefixed_command
+from interactions.models.internal.prefixed_commands import prefixed_command, PrefixedCommand
 
 if TYPE_CHECKING:
     from interactions.client import Client

@@ -19,8 +19,7 @@ plugins = "interactions.ext.mypy"
 """
 from functools import partial
 from typing import Callable, Optional, Type
-
-from mypy.plugin import ClassDefContext, Plugin
+from mypy.plugin import Plugin, ClassDefContext
 from mypy.plugins import attrs
 
 __all__ = ("plugin",)

@@ -4,7 +4,7 @@ import sys
 import time
 import zlib
 from types import TracebackType
-from typing import TYPE_CHECKING, TypeVar
+from typing import TypeVar, TYPE_CHECKING
 
 from interactions.api import events
 from interactions.client.const import MISSING, __api_version__
@@ -14,13 +14,11 @@ from interactions.models.discord.enums import Status
 from interactions.models.discord.enums import WebSocketOPCodes as OPCODE
 from interactions.models.discord.snowflake import to_snowflake
 from interactions.models.internal.cooldowns import CooldownSystem
-
 from .websocket import WebsocketClient
 
 if TYPE_CHECKING:
-    from interactions.models.discord.snowflake import Snowflake_Type
-
     from .state import ConnectionState
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = ("GatewayClient",)
 

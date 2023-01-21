@@ -3,15 +3,14 @@ from typing import TYPE_CHECKING, cast
 import discord_typings
 
 from interactions.models.internal.protocols import CanRequest
-
 from ..route import Route
 
 __all__ = ("MessageRequests",)
 
 
 if TYPE_CHECKING:
-    from interactions import UPLOADABLE_TYPE
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions import UPLOADABLE_TYPE
 
 
 class MessageRequests(CanRequest):

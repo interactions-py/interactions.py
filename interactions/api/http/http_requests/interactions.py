@@ -4,15 +4,14 @@ import discord_typings
 
 from interactions.client.const import GLOBAL_SCOPE
 from interactions.models.internal.protocols import CanRequest
-
 from ..route import Route
 
 __all__ = ("InteractionRequests",)
 
 
 if TYPE_CHECKING:
-    from interactions import UPLOADABLE_TYPE
     from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions import UPLOADABLE_TYPE
 
 
 class InteractionRequests(CanRequest):

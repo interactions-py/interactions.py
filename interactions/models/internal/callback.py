@@ -1,5 +1,5 @@
 import copy
-from typing import Any, Callable, Coroutine, TypeVar
+from typing import Any, TypeVar, Coroutine, Callable
 
 __all__ = ("CallbackObject",)
 

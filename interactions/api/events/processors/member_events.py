@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.client.const import MISSING
-
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:

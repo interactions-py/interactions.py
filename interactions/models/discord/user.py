@@ -1,14 +1,13 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Set, Union
+from typing import TYPE_CHECKING, Any, Iterable, Set, Dict, List, Optional, Union
 from warnings import warn
 
 import attrs
 
-from interactions.client.const import MISSING, Absent
+from interactions.client.const import Absent, MISSING
 from interactions.client.errors import HTTPException, TooManyChanges
 from interactions.client.mixins.send import SendMixin
-from interactions.client.utils.attr_converters import list_converter
-from interactions.client.utils.attr_converters import optional
+from interactions.client.utils.attr_converters import list_converter, optional
 from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.client.utils.attr_utils import docs
@@ -16,20 +15,19 @@ from interactions.client.utils.serializer import to_image_data
 from interactions.models.discord.activity import Activity
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.color import Color
-from interactions.models.discord.enums import Permissions, PremiumTypes, Status, UserFlags
+from interactions.models.discord.enums import Permissions, PremiumTypes, UserFlags, Status
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.role import Role
-from interactions.models.discord.snowflake import Snowflake_Type, to_snowflake
-
+from interactions.models.discord.snowflake import Snowflake_Type
+from interactions.models.discord.snowflake import to_snowflake
 from .base import DiscordObject
 
 if TYPE_CHECKING:
     from aiohttp import FormData
-
-    from interactions.client import Client
-    from interactions.models.discord.channel import DM, TYPE_GUILD_CHANNEL
     from interactions.models.discord.guild import Guild
+    from interactions.client import Client
     from interactions.models.discord.timestamp import Timestamp
+    from interactions.models.discord.channel import DM, TYPE_GUILD_CHANNEL
     from interactions.models.discord.voice_state import VoiceState
 
 __all__ = ("BaseUser", "User", "NaffUser", "Member")

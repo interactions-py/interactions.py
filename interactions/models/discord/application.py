@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Dict, Any
 
 import attrs
 
@@ -8,7 +8,6 @@ from interactions.models.discord.asset import Asset
 from interactions.models.discord.enums import ApplicationFlags
 from interactions.models.discord.snowflake import Snowflake_Type, to_snowflake
 from interactions.models.discord.team import Team
-
 from .base import DiscordObject
 
 if TYPE_CHECKING:

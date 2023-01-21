@@ -6,7 +6,6 @@ from typing import Callable
 
 import interactions
 from interactions.client.const import get_logger
-
 from .triggers import BaseTrigger
 
 __all__ = ("Task",)

@@ -3,7 +3,7 @@ import inspect
 import weakref
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from interactions.client.utils.cache import NullCache, TTLCache
+from interactions.client.utils.cache import TTLCache, NullCache
 from interactions.models import Embed, MaterialColors
 
 if TYPE_CHECKING:

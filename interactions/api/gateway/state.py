@@ -8,11 +8,10 @@ import attrs
 
 import interactions
 from interactions.api import events
-from interactions.client.const import MISSING, Absent, get_logger
+from interactions.client.const import Absent, MISSING, get_logger
 from interactions.client.errors import NaffException, WebSocketClosed
 from interactions.models.discord.activity import Activity
-from interactions.models.discord.enums import ActivityType, Intents, Status
-
+from interactions.models.discord.enums import Intents, Status, ActivityType
 from .gateway import GatewayClient
 
 if TYPE_CHECKING:

@@ -1,13 +1,13 @@
 import time
 from asyncio import QueueEmpty
 from collections import namedtuple
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, Callable
 
 import attrs
 
 import interactions.models as models
-from interactions.client.const import DISCORD_EPOCH, MISSING, Absent
-from interactions.client.errors import NotFound, TooManyChanges, VoiceNotConnected
+from interactions.client.const import Absent, DISCORD_EPOCH, MISSING
+from interactions.client.errors import NotFound, VoiceNotConnected, TooManyChanges
 from interactions.client.mixins.send import SendMixin
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils.attr_converters import optional as optional_c
@@ -19,30 +19,28 @@ from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import (
     Snowflake_Type,
-    SnowflakeObject,
-    to_optional_snowflake,
     to_snowflake,
+    to_optional_snowflake,
+    SnowflakeObject,
 )
 from interactions.models.discord.thread import ThreadTag
 from interactions.models.misc.context_manager import Typing
 from interactions.models.misc.iterator import AsyncIterator
-
 from .enums import (
-    AutoArchiveDuration,
     ChannelFlags,
     ChannelTypes,
-    InviteTargetTypes,
-    MessageFlags,
     OverwriteTypes,
     Permissions,
-    StagePrivacyLevel,
     VideoQualityModes,
+    AutoArchiveDuration,
+    StagePrivacyLevel,
+    MessageFlags,
+    InviteTargetTypes,
 )
 
 if TYPE_CHECKING:
     from aiohttp import FormData
-
-    from interactions import AllowedMentions, BaseComponent, Client, Embed, Message, Sticker
+    from interactions import Client, Embed, BaseComponent, AllowedMentions, Sticker, Message
     from interactions.models.internal.active_voice_state import ActiveVoiceState
 
 __all__ = (

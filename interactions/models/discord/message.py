@@ -7,10 +7,10 @@ from typing import (
     AsyncGenerator,
     Dict,
     List,
-    Mapping,
     Optional,
     Sequence,
     Union,
+    Mapping,
 )
 
 import attrs
@@ -25,22 +25,21 @@ from interactions.client.utils.serializer import dict_filter_none
 from interactions.client.utils.text_utils import mentions
 from interactions.models.discord.channel import BaseChannel
 from interactions.models.discord.file import UPLOADABLE_TYPE
-
 from .base import DiscordObject
 from .enums import (
-    AutoArchiveDuration,
     ChannelTypes,
     InteractionTypes,
     MentionTypes,
     MessageActivityTypes,
     MessageFlags,
     MessageTypes,
+    AutoArchiveDuration,
 )
-from .snowflake import Snowflake_Type, to_optional_snowflake, to_snowflake, to_snowflake_list
+from .snowflake import to_snowflake, Snowflake_Type, to_snowflake_list, to_optional_snowflake
 
 if TYPE_CHECKING:
-    from interactions import InteractionContext
     from interactions.client import Client
+    from interactions import InteractionContext
 
 __all__ = (
     "Attachment",

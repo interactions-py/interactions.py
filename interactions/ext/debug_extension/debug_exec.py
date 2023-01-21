@@ -5,17 +5,21 @@ from contextlib import redirect_stdout
 from typing import Any, Optional
 
 from interactions import (
-    MISSING,
     Extension,
+    slash_command,
     InteractionContext,
     Modal,
-    ModalContext,
     ParagraphText,
-    slash_command,
+    MISSING,
+    ModalContext,
 )
 from interactions.ext.debug_extension.utils import debug_embed
 from interactions.ext.paginators import Paginator
-from interactions.models import Embed, File, Message
+from interactions.models import (
+    Embed,
+    Message,
+    File,
+)
 
 __all__ = ("DebugExec",)
 

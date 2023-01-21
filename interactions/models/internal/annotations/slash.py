@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional, Type, Union
+from typing import Union, List, Optional, Type, TYPE_CHECKING
 
 import interactions.models as models
 from interactions.models.internal.application_commands import SlashCommandOption
@@ -17,15 +17,15 @@ __all__ = (
 
 
 if TYPE_CHECKING:
+    from interactions.models.internal import SlashCommandChoice
     from interactions.models.discord import (
-        Attachment,
-        BaseChannel,
-        ChannelTypes,
+        User,
         Member,
         Role,
-        User,
+        BaseChannel,
+        ChannelTypes,
+        Attachment,
     )
-    from interactions.models.internal import SlashCommandChoice
 
 
 def slash_str_option(

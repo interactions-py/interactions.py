@@ -5,20 +5,19 @@ import tracemalloc
 from interactions import (
     Client,
     Extension,
-    Intents,
+    listen,
+    slash_command,
     InteractionContext,
     Timestamp,
     TimestampStyles,
-    listen,
-    slash_command,
+    Intents,
 )
-from interactions.client.const import __py_version__, __version__, get_logger
+from interactions.client.const import get_logger, __version__, __py_version__
 from interactions.models.internal import checks
-
 from .debug_application_cmd import DebugAppCMD
 from .debug_exec import DebugExec
 from .debug_exts import DebugExts
-from .utils import debug_embed, get_cache_state, strf_delta
+from .utils import get_cache_state, debug_embed, strf_delta
 
 __all__ = ("DebugExtension",)
 

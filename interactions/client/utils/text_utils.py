@@ -1,5 +1,4 @@
 import re
-
 import interactions.models as models
 
 __all__ = ("mentions",)

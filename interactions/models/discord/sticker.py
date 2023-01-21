@@ -7,13 +7,12 @@ from interactions.client.const import MISSING, Absent
 from interactions.client.utils.attr_converters import optional
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.discord.snowflake import to_snowflake
-
 from .base import DiscordObject
 
 if TYPE_CHECKING:
     from interactions.models.discord.guild import Guild
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.user import User
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = ("StickerTypes", "StickerFormatTypes", "StickerItem", "Sticker", "StickerPack")
 

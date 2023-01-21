@@ -8,8 +8,11 @@ from interactions.api.events import ShardConnect
 from interactions.api.gateway.state import ConnectionState
 from interactions.client.client import Client
 from interactions.client.const import MISSING
-from interactions.models import Guild, to_snowflake
-from interactions.models.discord import Activity, Status
+from interactions.models import (
+    Guild,
+    to_snowflake,
+)
+from interactions.models.discord import Status, Activity
 from interactions.models.internal.listener import Listener
 
 if TYPE_CHECKING:

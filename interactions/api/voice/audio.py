@@ -4,7 +4,7 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union, Optional
 
 __all__ = (
     "AudioBuffer",
