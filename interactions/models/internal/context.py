@@ -327,7 +327,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
     ) -> dict:
         if self.responded:
             message_data = await self.client.http.post_followup(
-                message_payload, self.id, self.token, files=files
+                message_payload, self.client.app.id, self.token, files=files
             )
         else:
             if isinstance(message_payload, FormData) and not self.deferred:
