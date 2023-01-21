@@ -119,6 +119,9 @@ class PrefixedCommandParameter:
             param.kind,
         )
 
+    def __repr__(self) -> str:
+        return f"<PrefixedCommandParameter name={self.name!r}>"
+
     @property
     def optional(self) -> bool:
         """Is this parameter optional?"""
