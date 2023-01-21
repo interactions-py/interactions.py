@@ -3,8 +3,6 @@ from typing import TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.api.events.discord import (
-    BanCreate,
-    BanRemove,
     GuildAuditLogEntryCreate,
     GuildEmojisUpdate,
     IntegrationCreate,
@@ -17,7 +15,6 @@ from interactions.api.events.discord import (
 )
 from interactions.client.const import MISSING
 from interactions.models import AuditLogEntry, GuildIntegration, Sticker, to_snowflake
-
 from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:
