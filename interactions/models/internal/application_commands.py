@@ -44,7 +44,7 @@ from interactions.models.internal.localisation import LocalisedField
 
 if TYPE_CHECKING:
     from interactions.models.discord.snowflake import Snowflake_Type
-    from interactions.models.internal.context import Context
+    from interactions.models.internal.context import BaseContext
     from interactions import Client
 
 __all__ = (
@@ -137,7 +137,7 @@ class OptionTypes(IntEnum):
     ATTACHMENT = 11
 
     @classmethod
-    def from_type(cls, t: type) -> "OptionTypes":
+    def from_type(cls, t: type) -> "OptionTypes | None":
         """
         Convert data types to their corresponding OptionType.
 
@@ -277,14 +277,14 @@ class InteractionCommand(BaseCommand):
     def is_subcommand(self) -> bool:
         return False
 
-    async def _permission_enforcer(self, ctx: "Context") -> bool:
+    async def _permission_enforcer(self, ctx: "BaseContext") -> bool:
         """A check that enforces Discord permissions."""
         # I wish this wasn't needed, but unfortunately Discord permissions cant be trusted to actually prevent usage
         if self.dm_permission is False:
             return ctx.guild is not None
         return True
 
-    def is_enabled(self, ctx: "Context") -> bool:
+    def is_enabled(self, ctx: "BaseContext") -> bool:
         """
         Check if this command is enabled in the given context.
 
