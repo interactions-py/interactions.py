@@ -1,7 +1,9 @@
 import uuid
+from abc import abstractmethod
 from typing import Any, Dict, Iterator, List, Optional, Sequence, TYPE_CHECKING, Union
 
 import attrs
+import discord_typings
 
 from interactions.client.const import (
     SELECTS_MAX_OPTIONS,
@@ -19,43 +21,52 @@ from interactions.models.discord.enums import ButtonStyles, ComponentTypes, Chan
 if TYPE_CHECKING:
     from interactions.models.discord.emoji import PartialEmoji
 
-__all__ = (
-    "BaseComponent",
-    "InteractiveComponent",
-    "Button",
-    "SelectOption",
-    "StringSelectMenu",
-    "UserSelectMenu",
-    "RoleSelectMenu",
-    "MentionableSelectMenu",
-    "ChannelSelectMenu",
-    "ActionRow",
-    "process_components",
-    "spread_to_rows",
-    "get_components_ids",
-    "TYPE_ALL_COMPONENT",
-    "TYPE_COMPONENT_MAPPING",
-)
-
 
 class BaseComponent(DictSerializationMixin):
     """
     A base component class.
 
     !!! Warning
-        This should never be instantiated.
+        This should never be directly instantiated.
 
     """
 
-    def __init__(self) -> None:
+    @classmethod
+    @abstractmethod
+    def from_dict(cls, data: dict) -> "BaseComponent":
+        """
+        Create a component from a dictionary.
+
+        Args:
+            data: the dictionary to create the component from
+
+        Returns:
+            The created component.
+
+        """
         raise NotImplementedError
 
     @classmethod
-    def from_dict_factory(cls, data: dict) -> "TYPE_ALL_COMPONENT":
-        data.pop("hash", None)  # Zero clue why discord sometimes include a hash attribute...
+    def from_dict_factory(
+        cls,
+        data: dict,
+        *,
+        alternate_mapping: dict[ComponentTypes, "BaseComponent"] | None = None,
+    ) -> "BaseComponent":
+        """
+        Creates a component from a payload.
+
+        Args:
+            data: the payload from Discord
+            alternate_mapping: an optional mapping of component types to classes
+        """
+        data.pop("hash", None)  # redundant
 
         component_type = data.pop("type", None)
-        component_class = TYPE_COMPONENT_MAPPING.get(component_type, None)
+
+        mapping = alternate_mapping or TYPE_COMPONENT_MAPPING
+
+        component_class = mapping.get(component_type, None)
         if not component_class:
             raise TypeError(
                 f"Unsupported component type for {data} ({component_type}), please consult the docs."
@@ -64,7 +75,6 @@ class BaseComponent(DictSerializationMixin):
         return component_class.from_dict(data)
 
 
-@attrs.define(eq=False, order=False, hash=False, slots=False)
 class InteractiveComponent(BaseComponent):
     """
     A base interactive component class.
@@ -74,14 +84,104 @@ class InteractiveComponent(BaseComponent):
 
     """
 
+    type: ComponentTypes
+    custom_id: str
+
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, dict):
             other = BaseComponent.from_dict_factory(other)
-            return self.custom_id == other.custom_id and self.type == other.type
-        return False
+        return self.custom_id == other.custom_id and self.type == other.type
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class ActionRow(BaseComponent):
+    """
+    Represents an action row.
+
+    Attributes:
+        components list[Dict | BaseComponent]: A sequence of components contained within this action row
+    """
+
+    def __init__(self, *components: Dict | BaseComponent) -> None:
+        if isinstance(components, (list, tuple)):
+            # flatten user error
+            components = [c for c in components]
+
+        self.components: list[Dict | BaseComponent] = [
+            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c
+            for c in components
+        ]
+
+        self.type: ComponentTypes = ComponentTypes.ACTION_ROW
+        self._max_items = ACTION_ROW_MAX_ITEMS
+
+    @classmethod
+    def from_dict(cls, data: discord_typings.ActionRowData) -> "ActionRow":
+        return cls(*data["components"])
+
+    def add_component(self, *components: dict | BaseComponent) -> None:
+        """
+        Add a component to this action row.
+
+        Args:
+            *components: The component(s) to add.
+        """
+        if isinstance(components, (list, tuple)):
+            # flatten user error
+            components = [c for c in components]
+
+        self.components.extend(
+            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c
+            for c in components
+        )
+
+    @classmethod
+    def split_components(
+        cls, *components: dict | BaseComponent, count_per_row: int = 5
+    ) -> list["ActionRow"]:
+        """
+        Split components into action rows.
+
+        Args:
+            *components: The components to split.
+            count_per_row: The amount of components to have per row.
+
+        Returns:
+            A list of action rows.
+        """
+        buffer = []
+        action_rows = []
+
+        for component in components:
+            c_type = component.type if hasattr(component, "type") else component["type"]
+            if c_type in (
+                ComponentTypes.STRING_SELECT,
+                ComponentTypes.USER_SELECT,
+                ComponentTypes.ROLE_SELECT,
+                ComponentTypes.MENTIONABLE_SELECT,
+                ComponentTypes.CHANNEL_SELECT,
+            ):
+                # Selects can only be in their own row
+                if buffer:
+                    action_rows.append(cls(*buffer))
+                    buffer = []
+                action_rows.append(cls(component))
+            else:
+                buffer.append(component)
+                if len(buffer) >= count_per_row:
+                    action_rows.append(cls(*buffer))
+                    buffer = []
+
+        if buffer:
+            action_rows.append(cls(*buffer))
+        return action_rows
+
+    def to_dict(self) -> discord_typings.ActionRowData:
+        return {
+            "type": self.type.value,  # type: ignore
+            "components": [c.to_dict() for c in self.components],
+        }
+
+
 class Button(InteractiveComponent):
     """
     Represents a discord ui button.
@@ -96,47 +196,115 @@ class Button(InteractiveComponent):
 
     """
 
-    style: Union[ButtonStyles, int] = attrs.field(repr=True)
-    label: Optional[str] = attrs.field(repr=False, default=None)
-    emoji: Optional[Union["PartialEmoji", dict, str]] = attrs.field(
-        repr=True, default=None, metadata=export_converter(process_emoji)
-    )
-    custom_id: Optional[str] = attrs.field(repr=True, default=MISSING, validator=str_validator)
-    url: Optional[str] = attrs.field(repr=True, default=None)
-    disabled: bool = attrs.field(repr=True, default=False)
-    type: Union[ComponentTypes, int] = attrs.field(
-        repr=True, default=ComponentTypes.BUTTON, init=False, on_setattr=attrs.setters.frozen
-    )
+    def __init__(
+        self,
+        *,
+        style: ButtonStyles,
+        label: str | None,
+        emoji: "PartialEmoji | None" = None,
+        custom_id: str = None,
+        url: str | None = None,
+        disabled: bool = False,
+    ):
+        self.style: ButtonStyles = style
+        self.label: str | None = label
+        self.emoji: "PartialEmoji | None" = emoji
+        self.custom_id: str | None = custom_id
+        self.url: str | None = url
+        self.disabled: bool = disabled
 
-    @style.validator
-    def _style_validator(self, attribute: str, value: int) -> None:
-        if not isinstance(value, ButtonStyles) and value not in ButtonStyles.__members__.values():
-            raise ValueError(
-                f'Button style type of "{value}" not recognized, please consult the docs.'
-            )
+        self.type: ComponentTypes = ComponentTypes.BUTTON
 
-    def __attrs_post_init__(self) -> None:
         if self.style != ButtonStyles.URL:
-            # handle adding a custom id to any button that requires a custom id
-            if self.custom_id is MISSING:
+            # automatically set the custom_id if it's not a URL button, and it's not already set
+            if self.custom_id is None:
                 self.custom_id = str(uuid.uuid4())
-
-    def _check_object(self) -> None:
-        if self.style == ButtonStyles.URL:
-            if self.custom_id not in (None, MISSING):
-                raise TypeError("A link button cannot have a `custom_id`!")
-            if not self.url:
-                raise TypeError("A link button must have a `url`!")
         else:
-            if self.url:
-                raise TypeError("You can't have a URL on a non-link button!")
+            if self.custom_id is not None:
+                raise ValueError("URL buttons cannot have a custom_id.")
+            if self.url is None:
+                raise ValueError("URL buttons must have a url.")
 
         if not self.label and not self.emoji:
-            raise TypeError("You must have at least a label or emoji on a button.")
+            raise ValueError("Buttons must have a label or an emoji.")
+
+    @classmethod
+    def from_dict(cls, data: discord_typings.ButtonComponentData) -> "Button":
+        return cls(
+            style=ButtonStyles(data["style"]),
+            label=data.get("label"),
+            emoji=process_emoji(data.get("emoji")),
+            custom_id=data.get("custom_id"),
+            url=data.get("url"),
+            disabled=data.get("disabled", False),
+        )
+
+    def to_dict(self) -> discord_typings.ButtonComponentData:
+        return {
+            "type": self.type.value,  # type: ignore
+            "style": self.style.value,  # type: ignore
+            "label": self.label,
+            "emoji": self.emoji.to_dict() if self.emoji else None,
+            "custom_id": self.custom_id,
+            "url": self.url,
+            "disabled": self.disabled,
+        }
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
-class SelectOption(BaseComponent):
+class BaseSelectMenu(InteractiveComponent):
+    """
+    Represents a select menu component
+
+    Attributes:
+        custom_id str: A developer-defined identifier for the button, max 100 characters.
+        placeholder str: The custom placeholder text to show if nothing is selected, max 100 characters.
+        min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
+        max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
+        disabled bool: Disable the select and make it not intractable, default false.
+        type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
+    """
+
+    def __init__(
+        self,
+        *,
+        placeholder: str | None = None,
+        min_values: int = 1,
+        max_values: int = 1,
+        custom_id: str | None = None,
+        disabled: bool = False,
+    ):
+        self.custom_id: str = custom_id or str(uuid.uuid4())
+        self.placeholder: str | None = placeholder
+        self.min_values: int = min_values
+        self.max_values: int = max_values
+        self.disabled: bool = disabled
+
+        self.type: ComponentTypes = MISSING
+
+    @classmethod
+    def from_dict(
+        cls, data: discord_typings.SelectMenuComponentData
+    ) -> "BaseSelectMenu":
+        return cls(
+            placeholder=data.get("placeholder"),
+            min_values=data["min_values"],
+            max_values=data["max_values"],
+            custom_id=data["custom_id"],
+            disabled=data.get("disabled", False),
+        )
+
+    def to_dict(self) -> discord_typings.SelectMenuComponentData:
+        return {
+            "type": self.type.value,  # type: ignore
+            "custom_id": self.custom_id,
+            "placeholder": self.placeholder,
+            "min_values": self.min_values,
+            "max_values": self.max_values,
+            "disabled": self.disabled,
+        }
+
+
+class StringSelectOption(BaseComponent):
     """
     Represents a select option.
 
@@ -146,20 +314,26 @@ class SelectOption(BaseComponent):
         description Optional[str]: A description of this option
         emoji Optional[Union[PartialEmoji, dict, str]: An emoji to show in this select option
         default bool: Is this option selected by default
-
     """
 
-    label: str = attrs.field(repr=True, validator=str_validator)
-    value: str = attrs.field(repr=True, validator=str_validator)
-    description: Optional[str] = attrs.field(repr=True, default=None)
-    emoji: Optional[Union["PartialEmoji", dict, str]] = attrs.field(
-        repr=True, default=None, metadata=export_converter(process_emoji)
-    )
-    default: bool = attrs.field(repr=True, default=False)
+    def __init__(
+        self,
+        *,
+        label: str,
+        value: str,
+        description: str | None = None,
+        emoji: "PartialEmoji | None" = None,
+        default: bool = False,
+    ):
+        self.label: str = label
+        self.value: str = value
+        self.description: str | None = description
+        self.emoji: PartialEmoji | None = emoji
+        self.default: bool = default
 
     @classmethod
-    def converter(cls, value: Any) -> "SelectOption":
-        if isinstance(value, SelectOption):
+    def converter(cls, value: Any) -> "StringSelectOption":
+        if isinstance(value, StringSelectOption):
             return value
         if isinstance(value, dict):
             return cls.from_dict(value)
@@ -174,76 +348,32 @@ class SelectOption(BaseComponent):
         except TypeError:
             pass
 
-        raise TypeError(f"Cannot convert {value} of type {type(value)} to a SelectOption")
+        raise TypeError(
+            f"Cannot convert {value} of type {type(value)} to a SelectOption"
+        )
 
-    @label.validator
-    def _label_validator(self, attribute: str, value: str) -> None:
-        if not value or len(value) > SELECT_MAX_NAME_LENGTH:
-            raise ValueError("Label length should be between 1 and 100.")
+    @classmethod
+    def from_dict(
+        cls, data: discord_typings.SelectMenuOptionData
+    ) -> "StringSelectOption":
+        return cls(
+            label=data["label"],
+            value=data["value"],
+            description=data.get("description"),
+            emoji=process_emoji(data.get("emoji")),
+            default=data.get("default", False),
+        )
 
-    @value.validator
-    def _value_validator(self, attribute: str, value: str) -> None:
-        if not value or len(value) > SELECT_MAX_NAME_LENGTH:
-            raise ValueError("Value length should be between 1 and 100.")
-
-    @description.validator
-    def _description_validator(self, attribute: str, value: str) -> None:
-        if value is not None and len(value) > SELECT_MAX_NAME_LENGTH:
-            raise ValueError("Description length must be 100 or lower.")
-
-
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
-class BaseSelectMenu(InteractiveComponent):
-    """
-    Represents a select menu component
-
-    Attributes:
-        custom_id str: A developer-defined identifier for the button, max 100 characters.
-        placeholder str: The custom placeholder text to show if nothing is selected, max 100 characters.
-        min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
-        max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
-        disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
-    """
-
-    min_values: int = attrs.field(repr=True, default=1, kw_only=True)
-    max_values: int = attrs.field(repr=True, default=1, kw_only=True)
-    placeholder: Optional[str] = attrs.field(repr=True, default=None, kw_only=True)
-
-    # generic component attributes
-    disabled: bool = attrs.field(repr=True, default=False, kw_only=True)
-    custom_id: str = attrs.field(
-        repr=True, factory=lambda: str(uuid.uuid4()), validator=str_validator, kw_only=True
-    )
-    type: Union[ComponentTypes, int] = attrs.field(
-        repr=True, default=ComponentTypes.STRING_SELECT, init=False, on_setattr=attrs.setters.frozen
-    )
-
-    @placeholder.validator
-    def _placeholder_validator(self, attribute: str, value: str) -> None:
-        if value is not None and len(value) > SELECT_MAX_NAME_LENGTH:
-            raise ValueError("Placeholder length must be 100 or lower.")
-
-    @min_values.validator
-    def _min_values_validator(self, attribute: str, value: int) -> None:
-        if value < 0:
-            raise ValueError("StringSelectMenu min value cannot be a negative number.")
-
-    @max_values.validator
-    def _max_values_validator(self, attribute: str, value: int) -> None:
-        if value < 0:
-            raise ValueError("StringSelectMenu max value cannot be a negative number.")
-
-    def _check_object(self) -> None:
-        super()._check_object()
-        if not self.custom_id:
-            raise TypeError("You need to have a custom id to identify the select.")
-
-        if self.max_values < self.min_values:
-            raise TypeError("Selects max value cannot be less than min value.")
+    def to_dict(self) -> discord_typings.SelectMenuOptionData:
+        return {
+            "label": self.label,
+            "value": self.value,
+            "description": self.description,
+            "emoji": self.emoji.to_dict() if self.emoji else None,
+            "default": self.default,
+        }
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class StringSelectMenu(BaseSelectMenu):
     """
     Represents a string select component.
@@ -258,33 +388,46 @@ class StringSelectMenu(BaseSelectMenu):
         type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
     """
 
-    options: list[SelectOption | str] = attrs.field(
-        repr=True, converter=list_converter(SelectOption.converter)
-    )
-    type: Union[ComponentTypes, int] = attrs.field(
-        repr=True, default=ComponentTypes.STRING_SELECT, init=False, on_setattr=attrs.setters.frozen
-    )
+    def __init__(
+        self,
+        *options: StringSelectOption | str | discord_typings.SelectMenuOptionData,
+        placeholder: str | None = None,
+        min_values: int = 1,
+        max_values: int = 1,
+        custom_id: str | None = None,
+        disabled: bool = False,
+    ):
+        super().__init__(
+            placeholder=placeholder,
+            min_values=min_values,
+            max_values=max_values,
+            custom_id=custom_id,
+            disabled=disabled,
+        )
+        self.options: list[StringSelectOption] = [
+            StringSelectOption.converter(option) for option in options
+        ]
+        self.type: ComponentTypes = ComponentTypes.STRING_SELECT
 
-    @options.validator
-    def _options_validator(self, attribute: str, value: List[Union[SelectOption, Dict]]) -> None:
-        if not all(isinstance(x, (SelectOption, Dict)) for x in value):
-            raise ValueError("StringSelectMenu options must be of type `SelectOption`")
+    @classmethod
+    def from_dict(
+        cls, data: discord_typings.SelectMenuComponentData
+    ) -> "StringSelectMenu":
+        return cls(
+            *data["options"],
+            placeholder=data.get("placeholder"),
+            min_values=data["min_values"],
+            max_values=data["max_values"],
+            custom_id=data["custom_id"],
+            disabled=data.get("disabled", False),
+        )
 
-    def _check_object(self) -> None:
-        super()._check_object()
+    def to_dict(self) -> discord_typings.SelectMenuComponentData:
+        return {
+            **super().to_dict(),
+            "options": [option.to_dict() for option in self.options],
+        }
 
-        if not self.options:
-            raise TypeError("Selects needs to have at least 1 option.")
-
-        if len(self.options) > SELECTS_MAX_OPTIONS:
-            raise TypeError("Selects can only hold 25 options")
-
-    def add_option(self, option: str | SelectOption) -> None:
-        option = SelectOption.converter(option)
-        self.options.append(option)
-
-
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class UserSelectMenu(BaseSelectMenu):
     """
     Represents a user select component.
@@ -298,15 +441,29 @@ class UserSelectMenu(BaseSelectMenu):
         type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
     """
 
-    type: Union[ComponentTypes, int] = attrs.field(
-        repr=True, default=ComponentTypes.USER_SELECT, init=False, on_setattr=attrs.setters.frozen
-    )
+    def __init__(
+        self,
+        *,
+        placeholder: str | None = None,
+        min_values: int = 1,
+        max_values: int = 1,
+        custom_id: str | None = None,
+        disabled: bool = False,
+    ):
+        super().__init__(
+            placeholder=placeholder,
+            min_values=min_values,
+            max_values=max_values,
+            custom_id=custom_id,
+            disabled=disabled,
+        )
+
+        self.type: ComponentTypes = ComponentTypes.USER_SELECT
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class RoleSelectMenu(BaseSelectMenu):
     """
-    Represents a role select component.
+    Represents a user select component.
 
     Attributes:
         custom_id str: A developer-defined identifier for the button, max 100 characters.
@@ -317,124 +474,87 @@ class RoleSelectMenu(BaseSelectMenu):
         type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
     """
 
-    type: Union[ComponentTypes, int] = attrs.field(
-        repr=True, default=ComponentTypes.ROLE_SELECT, init=False, on_setattr=attrs.setters.frozen
-    )
+    def __init__(
+        self,
+        *,
+        placeholder: str | None = None,
+        min_values: int = 1,
+        max_values: int = 1,
+        custom_id: str | None = None,
+        disabled: bool = False,
+    ):
+        super().__init__(
+            placeholder=placeholder,
+            min_values=min_values,
+            max_values=max_values,
+            custom_id=custom_id,
+            disabled=disabled,
+        )
+
+        self.type: ComponentTypes = ComponentTypes.ROLE_SELECT
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class MentionableSelectMenu(BaseSelectMenu):
-    """
-    Represents a mentionable select component.
+    def __init__(
+        self,
+        *,
+        placeholder: str | None = None,
+        min_values: int = 1,
+        max_values: int = 1,
+        custom_id: str | None = None,
+        disabled: bool = False,
+    ):
+        super().__init__(
+            placeholder=placeholder,
+            min_values=min_values,
+            max_values=max_values,
+            custom_id=custom_id,
+            disabled=disabled,
+        )
 
-    Attributes:
-        custom_id str: A developer-defined identifier for the button, max 100 characters.
-        placeholder str: The custom placeholder text to show if nothing is selected, max 100 characters.
-        min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
-        max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
-        disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
-    """
-
-    type: Union[ComponentTypes, int] = attrs.field(
-        repr=True,
-        default=ComponentTypes.MENTIONABLE_SELECT,
-        init=False,
-        on_setattr=attrs.setters.frozen,
-    )
+        self.type: ComponentTypes = ComponentTypes.MENTIONABLE_SELECT
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class ChannelSelectMenu(BaseSelectMenu):
-    """
-    Represents a channel select component.
+    def __init__(
+        self,
+        *,
+        channel_types: list[ChannelTypes] | None = None,
+        placeholder: str | None = None,
+        min_values: int = 1,
+        max_values: int = 1,
+        custom_id: str | None = None,
+        disabled: bool = False,
+    ):
+        super().__init__(
+            placeholder=placeholder,
+            min_values=min_values,
+            max_values=max_values,
+            custom_id=custom_id,
+            disabled=disabled,
+        )
 
-    Attributes:
-        channel_types List[ChannelTypes]: List of channel types to include in the selection
-        custom_id str: A developer-defined identifier for the button, max 100 characters.
-        placeholder str: The custom placeholder text to show if nothing is selected, max 100 characters.
-        min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
-        max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
-        disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
-    """
-
-    channel_types: list[ChannelTypes] = attrs.field(
-        factory=list, repr=True, converter=list_converter(ChannelTypes)
-    )
-
-    type: Union[ComponentTypes, int] = attrs.field(
-        repr=True,
-        default=ComponentTypes.CHANNEL_SELECT,
-        init=False,
-        on_setattr=attrs.setters.frozen,
-    )
-
-
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
-class ActionRow(BaseComponent):
-    """
-    Represents an action row.
-
-    Attributes:
-        components List[Union[dict, StringSelectMenu, Button]]: The components within this action row
-        type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
-
-    """
-
-    _max_items = ACTION_ROW_MAX_ITEMS
-
-    components: Sequence[Union[dict, StringSelectMenu, Button]] = attrs.field(
-        repr=True, factory=list
-    )
-    type: Union[ComponentTypes, int] = attrs.field(
-        repr=False, default=ComponentTypes.ACTION_ROW, init=False, on_setattr=attrs.setters.frozen
-    )
-
-    def __init__(self, *components: Union[dict, StringSelectMenu, Button]) -> None:
-        self.__attrs_init__(components)
-        self.components = [self._component_checks(c) for c in self.components]
-
-    def __len__(self) -> int:
-        return len(self.components)
+        self.channel_types: list[ChannelTypes] | None = channel_types or []
+        self.type: ComponentTypes = ComponentTypes.CHANNEL_SELECT
 
     @classmethod
-    def from_dict(cls, data) -> "ActionRow":
-        return cls(*data["components"])
+    def from_dict(
+        cls, data: discord_typings.SelectMenuComponentData
+    ) -> "ChannelSelectMenu":
+        return cls(
+            placeholder=data.get("placeholder"),
+            min_values=data["min_values"],
+            max_values=data["max_values"],
+            custom_id=data["custom_id"],
+            disabled=data.get("disabled", False),
+            channel_types=data.get("channel_types", []),
+        )
 
-    def _component_checks(
-        self, component: Union[dict, StringSelectMenu, Button]
-    ) -> Union[StringSelectMenu, Button]:
-        if isinstance(component, dict):
-            component = BaseComponent.from_dict_factory(component)
-
-        if not issubclass(type(component), InteractiveComponent):
-            raise TypeError("You can only add select or button to the action row.")
-
-        component._check_object()
-        return component
-
-    def _check_object(self) -> None:
-        if not (0 < len(self.components) <= ActionRow._max_items):
-            raise TypeError(
-                f"Number of components in one row should be between 1 and {ActionRow._max_items}."
-            )
-
-        if (
-            any(x.type == ComponentTypes.STRING_SELECT for x in self.components)
-            and len(self.components) != 1
-        ):
-            raise TypeError("Action row must have only one select component and nothing else.")
-
-    def add_components(self, *components: Union[dict, Button, StringSelectMenu]) -> None:
-        """
-        Add one or more component(s) to this action row.
-
-        Args:
-            *components: The components to add
-
-        """
-        self.components += [self._component_checks(c) for c in components]
+    def to_dict(self) -> discord_typings.SelectMenuComponentData:
+        return {
+            **super().to_dict(),
+            "channel_types": self.channel_types,
+        }
 
 
 def process_components(
@@ -546,7 +666,9 @@ def spread_to_rows(
     return rows
 
 
-def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) -> Iterator[str]:
+def get_components_ids(
+    component: Union[str, dict, list, InteractiveComponent]
+) -> Iterator[str]:
     """
     Creates a generator with the `custom_id` of a component or list of components.
 
@@ -565,7 +687,9 @@ def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) 
     elif isinstance(component, dict):
         if component["type"] == ComponentTypes.actionrow:
             yield from (
-                comp["custom_id"] for comp in component["components"] if "custom_id" in comp
+                comp["custom_id"]
+                for comp in component["components"]
+                if "custom_id" in comp
             )
         elif "custom_id" in component:
             yield component["custom_id"]
@@ -573,19 +697,21 @@ def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) 
         yield c_id
     elif isinstance(component, ActionRow):
         yield from (
-            comp_id for comp in component.components for comp_id in get_components_ids(comp)
+            comp_id
+            for comp in component.components
+            for comp_id in get_components_ids(comp)
         )
 
     elif isinstance(component, list):
-        yield from (comp_id for comp in component for comp_id in get_components_ids(comp))
+        yield from (
+            comp_id for comp in component for comp_id in get_components_ids(comp)
+        )
     else:
         raise ValueError(
             f"Unknown component type of {component} ({type(component)}). "
             f"Expected str, dict or list"
         )
 
-
-TYPE_ALL_COMPONENT = Union[ActionRow, Button, StringSelectMenu]
 
 TYPE_COMPONENT_MAPPING = {
     ComponentTypes.ACTION_ROW: ActionRow,
