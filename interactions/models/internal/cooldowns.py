@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import TYPE_CHECKING, Any, Dict
 
 if TYPE_CHECKING:
-    from interactions.models.internal.context import Context
+    from interactions.models.internal.context import BaseContext
 
 __all__ = ("Buckets", "Cooldown", "CooldownSystem", "MaxConcurrency")
 
@@ -33,7 +33,7 @@ class Buckets(IntEnum):
     ROLE = 6
     """Per role cooldowns"""
 
-    async def get_key(self, context: "Context") -> Any:
+    async def get_key(self, context: "BaseContext") -> Any:
         if self is Buckets.USER:
             return context.author.id
         elif self is Buckets.GUILD:
@@ -49,7 +49,7 @@ class Buckets(IntEnum):
         else:
             return context.author.id
 
-    def __call__(self, context: "Context") -> Any:
+    def __call__(self, context: "BaseContext") -> Any:
         return self.get_key(context)
 
 
@@ -64,7 +64,7 @@ class Cooldown:
         self.rate: int = rate
         self.interval: float = interval
 
-    async def get_cooldown(self, context: "Context") -> "CooldownSystem":
+    async def get_cooldown(self, context: "BaseContext") -> "CooldownSystem":
         key = await self.bucket(context)
 
         if key not in self.cooldown_repositories:
@@ -73,7 +73,7 @@ class Cooldown:
             return cooldown
         return self.cooldown_repositories.get(await self.bucket(context))
 
-    async def acquire_token(self, context: "Context") -> bool:
+    async def acquire_token(self, context: "BaseContext") -> bool:
         """
         Attempt to acquire a token for a command to run. Uses the context of the command to use the correct CooldownSystem.
 
@@ -88,7 +88,7 @@ class Cooldown:
 
         return cooldown.acquire_token()
 
-    async def get_cooldown_time(self, context: "Context") -> float:
+    async def get_cooldown_time(self, context: "BaseContext") -> float:
         """
         Get the remaining cooldown time.
 
@@ -102,7 +102,7 @@ class Cooldown:
         cooldown = await self.get_cooldown(context)
         return cooldown.get_cooldown_time()
 
-    async def on_cooldown(self, context: "Context") -> bool:
+    async def on_cooldown(self, context: "BaseContext") -> bool:
         """
         Returns the cooldown state of the command.
 
@@ -127,7 +127,7 @@ class Cooldown:
         # this doesnt need to be async, but for consistency, it is
         self.cooldown_repositories = {}
 
-    async def reset(self, context: "Context") -> None:
+    async def reset(self, context: "BaseContext") -> None:
         """
         Resets the cooldown for the bucket of which invoked this command.
 
@@ -240,7 +240,7 @@ class MaxConcurrency:
         self.concurrent: int = concurrent
         self.wait = wait
 
-    async def get_semaphore(self, context: "Context") -> asyncio.Semaphore:
+    async def get_semaphore(self, context: "BaseContext") -> asyncio.Semaphore:
         """
         Get the semaphore associated with the given context.
 
@@ -258,7 +258,7 @@ class MaxConcurrency:
             return semaphore
         return self.concurrency_repository.get(key)
 
-    async def acquire(self, context: "Context") -> bool:
+    async def acquire(self, context: "BaseContext") -> bool:
         """
         Acquire an instance of the semaphore.
 
@@ -275,7 +275,7 @@ class MaxConcurrency:
         acquired = await semaphore.acquire()
         return acquired
 
-    async def release(self, context: "Context") -> None:
+    async def release(self, context: "BaseContext") -> None:
         """
         Release the semaphore.
 

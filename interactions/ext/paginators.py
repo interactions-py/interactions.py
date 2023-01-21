@@ -13,21 +13,21 @@ from interactions import (
     ButtonStyles,
     spread_to_rows,
     ComponentCommand,
-    Context,
+    BaseContext,
     Message,
     MISSING,
     Snowflake_Type,
     StringSelectMenu,
-    SelectOption,
+    StringSelectOption,
     Color,
     BrandColors,
 )
 from interactions.client.utils.serializer import export_converter
 from interactions.models.discord.emoji import process_emoji
-from interactions.models.internal.context import PrefixedContext
 
 if TYPE_CHECKING:
     from interactions import Client
+    from interactions.ext.prefixed_commands.context import PrefixedContext
     from interactions.models.discord.emoji import PartialEmoji
 
 __all__ = ("Paginator",)
@@ -276,7 +276,7 @@ class Paginator:
             output.append(
                 StringSelectMenu(
                     [
-                        SelectOption(
+                        StringSelectOption(
                             f"{i+1} {p.get_summary if isinstance(p, Page) else p.title}", str(i)
                         )
                         for i, p in enumerate(self.pages)
@@ -356,7 +356,7 @@ class Paginator:
             "components": [c.to_dict() for c in self.create_components()],
         }
 
-    async def send(self, ctx: Context) -> Message:
+    async def send(self, ctx: BaseContext) -> Message:
         """
         Send this paginator.
 
@@ -376,7 +376,7 @@ class Paginator:
 
         return self._message
 
-    async def reply(self, ctx: PrefixedContext) -> Message:
+    async def reply(self, ctx: "PrefixedContext") -> Message:
         """
         Reply this paginator to ctx.
 

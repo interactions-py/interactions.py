@@ -7,7 +7,7 @@ from . import const
 
 if TYPE_CHECKING:
     from interactions.models.internal.command import BaseCommand
-    from interactions.models.internal.context import Context
+    from interactions.models.internal.context import BaseContext
     from interactions.models.internal.cooldowns import CooldownSystem, MaxConcurrency
     from interactions.models.discord.snowflake import Snowflake_Type
 
@@ -326,7 +326,7 @@ class CommandCheckFailure(CommandException):
     """
 
     def __init__(
-        self, command: "BaseCommand", check: Callable[..., Coroutine], context: "Context"
+        self, command: "BaseCommand", check: Callable[..., Coroutine], context: "BaseContext"
     ) -> None:
         self.command: "BaseCommand" = command
         self.check: Callable[..., Coroutine] = check

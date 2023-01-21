@@ -1,10 +1,6 @@
 from interactions import Extension
 from interactions.client.errors import CommandCheckFailure, ExtensionLoadException
-from interactions.models import (
-    prefixed_command,
-    PrefixedContext,
-    Context,
-)
+from interactions.ext.prefixed_commands import prefixed_command, PrefixedContext
 
 __all__ = ("DebugExts",)
 
@@ -31,7 +27,7 @@ class DebugExts(Extension):
     @reload.error
     @load_ext.error
     @drop_ext.error
-    async def reload_error(self, error: Exception, ctx: Context, *args) -> None:
+    async def reload_error(self, error: Exception, ctx: PrefixedContext, *args) -> None:
         if isinstance(error, CommandCheckFailure):
             return await ctx.send("You do not have permission to execute this command")
         elif isinstance(error, ExtensionLoadException):
