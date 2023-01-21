@@ -66,7 +66,7 @@ class Resolved:
         attachments: A dictionary of attachments resolved from the interaction.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.channels: dict[Snowflake, "interactions.TYPE_MESSAGEABLE_CHANNEL"] = {}
         self.members: dict[Snowflake, "interactions.Member"] = {}
         self.users: dict[Snowflake, "interactions.User"] = {}
@@ -191,7 +191,7 @@ class BaseContext(metaclass=abc.ABCMeta):
     @property
     def message(self) -> typing.Optional["interactions.Message"]:
         """The message that invoked this context, if any."""
-        return self.client.cache.get_message(self.message_id)
+        return self.client.cache.get_message(self.channel_id, self.message_id)
 
     @property
     def bot(self) -> "interactions.Client":
