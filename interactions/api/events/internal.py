@@ -64,12 +64,9 @@ __all__ = (
 if TYPE_CHECKING:
     from interactions.models.internal.context import (
         ComponentContext,
-        Context,
+        BaseContext,
         AutocompleteContext,
         ModalContext,
-        InteractionContext,
-        PrefixedContext,
-        HybridContext,
     )
 
 _event_reg = re.compile("(?<!^)(?=[A-Z])")
@@ -162,9 +159,7 @@ class Select(Component):
 class CommandCompletion(BaseEvent):
     """Dispatched after the library ran any command callback."""
 
-    ctx: "InteractionContext | HybridContext" = attrs.field(
-        repr=False, metadata=docs("The command context")
-    )
+    ctx: "BaseContext" = attrs.field(repr=False, metadata=docs("The command context"))
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -200,7 +195,7 @@ class Error(_Error):
     """Dispatched when the library encounters an error."""
 
     source: str = attrs.field(repr=False, metadata=docs("The source of the error"))
-    ctx: Optional["Context"] = attrs.field(
+    ctx: Optional["BaseContext"] = attrs.field(
         repr=False, default=None, metadata=docs("The Context, if one was active")
     )
 
@@ -209,9 +204,7 @@ class Error(_Error):
 class CommandError(_Error):
     """Dispatched when the library encounters an error in a command."""
 
-    ctx: "InteractionContext | PrefixedContext | HybridContext" = attrs.field(
-        repr=False, metadata=docs("The command context")
-    )
+    ctx: "BaseContext" = attrs.field(repr=False, metadata=docs("The command context"))
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

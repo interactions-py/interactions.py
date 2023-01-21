@@ -7,6 +7,7 @@ from interactions.models.discord.enums import InteractionPermissionTypes
 from interactions.models.discord.snowflake import to_snowflake
 
 if TYPE_CHECKING:
+    from interactions import BaseContext
     from interactions import Snowflake_Type, Guild
 
 __all__ = ("ApplicationCommandPermission",)
@@ -59,7 +60,7 @@ class CommandPermissions(ClientObject):
                         return False
         return True
 
-    def is_enabled_in_context(self, context) -> bool:
+    def is_enabled_in_context(self, context: "BaseContext") -> bool:
         """
         Check if a command is enabled for the given context.
 
@@ -73,7 +74,7 @@ class CommandPermissions(ClientObject):
         all_channels = context.guild.id - 1  # why tf discord
         return self.is_enabled(
             context.channel.id,
-            *context.author.roles,
+            *context.member.roles,
             context.author.id,
             everyone_role,
             all_channels,

@@ -7,14 +7,13 @@ import interactions.models.internal as models
 import interactions.api.events as events
 from interactions.client.const import MISSING
 from interactions.client.utils.misc_utils import wrap_partial
-from interactions.models.internal import ContextMenu
 from interactions.models.internal.tasks import Task
 
 if TYPE_CHECKING:
     from interactions.client import Client
     from interactions.models.discord import Snowflake_Type
     from interactions.models.internal import AutoDefer, BaseCommand, InteractionCommand, Listener
-    from interactions.models.internal import Context
+    from interactions.models.internal import BaseContext
 
 
 __all__ = ("Extension",)
@@ -172,7 +171,7 @@ class Extension:
             enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer
         )
 
-    def add_ext_check(self, coroutine: Callable[["Context"], Awaitable[bool]]) -> None:
+    def add_ext_check(self, coroutine: Callable[["BaseContext"], Awaitable[bool]]) -> None:
         """
         Add a coroutine as a check for all commands in this extension to run. This coroutine must take **only** the parameter `context`.
 
@@ -182,7 +181,7 @@ class Extension:
                 self.add_ext_check(self.example)
 
             @staticmethod
-            async def example(context: Context):
+            async def example(context: BaseContext):
                 if context.author.id == 123456789:
                     return True
                 return False
@@ -211,7 +210,7 @@ class Extension:
             def __init__(self, bot):
                 self.add_extension_prerun(self.example)
 
-            async def example(self, context: Context):
+            async def example(self, context: BaseContext):
                 await ctx.send("I ran first")
             ```
 
@@ -235,7 +234,7 @@ class Extension:
             def __init__(self, bot):
                 self.add_extension_postrun(self.example)
 
-            async def example(self, context: Context):
+            async def example(self, context: BaseContext):
                 await ctx.send("I ran first")
             ```
 

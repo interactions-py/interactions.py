@@ -2,6 +2,7 @@ import abc
 import datetime
 import re
 import typing
+from typing_extensions import Self
 
 import discord_typings
 from aiohttp import FormData
@@ -50,9 +51,6 @@ __all__ = [
 
 if typing.TYPE_CHECKING:
     import interactions
-
-T_Context = typing.TypeVar("T_Context", bound="BaseContext")
-T_Resolved = typing.TypeVar("T_Resolved", bound="Resolved")
 
 
 class Resolved:
@@ -106,7 +104,7 @@ class Resolved:
     @classmethod
     def from_dict(
         cls, client: "interactions.Client", data: dict, guild_id: None | Snowflake = None
-    ) -> T_Resolved:
+    ) -> Self:
         instance = cls()
 
         if channels := data.get("channels"):
@@ -152,11 +150,11 @@ class BaseContext(metaclass=abc.ABCMeta):
     command: BaseCommand
     """The command this context invokes."""
 
-    author_id: "interactions.User"
+    author_id: Snowflake
     """The id of the user that invoked this context."""
-    channel_id: "interactions.BaseChannel"
+    channel_id: Snowflake
     """The id of the channel this context was invoked in."""
-    message_id: "interactions.Message"
+    message_id: Snowflake
     """The id of the message that invoked this context."""
 
     guild_id: typing.Optional[Snowflake]
@@ -201,7 +199,7 @@ class BaseContext(metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
         """
         Create a context instance from a dict.
 
@@ -258,7 +256,7 @@ class BaseInteractionContext(BaseContext):
         self.ephemeral = False
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
         instance = cls(client=client)
         instance.token = payload["token"]
         instance.id = Snowflake(payload["id"])
@@ -470,7 +468,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
 
 class SlashContext(InteractionContext, ModalMixin):
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
         instance = super().from_dict(client, payload)
 
         return instance
@@ -543,7 +541,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
         self.editing_origin = False
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
         instance = super().from_dict(client, payload)
         instance.target_id = payload["target_id"]
         return instance
@@ -584,7 +582,7 @@ class ComponentContext(InteractionContext):
     """The type of the component."""
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
         instance = super().from_dict(client, payload)
         instance.values = payload["data"].get("values", [])
         instance.custom_id = payload["data"]["custom_id"]
@@ -636,7 +634,7 @@ class ModalContext(InteractionContext):
     """The responses of the modal. The key is the `custom_id` of the component."""
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
         instance = super().from_dict(client, payload)
         instance.responses = {
             comp["components"][0]["custom_id"]: comp["components"][0]["value"]
@@ -650,7 +648,7 @@ class AutocompleteContext(BaseInteractionContext):
     """The option the user is currently filling in."""
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
+    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
         instance = super().from_dict(client, payload)
         instance.focused_option = payload["data"]["focused_option"]
         return instance

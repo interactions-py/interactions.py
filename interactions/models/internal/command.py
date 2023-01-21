@@ -30,7 +30,8 @@ from interactions.models.internal.cooldowns import Cooldown, Buckets, MaxConcurr
 from interactions.models.internal.protocols import Converter
 
 if TYPE_CHECKING:
-    from interactions.models.internal.context import Context
+    from interactions.models.internal.extension import Extension
+    from interactions.models.internal.context import BaseContext
 
 __all__ = ("BaseCommand", "check", "cooldown", "max_concurrency")
 
@@ -55,7 +56,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
 
     """
 
-    extension: Any = attrs.field(
+    extension: "Optional[Extension]" = attrs.field(
         repr=False,
         default=None,
         metadata=docs("The extension this command belongs to") | no_export_meta,
@@ -116,7 +117,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
     def __hash__(self) -> int:
         return id(self)
 
-    async def __call__(self, context: "Context", *args, **kwargs) -> None:
+    async def __call__(self, context: "BaseContext", *args, **kwargs) -> None:
         """
         Calls this command.
 
@@ -165,7 +166,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
     @staticmethod
     def _get_converter_function(
         anno: type[Converter] | Converter, name: str
-    ) -> Callable[[Context, str], Any]:
+    ) -> Callable[[BaseContext, str], Any]:
         num_params = len(get_parameters(anno.convert))
 
         # if we have three parameters for the function, it's likely it has a self parameter
@@ -190,7 +191,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
         return actual_anno.convert
 
     async def try_convert(
-        self, converter: Optional[Callable], context: "Context", value: Any
+        self, converter: Optional[Callable], context: "BaseContext", value: Any
     ) -> Any:
         if converter is None:
             return value
@@ -208,7 +209,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
                     return (ann, v)
         return (annotation, getattr(annotation, name, None))
 
-    async def call_callback(self, callback: Callable, context: "Context") -> None:
+    async def call_callback(self, callback: Callable, context: "BaseContext") -> None:
         _call = callback
         if self.has_binding:
             callback = functools.partial(callback, None, None)
@@ -276,7 +277,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
             args = args + [await convert(c) for c in c_args]
         return await self.call_with_binding(_call, context, *args, **kwargs)
 
-    async def _can_run(self, context: Context) -> bool:
+    async def _can_run(self, context: "BaseContext") -> bool:
         """
         Determines if this command can be run.
 
