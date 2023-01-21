@@ -132,7 +132,7 @@ class BaseContext(metaclass=abc.ABCMeta):
         return self.client.cache.get_user(self.author_id)
 
     @property
-    def member(self) -> "interactions.Member":
+    def member(self) -> typing.Optional["interactions.Member"]:
         """The member object that invoked this context."""
         return self.client.cache.get_member(self.guild_id, self.author_id)
 
