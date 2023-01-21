@@ -45,6 +45,7 @@ class PrefixedManager:
         generate_prefixes: An asynchronous function \
             that takes in a `Client` and `Message` object and returns either a \
             string or an iterable of strings. Defaults to `None`.
+        prefixed_context: The object to instantiate for Prefixed Context
     """
 
     def __init__(
@@ -58,12 +59,14 @@ class PrefixedManager:
                 Coroutine[Any, Any, str | list[str]],
             ]
         ] = None,
+        prefixed_context: type[PrefixedContext] = PrefixedContext,
     ) -> None:
         # typehinting funkyness for better typehints
         client = cast(PrefixedInjectedClient, client)
 
         self.client = client
         self.default_prefix = default_prefix
+        self.prefixed_context = prefixed_context
         self.commands: dict[str, PrefixedCommand] = {}
         self._ext_command_list: defaultdict[str, set[str]] = defaultdict(set)
 
@@ -303,7 +306,7 @@ class PrefixedManager:
         if not prefix_used:
             return
 
-        context: PrefixedContext = PrefixedContext.from_message(self.client, message)
+        context = self.prefixed_context.from_message(self.client, message)
         context.prefix = prefix_used
 
         content_parameters = message.content.removeprefix(prefix_used).strip()
@@ -363,6 +366,7 @@ def setup(
             Coroutine[Any, Any, str | list[str]],
         ]
     ] = None,
+    prefixed_context: type[PrefixedContext] = PrefixedContext,
 ) -> PrefixedManager:
     """
     Sets up prefixed commands. It is recommended to use this function directly to do so.
@@ -373,10 +377,14 @@ def setup(
         generate_prefixes: An asynchronous function \
             that takes in a `Client` and `Message` object and returns either a \
             string or an iterable of strings. Defaults to `None`.
+        prefixed_context: The object to instantiate for Prefixed Context
 
     Returns:
         PrefixedManager: The class that deals with all things prefixed commands.
     """
     return PrefixedManager(
-        client, default_prefix=default_prefix, generate_prefixes=generate_prefixes
+        client,
+        default_prefix=default_prefix,
+        generate_prefixes=generate_prefixes,
+        prefixed_context=prefixed_context,
     )
