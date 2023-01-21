@@ -38,7 +38,7 @@ import logging
 import sys
 from collections import defaultdict
 from importlib.metadata import version as _v
-from typing import TypeVar, Union
+from typing import TypeVar, Union, Callable, Coroutine
 
 __all__ = (
     "__version__",
@@ -206,3 +206,4 @@ GUILD_WELCOME_MESSAGES = (
 T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
 Absent = Union[T, Missing]
+AsyncCallable = Callable[..., Coroutine]
