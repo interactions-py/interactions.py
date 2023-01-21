@@ -51,8 +51,9 @@ async def components(ctx):
     await ctx.send("Select menus", components=selects)
     await ctx.send(
         "Buttons",
-        components=[interactions.Button(label="test", style=interactions.ButtonStyles.PRIMARY)]
+        components=[interactions.Button(label="test", style=interactions.ButtonStyles.PRIMARY)],
     )
+
 
 @listen()
 async def on_component(event: interactions.events.Component):
@@ -62,5 +63,6 @@ async def on_component(event: interactions.events.Component):
         await ctx.send(f"Selected {ctx.values}")
     else:
         await ctx.send(f"Clicked {ctx.custom_id}")
+
 
 bot.start(os.environ["TOKEN"])

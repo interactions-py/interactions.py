@@ -107,8 +107,7 @@ class ActionRow(BaseComponent):
             components = [c for c in components]
 
         self.components: list[Dict | BaseComponent] = [
-            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c
-            for c in components
+            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c for c in components
         ]
 
         self.type: ComponentTypes = ComponentTypes.ACTION_ROW
@@ -130,8 +129,7 @@ class ActionRow(BaseComponent):
             components = [c for c in components]
 
         self.components.extend(
-            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c
-            for c in components
+            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c for c in components
         )
 
     @classmethod
@@ -282,9 +280,7 @@ class BaseSelectMenu(InteractiveComponent):
         self.type: ComponentTypes = MISSING
 
     @classmethod
-    def from_dict(
-        cls, data: discord_typings.SelectMenuComponentData
-    ) -> "BaseSelectMenu":
+    def from_dict(cls, data: discord_typings.SelectMenuComponentData) -> "BaseSelectMenu":
         return cls(
             placeholder=data.get("placeholder"),
             min_values=data["min_values"],
@@ -348,14 +344,10 @@ class StringSelectOption(BaseComponent):
         except TypeError:
             pass
 
-        raise TypeError(
-            f"Cannot convert {value} of type {type(value)} to a SelectOption"
-        )
+        raise TypeError(f"Cannot convert {value} of type {type(value)} to a SelectOption")
 
     @classmethod
-    def from_dict(
-        cls, data: discord_typings.SelectMenuOptionData
-    ) -> "StringSelectOption":
+    def from_dict(cls, data: discord_typings.SelectMenuOptionData) -> "StringSelectOption":
         return cls(
             label=data["label"],
             value=data["value"],
@@ -410,9 +402,7 @@ class StringSelectMenu(BaseSelectMenu):
         self.type: ComponentTypes = ComponentTypes.STRING_SELECT
 
     @classmethod
-    def from_dict(
-        cls, data: discord_typings.SelectMenuComponentData
-    ) -> "StringSelectMenu":
+    def from_dict(cls, data: discord_typings.SelectMenuComponentData) -> "StringSelectMenu":
         return cls(
             *data["options"],
             placeholder=data.get("placeholder"),
@@ -427,6 +417,7 @@ class StringSelectMenu(BaseSelectMenu):
             **super().to_dict(),
             "options": [option.to_dict() for option in self.options],
         }
+
 
 class UserSelectMenu(BaseSelectMenu):
     """
@@ -538,9 +529,7 @@ class ChannelSelectMenu(BaseSelectMenu):
         self.type: ComponentTypes = ComponentTypes.CHANNEL_SELECT
 
     @classmethod
-    def from_dict(
-        cls, data: discord_typings.SelectMenuComponentData
-    ) -> "ChannelSelectMenu":
+    def from_dict(cls, data: discord_typings.SelectMenuComponentData) -> "ChannelSelectMenu":
         return cls(
             placeholder=data.get("placeholder"),
             min_values=data["min_values"],
@@ -666,9 +655,7 @@ def spread_to_rows(
     return rows
 
 
-def get_components_ids(
-    component: Union[str, dict, list, InteractiveComponent]
-) -> Iterator[str]:
+def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) -> Iterator[str]:
     """
     Creates a generator with the `custom_id` of a component or list of components.
 
@@ -687,9 +674,7 @@ def get_components_ids(
     elif isinstance(component, dict):
         if component["type"] == ComponentTypes.actionrow:
             yield from (
-                comp["custom_id"]
-                for comp in component["components"]
-                if "custom_id" in comp
+                comp["custom_id"] for comp in component["components"] if "custom_id" in comp
             )
         elif "custom_id" in component:
             yield component["custom_id"]
@@ -697,15 +682,11 @@ def get_components_ids(
         yield c_id
     elif isinstance(component, ActionRow):
         yield from (
-            comp_id
-            for comp in component.components
-            for comp_id in get_components_ids(comp)
+            comp_id for comp in component.components for comp_id in get_components_ids(comp)
         )
 
     elif isinstance(component, list):
-        yield from (
-            comp_id for comp in component for comp_id in get_components_ids(comp)
-        )
+        yield from (comp_id for comp in component for comp_id in get_components_ids(comp))
     else:
         raise ValueError(
             f"Unknown component type of {component} ({type(component)}). "
