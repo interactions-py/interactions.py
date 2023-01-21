@@ -1319,7 +1319,6 @@ class Client(
                     added += 1
                 except TypeError:
                     self.logger.debug(f"Failed to add callback {func} from {location}")
-                    breakpoint()
                     continue
 
             self.logger.debug(f"{added} callbacks have been loaded from {location}.")
