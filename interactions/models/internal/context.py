@@ -1,5 +1,6 @@
 import abc
 import datetime
+import re
 import typing
 
 import discord_typings
@@ -13,7 +14,7 @@ from interactions.client.mixins.modal import ModalMixin
 
 from interactions.client.errors import HTTPException
 from interactions.client.mixins.send import SendMixin
-from interactions.models.discord.enums import Permissions, MessageFlags, InteractionTypes
+from interactions.models.discord.enums import Permissions, MessageFlags, InteractionTypes, ComponentTypes
 from interactions.models.discord.message import (
     AllowedMentions,
     Attachment,
@@ -50,20 +51,27 @@ T_Resolved = typing.TypeVar("T_Resolved", bound="Resolved")
 
 
 class Resolved:
-    """Represents resolved data in an interaction."""
+    """
+    A class representing the resolved data from an interaction.
 
-    channels: dict[Snowflake, "interactions.TYPE_MESSAGEABLE_CHANNEL"]
-    """A dictionary of channels resolved from the interaction."""
-    members: dict[Snowflake, "interactions.Member"]
-    """A dictionary of members resolved from the interaction."""
-    users: dict[Snowflake, "interactions.User"]
-    """A dictionary of users resolved from the interaction."""
-    roles: dict[Snowflake, "interactions.Role"]
-    """A dictionary of roles resolved from the interaction."""
-    messages: dict[Snowflake, "interactions.Message"]
-    """A dictionary of messages resolved from the interaction."""
-    attachments: dict[Snowflake, "interactions.Attachment"]
-    """A dictionary of attachments resolved from the interaction."""
+    Attributes:
+        channels: A dictionary of channels resolved from the interaction.
+        members: A dictionary of members resolved from the interaction.
+        users: A dictionary of users resolved from the interaction.
+        roles: A dictionary of roles resolved from the interaction.
+        messages: A dictionary of messages resolved from the interaction.
+        attachments: A dictionary of attachments resolved from the interaction.
+    """
+
+
+
+    def __init__(self):
+        self.channels: dict[Snowflake, "interactions.TYPE_MESSAGEABLE_CHANNEL"] = {}
+        self.members: dict[Snowflake, "interactions.Member"] = {}
+        self.users: dict[Snowflake, "interactions.User"] = {}
+        self.roles: dict[Snowflake, "interactions.Role"]={}
+        self.messages: dict[Snowflake, "interactions.Message"]={}
+        self.attachments: dict[Snowflake, "interactions.Attachment"]={}
 
     def __bool__(self) -> bool:
         """Returns whether any resolved data is present."""
@@ -76,6 +84,22 @@ class Resolved:
             or bool(self.attachments)
         )
 
+    def get(self, snowflake: Snowflake, default: typing.Any =None) -> typing.Any:
+        """Returns the value of the given snowflake."""
+        if channel := self.channels.get(snowflake):
+            return channel
+        if member := self.members.get(snowflake):
+            return member
+        if user := self.users.get(snowflake):
+            return user
+        if role := self.roles.get(snowflake):
+            return role
+        if message := self.messages.get(snowflake):
+            return message
+        if attachment := self.attachments.get(snowflake):
+            return attachment
+        return default
+
     @classmethod
     def from_dict(
         cls, client: "interactions.Client", data: dict, guild_id: None | Snowflake = None
@@ -84,31 +108,31 @@ class Resolved:
 
         if channels := data.get("channels"):
             for key, _channel in channels.items():
-                instance.channels[key] = client.cache.place_channel_data(_channel)
+                instance.channels[Snowflake(key)] = client.cache.place_channel_data(_channel)
 
         if members := data.get("members"):
             for key, _member in members.items():
-                instance.members[key] = client.cache.place_member_data(
+                instance.members[Snowflake(key)] = client.cache.place_member_data(
                     guild_id, {**_member, "user": {**data["users"][key]}}
                 )
 
         if users := data.get("users"):
             for key, _user in users.items():
-                instance.users[key] = client.cache.place_user_data(_user)
+                instance.users[Snowflake(key)] = client.cache.place_user_data(_user)
 
         if roles := data.get("roles"):
             for key, _role in roles.items():
-                instance.roles[key] = client.cache.get_role(Snowflake(key))
+                instance.roles[Snowflake(key)] = client.cache.get_role(Snowflake(key))
 
         if messages := data.get("messages"):
             for key, _msg in messages.items():
-                instance.messages[key] = client.cache.place_message_data(_msg)
+                instance.messages[Snowflake(key)] = client.cache.place_message_data(_msg)
 
         if attachments := data.get("attachments"):
             for key, _attach in attachments.items():
-                instance.attachments[key] = Attachment.from_dict(_attach, client)
+                instance.attachments[Snowflake(key)] = Attachment.from_dict(_attach, client)
 
-        return
+        return instance
 
 
 class BaseContext(metaclass=abc.ABCMeta):
