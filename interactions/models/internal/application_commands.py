@@ -841,7 +841,7 @@ def subcommand(
 
 
 def context_menu(
-    name: Absent[str | LocalisedName] = MISSING,
+    name: str | LocalisedName,
     context_type: "CommandTypes",
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
     default_member_permissions: Optional["Permissions"] = None,
