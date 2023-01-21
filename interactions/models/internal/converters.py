@@ -66,7 +66,7 @@ __all__ = (
     "CustomEmojiConverter",
     "MessageConverter",
     "Greedy",
-    "NAFF_MODEL_TO_CONVERTER",
+    "MODEL_TO_CONVERTER",
 )
 
 
@@ -582,7 +582,7 @@ class Greedy(List[T]):
     """A special marker class to mark an argument in a prefixed command to repeatedly convert until it fails to convert an argument."""
 
 
-NAFF_MODEL_TO_CONVERTER: dict[type, type[Converter]] = {
+MODEL_TO_CONVERTER: dict[type, type[Converter]] = {
     SnowflakeObject: SnowflakeConverter,
     BaseChannel: BaseChannelConverter,
     DMChannel: DMChannelConverter,
