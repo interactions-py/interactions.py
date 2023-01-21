@@ -8,8 +8,6 @@ from interactions.api.events.discord import (
     IntegrationCreate,
     IntegrationUpdate,
     IntegrationDelete,
-    BanCreate,
-    BanRemove,
     GuildStickersUpdate,
     WebhooksUpdate,
 )
