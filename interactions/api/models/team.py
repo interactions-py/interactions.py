@@ -1,8 +1,7 @@
 from datetime import datetime
-from enum import IntEnum
 from typing import Any, Dict, List, Optional, Union
 
-from ...client.enums import Locale
+from ...client.enums import IntEnum, Locale
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,

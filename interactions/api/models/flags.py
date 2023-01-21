@@ -1,4 +1,6 @@
-from enum import Enum, IntFlag
+from enum import IntFlag
+
+from ...client.enums import StrEnum
 
 __all__ = ("Intents", "AppFlags", "StatusType", "UserFlags", "Permissions", "MessageFlags")
 
@@ -176,7 +178,7 @@ class AppFlags(IntFlag):
     APPLICATION_COMMAND_BADGE = 1 << 23
 
 
-class StatusType(str, Enum):
+class StatusType(StrEnum):
     """
     An enumerable object representing Discord status icons that a user may have.
     """

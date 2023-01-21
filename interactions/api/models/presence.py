@@ -1,7 +1,7 @@
 import time
-from enum import IntEnum
 from typing import Any, List, Optional
 
+from ...client.enums import IntEnum
 from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
 from .emoji import Emoji
 from .flags import StatusType
