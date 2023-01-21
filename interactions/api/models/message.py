@@ -766,6 +766,9 @@ class Message(ClientSerializerMixin, IDMixin):
     position: Optional[int] = field(default=None, repr=False)
 
     def __attrs_post_init__(self):
+        if self.referenced_message is not None:
+            self.referenced_message = Message(**self.referenced_message, _client=self._client)
+
         if self.member and self.guild_id:
             self.member._extras["guild_id"] = self.guild_id
 
@@ -789,9 +792,6 @@ class Message(ClientSerializerMixin, IDMixin):
         Returns when the message was created.
         """
         return self.id.timestamp
-
-        if self.referenced_message is not None:
-            self.referenced_message = Message(**self.referenced_message, _client=self._client)
 
     async def get_channel(self) -> Channel:
         """

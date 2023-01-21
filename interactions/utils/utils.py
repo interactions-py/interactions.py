@@ -232,7 +232,7 @@ def disable_components(
     elif isinstance(components, list):
         if not all(
             isinstance(component, (Button, SelectMenu)) for component in components
-        ) or not all(isinstance(component, (ActionRow, Component)) for component in components):
+        ) and not all(isinstance(component, (ActionRow, Component)) for component in components):
             raise LibraryException(
                 12,
                 "You must only specify lists of 'Buttons' and 'SelectMenus' or 'ActionRow' and 'Component'",

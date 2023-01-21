@@ -434,7 +434,7 @@ class CommandContext(_Context):
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
     :ivar Optional[Locale] guild_locale: The guild's preferred language, if invoked in a guild.
-    :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
+    :ivar Permissions app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     :ivar Client client:
         .. versionadded:: 4.3.0
 
@@ -503,7 +503,7 @@ class CommandContext(_Context):
                 try:
                     res = await self._client.edit_interaction_response(
                         token=self.token,
-                        application_id=str(self.id),
+                        application_id=str(self.application_id),
                         data=payload,
                         files=files,
                         message_id=self.message.id
@@ -624,13 +624,13 @@ class CommandContext(_Context):
         """
         if self.responded and self.message is not None:
             await self._client.delete_interaction_response(
-                application_id=int(self.application_id),
+                application_id=str(self.application_id),
                 token=self.token,
                 message_id=int(self.message.id),
             )
         else:
             await self._client.delete_interaction_response(
-                application_id=int(self.application_id), token=self.token
+                application_id=str(self.application_id), token=self.token
             )
 
         self.message = None
@@ -696,7 +696,7 @@ class ComponentContext(_Context):
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
     :ivar Optional[Locale] guild_locale: The guild's preferred language, if invoked in a guild.
-    :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
+    :ivar Permissions app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     """
 
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:

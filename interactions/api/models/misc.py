@@ -15,7 +15,7 @@ from typing import List, Optional, Union
 
 from ...base import get_logger
 from ...client.enums import IntEnum, StrEnum
-from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
+from ...utils.attrs_utils import DictSerializerMixin, convert_int, convert_list, define, field
 from ...utils.missing import MISSING
 from ..error import LibraryException
 from .flags import Permissions
@@ -48,14 +48,14 @@ class Overwrite(DictSerializerMixin):
 
     :ivar str id: Role or User ID
     :ivar int type: Type that corresponds ot the ID; 0 for role and 1 for member.
-    :ivar Union[Permissions, int, str] allow: Permission bit set.
-    :ivar Union[Permissions, int, str] deny: Permission bit set.
+    :ivar Permissions allow: Permission bit set.
+    :ivar Permissions deny: Permission bit set.
     """
 
     id: int = field()
     type: int = field()
-    allow: Union[Permissions, int, str] = field()
-    deny: Union[Permissions, int, str] = field()
+    allow: Permissions = field(converter=convert_int(Permissions))
+    deny: Permissions = field(converter=convert_int(Permissions))
 
 
 @define()

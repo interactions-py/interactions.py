@@ -9,6 +9,7 @@ from ...utils.attrs_utils import (
     define,
     field,
 )
+from .audit_log import AuditLogEntry
 from .channel import Channel, ThreadMember
 from .emoji import Emoji
 from .guild import EventMetadata, Guild
@@ -40,6 +41,7 @@ __all__ = (
     "MessageDelete",
     "MessageReactionRemove",
     "MessageReaction",
+    "GuildAuditLogEntry",
     "GuildIntegrations",
     "GuildBan",
     "Webhooks",
@@ -204,6 +206,27 @@ class EmbeddedActivity(DictSerializerMixin):
     guild_id: Snowflake = field(converter=Snowflake)
     embedded_activity: PresenceActivity = field(converter=PresenceActivity)
     channel_id: Snowflake = field(converter=Snowflake)
+
+
+@define()
+class GuildAuditLogEntry(AuditLogEntry):
+    """
+    .. versionadded:: 4.4.0
+
+    A class object representing the event ``GUILD_AUDIT_LOG_ENTRY_CREATE``.
+    A derivation of :class:`.AuditLogEntry`.
+
+    :ivar Snowflake guild_id: The guild ID of event.
+    :ivar Optional[str] target_id: ID of the affected entity (webhook, user, role, etc.)
+    :ivar Optional[List[AuditLogChange]] changes: Changes made to the target_id
+    :ivar Optional[Snowflake] user_id: User or app that made the changes
+    :ivar Snowflake id: ID of the entry
+    :ivar AuditLogEvents action_type: Type of action that occurred
+    :ivar Optional[AuditEntryInfo] options: Additional info for certain event types
+    :ivar Optional[str] reason: Reason for the change (1-512 characters)
+    """
+
+    guild_id: Snowflake = field(converter=Snowflake)
 
 
 @define()
@@ -648,6 +671,21 @@ class VoiceState(ClientSerializerMixin):
         """
         return self.channel_id is not None
 
+    @property
+    def channel(self) -> Optional[Channel]:
+        """
+        Returns the current channel, if cached.
+        """
+        return self._client.cache[Channel].get(self.channel_id)
+
+    @property
+    def guild(self) -> Optional[Guild]:
+        """
+        Returns the current guild, if cached.
+        """
+
+        return self._client.cache[Guild].get(self.guild_id)
+
     async def mute_member(self, reason: Optional[str] = None) -> Member:
         """
         Mutes the current member.
@@ -689,15 +727,21 @@ class VoiceState(ClientSerializerMixin):
 
         :rtype: Channel
         """
-        return Channel(
-            **await self._client.get_channel(int(self.channel_id)),
-            _client=self._client,
-        )
+        if channel := self.channel:
+            return channel
 
-    async def get_guild(self) -> "Guild":
+        res = await self._client.get_channel(int(self.channel_id))
+        return Channel(**res, _client=self._client)
+
+    async def get_guild(self) -> Guild:
         """
         Gets the guild in what the update took place.
 
         :rtype: Guild
         """
-        return Guild(**await self._client.get_guild(int(self.guild_id)), _client=self._client)
+
+        if guild := self.guild:
+            return guild
+
+        res = await self._client.get_guild(int(self.guild_id))
+        return Guild(**res, _client=self._client)

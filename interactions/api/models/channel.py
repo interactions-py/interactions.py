@@ -22,6 +22,7 @@ from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
+    convert_int,
     convert_list,
     define,
     field,
@@ -433,7 +434,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     :ivar Optional[ThreadMetadata] thread_metadata: The thread metadata of the channel.
     :ivar Optional[ThreadMember] member: The member of the thread in the channel.
     :ivar Optional[int] default_auto_archive_duration: The set auto-archive time for all threads to naturally follow in the channel.
-    :ivar Optional[str] permissions: The permissions of the channel.
+    :ivar Optional[Permissions] permissions: The permissions of the channel.
     :ivar Optional[int] flags: The flags of the channel.
     :ivar Optional[int] total_message_sent: Number of messages ever sent in a thread.
     :ivar Optional[int] default_thread_slowmode_delay: The default slowmode delay in seconds for threads, if this channel is a forum.
@@ -484,7 +485,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         converter=ThreadMember, default=None, add_client=True, repr=False
     )
     default_auto_archive_duration: Optional[int] = field(default=None)
-    permissions: Optional[str] = field(default=None, repr=False)
+    permissions: Optional[Permissions] = field(
+        converter=convert_int(Permissions), default=None, repr=False
+    )
     flags: Optional[int] = field(default=None, repr=False)
     total_message_sent: Optional[int] = field(default=None, repr=False)
     default_thread_slowmode_delay: Optional[int] = field(default=None, repr=False)
@@ -2070,7 +2073,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             _id = int(id)
             _type = type
 
-        if not _type:
+        if _type is MISSING:
             raise LibraryException(12, "Please set the type of the overwrite!")
 
         overwrites.append(Overwrite(id=_id, type=_type, allow=allow, deny=deny))
