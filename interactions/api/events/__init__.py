@@ -28,6 +28,7 @@ __all__ = (
     "Connect",
     "Disconnect",
     "Error",
+    "GuildAuditLogEntryCreate",
     "GuildAvailable",
     "GuildEmojisUpdate",
     "GuildEvent",

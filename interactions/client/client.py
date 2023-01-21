@@ -135,13 +135,14 @@ _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
     events.MemberAdd: [Intents.GUILD_MEMBERS],
     events.MemberRemove: [Intents.GUILD_MEMBERS],
     events.MemberUpdate: [Intents.GUILD_MEMBERS],
-    # Intents.GUILD_BANS
-    events.BanCreate: [Intents.GUILD_BANS],
-    events.BanRemove: [Intents.GUILD_BANS],
+    # Intents.GUILD_MODERATION
+    events.BanCreate: [Intents.GUILD_MODERATION],
+    events.BanRemove: [Intents.GUILD_MODERATION],
+    events.GuildAuditLogEntryCreate: [Intents.GUILD_MODERATION],
     # Intents.GUILD_EMOJIS_AND_STICKERS
     events.GuildEmojisUpdate: [Intents.GUILD_EMOJIS_AND_STICKERS],
     events.GuildStickersUpdate: [Intents.GUILD_EMOJIS_AND_STICKERS],
-    # Intents.GUILD_BANS
+    # Intents.GUILD_INTEGRATIONS
     events.IntegrationCreate: [Intents.GUILD_INTEGRATIONS],
     events.IntegrationDelete: [Intents.GUILD_INTEGRATIONS],
     events.IntegrationUpdate: [Intents.GUILD_INTEGRATIONS],
