@@ -11,6 +11,7 @@ repos:
       language: python
       types: [file, python]
       exclude_types: ['image']
+      language_version: python3.10
     - id: trailing-whitespace
       name: Trailing Whitespace
       language: python
@@ -36,6 +37,7 @@ repos:
       language: python
       types: [file, python]
       args: [--line-length=100]
+      language_version: python3.10
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
     hooks:
@@ -54,6 +56,7 @@ repos:
         - flake8-deprecated
         - flake8-print
         - git+https://github.com/python-formate/flake8-dunder-all
+      language_version: python3.10
 #  - repo: https://github.com/pycqa/isort
 #    rev: 5.11.4
 #    hooks:
