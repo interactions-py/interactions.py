@@ -1,25 +1,38 @@
 import uuid
 from abc import abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Sequence, TYPE_CHECKING, Union
+from typing import Any, Dict, Iterator, List, Optional, TYPE_CHECKING, Union
 
-import attrs
 import discord_typings
 
 from interactions.client.const import (
-    SELECTS_MAX_OPTIONS,
-    SELECT_MAX_NAME_LENGTH,
     ACTION_ROW_MAX_ITEMS,
     MISSING,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils import list_converter
-from interactions.client.utils.attr_utils import str_validator
-from interactions.client.utils.serializer import export_converter
 from interactions.models.discord.emoji import process_emoji
 from interactions.models.discord.enums import ButtonStyles, ComponentTypes, ChannelTypes
 
 if TYPE_CHECKING:
     from interactions.models.discord.emoji import PartialEmoji
+
+
+__all__ = (
+    "BaseComponent",
+    "InteractiveComponent",
+    "ActionRow",
+    "Button",
+    "BaseSelectMenu",
+    "StringSelectOption",
+    "StringSelectMenu",
+    "UserSelectMenu",
+    "RoleSelectMenu",
+    "MentionableSelectMenu",
+    "ChannelSelectMenu",
+    "process_components",
+    "spread_to_rows",
+    "get_components_ids",
+    "TYPE_COMPONENT_MAPPING",
+)
 
 
 class BaseComponent(DictSerializationMixin):
@@ -104,11 +117,10 @@ class ActionRow(BaseComponent):
     def __init__(self, *components: Dict | BaseComponent) -> None:
         if isinstance(components, (list, tuple)):
             # flatten user error
-            components = [c for c in components]
+            components = list(components)
 
         self.components: list[Dict | BaseComponent] = [
-            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c
-            for c in components
+            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c for c in components
         ]
 
         self.type: ComponentTypes = ComponentTypes.ACTION_ROW
@@ -127,11 +139,10 @@ class ActionRow(BaseComponent):
         """
         if isinstance(components, (list, tuple)):
             # flatten user error
-            components = [c for c in components]
+            components = list(components)
 
         self.components.extend(
-            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c
-            for c in components
+            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c for c in components
         )
 
     @classmethod
@@ -205,7 +216,7 @@ class Button(InteractiveComponent):
         custom_id: str = None,
         url: str | None = None,
         disabled: bool = False,
-    ):
+    ) -> None:
         self.style: ButtonStyles = style
         self.label: str | None = label
         self.emoji: "PartialEmoji | None" = emoji
@@ -272,7 +283,7 @@ class BaseSelectMenu(InteractiveComponent):
         max_values: int = 1,
         custom_id: str | None = None,
         disabled: bool = False,
-    ):
+    ) -> None:
         self.custom_id: str = custom_id or str(uuid.uuid4())
         self.placeholder: str | None = placeholder
         self.min_values: int = min_values
@@ -282,9 +293,7 @@ class BaseSelectMenu(InteractiveComponent):
         self.type: ComponentTypes = MISSING
 
     @classmethod
-    def from_dict(
-        cls, data: discord_typings.SelectMenuComponentData
-    ) -> "BaseSelectMenu":
+    def from_dict(cls, data: discord_typings.SelectMenuComponentData) -> "BaseSelectMenu":
         return cls(
             placeholder=data.get("placeholder"),
             min_values=data["min_values"],
@@ -324,7 +333,7 @@ class StringSelectOption(BaseComponent):
         description: str | None = None,
         emoji: "PartialEmoji | None" = None,
         default: bool = False,
-    ):
+    ) -> None:
         self.label: str = label
         self.value: str = value
         self.description: str | None = description
@@ -348,14 +357,10 @@ class StringSelectOption(BaseComponent):
         except TypeError:
             pass
 
-        raise TypeError(
-            f"Cannot convert {value} of type {type(value)} to a SelectOption"
-        )
+        raise TypeError(f"Cannot convert {value} of type {type(value)} to a SelectOption")
 
     @classmethod
-    def from_dict(
-        cls, data: discord_typings.SelectMenuOptionData
-    ) -> "StringSelectOption":
+    def from_dict(cls, data: discord_typings.SelectMenuOptionData) -> "StringSelectOption":
         return cls(
             label=data["label"],
             value=data["value"],
@@ -396,7 +401,7 @@ class StringSelectMenu(BaseSelectMenu):
         max_values: int = 1,
         custom_id: str | None = None,
         disabled: bool = False,
-    ):
+    ) -> None:
         super().__init__(
             placeholder=placeholder,
             min_values=min_values,
@@ -410,9 +415,7 @@ class StringSelectMenu(BaseSelectMenu):
         self.type: ComponentTypes = ComponentTypes.STRING_SELECT
 
     @classmethod
-    def from_dict(
-        cls, data: discord_typings.SelectMenuComponentData
-    ) -> "StringSelectMenu":
+    def from_dict(cls, data: discord_typings.SelectMenuComponentData) -> "StringSelectMenu":
         return cls(
             *data["options"],
             placeholder=data.get("placeholder"),
@@ -427,6 +430,7 @@ class StringSelectMenu(BaseSelectMenu):
             **super().to_dict(),
             "options": [option.to_dict() for option in self.options],
         }
+
 
 class UserSelectMenu(BaseSelectMenu):
     """
@@ -449,7 +453,7 @@ class UserSelectMenu(BaseSelectMenu):
         max_values: int = 1,
         custom_id: str | None = None,
         disabled: bool = False,
-    ):
+    ) -> None:
         super().__init__(
             placeholder=placeholder,
             min_values=min_values,
@@ -482,7 +486,7 @@ class RoleSelectMenu(BaseSelectMenu):
         max_values: int = 1,
         custom_id: str | None = None,
         disabled: bool = False,
-    ):
+    ) -> None:
         super().__init__(
             placeholder=placeholder,
             min_values=min_values,
@@ -503,7 +507,7 @@ class MentionableSelectMenu(BaseSelectMenu):
         max_values: int = 1,
         custom_id: str | None = None,
         disabled: bool = False,
-    ):
+    ) -> None:
         super().__init__(
             placeholder=placeholder,
             min_values=min_values,
@@ -525,7 +529,7 @@ class ChannelSelectMenu(BaseSelectMenu):
         max_values: int = 1,
         custom_id: str | None = None,
         disabled: bool = False,
-    ):
+    ) -> None:
         super().__init__(
             placeholder=placeholder,
             min_values=min_values,
@@ -538,9 +542,7 @@ class ChannelSelectMenu(BaseSelectMenu):
         self.type: ComponentTypes = ComponentTypes.CHANNEL_SELECT
 
     @classmethod
-    def from_dict(
-        cls, data: discord_typings.SelectMenuComponentData
-    ) -> "ChannelSelectMenu":
+    def from_dict(cls, data: discord_typings.SelectMenuComponentData) -> "ChannelSelectMenu":
         return cls(
             placeholder=data.get("placeholder"),
             min_values=data["min_values"],
@@ -666,9 +668,7 @@ def spread_to_rows(
     return rows
 
 
-def get_components_ids(
-    component: Union[str, dict, list, InteractiveComponent]
-) -> Iterator[str]:
+def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) -> Iterator[str]:
     """
     Creates a generator with the `custom_id` of a component or list of components.
 
@@ -687,9 +687,7 @@ def get_components_ids(
     elif isinstance(component, dict):
         if component["type"] == ComponentTypes.actionrow:
             yield from (
-                comp["custom_id"]
-                for comp in component["components"]
-                if "custom_id" in comp
+                comp["custom_id"] for comp in component["components"] if "custom_id" in comp
             )
         elif "custom_id" in component:
             yield component["custom_id"]
@@ -697,15 +695,11 @@ def get_components_ids(
         yield c_id
     elif isinstance(component, ActionRow):
         yield from (
-            comp_id
-            for comp in component.components
-            for comp_id in get_components_ids(comp)
+            comp_id for comp in component.components for comp_id in get_components_ids(comp)
         )
 
     elif isinstance(component, list):
-        yield from (
-            comp_id for comp in component for comp_id in get_components_ids(comp)
-        )
+        yield from (comp_id for comp in component for comp_id in get_components_ids(comp))
     else:
         raise ValueError(
             f"Unknown component type of {component} ({type(component)}). "
