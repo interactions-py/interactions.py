@@ -240,7 +240,7 @@ class BaseInteractionContext(BaseContext):
         instance.guild_locale = payload["guild_locale"]
         instance._context_type = payload.get("type", 0)
         instance.resolved = Resolved.from_dict(
-            client, payload.get("resolved", {}), payload.get("guild_id")
+            client, payload['data'].get("resolved", {}), payload.get("guild_id")
         )
 
         instance.channel_id = Snowflake(payload["channel_id"])
@@ -254,8 +254,9 @@ class BaseInteractionContext(BaseContext):
 
         instance.guild_id = Snowflake(payload.get("guild_id"))
 
-        instance.command_id = Snowflake(payload["data"]["id"])
-        instance._command_name = payload["data"]["name"]
+        if payload['type'] == InteractionTypes.APPLICATION_COMMAND:
+            instance.command_id = Snowflake(payload["data"]["id"])
+            instance._command_name = payload["data"]["name"]
 
         instance.process_options(payload)
 
@@ -558,9 +559,33 @@ class ComponentContext(InteractionContext):
     @classmethod
     def from_dict(cls, client: "interactions.Client", payload: dict) -> T_Context:
         instance = super().from_dict(client, payload)
-        instance.values = payload.get("values", [])
+        instance.values = payload["data"].get("values", [])
         instance.custom_id = payload["data"]["custom_id"]
         instance.component_type = payload["data"]["component_type"]
+
+        if instance.component_type in (ComponentTypes.USER_SELECT, ComponentTypes.CHANNEL_SELECT, ComponentTypes.ROLE_SELECT, ComponentTypes.MENTIONABLE_SELECT):
+            for i, value in enumerate(instance.values):
+                if re.match(r"\d{17,}", value):
+                    key = Snowflake(value)
+
+                    if resolved := instance.resolved.get(key):
+                        instance.values[i] = resolved
+                    else:
+                        searches = {
+                            "users": instance.component_type in (ComponentTypes.USER_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+                            "members": instance.guild_id and instance.component_type in (ComponentTypes.USER_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+                            "channels": instance.component_type in (ComponentTypes.CHANNEL_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+                            "roles": instance.guild_id and instance.component_type in (ComponentTypes.ROLE_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+                        }
+
+                        if searches["members"] and (member := instance.client.cache.get_member(instance.guild_id, key)):
+                            instance.values[i] = member
+                        elif searches["users"] and (user := instance.client.cache.get_user(key)):
+                            instance.values[i] = user
+                        elif searches["roles"] and (role := instance.client.cache.get_role(key)):
+                            instance.values[i] = role
+                        elif searches["channels"] and (channel := instance.client.cache.get_channel(key)):
+                            instance.values[i] = channel
         return instance
 
 
