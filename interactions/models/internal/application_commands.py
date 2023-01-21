@@ -3,7 +3,18 @@ import inspect
 import re
 import typing
 from enum import IntEnum
-from typing import TYPE_CHECKING, Annotated, Callable, Coroutine, Dict, List, Union, Optional, Any
+from typing import (
+    TYPE_CHECKING,
+    Annotated,
+    Callable,
+    Coroutine,
+    Dict,
+    List,
+    Union,
+    Optional,
+    Any,
+    TypeVar,
+)
 
 import attrs
 from attr import Attribute
@@ -16,6 +27,7 @@ from interactions.client.const import (
     SLASH_CMD_MAX_DESC_LENGTH,
     MISSING,
     Absent,
+    AsyncCallable,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import optional
@@ -709,7 +721,7 @@ def slash_command(
     sub_cmd_description: str | LocalisedDesc = "No Description Set",
     group_description: str | LocalisedDesc = "No Description Set",
     nsfw: bool = False,
-) -> Callable[[Callable[..., Coroutine]], SlashCommand]:
+) -> Callable[[AsyncCallable], SlashCommand]:
     """
     A decorator to declare a coroutine as a slash command.
 
@@ -736,7 +748,7 @@ def slash_command(
 
     """
 
-    def wrapper(func: Callable[..., Coroutine]) -> SlashCommand:
+    def wrapper(func: AsyncCallable) -> SlashCommand:
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
@@ -786,7 +798,7 @@ def subcommand(
     scopes: List["Snowflake_Type"] = None,
     options: List[dict] = None,
     nsfw: bool = False,
-) -> Callable[[Coroutine], SlashCommand]:
+) -> Callable[[AsyncCallable], SlashCommand]:
     """
     A decorator specifically tailored for creating subcommands.
 
@@ -810,7 +822,7 @@ def subcommand(
 
     """
 
-    def wrapper(func) -> SlashCommand:
+    def wrapper(func: AsyncCallable) -> SlashCommand:
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
@@ -844,7 +856,7 @@ def context_menu(
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
     default_member_permissions: Optional["Permissions"] = None,
     dm_permission: bool = True,
-) -> Callable[[Coroutine], ContextMenu]:
+) -> Callable[[AsyncCallable], ContextMenu]:
     """
     A decorator to declare a coroutine as a Context Menu.
 
@@ -860,7 +872,7 @@ def context_menu(
 
     """
 
-    def wrapper(func) -> ContextMenu:
+    def wrapper(func: AsyncCallable) -> ContextMenu:
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
@@ -884,7 +896,7 @@ def context_menu(
     return wrapper
 
 
-def component_callback(*custom_id: str) -> Callable[[Coroutine], ComponentCommand]:
+def component_callback(*custom_id: str) -> Callable[[AsyncCallable], ComponentCommand]:
     """
     Register a coroutine as a component callback.
 
@@ -896,7 +908,7 @@ def component_callback(*custom_id: str) -> Callable[[Coroutine], ComponentComman
 
     """
 
-    def wrapper(func) -> ComponentCommand:
+    def wrapper(func: AsyncCallable) -> ComponentCommand:
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
@@ -908,7 +920,7 @@ def component_callback(*custom_id: str) -> Callable[[Coroutine], ComponentComman
     return wrapper
 
 
-def modal_callback(*custom_id: str) -> Callable[[Coroutine], ModalCommand]:
+def modal_callback(*custom_id: str) -> Callable[[AsyncCallable], ModalCommand]:
     """
     Register a coroutine as a modal callback.
 
@@ -919,7 +931,7 @@ def modal_callback(*custom_id: str) -> Callable[[Coroutine], ModalCommand]:
         *custom_id: The custom ID of the modal to wait for
     """
 
-    def wrapper(func) -> ModalCommand:
+    def wrapper(func: AsyncCallable) -> ModalCommand:
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
@@ -927,6 +939,10 @@ def modal_callback(*custom_id: str) -> Callable[[Coroutine], ModalCommand]:
 
     custom_id = _unpack_helper(custom_id)
     return wrapper
+
+
+InterCommandT = TypeVar("InterCommandT", InteractionCommand, AsyncCallable)
+SlashCommandT = TypeVar("SlashCommandT", SlashCommand, AsyncCallable)
 
 
 def slash_option(
@@ -941,7 +957,7 @@ def slash_option(
     max_value: Optional[float] = None,
     min_length: Optional[int] = None,
     max_length: Optional[int] = None,
-) -> Any:
+) -> Callable[[SlashCommandT], SlashCommandT]:
     r"""
     A decorator to add an option to a slash command.
 
@@ -958,7 +974,7 @@ def slash_option(
         max_length: The maximum length of text a user can input. The option needs to be a string
     """
 
-    def wrapper(func: Coroutine) -> Coroutine:
+    def wrapper(func: SlashCommandT) -> SlashCommandT:
         if hasattr(func, "cmd_id"):
             raise Exception(
                 "slash_option decorators must be positioned under a slash_command decorator"
@@ -985,7 +1001,9 @@ def slash_option(
     return wrapper
 
 
-def slash_default_member_permission(permission: "Permissions") -> Any:
+def slash_default_member_permission(
+    permission: "Permissions",
+) -> Callable[[SlashCommandT], SlashCommandT]:
     """
     A decorator to permissions members need to have by default to use a command.
 
@@ -994,7 +1012,7 @@ def slash_default_member_permission(permission: "Permissions") -> Any:
 
     """
 
-    def wrapper(func: Coroutine) -> Coroutine:
+    def wrapper(func: SlashCommandT) -> SlashCommandT:
         if hasattr(func, "cmd_id"):
             raise Exception(
                 "slash_default_member_permission decorators must be positioned under a slash_command decorator"
@@ -1014,7 +1032,7 @@ def slash_default_member_permission(permission: "Permissions") -> Any:
 
 def auto_defer(
     ephemeral: bool = False, time_until_defer: float = 0.0
-) -> Callable[[Coroutine], Coroutine]:
+) -> Callable[[InterCommandT], InterCommandT]:
     """
     A decorator to add an auto defer to a application command.
 
@@ -1024,7 +1042,7 @@ def auto_defer(
 
     """
 
-    def wrapper(func: Coroutine) -> Coroutine:
+    def wrapper(func: InterCommandT) -> InterCommandT:
         if hasattr(func, "cmd_id"):
             raise Exception(
                 "auto_defer decorators must be positioned under a slash_command decorator"

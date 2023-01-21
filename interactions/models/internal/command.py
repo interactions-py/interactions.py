@@ -5,11 +5,21 @@ import copy
 import functools
 import re
 import typing
-from typing import Annotated, Awaitable, Callable, Coroutine, Optional, Tuple, Any, TYPE_CHECKING
+from typing import (
+    Annotated,
+    Awaitable,
+    Callable,
+    Coroutine,
+    Optional,
+    Tuple,
+    Any,
+    TYPE_CHECKING,
+    TypeVar,
+)
 
 import attrs
 
-from interactions.client.const import MISSING
+from interactions.client.const import MISSING, AsyncCallable
 from interactions.client.errors import CommandOnCooldown, CommandCheckFailure, MaxConcurrencyReached
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils.attr_utils import docs
@@ -328,7 +338,10 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
         return call
 
 
-def check(check: Callable[["Context"], Awaitable[bool]]) -> Callable[[Coroutine], Coroutine]:
+CommandT = TypeVar("CommandT", BaseCommand, AsyncCallable)
+
+
+def check(check: Callable[..., Awaitable[bool]]) -> Callable[[CommandT], CommandT]:
     """
     Add a check to a command.
 
@@ -337,7 +350,7 @@ def check(check: Callable[["Context"], Awaitable[bool]]) -> Callable[[Coroutine]
 
     """
 
-    def wrapper(coro: Coroutine) -> Coroutine:
+    def wrapper(coro: CommandT) -> CommandT:
         if isinstance(coro, BaseCommand):
             coro.checks.append(check)
             return coro
@@ -349,7 +362,7 @@ def check(check: Callable[["Context"], Awaitable[bool]]) -> Callable[[Coroutine]
     return wrapper
 
 
-def cooldown(bucket: Buckets, rate: int, interval: float) -> Callable[[Coroutine], Coroutine]:
+def cooldown(bucket: Buckets, rate: int, interval: float) -> Callable[[CommandT], CommandT]:
     """
     Add a cooldown to a command.
 
@@ -360,7 +373,7 @@ def cooldown(bucket: Buckets, rate: int, interval: float) -> Callable[[Coroutine
 
     """
 
-    def wrapper(coro: Coroutine) -> Coroutine:
+    def wrapper(coro: CommandT) -> CommandT:
         cooldown_obj = Cooldown(bucket, rate, interval)
 
         coro.cooldown = cooldown_obj
@@ -370,7 +383,7 @@ def cooldown(bucket: Buckets, rate: int, interval: float) -> Callable[[Coroutine
     return wrapper
 
 
-def max_concurrency(bucket: Buckets, concurrent: int) -> Callable[[Coroutine], Coroutine]:
+def max_concurrency(bucket: Buckets, concurrent: int) -> Callable[[CommandT], CommandT]:
     """
     Add a maximum number of concurrent instances to the command.
 
@@ -380,7 +393,7 @@ def max_concurrency(bucket: Buckets, concurrent: int) -> Callable[[Coroutine], C
 
     """
 
-    def wrapper(coro: Coroutine) -> Coroutine:
+    def wrapper(coro: CommandT) -> CommandT:
         max_conc = MaxConcurrency(concurrent, bucket)
 
         coro.max_concurrency = max_conc
