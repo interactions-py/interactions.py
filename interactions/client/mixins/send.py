@@ -87,7 +87,7 @@ class SendMixin:
 
         message_data = await self._send_http_request(message_payload, files=files or file)
         if message_data:
-            message = self._client.cache.place_message_data(message_data)
+            message = self.client.cache.place_message_data(message_data)
             if delete_after:
-                await message.delete(delay=delete_after)
+                await message.delete(delay=delete_after)  # noqa
             return message
