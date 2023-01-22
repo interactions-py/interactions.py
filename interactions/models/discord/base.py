@@ -19,6 +19,14 @@ class ClientObject(DictSerializationMixin):
 
     _client: "Client" = attrs.field(repr=False, metadata=no_export_meta)
 
+    @property
+    def client(self) -> "Client":
+        return self._client
+
+    @property
+    def bot(self) -> "Client":
+        return self._client
+
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
         return super()._process_dict(data)
