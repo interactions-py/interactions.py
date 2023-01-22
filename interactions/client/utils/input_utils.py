@@ -5,7 +5,7 @@ import aiohttp  # type: ignore
 
 from interactions.client.const import get_logger
 
-__all__ = ("OverriddenJson", "response_decode", "get_args", "get_first_word")
+__all__ = ("FastJson", "response_decode", "get_args", "get_first_word")
 
 try:
     import orjson as json
@@ -45,7 +45,7 @@ arg_parse = re.compile(_pending_regex)
 white_space = re.compile(r"\s+")
 
 
-class OverriddenJson:
+class FastJson:
     """Uses orjson if available, otherwise uses built-in json library."""
 
     @staticmethod
@@ -73,7 +73,7 @@ async def response_decode(response: aiohttp.ClientResponse) -> Union[Dict[str, A
     text = await response.text(encoding="utf-8")
 
     if response.headers.get("content-type") == "application/json":
-        return OverriddenJson.loads(text)
+        return FastJson.loads(text)
     return text
 
 

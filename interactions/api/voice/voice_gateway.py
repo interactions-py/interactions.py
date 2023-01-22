@@ -11,7 +11,7 @@ from aiohttp import WSMsgType
 from interactions.api.gateway.websocket import WebsocketClient
 from interactions.api.voice.encryption import Encryption
 from interactions.client.errors import VoiceWebSocketClosed
-from interactions.client.utils.input_utils import OverriddenJson
+from interactions.client.utils.input_utils import FastJson
 
 __all__ = ("VoiceGateway",)
 
@@ -156,7 +156,7 @@ class VoiceGateway(WebsocketClient):
                 msg = resp.data
 
             try:
-                msg = OverriddenJson.loads(msg)
+                msg = FastJson.loads(msg)
             except Exception as e:
                 self.logger.error(e)
 
@@ -315,7 +315,7 @@ class VoiceGateway(WebsocketClient):
                 "token": self.token,
             },
         }
-        serialized = OverriddenJson.dumps(payload)
+        serialized = FastJson.dumps(payload)
         await self.ws.send_str(serialized)
 
         self.logger.debug("Voice Connection has identified itself to Voice Gateway")

@@ -44,7 +44,7 @@ from interactions.client.errors import (
     LoginError,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.input_utils import response_decode, OverriddenJson
+from interactions.client.utils.input_utils import response_decode, FastJson
 from interactions.client.utils.serializer import dict_filter, get_file_mimetype
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from .route import Route
@@ -259,7 +259,7 @@ class HTTPClient(
             files = [files]
 
         form_data = FormData(quote_fields=False)
-        form_data.add_field("payload_json", OverriddenJson.dumps(payload))
+        form_data.add_field("payload_json", FastJson.dumps(payload))
 
         for index, file in enumerate(files):
             file_data = models.open_file(file).read()
@@ -421,7 +421,7 @@ class HTTPClient(
         """
         self.__session = ClientSession(
             connector=self.connector if self.connector else aiohttp.TCPConnector(limit=self.global_lock.max_requests),
-            json_serialize=OverriddenJson.dumps,
+            json_serialize=FastJson.dumps,
         )
         self.token = token
         try:

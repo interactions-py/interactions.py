@@ -10,7 +10,7 @@ from typing import TypeVar, TYPE_CHECKING
 from aiohttp import WSMsgType
 
 from interactions.client.errors import WebSocketClosed
-from interactions.client.utils.input_utils import OverriddenJson
+from interactions.client.utils.input_utils import FastJson
 from interactions.models.internal.cooldowns import CooldownSystem
 
 if TYPE_CHECKING:
@@ -156,7 +156,7 @@ class WebsocketClient:
             bypass: Should the rate limit be ignored for this send (used for heartbeats)
 
         """
-        serialized = OverriddenJson.dumps(data)
+        serialized = FastJson.dumps(data)
         await self.send(serialized, bypass)
 
     async def receive(self, force: bool = False) -> str:
@@ -233,7 +233,7 @@ class WebsocketClient:
                 msg = resp.data
 
             try:
-                msg = OverriddenJson.loads(msg)
+                msg = FastJson.loads(msg)
             except Exception as e:
                 self.logger.error(e)
                 continue
