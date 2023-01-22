@@ -6,6 +6,7 @@ from typing_extensions import Self
 
 import discord_typings
 from aiohttp import FormData
+from interactions.client.const import get_logger
 from interactions.models.discord.components import BaseComponent
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.sticker import Sticker
@@ -26,8 +27,9 @@ from interactions.models.discord.message import (
     Attachment,
     Message,
     MessageReference,
+    process_message_payload,
 )
-from interactions.models.discord.snowflake import Snowflake, Snowflake_Type
+from interactions.models.discord.snowflake import Snowflake, Snowflake_Type, to_snowflake
 from interactions.models.discord.embed import Embed
 from interactions.models.internal.application_commands import (
     OptionTypes,
@@ -277,6 +279,10 @@ class BaseInteractionContext(BaseContext):
             instance.author_id = Snowflake(payload["user"]["id"])
             client.cache.place_user_data(payload["user"])
 
+        if message_data := payload.get("message"):
+            message = client.cache.place_message_data(message_data)
+            instance.message_id = message.id
+
         instance.guild_id = Snowflake(payload.get("guild_id"))
 
         if payload["type"] == InteractionTypes.APPLICATION_COMMAND:
@@ -465,6 +471,67 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             **kwargs,
         )
 
+    async def delete(self, message: "Snowflake_Type") -> None:
+        """
+        Delete a message sent in response to this interaction.
+
+        Args:
+            message: The message to delete
+        """
+        await self.client.http.delete_interaction_message(
+            self.client.app.id, self.token, to_snowflake(message)
+        )
+
+    async def edit(
+        self,
+        message: "Snowflake_Type",
+        *,
+        content: typing.Optional[str] = None,
+        embeds: typing.Optional[
+            typing.Union[typing.Iterable[typing.Union["Embed", dict]], typing.Union["Embed", dict]]
+        ] = None,
+        embed: typing.Optional[typing.Union["Embed", dict]] = None,
+        components: typing.Optional[
+            typing.Union[
+                typing.Iterable[typing.Iterable[typing.Union["BaseComponent", dict]]],
+                typing.Iterable[typing.Union["BaseComponent", dict]],
+                "BaseComponent",
+                dict,
+            ]
+        ] = None,
+        attachments: typing.Optional[typing.Sequence[Attachment | dict]] = None,
+        allowed_mentions: typing.Optional[typing.Union["AllowedMentions", dict]] = None,
+        files: typing.Optional[
+            typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]
+        ] = None,
+        file: typing.Optional["UPLOADABLE_TYPE"] = None,
+        tts: bool = False,
+    ) -> "interactions.Message":
+        message_payload = process_message_payload(
+            content=content,
+            embeds=embeds or embed,
+            components=components,
+            allowed_mentions=allowed_mentions,
+            attachments=attachments,
+            tts=tts,
+        )
+
+        if file:
+            if files:
+                files = [file, *files]
+            else:
+                files = [file]
+
+        message_data = await self.client.http.edit_interaction_message(
+            payload=message_payload,
+            application_id=self.client.app.id,
+            token=self.token,
+            message_id=to_snowflake(message),
+            files=files,
+        )
+        if message_data:
+            return self.client.cache.place_message_data(message_data)
+
 
 class SlashContext(InteractionContext, ModalMixin):
     @classmethod
@@ -627,6 +694,109 @@ class ComponentContext(InteractionContext):
                         ):
                             instance.values[i] = channel
         return instance
+
+    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
+        """
+        Defer the interaction.
+
+        Args:
+            ephemeral: Whether the interaction response should be ephemeral.
+            edit_origin: Whether to edit the original message instead of sending a new one.
+        """
+        if self.deferred or self.responded:
+            raise RuntimeError("Interaction has already been responded to.")
+
+        payload = {
+            "type": CallbackTypes.DEFERRED_UPDATE_MESSAGE
+            if not edit_origin
+            else CallbackTypes.DEFERRED_UPDATE_MESSAGE
+        }
+        if ephemeral:
+            if edit_origin:
+                raise ValueError("Cannot use ephemeral and edit_origin together.")
+            payload["data"] = {"flags": MessageFlags.EPHEMERAL}
+
+        await self.client.http.post_initial_response(payload, self.id, self.token)
+        self.deferred = True
+        self.ephemeral = ephemeral
+        self.editing_origin = edit_origin
+
+    async def edit_origin(
+        self,
+        *,
+        content: typing.Optional[str] = None,
+        embeds: typing.Optional[
+            typing.Union[typing.Iterable[typing.Union["Embed", dict]], typing.Union["Embed", dict]]
+        ] = None,
+        embed: typing.Optional[typing.Union["Embed", dict]] = None,
+        components: typing.Optional[
+            typing.Union[
+                typing.Iterable[typing.Iterable[typing.Union["BaseComponent", dict]]],
+                typing.Iterable[typing.Union["BaseComponent", dict]],
+                "BaseComponent",
+                dict,
+            ]
+        ] = None,
+        attachments: typing.Optional[typing.Sequence[Attachment | dict]] = None,
+        allowed_mentions: typing.Optional[typing.Union["AllowedMentions", dict]] = None,
+        files: typing.Optional[
+            typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]
+        ] = None,
+        file: typing.Optional["UPLOADABLE_TYPE"] = None,
+        tts: bool = False,
+    ) -> "Message":
+        """
+        Edits the original message of the component.
+
+        Args:
+            content: Message text content.
+            embeds: Embedded rich content (up to 6000 characters).
+            embed: Embedded rich content (up to 6000 characters).
+            components: The components to include with the message.
+            allowed_mentions: Allowed mentions for the message.
+            files: Files to send, the path, bytes or File() instance, defaults to None. You may have up to 10 files.
+            file: Files to send, the path, bytes or File() instance, defaults to None. You may have up to 10 files.
+            tts: Should this message use Text To Speech.
+        Returns:
+            The message after it was edited.
+        """
+        if not self.responded and not self.deferred and (files or file):
+            # Discord doesn't allow files at initial response, so we defer then edit.
+            await self.defer(edit_origin=True)
+
+        message_payload = process_message_payload(
+            content=content,
+            embeds=embeds or embed,
+            components=components,
+            allowed_mentions=allowed_mentions,
+            tts=tts,
+        )
+
+        message_data = None
+        if self.deferred:
+            if not self.defer_edit_origin:
+                get_logger().warning(
+                    "If you want to edit the original message, and need to defer, you must set the `edit_origin` kwarg to True!"
+                )
+
+            message_data = await self.client.http.edit_interaction_message(
+                message_payload, self.client.app.id, self.token
+            )
+            self.deferred = False
+            self.defer_edit_origin = False
+        else:
+            payload = {"type": CallbackTypes.UPDATE_MESSAGE, "data": message_payload}
+            await self.client.http.post_initial_response(
+                payload, str(self.id), self.token, files=files or file
+            )
+            message_data = await self.client.http.get_interaction_message(
+                self.client.app.id, self.token
+            )
+
+        if message_data:
+            message = self.client.cache.place_message_data(message_data)
+            self.message_id = message.id
+            return message
 
 
 class ModalContext(InteractionContext):
