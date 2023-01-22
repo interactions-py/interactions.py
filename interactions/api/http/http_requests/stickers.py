@@ -116,7 +116,7 @@ class StickerRequests:
 
         """
         return await self.request(
-            Route("PATCH", f"/guild/{guild_id}/stickers/{sticker_id}"),
+            Route("PATCH", f"/guilds/{guild_id}/stickers/{sticker_id}"),
             payload=payload,
             reason=reason,
         )
@@ -139,4 +139,4 @@ class StickerRequests:
             Returns 204 No Content on success.
 
         """
-        return await self.request(Route("DELETE", f"/guild/{guild_id}/stickers/{sticker_id}"), reason=reason)
+        return await self.request(Route("DELETE", f"/guilds/{guild_id}/stickers/{sticker_id}"), reason=reason)
