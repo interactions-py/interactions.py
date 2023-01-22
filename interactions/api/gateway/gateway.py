@@ -8,7 +8,7 @@ from typing import TypeVar, TYPE_CHECKING
 
 from interactions.api import events
 from interactions.client.const import MISSING, __api_version__
-from interactions.client.utils.input_utils import OverriddenJson
+from interactions.client.utils.input_utils import FastJson
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.discord.enums import Status
 from interactions.models.discord.enums import WebSocketOPCodes as OPCODE
@@ -267,7 +267,7 @@ class GatewayClient(WebsocketClient):
             "compress": True,
         }
 
-        serialized = OverriddenJson.dumps(payload)
+        serialized = FastJson.dumps(payload)
         await self.ws.send_str(serialized)
 
         self.logger.debug(
@@ -293,7 +293,7 @@ class GatewayClient(WebsocketClient):
             },
         }
 
-        serialized = OverriddenJson.dumps(payload)
+        serialized = FastJson.dumps(payload)
         await self.ws.send_str(serialized)
 
         self.logger.debug(f"{self.shard[0]} is attempting to resume a connection")
