@@ -421,6 +421,7 @@ class HTTPClient(
         """
         self.__session = ClientSession(
             connector=self.connector if self.connector else aiohttp.TCPConnector(limit=self.global_lock.max_requests),
+            json_serialize=OverriddenJson.dumps,
         )
         self.token = token
         try:

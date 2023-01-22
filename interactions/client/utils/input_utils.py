@@ -9,9 +9,13 @@ __all__ = ("OverriddenJson", "response_decode", "get_args", "get_first_word")
 
 try:
     import orjson as json
+
+    orjson = True
 except ImportError:
     get_logger().warning("orjson not installed, built-in json library will be used")
     import json as json
+
+    orjson = False
 
 
 _quotes = {
@@ -47,7 +51,7 @@ class OverriddenJson:
     @staticmethod
     def dumps(*args, **kwargs) -> str:
         data = json.dumps(*args, **kwargs)
-        if isinstance(data, bytes):
+        if orjson:
             data = data.decode("utf-8")
         return data
 
