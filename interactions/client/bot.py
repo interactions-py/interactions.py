@@ -486,7 +486,8 @@ class Client:
         self._websocket._closing_lock.set()  # Toggles the "ready-to-shutdown" state for the bot.
         # And subsequently, the processes will close itself.
 
-        await self._http._req._session.close()  # Closes the HTTP session associated with the client.
+        if isinstance(self._http, HTTPClient):
+            await self._http._req._session.close()  # Closes the HTTP session associated with the client.
 
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
@@ -1638,7 +1639,8 @@ class Client:
 
     async def _logout(self) -> None:
         await self._websocket.close()
-        await self._http._req.close()
+        if isinstance(self._http, HTTPClient):
+            await self._http._req.close()
 
     async def wait_for(
         self,
