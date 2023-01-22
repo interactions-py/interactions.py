@@ -87,4 +87,21 @@ async def on_component(event: interactions.events.Component):
         await ctx.send(f"Clicked {ctx.custom_id}")
 
 
+@slash_command("multi_image")
+async def multi_image_embed_test(ctx: interactions.SlashContext):
+    images = [
+        "https://cdn.discordapp.com/attachments/1024794413710458980/1066808750519885974/Batman_Stellar_Derp.png",
+        "https://cdn.discordapp.com/attachments/1024794413710458980/1066808761626402836/Batman_Derp.jpg",
+    ]
+
+    embed = interactions.Embed(url="https://github.com/interactions-py/interactions.py", color=BrandColours.BLURPLE)
+    embed.set_images(*images)
+
+    await ctx.send(embeds=embed)
+
+    embed = interactions.Embed("Standard embed")
+    embed.set_image(images[0])
+    await ctx.send(embeds=embed)
+
+
 bot.start(os.environ["TOKEN"])
