@@ -1376,9 +1376,9 @@ class Guild(BaseGuild):
     async def create_custom_sticker(
         self,
         name: str,
-        imagefile: UPLOADABLE_TYPE,
+        file: UPLOADABLE_TYPE,
+        tags: list[str],
         description: Absent[Optional[str]] = MISSING,
-        tags: Absent[Optional[str]] = MISSING,
         reason: Absent[Optional[str]] = MISSING,
     ) -> "models.Sticker":
         """
@@ -1386,24 +1386,21 @@ class Guild(BaseGuild):
 
         Args:
             name: The name of the sticker (2-30 characters)
-            imagefile: The sticker file to upload, must be a PNG, APNG, or Lottie JSON file (max 500 KB)
-            description: The description of the sticker (empty or 2-100 characters)
+            file: The sticker file to upload, must be a PNG, APNG, or Lottie JSON file (max 500 KB)
             tags: Autocomplete/suggestion tags for the sticker (max 200 characters)
+            description: The description of the sticker (empty or 2-100 characters)
             reason: Reason for creating the sticker
 
         Returns:
             New Sticker instance
 
         """
-        payload = {"name": name}
+        payload = {"name": name, "tags": " ".join(tags)}
 
         if description:
             payload["description"] = description
 
-        if tags:
-            payload["tags"] = tags
-
-        sticker_data = await self._client.http.create_guild_sticker(payload, self.id, reason)
+        sticker_data = await self._client.http.create_guild_sticker(payload, self.id, file=file, reason=reason)
         return models.Sticker.from_dict(sticker_data, self._client)
 
     async def fetch_all_custom_stickers(self) -> List["models.Sticker"]:
