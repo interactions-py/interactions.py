@@ -46,7 +46,7 @@ white_space = re.compile(r"\s+")
 
 
 class FastJson:
-    """Uses orjson if available, otherwise uses built-in json library."""
+    """Provides a fast way to encode and decode JSON data, using the orjson library if available, otherwise falls back to built-in json library."""
 
     @staticmethod
     def dumps(*args, **kwargs) -> str:
