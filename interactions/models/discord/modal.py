@@ -2,6 +2,8 @@ import uuid
 from enum import IntEnum
 from typing import Union, Optional, Any, TypeVar
 
+import discord_typings
+
 from interactions.client.const import MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import dict_filter_none, dict_filter
@@ -30,7 +32,7 @@ class InputText(DictSerializationMixin):
         required: bool = True,
         min_length: Optional[int] = MISSING,
         max_length: Optional[int] = MISSING,
-    ):
+    ) -> None:
         self.label = label
         self.style = style
         self.custom_id = custom_id or str(uuid.uuid4())
@@ -42,7 +44,9 @@ class InputText(DictSerializationMixin):
 
         self.type = ComponentTypes.INPUT_TEXT
 
-    def to_dict(self) -> dict[str, int | str | bool]:
+    def to_dict(
+        self,
+    ) -> dict[str, int | str | bool]:  # I couldn't find a discord_typings object for this
         return dict_filter(
             {
                 "type": self.type,
@@ -86,7 +90,7 @@ class ShortText(InputText):
         required: bool = True,
         min_length: Optional[int] = MISSING,
         max_length: Optional[int] = MISSING,
-    ):
+    ) -> None:
         super().__init__(
             style=TextStyles.SHORT,
             label=label,
@@ -110,7 +114,7 @@ class ParagraphText(InputText):
         required: bool = True,
         min_length: Optional[int] = MISSING,
         max_length: Optional[int] = MISSING,
-    ):
+    ) -> None:
         super().__init__(
             style=TextStyles.PARAGRAPH,
             label=label,
@@ -129,21 +133,27 @@ class Modal:
         *components: InputText,
         title: str,
         custom_id: Optional[str] = None,
-    ):
+    ) -> None:
         self.title: str = title
         self.components: list[InputText] = list(components)
         self.custom_id: str = custom_id or str(uuid.uuid4())
 
         self.type = CallbackTypes.MODAL
 
-    def to_dict(self):
+    def to_dict(self) -> discord_typings.ModalInteractionData:
         return {
             "type": self.type,
             "data": {
                 "title": self.title,
                 "custom_id": self.custom_id,
-                "components": [{"type": ComponentTypes.ACTION_ROW, "components": [c.to_dict() if hasattr(c, "to_dict") else c]} for c in self.components],
-            }
+                "components": [
+                    {
+                        "type": ComponentTypes.ACTION_ROW,
+                        "components": [c.to_dict() if hasattr(c, "to_dict") else c],
+                    }
+                    for c in self.components
+                ],
+            },
         }
 
     def add_components(self, *components: InputText) -> None:
