@@ -129,10 +129,7 @@ class ThreadTag(DiscordObject):
         return self._client.get_channel(self._parent_channel_id)
 
     async def edit(
-        self,
-        *,
-        name: Optional[str] = None,
-        emoji: Union["models.PartialEmoji", dict, str, None] = None
+        self, *, name: Optional[str] = None, emoji: Union["models.PartialEmoji", dict, str, None] = None
     ) -> "ThreadTag":
         """
         Edit this tag
@@ -150,13 +147,9 @@ class ThreadTag(DiscordObject):
             emoji = PartialEmoji.from_dict(emoji)
 
         if emoji.id:
-            data = await self._client.http.edit_tag(
-                self._parent_channel_id, self.id, name, emoji_id=emoji.id
-            )
+            data = await self._client.http.edit_tag(self._parent_channel_id, self.id, name, emoji_id=emoji.id)
         else:
-            data = await self._client.http.edit_tag(
-                self._parent_channel_id, self.id, name, emoji_name=emoji.name
-            )
+            data = await self._client.http.edit_tag(self._parent_channel_id, self.id, name, emoji_name=emoji.name)
 
         self._client.cache.place_channel_data(data)
 

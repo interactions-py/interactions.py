@@ -72,9 +72,7 @@ class ScheduledEventsRequests:
             Scheduled Event or None
 
         """
-        return await self.request(
-            Route("POST", f"/guilds/{guild_id}/scheduled-events"), payload=payload, reason=reason
-        )
+        return await self.request(Route("POST", f"/guilds/{guild_id}/scheduled-events"), payload=payload, reason=reason)
 
     async def modify_scheduled_event(
         self,

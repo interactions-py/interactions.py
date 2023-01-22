@@ -42,12 +42,8 @@ class IntervalTrigger(BaseTrigger):
 
     _t = int | float
 
-    def __init__(
-        self, seconds: _t = 0, minutes: _t = 0, hours: _t = 0, days: _t = 0, weeks: _t = 0
-    ) -> None:
-        self.delta = timedelta(
-            days=days, seconds=seconds, minutes=minutes, hours=hours, weeks=weeks
-        )
+    def __init__(self, seconds: _t = 0, minutes: _t = 0, hours: _t = 0, days: _t = 0, weeks: _t = 0) -> None:
+        self.delta = timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours, weeks=weeks)
 
         # lazy check for negatives
         if (datetime.now() + self.delta) < datetime.now():

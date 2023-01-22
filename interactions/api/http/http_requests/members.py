@@ -49,9 +49,7 @@ class MemberRequests(CanRequest):
         }
         payload = dict_filter_none(payload)
 
-        result = await self.request(
-            Route("GET", f"/guilds/{int(guild_id)}/members"), params=payload
-        )
+        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/members"), params=payload)
         return cast(list[discord_typings.GuildMemberData], result)
 
     async def search_guild_members(

@@ -111,23 +111,17 @@ class PrefixedManager:
             command: The command to add.
         """
         if command.is_subcommand:
-            raise ValueError(
-                "You cannot add subcommands to the client - add the base command instead."
-            )
+            raise ValueError("You cannot add subcommands to the client - add the base command instead.")
 
         command._parse_parameters()
 
         if self.commands.get(command.name):
-            raise ValueError(
-                f"Duplicate command! Multiple commands share the name/alias: {command.name}."
-            )
+            raise ValueError(f"Duplicate command! Multiple commands share the name/alias: {command.name}.")
         self.commands[command.name] = command
 
         for alias in command.aliases:
             if self.commands.get(alias):
-                raise ValueError(
-                    f"Duplicate command! Multiple commands share the name/alias: {alias}."
-                )
+                raise ValueError(f"Duplicate command! Multiple commands share the name/alias: {alias}.")
             self.commands[alias] = command
 
         if command.extension:
@@ -177,9 +171,7 @@ class PrefixedManager:
             for alias in cmd.aliases:
                 self.commands.pop(alias, None)
 
-    def remove_command(
-        self, name: str, delete_parent_if_empty: bool = False
-    ) -> Optional[PrefixedCommand]:
+    def remove_command(self, name: str, delete_parent_if_empty: bool = False) -> Optional[PrefixedCommand]:
         """
         Removes a prefixed command if it exists.
 
@@ -326,9 +318,7 @@ class PrefixedManager:
 
             if command.subcommands and command.hierarchical_checking:
                 try:
-                    await new_command._can_run(
-                        context
-                    )  # will error out if we can't run this command
+                    await new_command._can_run(context)  # will error out if we can't run this command
                 except Exception as e:
                     if new_command.error_callback:
                         await new_command.error_callback(e, context)

@@ -97,15 +97,11 @@ class DistinctFlag(EnumMeta):
     def __iter__(cls) -> Iterator:
         yield from _distinct(super().__iter__())
 
-    def __call__(
-        cls, value, names=None, *, module=None, qualname=None, type=None, start=1
-    ) -> "DistinctFlag":
+    def __call__(cls, value, names=None, *, module=None, qualname=None, type=None, start=1) -> "DistinctFlag":
         # To automatically convert string values into ints (eg for permissions)
         try:
             int_value = int(value)
-            return super().__call__(
-                int_value, names, module=module, qualname=qualname, type=type, start=start
-            )
+            return super().__call__(int_value, names, module=module, qualname=qualname, type=type, start=start)
         except (TypeError, ValueError):
             return _return_cursed_enum(cls, value)
 

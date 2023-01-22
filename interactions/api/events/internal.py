@@ -140,9 +140,7 @@ class WebsocketReady(RawGatewayEvent):
 class Component(BaseEvent):
     """Dispatched when a user uses a Component."""
 
-    ctx: "ComponentContext" = attrs.field(
-        repr=False, metadata=docs("The context of the interaction")
-    )
+    ctx: "ComponentContext" = attrs.field(repr=False, metadata=docs("The context of the interaction"))
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)

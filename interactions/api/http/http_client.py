@@ -45,7 +45,7 @@ from interactions.client.errors import (
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils.input_utils import response_decode, OverriddenJson
-from interactions.client.utils.serializer import dict_filter
+from interactions.client.utils.serializer import dict_filter, get_file_mimetype
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from .route import Route
 
@@ -176,7 +176,9 @@ class HTTPClient(
         self.ratelimit_locks: WeakValueDictionary[str, BucketLock] = WeakValueDictionary()
         self._endpoints = {}
 
-        self.user_agent: str = f"DiscordBot ({__repo_url__} {__version__} Python/{__py_version__}) aiohttp/{aiohttp.__version__}"
+        self.user_agent: str = (
+            f"DiscordBot ({__repo_url__} {__version__} Python/{__py_version__}) aiohttp/{aiohttp.__version__}"
+        )
 
         if logger is MISSING:
             logger = constants.get_logger()
@@ -202,9 +204,7 @@ class HTTPClient(
         # if no cached lock exists, return a new lock
         return BucketLock()
 
-    def ingest_ratelimit(
-        self, route: Route, header: CIMultiDictProxy, bucket_lock: BucketLock
-    ) -> None:
+    def ingest_ratelimit(self, route: Route, header: CIMultiDictProxy, bucket_lock: BucketLock) -> None:
         """
         Ingests a ratelimit header from discord to determine ratelimit.
 
@@ -247,9 +247,7 @@ class HTTPClient(
                 if isinstance(v, DictSerializationMixin):
                     payload[k] = v.to_dict()
                 if isinstance(v, (list, tuple, set)):
-                    payload[k] = [
-                        i.to_dict() if isinstance(i, DictSerializationMixin) else i for i in v
-                    ]
+                    payload[k] = [i.to_dict() if isinstance(i, DictSerializationMixin) else i for i in v]
 
         else:
             payload = [dict_filter(x) if isinstance(x, dict) else x for x in payload]
@@ -330,9 +328,7 @@ class HTTPClient(
                         kwargs["json"] = processed_data  # pyright: ignore
                     await self.global_lock.wait()
 
-                    async with self.__session.request(
-                        route.method, route.url, **kwargs
-                    ) as response:
+                    async with self.__session.request(route.method, route.url, **kwargs) as response:
                         result = await response_decode(response)
                         self.ingest_ratelimit(route, response.headers, lock)
 
@@ -424,9 +420,7 @@ class HTTPClient(
 
         """
         self.__session = ClientSession(
-            connector=self.connector
-            if self.connector
-            else aiohttp.TCPConnector(limit=self.global_lock.max_requests),
+            connector=self.connector if self.connector else aiohttp.TCPConnector(limit=self.global_lock.max_requests),
         )
         self.token = token
         try:
@@ -455,9 +449,7 @@ class HTTPClient(
             result = cast(dict[str, Any], result)
         except HTTPException as exc:
             raise GatewayNotFound from exc
-        return "{0}?encoding={1}&v={2}&compress=zlib-stream".format(
-            result["url"], "json", __api_version__
-        )
+        return "{0}?encoding={1}&v={2}&compress=zlib-stream".format(result["url"], "json", __api_version__)
 
     async def get_gateway_bot(self) -> discord_typings.GetGatewayBotData:
         try:

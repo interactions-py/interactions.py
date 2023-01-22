@@ -46,13 +46,9 @@ class VoiceState(ClientObject):
     """the time at which the user requested to speak"""
 
     # internal for props
-    _guild_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=to_snowflake
-    )
+    _guild_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=to_snowflake)
     _channel_id: "Snowflake_Type" = attrs.field(repr=False, converter=to_snowflake)
-    _member_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=to_snowflake
-    )
+    _member_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=to_snowflake)
 
     @property
     def guild(self) -> "Guild":
@@ -86,11 +82,7 @@ class VoiceState(ClientObject):
     @property
     def member(self) -> "Member":
         """The member this voice state is for."""
-        return (
-            self._client.cache.get_member(self._guild_id, self._member_id)
-            if self._guild_id
-            else None
-        )
+        return self._client.cache.get_member(self._guild_id, self._member_id) if self._guild_id else None
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:

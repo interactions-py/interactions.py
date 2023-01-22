@@ -70,9 +70,7 @@ class VoiceGateway(WebsocketClient):
             if self._stopping is None:
                 self._stopping = asyncio.create_task(self._close_gateway.wait())
             receiving = asyncio.create_task(self.receive())
-            done, _ = await asyncio.wait(
-                {self._stopping, receiving}, return_when=asyncio.FIRST_COMPLETED
-            )
+            done, _ = await asyncio.wait({self._stopping, receiving}, return_when=asyncio.FIRST_COMPLETED)
 
             if receiving in done:
                 # Note that we check for a received message first, because if both completed at
@@ -107,9 +105,7 @@ class VoiceGateway(WebsocketClient):
             resp = await self.ws.receive()
 
             if resp.type == WSMsgType.CLOSE:
-                self.logger.debug(
-                    f"Disconnecting from voice gateway! Reason: {resp.data}::{resp.extra}"
-                )
+                self.logger.debug(f"Disconnecting from voice gateway! Reason: {resp.data}::{resp.extra}")
                 if resp.data in (4006, 4009, 4014, 4015):
                     # these are all recoverable close codes, anything else means we're foobared
                     # codes: session expired, session timeout, disconnected, server crash
@@ -121,9 +117,7 @@ class VoiceGateway(WebsocketClient):
 
             elif resp.type is WSMsgType.CLOSED:
                 if force:
-                    raise RuntimeError(
-                        "Discord unexpectedly closed the underlying socket during force receive!"
-                    )
+                    raise RuntimeError("Discord unexpectedly closed the underlying socket during force receive!")
 
                 if not self._closed.is_set():
                     # Because we are waiting for the even before we receive, this shouldn't be
@@ -178,9 +172,7 @@ class VoiceGateway(WebsocketClient):
                         f"High Latency! Voice heartbeat took {self.latency[-1]:.1f}s to be acknowledged!"
                     )
                 else:
-                    self.logger.debug(
-                        f"❤ Heartbeat acknowledged after {self.latency[-1]:.5f} seconds"
-                    )
+                    self.logger.debug(f"❤ Heartbeat acknowledged after {self.latency[-1]:.5f} seconds")
 
                 return self._acknowledged.set()
 

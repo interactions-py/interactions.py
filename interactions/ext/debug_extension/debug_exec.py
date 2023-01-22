@@ -83,17 +83,13 @@ class DebugExec(Extension):
         else:
             return await self.handle_exec_result(m_ctx, ret, stdout.getvalue(), body)
 
-    async def handle_exec_result(
-        self, ctx: ModalContext, result: Any, value: Any, body: str
-    ) -> Optional[Message]:
+    async def handle_exec_result(self, ctx: ModalContext, result: Any, value: Any, body: str) -> Optional[Message]:
         # body can be of length 2000 and exceed the limit after formatting
         if len(cmd_body := f"```py\n{body}```") <= 2000:
             await ctx.send(cmd_body)
 
         else:
-            paginator = Paginator.create_from_string(
-                self.bot, body, prefix="```py", suffix="```", page_size=4000
-            )
+            paginator = Paginator.create_from_string(self.bot, body, prefix="```py", suffix="```", page_size=4000)
             await paginator.send(ctx)
 
         if result is None:
@@ -138,9 +134,7 @@ class DebugExec(Extension):
             return await ctx.send(cmd_result)
 
         else:
-            paginator = Paginator.create_from_string(
-                self.bot, result, prefix="```py", suffix="```", page_size=4000
-            )
+            paginator = Paginator.create_from_string(self.bot, result, prefix="```py", suffix="```", page_size=4000)
             return await paginator.send(ctx)
 
 

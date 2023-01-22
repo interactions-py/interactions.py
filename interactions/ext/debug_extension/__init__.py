@@ -71,9 +71,7 @@ class DebugExtension(DebugExec, DebugAppCMD, DebugExts, Extension):
 
         await ctx.send(embeds=[e])
 
-    @debug_info.subcommand(
-        "cache", sub_cmd_description="Get information about the current cache state"
-    )
+    @debug_info.subcommand("cache", sub_cmd_description="Get information about the current cache state")
     async def cache_info(self, ctx: InteractionContext) -> None:
         await ctx.defer()
         e = debug_embed("Cache")

@@ -53,9 +53,7 @@ class Extension:
     extension_prerun: List
     extension_postrun: List
     extension_error: Optional[Callable[..., Coroutine]]
-    interaction_tree: Dict[
-        "Snowflake_Type", Dict[str, "InteractionCommand" | Dict[str, "InteractionCommand"]]
-    ]
+    interaction_tree: Dict["Snowflake_Type", Dict[str, "InteractionCommand" | Dict[str, "InteractionCommand"]]]
     _commands: List
     _listeners: List
     auto_defer: "AutoDefer"
@@ -167,9 +165,7 @@ class Extension:
             time_until_defer: How long to wait before deferring automatically
 
         """
-        self.auto_defer = models.AutoDefer(
-            enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer
-        )
+        self.auto_defer = models.AutoDefer(enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer)
 
     def add_ext_check(self, coroutine: Callable[["BaseContext"], Awaitable[bool]]) -> None:
         """

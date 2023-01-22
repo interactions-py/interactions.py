@@ -141,9 +141,7 @@ class WebsocketClient:
 
         async with self._race_lock:
             if self.ws is None:
-                return self.logger.warning(
-                    "Attempted to send data while websocket is not connected!"
-                )
+                return self.logger.warning("Attempted to send data while websocket is not connected!")
             if not bypass:
                 await self.rl_manager.rate_limit()
 
@@ -189,18 +187,14 @@ class WebsocketClient:
                     raise WebSocketClosed(resp.data)
 
                 if force:
-                    raise RuntimeError(
-                        "Discord unexpectedly wants to close the WebSocket during force receive!"
-                    )
+                    raise RuntimeError("Discord unexpectedly wants to close the WebSocket during force receive!")
 
                 await self.reconnect(code=resp.data, resume=resp.data != 1000)
                 continue
 
             elif resp.type is WSMsgType.CLOSED:
                 if force:
-                    raise RuntimeError(
-                        "Discord unexpectedly closed the underlying socket during force receive!"
-                    )
+                    raise RuntimeError("Discord unexpectedly closed the underlying socket during force receive!")
 
                 if not self._closed.is_set():
                     # Because we are waiting for the even before we receive, this shouldn't be
@@ -246,9 +240,7 @@ class WebsocketClient:
 
             return msg
 
-    async def reconnect(
-        self, *, resume: bool = False, code: int = 1012, url: str | None = None
-    ) -> None:
+    async def reconnect(self, *, resume: bool = False, code: int = 1012, url: str | None = None) -> None:
         async with self._race_lock:
             self._closed.clear()
 
@@ -288,9 +280,7 @@ class WebsocketClient:
             raise RuntimeError
 
         try:
-            await asyncio.wait_for(
-                self._kill_bee_gees.wait(), timeout=self.heartbeat_interval * random.uniform(0, 0.5)
-            )
+            await asyncio.wait_for(self._kill_bee_gees.wait(), timeout=self.heartbeat_interval * random.uniform(0, 0.5))
         except asyncio.TimeoutError:
             pass
         else:

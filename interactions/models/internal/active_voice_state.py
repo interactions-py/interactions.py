@@ -28,15 +28,9 @@ class ActiveVoiceState(VoiceState):
     _volume: float = attrs.field(repr=False, default=0.5)
 
     # standard voice states expect this data, this voice state lacks it initially; so we make them optional
-    user_id: "Snowflake_Type" = attrs.field(
-        repr=False, default=MISSING, converter=optional(to_snowflake)
-    )
-    _guild_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=optional(to_snowflake)
-    )
-    _member_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=optional(to_snowflake)
-    )
+    user_id: "Snowflake_Type" = attrs.field(repr=False, default=MISSING, converter=optional(to_snowflake))
+    _guild_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
+    _member_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
 
     def __attrs_post_init__(self) -> None:
         # jank line to handle the two inherently incompatible data structures
@@ -82,12 +76,7 @@ class ActiveVoiceState(VoiceState):
     def playing(self) -> bool:
         """Are we currently playing something?"""
         # noinspection PyProtectedMember
-        if (
-            not self.player
-            or not self.current_audio
-            or self.player.stopped
-            or not self.player._resume.is_set()
-        ):
+        if not self.player or not self.current_audio or self.player.stopped or not self.player._resume.is_set():
             # if any of the above are truthy, we aren't playing
             return False
         return True
@@ -128,9 +117,7 @@ class ActiveVoiceState(VoiceState):
 
     async def ws_connect(self) -> None:
         """Connect to the voice gateway for this voice state"""
-        self.ws = VoiceGateway(
-            self._client._connection_state, self._voice_state.data, self._voice_server.data
-        )
+        self.ws = VoiceGateway(self._client._connection_state, self._voice_state.data, self._voice_server.data)
 
         asyncio.create_task(self._ws_connect())
         await self.ws.wait_until_ready()
@@ -152,20 +139,14 @@ class ActiveVoiceState(VoiceState):
         """
         if self.connected:
             raise VoiceAlreadyConnected
-        await self.gateway.voice_state_update(
-            self._guild_id, self._channel_id, self.self_mute, self.self_deaf
-        )
+        await self.gateway.voice_state_update(self._guild_id, self._channel_id, self.self_mute, self.self_deaf)
 
         self.logger.debug("Waiting for voice connection data...")
 
         try:
             self._voice_state, self._voice_server = await asyncio.gather(
-                self._client.wait_for(
-                    "raw_voice_state_update", self._guild_predicate, timeout=timeout
-                ),
-                self._client.wait_for(
-                    "raw_voice_server_update", self._guild_predicate, timeout=timeout
-                ),
+                self._client.wait_for("raw_voice_state_update", self._guild_predicate, timeout=timeout),
+                self._client.wait_for("raw_voice_server_update", self._guild_predicate, timeout=timeout),
             )
         except asyncio.TimeoutError:
             raise VoiceConnectionTimeout from None
@@ -193,15 +174,11 @@ class ActiveVoiceState(VoiceState):
                 self.player.pause()
 
             self._channel_id = target_channel
-            await self.gateway.voice_state_update(
-                self._guild_id, self._channel_id, self.self_mute, self.self_deaf
-            )
+            await self.gateway.voice_state_update(self._guild_id, self._channel_id, self.self_mute, self.self_deaf)
 
             self.logger.debug("Waiting for voice connection data...")
             try:
-                await self._client.wait_for(
-                    "raw_voice_state_update", self._guild_predicate, timeout=timeout
-                )
+                await self._client.wait_for("raw_voice_state_update", self._guild_predicate, timeout=timeout)
             except asyncio.TimeoutError:
                 await self._close_connection()
                 raise VoiceConnectionTimeout from None

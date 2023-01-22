@@ -73,9 +73,7 @@ class GlobalCache:
     guild_cache: dict = attrs.field(repr=False, factory=dict)  # key: guild_id
 
     # Expiring discord objects cache
-    message_cache: TTLCache = attrs.field(
-        repr=False, factory=TTLCache
-    )  # key: (channel_id, message_id)
+    message_cache: TTLCache = attrs.field(repr=False, factory=TTLCache)  # key: (channel_id, message_id)
     role_cache: TTLCache = attrs.field(repr=False, factory=dict)  # key: role_id
     voice_state_cache: TTLCache = attrs.field(repr=False, factory=dict)  # key: user_id
     bot_voice_state_cache: dict = attrs.field(repr=False, factory=dict)  # key: guild_id
@@ -86,9 +84,7 @@ class GlobalCache:
 
     # Expiring id reference cache
     dm_channels: TTLCache = attrs.field(repr=False, factory=TTLCache)  # key: user_id
-    user_guilds: TTLCache = attrs.field(
-        repr=False, factory=dict
-    )  # key: user_id; value: set[guild_id]
+    user_guilds: TTLCache = attrs.field(repr=False, factory=dict)  # key: user_id; value: set[guild_id]
 
     logger: Logger = attrs.field(repr=False, init=False, factory=get_logger)
 
@@ -189,9 +185,7 @@ class GlobalCache:
             member = self.place_member_data(guild_id, data)
         return member
 
-    def get_member(
-        self, guild_id: Optional["Snowflake_Type"], user_id: Optional["Snowflake_Type"]
-    ) -> Optional[Member]:
+    def get_member(self, guild_id: Optional["Snowflake_Type"], user_id: Optional["Snowflake_Type"]) -> Optional[Member]:
         """
         Get a member by their guild and user IDs.
 
@@ -202,9 +196,7 @@ class GlobalCache:
         Returns:
             Member object if found
         """
-        return self.member_cache.get(
-            (to_optional_snowflake(guild_id), to_optional_snowflake(user_id))
-        )
+        return self.member_cache.get((to_optional_snowflake(guild_id), to_optional_snowflake(user_id)))
 
     def place_member_data(
         self, guild_id: "Snowflake_Type", data: discord_typings.resources.guild.GuildMemberData
@@ -349,9 +341,7 @@ class GlobalCache:
         guild_ids = self.user_guilds.get(user_id)
         if not guild_ids:
             guild_ids = [
-                guild_id
-                for guild_id in self._client.user._guild_ids
-                if await self.is_user_in_guild(user_id, guild_id)
+                guild_id for guild_id in self._client.user._guild_ids if await self.is_user_in_guild(user_id, guild_id)
             ]
             self.user_guilds[user_id] = set(guild_ids)
         return guild_ids
@@ -414,9 +404,7 @@ class GlobalCache:
         Returns:
             The message if found
         """
-        return self.message_cache.get(
-            (to_optional_snowflake(channel_id), to_optional_snowflake(message_id))
-        )
+        return self.message_cache.get((to_optional_snowflake(channel_id), to_optional_snowflake(message_id)))
 
     def place_message_data(self, data: discord_typings.MessageData) -> Message:
         """
@@ -471,9 +459,7 @@ class GlobalCache:
                 data = await self._client.http.get_channel(channel_id)
                 channel = self.place_channel_data(data)
             except Forbidden:
-                self.logger.warning(
-                    f"Forbidden access to channel {channel_id}. Generating fallback channel object"
-                )
+                self.logger.warning(f"Forbidden access to channel {channel_id}. Generating fallback channel object")
                 channel = BaseChannel.from_dict({"id": channel_id, "type": MISSING}, self._client)
         return channel
 
@@ -761,9 +747,7 @@ class GlobalCache:
         """
         return self.voice_state_cache.get(to_optional_snowflake(user_id))
 
-    async def place_voice_state_data(
-        self, data: discord_typings.VoiceStateData
-    ) -> Optional[VoiceState]:
+    async def place_voice_state_data(self, data: discord_typings.VoiceStateData) -> Optional[VoiceState]:
         """
         Take json data representing a VoiceState, process it, and cache it.
 
@@ -815,9 +799,7 @@ class GlobalCache:
 
     # region Bot Voice cache
 
-    def get_bot_voice_state(
-        self, guild_id: Optional["Snowflake_Type"]
-    ) -> Optional[ActiveVoiceState]:
+    def get_bot_voice_state(self, guild_id: Optional["Snowflake_Type"]) -> Optional[ActiveVoiceState]:
         """
         Get a voice state for the bot, by the guild id.
 
@@ -893,15 +875,9 @@ class GlobalCache:
         Returns:
             The Emoji if found
         """
-        return (
-            self.emoji_cache.get(to_optional_snowflake(emoji_id))
-            if self.emoji_cache is not None
-            else None
-        )
+        return self.emoji_cache.get(to_optional_snowflake(emoji_id)) if self.emoji_cache is not None else None
 
-    def place_emoji_data(
-        self, guild_id: "Snowflake_Type", data: discord_typings.EmojiData
-    ) -> "CustomEmoji":
+    def place_emoji_data(self, guild_id: "Snowflake_Type", data: discord_typings.EmojiData) -> "CustomEmoji":
         """
         Take json data representing an emoji, process it, and cache it. This cache is disabled by default, start your bot with `Client(enable_emoji_cache=True)` to enable it.
 
@@ -913,9 +889,7 @@ class GlobalCache:
             The processed emoji
         """
         with suppress(KeyError):
-            del data[
-                "guild_id"
-            ]  # discord sometimes packages a guild_id - this will cause an exception
+            del data["guild_id"]  # discord sometimes packages a guild_id - this will cause an exception
 
         emoji = CustomEmoji.from_dict(data, self._client, to_snowflake(guild_id))
         if self.emoji_cache is not None:

@@ -39,9 +39,7 @@ class StickerRequests:
         """
         return await self.request(Route("GET", "/sticker-packs"))
 
-    async def list_guild_stickers(
-        self, guild_id: "Snowflake_Type"
-    ) -> List[discord_typings.StickerData]:
+    async def list_guild_stickers(self, guild_id: "Snowflake_Type") -> List[discord_typings.StickerData]:
         """
         Get the stickers for a guild.
 
@@ -141,6 +139,4 @@ class StickerRequests:
             Returns 204 No Content on success.
 
         """
-        return await self.request(
-            Route("DELETE", f"/guild/{guild_id}/stickers/{sticker_id}"), reason=reason
-        )
+        return await self.request(Route("DELETE", f"/guild/{guild_id}/stickers/{sticker_id}"), reason=reason)

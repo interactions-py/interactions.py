@@ -17,7 +17,7 @@ __all__ = (
     "dict_filter_none",
     "dict_filter",
     "to_image_data",
-    "get_file_mimetype"
+    "get_file_mimetype",
 )
 
 no_export_meta = {"no_export": True}

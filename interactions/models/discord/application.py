@@ -37,9 +37,7 @@ class Application(DiscordObject):
     """The url of the app's terms of service"""
     privacy_policy_url: Optional[str] = attrs.field(repr=False, default=None)
     """The url of the app's privacy policy"""
-    owner_id: Optional[Snowflake_Type] = attrs.field(
-        repr=False, default=None, converter=optional(to_snowflake)
-    )
+    owner_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
     """The id of the owner of the application"""
     summary: str = attrs.field(
         repr=False,
@@ -57,9 +55,7 @@ class Application(DiscordObject):
     """If this application is a game sold on Discord, this field will be the URL slug that links to the store page"""
     cover_image: Optional[Asset] = attrs.field(repr=False, default=None)
     """The application's default rich presence invite cover"""
-    flags: Optional["ApplicationFlags"] = attrs.field(
-        repr=False, default=None, converter=optional(ApplicationFlags)
-    )
+    flags: Optional["ApplicationFlags"] = attrs.field(repr=False, default=None, converter=optional(ApplicationFlags))
     """The application's public flags"""
     tags: Optional[List[str]] = attrs.field(repr=False, default=None)
     """The application's tags describing its functionality and content"""
@@ -80,13 +76,9 @@ class Application(DiscordObject):
                 data["owner_id"] = owner.id
 
         if data.get("icon"):
-            data["icon"] = Asset.from_path_hash(
-                client, f"app-icons/{data['id']}/{{}}", data["icon"]
-            )
+            data["icon"] = Asset.from_path_hash(client, f"app-icons/{data['id']}/{{}}", data["icon"])
         if data.get("cover_image"):
-            data["cover_image"] = Asset.from_path_hash(
-                client, f"app-icons/{data['id']}/{{}}", data["cover_image"]
-            )
+            data["cover_image"] = Asset.from_path_hash(client, f"app-icons/{data['id']}/{{}}", data["cover_image"])
 
         return data
 
