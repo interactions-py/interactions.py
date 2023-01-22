@@ -15,24 +15,6 @@ bot = Client()
 async def on_startup():
     print(f"Logged in as {bot.user}")
 
-    guild = bot.get_guild(701347683591389185)
-    channel = guild.get_channel(1032200124732022835)
-
-    # await channel.send("Hello", file=File(path, "colonelsanderskiss.png"))
-
-    sticker = await guild.create_custom_sticker(
-        "colonelsanderskiss",
-        File("colonelsanderskiss.png"),
-        tags=["flushed", "kiss", "colonel", "sanders"],
-    )
-
-    await channel.send("Hello", stickers=[sticker])
-
-    # test files upload correctly
-    await channel.send("image", file=File("colonelsanderskiss.png"))
-    await channel.send("multiple", files=[File("colonelsanderskiss.png"), File("bman.png"), File("chubby.jpg")])
-    await channel.send("python", files=File("main.py"))
-
 
 @bot.event()
 async def on_ready():
