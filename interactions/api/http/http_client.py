@@ -235,6 +235,8 @@ class HTTPClient(
         Returns:
             Either a dictionary or multipart data form
         """
+        if isinstance(payload, FormData):
+            return payload
         if payload is None:
             return None
 
@@ -258,15 +260,25 @@ class HTTPClient(
         if not isinstance(files, list):
             files = [files]
 
-        form_data = FormData()
+        form_data = FormData(quote_fields=False)
         form_data.add_field("payload_json", OverriddenJson.dumps(payload))
 
         for index, file in enumerate(files):
-            file_buffer = models.open_file(file)
+            file_data = models.open_file(file).read()
+
             if isinstance(file, models.File):
-                form_data.add_field(f"files[{index}]", file_buffer, filename=file.file_name)
+                form_data.add_field(
+                    f"files[{index}]" if len(files) > 1 else "file",
+                    file_data,
+                    filename=file.file_name,
+                    content_type=file.content_type if file.content_type else get_file_mimetype(file_data),
+                )
             else:
-                form_data.add_field(f"files[{index}]", file_buffer)
+                form_data.add_field(
+                    f"files[{index}]" if len(files) > 1 else "file",
+                    file_data,
+                    content_type=get_file_mimetype(file_data),
+                )
         return form_data
 
     async def request(

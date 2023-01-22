@@ -91,7 +91,7 @@ class StickerRequests:
 
         """
         return await self.request(
-            Route("POST", f"/guild/{guild_id}/stickers"),
+            Route("POST", f"/guilds/{guild_id}/stickers"),
             payload=payload,
             files=[file],
             reason=reason,

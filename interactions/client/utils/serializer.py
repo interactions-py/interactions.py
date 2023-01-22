@@ -1,15 +1,14 @@
+import copy
 from base64 import b64encode
 from datetime import datetime, timezone
-from io import IOBase
+from io import IOBase, BufferedReader
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, BinaryIO
 
 from attr import fields, has
 
 from interactions.client.const import MISSING, T
-
-if TYPE_CHECKING:
-    from interactions.models.discord.file import UPLOADABLE_TYPE, File
+from interactions.models.discord.file import UPLOADABLE_TYPE, File
 
 __all__ = (
     "no_export_meta",
@@ -18,6 +17,7 @@ __all__ = (
     "dict_filter_none",
     "dict_filter",
     "to_image_data",
+    "get_file_mimetype"
 )
 
 no_export_meta = {"no_export": True}
@@ -154,30 +154,32 @@ def to_image_data(imagefile: Optional["UPLOADABLE_TYPE"]) -> Optional[str]:
         case _:
             return imagefile
 
-    mimetype = _get_file_mimetype(image_data)
+    mimetype = get_file_mimetype(image_data)
     encoded_image = b64encode(image_data).decode("ascii")
 
     return f"data:{mimetype};base64,{encoded_image}"
 
 
-def _get_file_mimetype(filedata: bytes) -> str:
+def get_file_mimetype(file_data: bytes) -> str:
     """
     Gets the mimetype of a file based on file signature.
 
     Args:
-        filedata: The file data to process.
+        file_data: The file data to process.
 
     Returns:
         The mimetype of the file.
 
     """
-    if filedata.startswith((b"GIF87a", b"GIF89a")):
+    if file_data.startswith(b"{"):
+        return "application/json"
+    elif file_data.startswith((b"GIF87a", b"GIF89a")):
         return "image/gif"
-    elif filedata.startswith(b"\x89PNG\x0D\x0A\x1A\x0A"):
+    elif file_data.startswith(b"\x89PNG\x0D\x0A\x1A\x0A"):
         return "image/png"
-    elif filedata.startswith(b"\xff\xd8\xff"):
+    elif file_data.startswith(b"\xff\xd8\xff"):
         return "image/jpeg"
-    elif filedata[0:4] == b"RIFF" and filedata[8:12] == b"WEBP":
+    elif file_data[0:4] == b"RIFF" and file_data[8:12] == b"WEBP":
         return "image/webp"
     else:
         return "application/octet-stream"

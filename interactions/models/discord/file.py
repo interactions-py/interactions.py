@@ -20,6 +20,15 @@ class File:
     """Location of file to send or the bytes."""
     file_name: Optional[str] = attrs.field(repr=True, default=None)
     """Set a filename that will be displayed when uploaded to discord. If you leave this empty, the file will be called `file` by default"""
+    content_type: Optional[str] = attrs.field(repr=True, default=None)
+    """Override the content type of the file. If you leave this empty, the content type will be guessed from the file's data"""
+
+    def __attrs_post_init__(self) -> None:
+        if self.file_name is None:
+            if isinstance(self.file, (IOBase, BinaryIO)):
+                self.file_name = "file"
+            else:
+                self.file_name = Path(self.file).name
 
     def open_file(self) -> BinaryIO:
         """
