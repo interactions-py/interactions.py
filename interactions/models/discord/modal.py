@@ -1,16 +1,16 @@
 import uuid
 from enum import IntEnum
-from typing import Union, Optional, List
-
-import attrs
+from typing import Union, Optional, Any, TypeVar
 
 from interactions.client.const import MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_utils import str_validator
-from interactions.models.discord.components import InteractiveComponent, ComponentTypes
+from interactions.client.utils import dict_filter_none, dict_filter
+from interactions.models.discord.components import ComponentTypes
 from interactions.models.internal.application_commands import CallbackTypes
 
 __all__ = ("InputText", "Modal", "ParagraphText", "ShortText", "TextStyles")
+
+T = TypeVar("T", bound="InputText")
 
 
 class TextStyles(IntEnum):
@@ -18,92 +18,142 @@ class TextStyles(IntEnum):
     PARAGRAPH = 2
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
-class InputText(InteractiveComponent):
-    """An input component for modals"""
+class InputText(DictSerializationMixin):
+    def __init__(
+        self,
+        *,
+        label: str,
+        style: Union[TextStyles, int],
+        custom_id: Optional[str] = MISSING,
+        placeholder: Optional[str] = MISSING,
+        value: Optional[str] = MISSING,
+        required: bool = True,
+        min_length: Optional[int] = MISSING,
+        max_length: Optional[int] = MISSING,
+    ):
+        self.label = label
+        self.style = style
+        self.custom_id = custom_id or str(uuid.uuid4())
+        self.placeholder = placeholder
+        self.value = value
+        self.required = required
+        self.min_length = min_length
+        self.max_length = max_length
 
-    type: Union[ComponentTypes, int] = attrs.field(
-        repr=False, default=ComponentTypes.INPUT_TEXT, init=False, on_setattr=attrs.setters.frozen
-    )
+        self.type = ComponentTypes.INPUT_TEXT
 
-    label: str = attrs.field(repr=False, validator=str_validator)
-    """the label for this component"""
-    style: Union[TextStyles, int] = attrs.field(
-        repr=False,
-    )
-    """the Text Input Style for single or multiple lines input"""
+    def to_dict(self) -> dict[str, int | str | bool]:
+        return dict_filter(
+            {
+                "type": self.type,
+                "label": self.label,
+                "style": self.style,
+                "custom_id": self.custom_id,
+                "placeholder": self.placeholder,
+                "value": self.value,
+                "required": self.required,
+                "min_length": self.min_length,
+                "max_length": self.max_length,
+            }
+        )
 
-    custom_id: Optional[str] = attrs.field(
-        repr=False, factory=lambda: str(uuid.uuid4()), validator=str_validator
-    )
-    """a developer-defined identifier for the input, max 100 characters"""
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> T:
+        if data["style"] == TextStyles.SHORT:
+            cls = ShortText  # noqa
+        elif data["style"] == TextStyles.PARAGRAPH:
+            cls = ParagraphText  # noqa
 
-    placeholder: Optional[str] = attrs.field(
-        repr=False, default=MISSING, validator=str_validator, kw_only=True
-    )
-    """custom placeholder text if the input is empty, max 100 characters"""
-    value: Optional[str] = attrs.field(
-        repr=False, default=MISSING, validator=str_validator, kw_only=True
-    )
-    """a pre-filled value for this component, max 4000 characters"""
-
-    required: bool = attrs.field(repr=False, default=True, kw_only=True)
-    """whether this component is required to be filled, default true"""
-    min_length: Optional[int] = attrs.field(repr=False, default=MISSING, kw_only=True)
-    """the minimum input length for a text input, min 0, max 4000"""
-    max_length: Optional[int] = attrs.field(repr=False, default=MISSING, kw_only=True)
-    """the maximum input length for a text input, min 1, max 4000. Must be more than min_length."""
+        return cls(
+            label=data["label"],
+            custom_id=data["custom_id"],
+            placeholder=data["placeholder"],
+            value=data["value"],
+            required=data["required"],
+            min_length=data["min_length"],
+            max_length=data["max_length"],
+        )
 
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class ShortText(InputText):
-    """A single line input component for modals"""
+    def __init__(
+        self,
+        *,
+        label: str,
+        custom_id: Optional[str] = MISSING,
+        placeholder: Optional[str] = MISSING,
+        value: Optional[str] = MISSING,
+        required: bool = True,
+        min_length: Optional[int] = MISSING,
+        max_length: Optional[int] = MISSING,
+    ):
+        super().__init__(
+            style=TextStyles.SHORT,
+            label=label,
+            custom_id=custom_id,
+            placeholder=placeholder,
+            value=value,
+            required=required,
+            min_length=min_length,
+            max_length=max_length,
+        )
 
-    style: Union[TextStyles, int] = attrs.field(repr=False, default=TextStyles.SHORT, kw_only=True)
 
-
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class ParagraphText(InputText):
-    """A multi line input component for modals"""
+    def __init__(
+        self,
+        *,
+        label: str,
+        custom_id: Optional[str] = MISSING,
+        placeholder: Optional[str] = MISSING,
+        value: Optional[str] = MISSING,
+        required: bool = True,
+        min_length: Optional[int] = MISSING,
+        max_length: Optional[int] = MISSING,
+    ):
+        super().__init__(
+            style=TextStyles.PARAGRAPH,
+            label=label,
+            custom_id=custom_id,
+            placeholder=placeholder,
+            value=value,
+            required=required,
+            min_length=min_length,
+            max_length=max_length,
+        )
 
-    style: Union[TextStyles, int] = attrs.field(
-        repr=False, default=TextStyles.PARAGRAPH, kw_only=True
-    )
 
+class Modal:
+    def __init__(
+        self,
+        *components: InputText,
+        title: str,
+        custom_id: Optional[str] = None,
+    ):
+        self.title: str = title
+        self.components: list[InputText] = list(components)
+        self.custom_id: str = custom_id or str(uuid.uuid4())
 
-@attrs.define(eq=False, order=False, hash=False, kw_only=False)
-class Modal(DictSerializationMixin):
-    """Form submission style component on discord"""
+        self.type = CallbackTypes.MODAL
 
-    type: Union[CallbackTypes, int] = attrs.field(
-        repr=False, default=CallbackTypes.MODAL, init=False, on_setattr=attrs.setters.frozen
-    )
-    title: str = attrs.field(repr=False, validator=str_validator)
-    """the title of the popup modal, max 45 characters"""
-    components: List[InputText] = attrs.field(
-        repr=False,
-    )
-    """between 1 and 5 (inclusive) components that make up the modal"""
-    custom_id: Optional[str] = attrs.field(
-        repr=False, factory=lambda: str(uuid.uuid4()), validator=str_validator
-    )
-    """a developer-defined identifier for the component, max 100 characters"""
-
-    def __attrs_post_init__(self) -> None:
-        if self.custom_id is MISSING:
-            self.custom_id = str(uuid.uuid4())
-
-    def to_dict(self) -> dict:
-        data = super().to_dict()
-        components = [
-            {"type": ComponentTypes.ACTION_ROW, "components": [c]}
-            for c in data.get("components", [])
-        ]
+    def to_dict(self):
         return {
-            "type": data["type"],
+            "type": self.type,
             "data": {
-                "custom_id": data["custom_id"],
-                "title": data["title"],
-                "components": components,
-            },
+                "title": self.title,
+                "custom_id": self.custom_id,
+                "components": [{"type": ComponentTypes.ACTION_ROW, "components": [c.to_dict() if hasattr(c, "to_dict") else c]} for c in self.components],
+            }
         }
+
+    def add_components(self, *components: InputText) -> None:
+        """
+        Add components to the modal.
+
+        Args:
+            *components: The components to add.
+
+        Returns:
+
+        """
+        self.components.extend(components)

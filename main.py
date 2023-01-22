@@ -55,6 +55,28 @@ async def components(ctx):
     )
 
 
+@slash_command("modal")
+async def modal(ctx):
+    _modal = interactions.Modal(
+        interactions.ShortText(
+            label="Input Text",
+            placeholder="Placeholder",
+            required=True,
+            min_length=5,
+            max_length=10,
+        ),
+        interactions.ParagraphText(
+            label="Paragraph Text",
+            placeholder="Placeholder",
+            required=True,
+            min_length=5,
+            max_length=10,
+        ),
+        title="Modal",
+    )
+    await ctx.send_modal(_modal)
+
+
 @listen()
 async def on_component(event: interactions.events.Component):
     ctx: interactions.ComponentContext = event.ctx
