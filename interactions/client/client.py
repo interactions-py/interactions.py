@@ -1048,7 +1048,7 @@ class Client(
         ] = None,
         check: Optional[Callable] = None,
         timeout: Optional[float] = None,
-    ) -> "BaseComponent":
+    ) -> "events.Component":
         """
         Waits for a component to be sent to the bot.
 
@@ -1081,7 +1081,7 @@ class Client(
         if custom_ids and not all(isinstance(x, str) for x in custom_ids):
             custom_ids = [str(i) for i in custom_ids]
 
-        def _check(event: BaseComponent) -> bool:
+        def _check(event: events.Component) -> bool:
             ctx: ComponentContext = event.ctx
             # if custom_ids is empty or there is a match
             wanted_message = not message_ids or ctx.message.id in (
