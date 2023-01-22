@@ -91,9 +91,7 @@ class MessageRequests(CanRequest):
             message or None
 
         """
-        result = await self.request(
-            Route("GET", f"/channels/{int(channel_id)}/messages/{int(message_id)}")
-        )
+        result = await self.request(Route("GET", f"/channels/{int(channel_id)}/messages/{int(message_id)}"))
         return cast(discord_typings.MessageData, result)
 
     async def pin_message(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type") -> None:
@@ -107,9 +105,7 @@ class MessageRequests(CanRequest):
         """
         await self.request(Route("PUT", f"/channels/{int(channel_id)}/pins/{int(message_id)}"))
 
-    async def unpin_message(
-        self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type"
-    ) -> None:
+    async def unpin_message(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type") -> None:
         """
         Unpin a message to a channel.
 
@@ -160,7 +156,5 @@ class MessageRequests(CanRequest):
             message object
 
         """
-        result = await self.request(
-            Route("POST", f"/channels/{int(channel_id)}/messages/{int(message_id)}/crosspost")
-        )
+        result = await self.request(Route("POST", f"/channels/{int(channel_id)}/messages/{int(message_id)}/crosspost"))
         return cast(discord_typings.MessageData, result)

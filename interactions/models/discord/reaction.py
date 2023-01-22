@@ -29,9 +29,7 @@ class ReactionUsers(AsyncIterator):
 
     """
 
-    def __init__(
-        self, reaction: "Reaction", limit: int = 50, after: Optional["Snowflake_Type"] = None
-    ) -> None:
+    def __init__(self, reaction: "Reaction", limit: int = 50, after: Optional["Snowflake_Type"] = None) -> None:
         self.reaction: "Reaction" = reaction
         self.after: "Snowflake_Type" = after
         self._more = True
@@ -97,6 +95,4 @@ class Reaction(ClientObject):
 
     async def remove(self) -> None:
         """Remove all this emoji's reactions from the message."""
-        await self._client.http.clear_reaction(
-            self._channel_id, self._message_id, self.emoji.req_format
-        )
+        await self._client.http.clear_reaction(self._channel_id, self._message_id, self.emoji.req_format)

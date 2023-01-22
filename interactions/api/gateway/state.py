@@ -104,9 +104,7 @@ class ConnectionState:
         """Connect to the Discord Gateway."""
         self.logger.info(f"Shard {self.shard_id} is attempting to connect to gateway...")
         try:
-            async with GatewayClient(
-                self, (self.shard_id, self.client.total_shards)
-            ) as self.gateway:
+            async with GatewayClient(self, (self.shard_id, self.client.total_shards)) as self.gateway:
                 try:
                     await self.gateway.run()
                 finally:
@@ -157,9 +155,7 @@ class ConnectionState:
 
                 if activity.type == ActivityType.STREAMING:
                     if not activity.url:
-                        self.logger.warning(
-                            "Streaming activity cannot be set without a valid URL attribute"
-                        )
+                        self.logger.warning("Streaming activity cannot be set without a valid URL attribute")
                 elif activity.type not in [
                     ActivityType.GAME,
                     ActivityType.STREAMING,
@@ -178,26 +174,20 @@ class ConnectionState:
                 try:
                     status = Status[status.upper()]
                 except KeyError:
-                    raise ValueError(
-                        f"`{status}` is not a valid status type. Please use the Status enum"
-                    ) from None
+                    raise ValueError(f"`{status}` is not a valid status type. Please use the Status enum") from None
         else:
             # in case the user set status to None
             if self.client.status:
                 status = self.client.status
             else:
-                self.logger.warning(
-                    "Status must be set to a valid status type, defaulting to online"
-                )
+                self.logger.warning("Status must be set to a valid status type, defaulting to online")
                 status = Status.ONLINE
 
         self.client._status = status
         self.client._activity = activity
         await self.gateway.change_presence(activity.to_dict() if activity else None, status)
 
-    def get_voice_state(
-        self, guild_id: "Snowflake_Type"
-    ) -> Optional["interactions.ActiveVoiceState"]:
+    def get_voice_state(self, guild_id: "Snowflake_Type") -> Optional["interactions.ActiveVoiceState"]:
         """
         Get the bot's voice state for a guild.
 

@@ -102,9 +102,7 @@ class HTTPException(NaffException):
                 self.errors = data.get("errors", const.MISSING)
             else:
                 self.text = data
-        super().__init__(
-            f"{self.status}|{self.response.reason}: {f'({self.code}) ' if self.code else ''}{self.text}"
-        )
+        super().__init__(f"{self.status}|{self.response.reason}: {f'({self.code}) ' if self.code else ''}{self.text}")
 
     def __str__(self) -> str:
         if self.errors:
@@ -224,9 +222,7 @@ class WebSocketClosed(NaffException):
 
     def __init__(self, code: int) -> None:
         self.code = code
-        super().__init__(
-            f"The Websocket closed with code: {code} - {self.codes.get(code, 'Unknown Error')}"
-        )
+        super().__init__(f"The Websocket closed with code: {code} - {self.codes.get(code, 'Unknown Error')}")
 
 
 class VoiceWebSocketClosed(NaffException):
@@ -253,9 +249,7 @@ class VoiceWebSocketClosed(NaffException):
 
     def __init__(self, code: int) -> None:
         self.code = code
-        super().__init__(
-            f"The Websocket closed with code: {code} - {self.codes.get(code, 'Unknown Error')}"
-        )
+        super().__init__(f"The Websocket closed with code: {code} - {self.codes.get(code, 'Unknown Error')}")
 
 
 class WebSocketRestart(NaffException):
@@ -298,9 +292,7 @@ class CommandOnCooldown(CommandException):
         self.command: "BaseCommand" = command
         self.cooldown: "CooldownSystem" = cooldown
 
-        super().__init__(
-            f"Command on cooldown... {cooldown.get_cooldown_time():.2f} seconds until reset"
-        )
+        super().__init__(f"Command on cooldown... {cooldown.get_cooldown_time():.2f} seconds until reset")
 
 
 class MaxConcurrencyReached(CommandException):
@@ -310,9 +302,7 @@ class MaxConcurrencyReached(CommandException):
         self.command: "BaseCommand" = command
         self.max_conc: "MaxConcurrency" = max_conc
 
-        super().__init__(
-            f"Command has exhausted the max concurrent requests. ({max_conc.concurrent} simultaneously)"
-        )
+        super().__init__(f"Command has exhausted the max concurrent requests. ({max_conc.concurrent} simultaneously)")
 
 
 class CommandCheckFailure(CommandException):
@@ -325,9 +315,7 @@ class CommandCheckFailure(CommandException):
 
     """
 
-    def __init__(
-        self, command: "BaseCommand", check: Callable[..., Coroutine], context: "BaseContext"
-    ) -> None:
+    def __init__(self, command: "BaseCommand", check: Callable[..., Coroutine], context: "BaseContext") -> None:
         self.command: "BaseCommand" = command
         self.check: Callable[..., Coroutine] = check
         self.ctx = context
@@ -429,6 +417,4 @@ class VoiceConnectionTimeout(NaffException):
     """Raised when the bot fails to connect to a voice channel."""
 
     def __init__(self) -> None:
-        super().__init__(
-            "Failed to connect to voice channel. Did not receive a response from Discord"
-        )
+        super().__init__("Failed to connect to voice channel. Did not receive a response from Discord")

@@ -84,9 +84,7 @@ class Webhook(DiscordObject, SendMixin):
             A Webhook object.
 
         """
-        match = re.search(
-            r"discord(?:app)?\.com/api/webhooks/(?P<id>[0-9]{17,})/(?P<token>[\w\-.]{60,68})", url
-        )
+        match = re.search(r"discord(?:app)?\.com/api/webhooks/(?P<id>[0-9]{17,})/(?P<token>[\w\-.]{60,68})", url)
         if match is None:
             raise ValueError("Invalid webhook URL given.")
 
@@ -185,9 +183,7 @@ class Webhook(DiscordObject, SendMixin):
                 dict,
             ]
         ] = None,
-        stickers: Optional[
-            Union[List[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]
-        ] = None,
+        stickers: Optional[Union[List[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]] = None,
         allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
         reply_to: Optional[Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
         files: Optional[Union["UPLOADABLE_TYPE", List["UPLOADABLE_TYPE"]]] = None,
@@ -227,14 +223,10 @@ class Webhook(DiscordObject, SendMixin):
 
         """
         if not self.token:
-            raise ForeignWebhookException(
-                "You cannot send messages with a webhook without a token!"
-            )
+            raise ForeignWebhookException("You cannot send messages with a webhook without a token!")
 
         if not content and not (embeds or embed) and not (files or file) and not stickers:
-            raise EmptyMessageException(
-                "You cannot send a message without any content, embeds, files, or stickers"
-            )
+            raise EmptyMessageException("You cannot send a message without any content, embeds, files, or stickers")
 
         if suppress_embeds:
             if isinstance(flags, int):
@@ -280,9 +272,7 @@ class Webhook(DiscordObject, SendMixin):
                 dict,
             ]
         ] = None,
-        stickers: Optional[
-            Union[List[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]
-        ] = None,
+        stickers: Optional[Union[List[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]] = None,
         allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
         reply_to: Optional[Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
         files: Optional[Union["UPLOADABLE_TYPE", List["UPLOADABLE_TYPE"]]] = None,

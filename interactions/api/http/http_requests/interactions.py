@@ -31,9 +31,7 @@ class InteractionRequests(CanRequest):
 
         """
         if guild_id == GLOBAL_SCOPE:
-            await self.request(
-                Route("DELETE", f"/applications/{int(application_id)}/commands/{int(command_id)}")
-            )
+            await self.request(Route("DELETE", f"/applications/{int(application_id)}/commands/{int(command_id)}"))
         else:
             await self.request(
                 Route(
@@ -83,9 +81,7 @@ class InteractionRequests(CanRequest):
 
         """
         if guild_id == GLOBAL_SCOPE:
-            result = await self.request(
-                Route("PUT", f"/applications/{app_id}/commands"), payload=data
-            )
+            result = await self.request(Route("PUT", f"/applications/{app_id}/commands"), payload=data)
         else:
             result = await self.request(
                 Route("PUT", f"/applications/{app_id}/guilds/{int(guild_id)}/commands"),
@@ -108,9 +104,7 @@ class InteractionRequests(CanRequest):
             An application command object
         """
         if guild_id == GLOBAL_SCOPE:
-            result = await self.request(
-                Route("POST", f"/applications/{app_id}/commands"), payload=command
-            )
+            result = await self.request(Route("POST", f"/applications/{app_id}/commands"), payload=command)
         else:
             result = await self.request(
                 Route("POST", f"/applications/{app_id}/guilds/{int(guild_id)}/commands"),
@@ -206,9 +200,7 @@ class InteractionRequests(CanRequest):
             message_id: The target message to delete. Defaults to @original which represents the initial response message.
 
         """
-        return await self.request(
-            Route("DELETE", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}")
-        )
+        return await self.request(Route("DELETE", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}"))
 
     async def get_interaction_message(
         self, application_id: "Snowflake_Type", token: str, message_id: str = "@original"
@@ -225,9 +217,7 @@ class InteractionRequests(CanRequest):
             The message data.
 
         """
-        result = await self.request(
-            Route("GET", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}")
-        )
+        result = await self.request(Route("GET", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}"))
         return cast(discord_typings.MessageData, result)
 
     async def edit_application_command_permissions(

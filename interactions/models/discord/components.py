@@ -101,9 +101,7 @@ class BaseComponent(DictSerializationMixin):
 
         component_class = mapping.get(component_type, None)
         if not component_class:
-            raise TypeError(
-                f"Unsupported component type for {data} ({component_type}), please consult the docs."
-            )
+            raise TypeError(f"Unsupported component type for {data} ({component_type}), please consult the docs.")
 
         return component_class.from_dict(data)
 
@@ -161,14 +159,10 @@ class ActionRow(BaseComponent):
             # flatten user error
             components = list(components)
 
-        self.components.extend(
-            BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c for c in components
-        )
+        self.components.extend(BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c for c in components)
 
     @classmethod
-    def split_components(
-        cls, *components: dict | BaseComponent, count_per_row: int = 5
-    ) -> list["ActionRow"]:
+    def split_components(cls, *components: dict | BaseComponent, count_per_row: int = 5) -> list["ActionRow"]:
         """
         Split components into action rows.
 
@@ -429,9 +423,7 @@ class StringSelectMenu(BaseSelectMenu):
             custom_id=custom_id,
             disabled=disabled,
         )
-        self.options: list[StringSelectOption] = [
-            StringSelectOption.converter(option) for option in options
-        ]
+        self.options: list[StringSelectOption] = [StringSelectOption.converter(option) for option in options]
         self.type: ComponentTypes = ComponentTypes.STRING_SELECT
 
     @classmethod
@@ -635,9 +627,7 @@ def process_components(
     raise ValueError(f"Invalid components: {components}")
 
 
-def spread_to_rows(
-    *components: Union[ActionRow, Button, StringSelectMenu], max_in_row: int = 5
-) -> List[ActionRow]:
+def spread_to_rows(*components: Union[ActionRow, Button, StringSelectMenu], max_in_row: int = 5) -> List[ActionRow]:
     """
     A helper function that spreads your components into `ActionRow`s of a set size.
 
@@ -676,25 +666,18 @@ def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) 
         yield component
     elif isinstance(component, dict):
         if component["type"] == ComponentTypes.actionrow:
-            yield from (
-                comp["custom_id"] for comp in component["components"] if "custom_id" in comp
-            )
+            yield from (comp["custom_id"] for comp in component["components"] if "custom_id" in comp)
         elif "custom_id" in component:
             yield component["custom_id"]
     elif c_id := getattr(component, "custom_id", None):
         yield c_id
     elif isinstance(component, ActionRow):
-        yield from (
-            comp_id for comp in component.components for comp_id in get_components_ids(comp)
-        )
+        yield from (comp_id for comp in component.components for comp_id in get_components_ids(comp))
 
     elif isinstance(component, list):
         yield from (comp_id for comp in component for comp_id in get_components_ids(comp))
     else:
-        raise ValueError(
-            f"Unknown component type of {component} ({type(component)}). "
-            f"Expected str, dict or list"
-        )
+        raise ValueError(f"Unknown component type of {component} ({type(component)}). " f"Expected str, dict or list")
 
 
 TYPE_COMPONENT_MAPPING = {

@@ -27,9 +27,7 @@ __all__ = ("plugin",)
 
 class NaffPlugin(Plugin):
     # This could be smarter, but it does the job.
-    def get_class_decorator_hook(
-        self, fullname: str
-    ) -> Optional[Callable[[ClassDefContext], None]]:
+    def get_class_decorator_hook(self, fullname: str) -> Optional[Callable[[ClassDefContext], None]]:
         if fullname == "interactions.client.utils.attr_utils.define":
             return partial(
                 attrs.attr_class_maker_callback,

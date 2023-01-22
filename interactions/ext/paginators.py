@@ -50,9 +50,7 @@ class Timeout:
                 await asyncio.wait_for(self.ping.wait(), timeout=self.paginator.timeout_interval)
             except asyncio.TimeoutError:
                 if self.paginator.message:
-                    await self.paginator.message.edit(
-                        components=self.paginator.create_components(True)
-                    )
+                    await self.paginator.message.edit(components=self.paginator.create_components(True))
                 return
             else:
                 self.ping.clear()
@@ -138,9 +136,7 @@ class Paginator:
     """The default title to show on the embeds"""
     default_color: Color = attrs.field(repr=False, default=BrandColors.BLURPLE)
     """The default colour to show on the embeds"""
-    default_button_color: Union[ButtonStyles, int] = attrs.field(
-        repr=False, default=ButtonStyles.BLURPLE
-    )
+    default_button_color: Union[ButtonStyles, int] = attrs.field(repr=False, default=ButtonStyles.BLURPLE)
     """The color of the buttons"""
 
     _uuid: str = attrs.field(repr=False, factory=uuid.uuid4)
@@ -276,9 +272,7 @@ class Paginator:
             output.append(
                 StringSelectMenu(
                     [
-                        StringSelectOption(
-                            f"{i+1} {p.get_summary if isinstance(p, Page) else p.title}", str(i)
-                        )
+                        StringSelectOption(f"{i+1} {p.get_summary if isinstance(p, Page) else p.title}", str(i))
                         for i, p in enumerate(self.pages)
                     ],
                     custom_id=f"{self._uuid}|select",

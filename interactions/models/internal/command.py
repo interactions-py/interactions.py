@@ -68,8 +68,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
     checks: list = attrs.field(
         repr=False,
         factory=list,
-        metadata=docs("Any checks that must be *checked* before the command can run")
-        | no_export_meta,
+        metadata=docs("Any checks that must be *checked* before the command can run") | no_export_meta,
     )
     cooldown: Cooldown = attrs.field(
         repr=False,
@@ -78,8 +77,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
     )
     max_concurrency: MaxConcurrency = attrs.field(
         default=MISSING,
-        metadata=docs("An optional maximum number of concurrent instances to apply to the command")
-        | no_export_meta,
+        metadata=docs("An optional maximum number of concurrent instances to apply to the command") | no_export_meta,
     )
 
     callback: Callable[..., Coroutine] = attrs.field(
@@ -95,9 +93,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
     pre_run_callback: Callable[..., Coroutine] = attrs.field(
         default=None,
         metadata=no_export_meta
-        | docs(
-            "The coroutine to be called before the command is executed, **but** after the checks"
-        ),
+        | docs("The coroutine to be called before the command is executed, **but** after the checks"),
     )
     post_run_callback: Callable[..., Coroutine] = attrs.field(
         repr=False,
@@ -164,9 +160,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
                 await self.max_concurrency.release(context)
 
     @staticmethod
-    def _get_converter_function(
-        anno: type[Converter] | Converter, name: str
-    ) -> Callable[[BaseContext, str], Any]:
+    def _get_converter_function(anno: type[Converter] | Converter, name: str) -> Callable[[BaseContext, str], Any]:
         num_params = len(get_parameters(anno.convert))
 
         # if we have three parameters for the function, it's likely it has a self parameter
@@ -190,9 +184,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
 
         return actual_anno.convert
 
-    async def try_convert(
-        self, converter: Optional[Callable], context: "BaseContext", value: Any
-    ) -> Any:
+    async def try_convert(self, converter: Optional[Callable], context: "BaseContext", value: Any) -> Any:
         if converter is None:
             return value
         return await maybe_coroutine(converter, context, value)
@@ -285,9 +277,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
             context: The context of the command
 
         """
-        max_conc_acquired = (
-            False  # signals if a semaphore has been acquired, for exception handling
-        )
+        max_conc_acquired = False  # signals if a semaphore has been acquired, for exception handling
 
         try:
             if not self.enabled:

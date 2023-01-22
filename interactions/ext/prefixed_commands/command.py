@@ -180,9 +180,7 @@ class _PrefixedArgsIterator:
 
 
 def _check_for_no_arg(anno: Any) -> TypeGuard[NoArgumentConverter]:
-    return isinstance(anno, NoArgumentConverter) or (
-        inspect.isclass(anno) and issubclass(anno, NoArgumentConverter)
-    )
+    return isinstance(anno, NoArgumentConverter) or (inspect.isclass(anno) and issubclass(anno, NoArgumentConverter))
 
 
 def _convert_to_bool(argument: str) -> bool:
@@ -230,13 +228,9 @@ def _get_converter(anno: type, name: str) -> Callable[["PrefixedContext", str], 
 
                 return _one_function_cmd
             case 0:
-                ValueError(
-                    f"{get_object_name(anno)} for {name} has 0 arguments, which is unsupported."
-                )
+                ValueError(f"{get_object_name(anno)} for {name} has 0 arguments, which is unsupported.")
             case _:
-                ValueError(
-                    f"{get_object_name(anno)} for {name} has more than 2 arguments, which is unsupported."
-                )
+                ValueError(f"{get_object_name(anno)} for {name} has more than 2 arguments, which is unsupported.")
     elif anno == bool:
         return lambda ctx, arg: _convert_to_bool(arg)
     elif anno == inspect._empty:
@@ -271,9 +265,7 @@ def _greedy_parse(greedy: Greedy, param: inspect.Parameter) -> Any:
     return arg, default
 
 
-async def _convert(
-    param: PrefixedCommandParameter, ctx: "PrefixedContext", arg: str
-) -> tuple[Any, bool]:
+async def _convert(param: PrefixedCommandParameter, ctx: "PrefixedContext", arg: str) -> tuple[Any, bool]:
     converted = MISSING
     for converter in param.converters:
         try:
@@ -344,9 +336,7 @@ class PrefixedCommand(BaseCommand):
         factory=list,
     )
     hidden: bool = attrs.field(
-        metadata=docs(
-            "If `True`, help commands should not show this in the help output (unless toggled to do so)."
-        ),
+        metadata=docs("If `True`, help commands should not show this in the help output (unless toggled to do so)."),
         default=False,
     )
     ignore_extra: bool = attrs.field(
@@ -363,12 +353,8 @@ class PrefixedCommand(BaseCommand):
         ),
         default=True,
     )
-    help: Optional[str] = attrs.field(
-        repr=False, metadata=docs("The long help text for the command."), default=None
-    )
-    brief: Optional[str] = attrs.field(
-        repr=False, metadata=docs("The short help text for the command."), default=None
-    )
+    help: Optional[str] = attrs.field(repr=False, metadata=docs("The long help text for the command."), default=None)
+    brief: Optional[str] = attrs.field(repr=False, metadata=docs("The short help text for the command."), default=None)
     parent: Optional["PrefixedCommand"] = attrs.field(
         repr=False, metadata=docs("The parent command, if applicable."), default=None
     )
@@ -449,9 +435,7 @@ class PrefixedCommand(BaseCommand):
 
             if typing.get_origin(anno) is Literal:
                 # it's better to list the values it can be than display the variable name itself
-                name = "|".join(
-                    f'"{v}"' if isinstance(v, str) else str(v) for v in typing.get_args(anno)
-                )
+                name = "|".join(f'"{v}"' if isinstance(v, str) else str(v) for v in typing.get_args(anno))
 
             # we need to do a lot of manipulations with the signature
             # string, so using a deque as a string builder makes sense for performance
@@ -558,9 +542,7 @@ class PrefixedCommand(BaseCommand):
                 case param.VAR_POSITIONAL:
                     if cmd_param.optional:
                         # there's a lot of parser ambiguities here, so i'd rather not
-                        raise ValueError(
-                            "Variable arguments cannot have default values or be Optional."
-                        )
+                        raise ValueError("Variable arguments cannot have default values or be Optional.")
                     if cmd_param.greedy:
                         raise ValueError("Variable arguments cannot be Greedy.")
 

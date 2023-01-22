@@ -72,9 +72,7 @@ class PrefixedContext(BaseContext, SendMixin):
         """A context manager to send a typing state to the context's channel as long as long as the wrapped operation takes."""
         return self.channel.typing
 
-    async def _send_http_request(
-        self, message_payload: dict, files: Iterable["UPLOADABLE_TYPE"] | None = None
-    ) -> dict:
+    async def _send_http_request(self, message_payload: dict, files: Iterable["UPLOADABLE_TYPE"] | None = None) -> dict:
         return await self.client.http.create_message(message_payload, self.channel.id, files=files)
 
     async def reply(
@@ -97,6 +95,4 @@ class PrefixedContext(BaseContext, SendMixin):
             New message object.
 
         """
-        return await self.send(
-            content=content, reply_to=self.message, embeds=embeds or embed, **kwargs
-        )
+        return await self.send(content=content, reply_to=self.message, embeds=embeds or embed, **kwargs)

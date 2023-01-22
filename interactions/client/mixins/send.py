@@ -18,9 +18,7 @@ __all__ = ("SendMixin",)
 class SendMixin:
     client: "Client"
 
-    async def _send_http_request(
-        self, message_payload: dict, files: Iterable["UPLOADABLE_TYPE"] | None = None
-    ) -> dict:
+    async def _send_http_request(self, message_payload: dict, files: Iterable["UPLOADABLE_TYPE"] | None = None) -> dict:
         raise NotImplementedError
 
     async def send(
@@ -37,9 +35,7 @@ class SendMixin:
                 dict,
             ]
         ] = None,
-        stickers: Optional[
-            Union[Iterable[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]
-        ] = None,
+        stickers: Optional[Union[Iterable[Union["Sticker", "Snowflake_Type"]], "Sticker", "Snowflake_Type"]] = None,
         allowed_mentions: Optional[Union["AllowedMentions", dict]] = None,
         reply_to: Optional[Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
         files: Optional[Union["UPLOADABLE_TYPE", Iterable["UPLOADABLE_TYPE"]]] = None,
@@ -91,7 +87,7 @@ class SendMixin:
 
         message_data = await self._send_http_request(message_payload, files=files or file)
         if message_data:
-            message = self.client.cache.place_message_data(message_data)
+            message = self._client.cache.place_message_data(message_data)
             if delete_after:
                 await message.delete(delay=delete_after)
             return message

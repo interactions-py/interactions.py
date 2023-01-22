@@ -39,9 +39,7 @@ class ThreadRequests:
         """
         return await self.request(Route("DELETE", f"/channels/{thread_id}/thread-members/@me"))
 
-    async def add_thread_member(
-        self, thread_id: "Snowflake_Type", user_id: "Snowflake_Type"
-    ) -> None:
+    async def add_thread_member(self, thread_id: "Snowflake_Type", user_id: "Snowflake_Type") -> None:
         """
         Add another user to a thread.
 
@@ -52,9 +50,7 @@ class ThreadRequests:
         """
         return await self.request(Route("PUT", f"/channels/{thread_id}/thread-members/{user_id}"))
 
-    async def remove_thread_member(
-        self, thread_id: "Snowflake_Type", user_id: "Snowflake_Type"
-    ) -> None:
+    async def remove_thread_member(self, thread_id: "Snowflake_Type", user_id: "Snowflake_Type") -> None:
         """
         Remove another user from a thread.
 
@@ -63,13 +59,9 @@ class ThreadRequests:
             user_id: The ID of the user to remove
 
         """
-        return await self.request(
-            Route("DELETE", f"/channels/{thread_id}/thread-members/{user_id}")
-        )
+        return await self.request(Route("DELETE", f"/channels/{thread_id}/thread-members/{user_id}"))
 
-    async def list_thread_members(
-        self, thread_id: "Snowflake_Type"
-    ) -> List[discord_typings.ThreadMemberData]:
+    async def list_thread_members(self, thread_id: "Snowflake_Type") -> List[discord_typings.ThreadMemberData]:
         """
         Get a list of members in the thread.
 
@@ -105,9 +97,7 @@ class ThreadRequests:
             payload["limit"] = limit
         if before:
             payload["before"] = Timestamp.from_snowflake(before).isoformat()
-        return await self.request(
-            Route("GET", f"/channels/{channel_id}/threads/archived/public"), params=payload
-        )
+        return await self.request(Route("GET", f"/channels/{channel_id}/threads/archived/public"), params=payload)
 
     async def list_private_archived_threads(
         self,
@@ -132,9 +122,7 @@ class ThreadRequests:
             payload["limit"] = limit
         if before:
             payload["before"] = Timestamp.from_snowflake(before).isoformat()
-        return await self.request(
-            Route("GET", f"/channels/{channel_id}/threads/archived/private"), params=payload
-        )
+        return await self.request(Route("GET", f"/channels/{channel_id}/threads/archived/private"), params=payload)
 
     async def list_joined_private_archived_threads(
         self,
@@ -164,9 +152,7 @@ class ThreadRequests:
             params=payload,
         )
 
-    async def list_active_threads(
-        self, guild_id: "Snowflake_Type"
-    ) -> discord_typings.ListThreadsData:
+    async def list_active_threads(self, guild_id: "Snowflake_Type") -> discord_typings.ListThreadsData:
         """
         List active threads within a guild.
 
@@ -215,9 +201,7 @@ class ThreadRequests:
         else:
             payload["type"] = thread_type or ChannelTypes.GUILD_PUBLIC_THREAD
             payload["invitable"] = invitable
-            return await self.request(
-                Route("POST", f"/channels/{channel_id}/threads"), payload=payload, reason=reason
-            )
+            return await self.request(Route("POST", f"/channels/{channel_id}/threads"), payload=payload, reason=reason)
 
     async def create_forum_thread(
         self,

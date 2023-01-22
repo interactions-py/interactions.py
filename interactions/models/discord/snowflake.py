@@ -38,9 +38,7 @@ def to_snowflake(snowflake: Snowflake_Type) -> "Snowflake":
             f"Got '{snowflake}' ({type(snowflake)}) instead."
         ) from e
     except ValueError as e:
-        raise ValueError(
-            f"ID (snowflake) should represent int. Got '{snowflake}' ({type(snowflake)}) instead."
-        ) from e
+        raise ValueError(f"ID (snowflake) should represent int. Got '{snowflake}' ({type(snowflake)}) instead.") from e
 
     if 22 > snowflake.bit_length() > 64:
         raise ValueError(
@@ -143,9 +141,7 @@ class Snowflake(int):
 
 @attrs.define(eq=False, order=False, hash=False, slots=False)
 class SnowflakeObject:
-    id: Snowflake = attrs.field(
-        repr=True, converter=Snowflake, metadata={"docs": "Discord unique snowflake ID"}
-    )
+    id: Snowflake = attrs.field(repr=True, converter=Snowflake, metadata={"docs": "Discord unique snowflake ID"})
 
     def __eq__(self, other: "SnowflakeObject") -> bool:
         if hasattr(other, "id"):

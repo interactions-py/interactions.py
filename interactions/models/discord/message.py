@@ -127,13 +127,9 @@ class MessageReference(DictSerializationMixin):
 
     message_id: int = attrs.field(repr=False, default=None, converter=optional_c(to_snowflake))
     """id of the originating message."""
-    channel_id: Optional[int] = attrs.field(
-        repr=False, default=None, converter=optional_c(to_snowflake)
-    )
+    channel_id: Optional[int] = attrs.field(repr=False, default=None, converter=optional_c(to_snowflake))
     """id of the originating message's channel."""
-    guild_id: Optional[int] = attrs.field(
-        repr=False, default=None, converter=optional_c(to_snowflake)
-    )
+    guild_id: Optional[int] = attrs.field(repr=False, default=None, converter=optional_c(to_snowflake))
     """id of the originating message's guild."""
     fail_if_not_exists: bool = attrs.field(repr=False, default=True)
     """When sending a message, whether to error if the referenced message doesn't exist instead of sending as a normal (non-reply) message, default true."""
@@ -195,13 +191,9 @@ class AllowedMentions(DictSerializationMixin):
 
     parse: Optional[List[str]] = attrs.field(repr=False, factory=list)
     """An array of allowed mention types to parse from the content."""
-    roles: Optional[List["Snowflake_Type"]] = attrs.field(
-        repr=False, factory=list, converter=to_snowflake_list
-    )
+    roles: Optional[List["Snowflake_Type"]] = attrs.field(repr=False, factory=list, converter=to_snowflake_list)
     """Array of role_ids to mention. (Max size of 100)"""
-    users: Optional[List["Snowflake_Type"]] = attrs.field(
-        repr=False, factory=list, converter=to_snowflake_list
-    )
+    users: Optional[List["Snowflake_Type"]] = attrs.field(repr=False, factory=list, converter=to_snowflake_list)
     """Array of user_ids to mention. (Max size of 100)"""
     replied_user = attrs.field(repr=False, default=False)
     """For replies, whether to mention the author of the message being replied to. (default false)"""
@@ -215,10 +207,7 @@ class AllowedMentions(DictSerializationMixin):
 
         """
         for mention_type in mention_types:
-            if (
-                not isinstance(mention_type, MentionTypes)
-                and mention_type not in MentionTypes.__members__.values()
-            ):
+            if not isinstance(mention_type, MentionTypes) and mention_type not in MentionTypes.__members__.values():
                 raise ValueError(f"Invalid mention type: {mention_type}")
             self.parse.append(mention_type)
 
@@ -233,9 +222,7 @@ class AllowedMentions(DictSerializationMixin):
         for role in roles:
             self.roles.append(to_snowflake(role))
 
-    def add_users(
-        self, *users: Union["models.Member", "models.BaseUser", "Snowflake_Type"]
-    ) -> None:
+    def add_users(self, *users: Union["models.Member", "models.BaseUser", "Snowflake_Type"]) -> None:
         """
         Add users that are allowed to be mentioned.
 
@@ -271,18 +258,12 @@ class AllowedMentions(DictSerializationMixin):
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class BaseMessage(DiscordObject):
-    _channel_id: "Snowflake_Type" = attrs.field(
-        repr=False, default=MISSING, converter=to_optional_snowflake
-    )
+    _channel_id: "Snowflake_Type" = attrs.field(repr=False, default=MISSING, converter=to_optional_snowflake)
     _thread_channel_id: Optional["Snowflake_Type"] = attrs.field(
         repr=False, default=None, converter=to_optional_snowflake
     )
-    _guild_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=to_optional_snowflake
-    )
-    _author_id: "Snowflake_Type" = attrs.field(
-        repr=False, default=MISSING, converter=to_optional_snowflake
-    )
+    _guild_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=to_optional_snowflake)
+    _author_id: "Snowflake_Type" = attrs.field(repr=False, default=MISSING, converter=to_optional_snowflake)
 
     @property
     def guild(self) -> "models.Guild":
@@ -296,9 +277,7 @@ class BaseMessage(DiscordObject):
 
         if not self._guild_id and not channel:
             # allow dm operations without fetching a dm channel from API
-            channel = BaseChannel.from_dict_factory(
-                {"id": self._channel_id, "type": ChannelTypes.DM}, self._client
-            )
+            channel = BaseChannel.from_dict_factory({"id": self._channel_id, "type": ChannelTypes.DM}, self._client)
             if self.author:
                 channel.recipients = [self.author]
         return channel
@@ -323,9 +302,7 @@ class BaseMessage(DiscordObject):
 class Message(BaseMessage):
     content: str = attrs.field(repr=False, default=MISSING)
     """Contents of the message"""
-    timestamp: "models.Timestamp" = attrs.field(
-        repr=False, default=MISSING, converter=optional_c(timestamp_converter)
-    )
+    timestamp: "models.Timestamp" = attrs.field(repr=False, default=MISSING, converter=optional_c(timestamp_converter))
     """When this message was sent"""
     edited_timestamp: Optional["models.Timestamp"] = attrs.field(
         repr=False, default=None, converter=optional_c(timestamp_converter)
@@ -347,25 +324,15 @@ class Message(BaseMessage):
     """Used for validating a message was sent"""
     pinned: bool = attrs.field(repr=False, default=False)
     """Whether this message is pinned"""
-    webhook_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=to_optional_snowflake
-    )
+    webhook_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=to_optional_snowflake)
     """If the message is generated by a webhook, this is the webhook's id"""
-    type: MessageTypes = attrs.field(
-        repr=False, default=MISSING, converter=optional_c(MessageTypes)
-    )
+    type: MessageTypes = attrs.field(repr=False, default=MISSING, converter=optional_c(MessageTypes))
     """Type of message"""
-    activity: Optional[MessageActivity] = attrs.field(
-        repr=False, default=None, converter=optional_c(MessageActivity)
-    )
+    activity: Optional[MessageActivity] = attrs.field(repr=False, default=None, converter=optional_c(MessageActivity))
     """Activity sent with Rich Presence-related chat embeds"""
-    application: Optional["models.Application"] = attrs.field(
-        repr=False, default=None
-    )  # TODO: partial application
+    application: Optional["models.Application"] = attrs.field(repr=False, default=None)  # TODO: partial application
     """Application sent with Rich Presence-related chat embeds"""
-    application_id: Optional["Snowflake_Type"] = attrs.field(
-        repr=False, default=None, converter=to_optional_snowflake
-    )
+    application_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=to_optional_snowflake)
     """If the message is an Interaction or application-owned webhook, this is the id of the application"""
     message_reference: Optional[MessageReference] = attrs.field(
         repr=False, default=None, converter=optional_c(MessageReference.from_dict)
@@ -440,9 +407,7 @@ class Message(BaseMessage):
         Returns:
             A boolean indicating whether the query could be found or not
         """
-        return mentions(
-            text=self.content or self.system_content, query=query, tag_as_mention=tag_as_mention
-        )
+        return mentions(text=self.content or self.system_content, query=query, tag_as_mention=tag_as_mention)
 
     @classmethod
     def _process_dict(cls, data: dict, client: "Client") -> dict:
@@ -457,9 +422,7 @@ class Message(BaseMessage):
             mention_ids = []
             for user_data in mentions_data:
                 if "guild_id" in data and "member" in user_data:
-                    mention_ids.append(
-                        client.cache.place_member_data(data["guild_id"], user_data).id
-                    )
+                    mention_ids.append(client.cache.place_member_data(data["guild_id"], user_data).id)
                 else:
                     mention_ids.append(client.cache.place_user_data(user_data).id)
             data["mention_ids"] = mention_ids
@@ -494,8 +457,7 @@ class Message(BaseMessage):
             for reaction_data in data["reactions"]:
                 reactions.append(
                     models.Reaction.from_dict(
-                        reaction_data
-                        | {"message_id": data["id"], "channel_id": data["channel_id"]},
+                        reaction_data | {"message_id": data["id"], "channel_id": data["channel_id"]},
                         client,
                     )
                 )
@@ -565,17 +527,13 @@ class Message(BaseMessage):
             case MessageTypes.GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING:
                 return "This server has failed Discovery activity requirements for 3 weeks in a row. If this server fails for 1 more week, it will be removed from Discovery."
             case MessageTypes.GUILD_INVITE_REMINDER:
-                return (
-                    "**Invite your friends**\nThe best way to setup a server is with your buddies!"
-                )
+                return "**Invite your friends**\nThe best way to setup a server is with your buddies!"
             case MessageTypes.THREAD_STARTER_MESSAGE:
                 if referenced_message := self.get_referenced_message():
                     return referenced_message.content
                 return "Sorry, we couldn't load the first message in this thread"
             case MessageTypes.AUTO_MODERATION_ACTION:
-                keyword_matched_content = (
-                    self.embeds[0].fields[4].value
-                )  # The words that triggered the action
+                keyword_matched_content = self.embeds[0].fields[4].value  # The words that triggered the action
                 message_content = self.embeds[0].description.replace(
                     keyword_matched_content, f"**{keyword_matched_content}**"
                 )
@@ -588,9 +546,7 @@ class Message(BaseMessage):
     @property
     def jump_url(self) -> str:
         """A url that allows the client to *jump* to this message."""
-        return (
-            f"https://discord.com/channels/{self._guild_id or '@me'}/{self._channel_id}/{self.id}"
-        )
+        return f"https://discord.com/channels/{self._guild_id or '@me'}/{self._channel_id}/{self.id}"
 
     @property
     def proto_url(self) -> str:
@@ -601,9 +557,7 @@ class Message(BaseMessage):
         self,
         *,
         content: Optional[str] = None,
-        embeds: Optional[
-            Union[Sequence[Union["models.Embed", dict]], Union["models.Embed", dict]]
-        ] = None,
+        embeds: Optional[Union[Sequence[Union["models.Embed", dict]], Union["models.Embed", dict]]] = None,
         embed: Optional[Union["models.Embed", dict]] = None,
         components: Optional[
             Union[
@@ -672,9 +626,7 @@ class Message(BaseMessage):
                 else:
                     files = [file]
 
-            message_data = await self._client.http.edit_message(
-                message_payload, self._channel_id, self.id, files=files
-            )
+            message_data = await self._client.http.edit_message(message_payload, self._channel_id, self.id, files=files)
             if message_data:
                 return self._client.cache.place_message_data(message_data)
 
@@ -694,9 +646,7 @@ class Message(BaseMessage):
 
             if MessageFlags.EPHEMERAL in self.flags:
                 if not context:
-                    raise ValueError(
-                        "Cannot delete ephemeral message without interaction context parameter"
-                    )
+                    raise ValueError("Cannot delete ephemeral message without interaction context parameter")
                 await context.delete(self.id)
             else:
                 await self._client.http.delete_message(self._channel_id, self.id)
@@ -709,9 +659,7 @@ class Message(BaseMessage):
     async def reply(
         self,
         content: Optional[str] = None,
-        embeds: Optional[
-            Union[List[Union["models.Embed", dict]], Union["models.Embed", dict]]
-        ] = None,
+        embeds: Optional[Union[List[Union["models.Embed", dict]], Union["models.Embed", dict]]] = None,
         embed: Optional[Union["models.Embed", dict]] = None,
         **kwargs: Mapping[str, Any],
     ) -> "Message":
@@ -728,9 +676,7 @@ class Message(BaseMessage):
             New message object.
 
         """
-        return await self.channel.send(
-            content=content, reply_to=self, embeds=embeds or embed, **kwargs
-        )
+        return await self.channel.send(content=content, reply_to=self, embeds=embeds or embed, **kwargs)
 
     async def create_thread(
         self,
@@ -833,9 +779,7 @@ class Message(BaseMessage):
         if user_id == self._client.user.id:
             await self._client.http.remove_self_reaction(self._channel_id, self.id, emoji_str)
         else:
-            await self._client.http.remove_user_reaction(
-                self._channel_id, self.id, emoji_str, user_id
-            )
+            await self._client.http.remove_user_reaction(self._channel_id, self.id, emoji_str, user_id)
 
     async def clear_reactions(self, emoji: Union["models.PartialEmoji", dict, str]) -> None:
         """
@@ -872,9 +816,7 @@ class Message(BaseMessage):
         await self._client.http.crosspost_message(self._channel_id, self.id)
 
 
-def process_allowed_mentions(
-    allowed_mentions: Optional[Union[AllowedMentions, dict]]
-) -> Optional[dict]:
+def process_allowed_mentions(allowed_mentions: Optional[Union[AllowedMentions, dict]]) -> Optional[dict]:
     """
     Process allowed mentions into a dictionary.
 

@@ -104,9 +104,7 @@ class Resolved:
         return default
 
     @classmethod
-    def from_dict(
-        cls, client: "interactions.Client", data: dict, guild_id: None | Snowflake = None
-    ) -> Self:
+    def from_dict(cls, client: "interactions.Client", data: dict, guild_id: None | Snowflake = None) -> Self:
         instance = cls()
 
         if channels := data.get("channels"):
@@ -266,9 +264,7 @@ class BaseInteractionContext(BaseContext):
         instance.locale = payload["locale"]
         instance.guild_locale = payload["guild_locale"]
         instance._context_type = payload.get("type", 0)
-        instance.resolved = Resolved.from_dict(
-            client, payload["data"].get("resolved", {}), payload.get("guild_id")
-        )
+        instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
 
         instance.channel_id = Snowflake(payload["channel_id"])
         if member := payload.get("member"):
@@ -373,15 +369,11 @@ class InteractionContext(BaseInteractionContext, SendMixin):
                     "type": CallbackTypes.CHANNEL_MESSAGE_WITH_SOURCE,
                     "data": message_payload,
                 }
-                message_data = await self.client.http.post_initial_response(
-                    payload, self.id, self.token, files=files
-                )
+                message_data = await self.client.http.post_initial_response(payload, self.id, self.token, files=files)
 
         if not message_data:
             try:
-                message_data = await self.client.http.get_interaction_message(
-                    self.client.app.id, self.token
-                )
+                message_data = await self.client.http.get_interaction_message(self.client.app.id, self.token)
             except HTTPException:
                 pass
 
@@ -412,12 +404,8 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             ]
         ] = None,
         allowed_mentions: typing.Optional[typing.Union["AllowedMentions", dict]] = None,
-        reply_to: typing.Optional[
-            typing.Union["MessageReference", "Message", dict, "Snowflake_Type"]
-        ] = None,
-        files: typing.Optional[
-            typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]
-        ] = None,
+        reply_to: typing.Optional[typing.Union["MessageReference", "Message", dict, "Snowflake_Type"]] = None,
+        files: typing.Optional[typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]] = None,
         file: typing.Optional["UPLOADABLE_TYPE"] = None,
         tts: bool = False,
         suppress_embeds: bool = False,
@@ -478,9 +466,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         Args:
             message: The message to delete
         """
-        await self.client.http.delete_interaction_message(
-            self.client.app.id, self.token, to_snowflake(message)
-        )
+        await self.client.http.delete_interaction_message(self.client.app.id, self.token, to_snowflake(message))
 
     async def edit(
         self,
@@ -501,9 +487,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         ] = None,
         attachments: typing.Optional[typing.Sequence[Attachment | dict]] = None,
         allowed_mentions: typing.Optional[typing.Union["AllowedMentions", dict]] = None,
-        files: typing.Optional[
-            typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]
-        ] = None,
+        files: typing.Optional[typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]] = None,
         file: typing.Optional["UPLOADABLE_TYPE"] = None,
         tts: bool = False,
     ) -> "interactions.Message":
@@ -578,8 +562,7 @@ class SlashContext(InteractionContext, ModalMixin):
                     case OptionTypes.MENTIONABLE:
                         snow = Snowflake(value)
                         if user := (
-                            self.client.cache.get_member(self.guild_id, snow)
-                            or self.client.cache.get_user(snow)
+                            self.client.cache.get_member(self.guild_id, snow) or self.client.cache.get_user(snow)
                         ):
                             value = user
                         elif channel := self.client.cache.get_channel(snow):
@@ -625,9 +608,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
             raise RuntimeError("Interaction has already been responded to.")
 
         payload = {
-            "Type": CallbackTypes.DEFERRED_UPDATE_MESSAGE
-            if not edit_origin
-            else CallbackTypes.DEFERRED_UPDATE_MESSAGE
+            "Type": CallbackTypes.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackTypes.DEFERRED_UPDATE_MESSAGE
         }
         if ephemeral:
             if edit_origin:
@@ -681,17 +662,13 @@ class ComponentContext(InteractionContext):
                             in (ComponentTypes.ROLE_SELECT, ComponentTypes.MENTIONABLE_SELECT),
                         }
 
-                        if searches["members"] and (
-                            member := instance.client.cache.get_member(instance.guild_id, key)
-                        ):
+                        if searches["members"] and (member := instance.client.cache.get_member(instance.guild_id, key)):
                             instance.values[i] = member
                         elif searches["users"] and (user := instance.client.cache.get_user(key)):
                             instance.values[i] = user
                         elif searches["roles"] and (role := instance.client.cache.get_role(key)):
                             instance.values[i] = role
-                        elif searches["channels"] and (
-                            channel := instance.client.cache.get_channel(key)
-                        ):
+                        elif searches["channels"] and (channel := instance.client.cache.get_channel(key)):
                             instance.values[i] = channel
         return instance
 
@@ -707,9 +684,7 @@ class ComponentContext(InteractionContext):
             raise RuntimeError("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackTypes.DEFERRED_UPDATE_MESSAGE
-            if not edit_origin
-            else CallbackTypes.DEFERRED_UPDATE_MESSAGE
+            "type": CallbackTypes.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackTypes.DEFERRED_UPDATE_MESSAGE
         }
         if ephemeral:
             if edit_origin:
@@ -739,9 +714,7 @@ class ComponentContext(InteractionContext):
         ] = None,
         attachments: typing.Optional[typing.Sequence[Attachment | dict]] = None,
         allowed_mentions: typing.Optional[typing.Union["AllowedMentions", dict]] = None,
-        files: typing.Optional[
-            typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]
-        ] = None,
+        files: typing.Optional[typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]] = None,
         file: typing.Optional["UPLOADABLE_TYPE"] = None,
         tts: bool = False,
     ) -> "Message":
@@ -786,12 +759,8 @@ class ComponentContext(InteractionContext):
             self.defer_edit_origin = False
         else:
             payload = {"type": CallbackTypes.UPDATE_MESSAGE, "data": message_payload}
-            await self.client.http.post_initial_response(
-                payload, str(self.id), self.token, files=files or file
-            )
-            message_data = await self.client.http.get_interaction_message(
-                self.client.app.id, self.token
-            )
+            await self.client.http.post_initial_response(payload, str(self.id), self.token, files=files or file)
+            message_data = await self.client.http.get_interaction_message(self.client.app.id, self.token)
 
         if message_data:
             message = self.client.cache.place_message_data(message_data)
@@ -807,8 +776,7 @@ class ModalContext(InteractionContext):
     def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
         instance = super().from_dict(client, payload)
         instance.responses = {
-            comp["components"][0]["custom_id"]: comp["components"][0]["value"]
-            for comp in payload["data"]["components"]
+            comp["components"][0]["custom_id"]: comp["components"][0]["value"] for comp in payload["data"]["components"]
         }
         return instance
 
@@ -833,9 +801,7 @@ class AutocompleteContext(BaseInteractionContext):
             self.focused_option = SlashCommandOption.from_dict(option)
         return None
 
-    async def send(
-        self, choices: typing.Iterable[str | int | float | dict[str, int | float | str]]
-    ) -> None:
+    async def send(self, choices: typing.Iterable[str | int | float | dict[str, int | float | str]]) -> None:
         """
         Send your autocomplete choices to discord. Choices must be either a list of strings, or a dictionary following the following format:
 

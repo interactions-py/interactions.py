@@ -104,6 +104,5 @@ def deserialize_options(options: list[dict]) -> list["SlashCommandOption"]:
     return [
         models.naff.SlashCommandOption(**opt)
         for opt in options
-        if opt["type"]
-        not in (models.naff.OptionTypes.SUB_COMMAND_GROUP, models.naff.OptionTypes.SUB_COMMAND)
+        if opt["type"] not in (models.naff.OptionTypes.SUB_COMMAND_GROUP, models.naff.OptionTypes.SUB_COMMAND)
     ]

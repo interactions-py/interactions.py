@@ -31,9 +31,7 @@ class CallbackObject:
             return await self.callback(self._binding, *args, **kwargs)
         return await self.callback(*args, **kwargs)
 
-    async def call_with_binding(
-        self, callback: Callable[..., Coroutine[Any, Any, Any]], *args, **kwargs
-    ) -> Any:
+    async def call_with_binding(self, callback: Callable[..., Coroutine[Any, Any, Any]], *args, **kwargs) -> Any:
         """
         Call a given method using this objects _binding.
 

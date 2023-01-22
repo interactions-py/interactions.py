@@ -50,25 +50,15 @@ class ReactionEvents(EventMixinTemplate):
                 message.reactions.append(reaction)
 
         else:
-            message = await self.cache.fetch_message(
-                event.data.get("channel_id"), event.data.get("message_id")
-            )
+            message = await self.cache.fetch_message(event.data.get("channel_id"), event.data.get("message_id"))
             for r in message.reactions:
                 if r.emoji == emoji:
                     reaction = r
                     break
         if add:
-            self.dispatch(
-                events.MessageReactionAdd(
-                    message=message, emoji=emoji, author=author, reaction=reaction
-                )
-            )
+            self.dispatch(events.MessageReactionAdd(message=message, emoji=emoji, author=author, reaction=reaction))
         else:
-            self.dispatch(
-                events.MessageReactionRemove(
-                    message=message, emoji=emoji, author=author, reaction=reaction
-                )
-            )
+            self.dispatch(events.MessageReactionRemove(message=message, emoji=emoji, author=author, reaction=reaction))
 
     @Processor.define()
     async def _on_raw_message_reaction_add(self, event: "RawGatewayEvent") -> None:

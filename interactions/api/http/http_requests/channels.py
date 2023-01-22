@@ -99,9 +99,7 @@ class ChannelRequests(CanRequest):
         """
         params_count = sum(bool(param) for param in (before, after, around))
         if params_count > 1:
-            raise ValueError(
-                "`before` `after` and `around` are mutually exclusive, only one may be passed at a time."
-            )
+            raise ValueError("`before` `after` and `around` are mutually exclusive, only one may be passed at a time.")
 
         params: PAYLOAD_TYPE = {
             "limit": limit,
@@ -111,9 +109,7 @@ class ChannelRequests(CanRequest):
         }
         params = dict_filter_none(params)
 
-        result = await self.request(
-            Route("GET", f"/channels/{int(channel_id)}/messages"), params=params
-        )
+        result = await self.request(Route("GET", f"/channels/{int(channel_id)}/messages"), params=params)
         return cast(list[discord_typings.MessageData], result)
 
     async def create_guild_channel(
@@ -169,9 +165,7 @@ class ChannelRequests(CanRequest):
             )
         payload = dict_filter_none(payload)
 
-        result = await self.request(
-            Route("POST", f"/guilds/{int(guild_id)}/channels"), payload=payload, reason=reason
-        )
+        result = await self.request(Route("POST", f"/guilds/{int(guild_id)}/channels"), payload=payload, reason=reason)
         return cast(discord_typings.ChannelData, result)
 
     async def move_channel(
@@ -203,9 +197,7 @@ class ChannelRequests(CanRequest):
         }
         payload = dict_filter_none(payload)
 
-        await self.request(
-            Route("PATCH", f"/guilds/{int(guild_id)}/channels"), payload=payload, reason=reason
-        )
+        await self.request(Route("PATCH", f"/guilds/{int(guild_id)}/channels"), payload=payload, reason=reason)
 
     async def modify_channel(
         self, channel_id: "Snowflake_Type", data: dict, reason: str | None = None
@@ -222,9 +214,7 @@ class ChannelRequests(CanRequest):
             Channel object on success
 
         """
-        result = await self.request(
-            Route("PATCH", f"/channels/{int(channel_id)}"), payload=data, reason=reason
-        )
+        result = await self.request(Route("PATCH", f"/channels/{int(channel_id)}"), payload=data, reason=reason)
         return cast(discord_typings.ChannelData, result)
 
     async def delete_channel(self, channel_id: "Snowflake_Type", reason: str | None = None) -> None:
@@ -238,9 +228,7 @@ class ChannelRequests(CanRequest):
         """
         await self.request(Route("DELETE", f"/channels/{int(channel_id)}"), reason=reason)
 
-    async def get_channel_invites(
-        self, channel_id: "Snowflake_Type"
-    ) -> list[discord_typings.InviteData]:
+    async def get_channel_invites(self, channel_id: "Snowflake_Type") -> list[discord_typings.InviteData]:
         """
         Get the invites for the channel.
 
@@ -379,9 +367,7 @@ class ChannelRequests(CanRequest):
         result = await self.request(Route("GET", f"/invites/{invite_code}", params=params))
         return cast(discord_typings.InviteData, result)
 
-    async def delete_invite(
-        self, invite_code: str, reason: str | None = None
-    ) -> discord_typings.InviteData:
+    async def delete_invite(self, invite_code: str, reason: str | None = None) -> discord_typings.InviteData:
         """
         Delete an invite.
 
@@ -440,9 +426,7 @@ class ChannelRequests(CanRequest):
             reason: An optional reason for the audit log
 
         """
-        await self.request(
-            Route("DELETE", f"/channels/{int(channel_id)}/{int(overwrite_id)}"), reason=reason
-        )
+        await self.request(Route("DELETE", f"/channels/{int(channel_id)}/{int(overwrite_id)}"), reason=reason)
 
     async def follow_news_channel(
         self, channel_id: "Snowflake_Type", webhook_channel_id: "Snowflake_Type"
@@ -460,9 +444,7 @@ class ChannelRequests(CanRequest):
         """
         payload = {"webhook_channel_id": int(webhook_channel_id)}
 
-        result = await self.request(
-            Route("POST", f"/channels/{int(channel_id)}/followers"), payload=payload
-        )
+        result = await self.request(Route("POST", f"/channels/{int(channel_id)}/followers"), payload=payload)
         return cast(discord_typings.FollowedChannelData, result)
 
     async def trigger_typing_indicator(self, channel_id: "Snowflake_Type") -> None:
@@ -475,9 +457,7 @@ class ChannelRequests(CanRequest):
         """
         await self.request(Route("POST", f"/channels/{int(channel_id)}/typing"))
 
-    async def get_pinned_messages(
-        self, channel_id: "Snowflake_Type"
-    ) -> list[discord_typings.MessageData]:
+    async def get_pinned_messages(self, channel_id: "Snowflake_Type") -> list[discord_typings.MessageData]:
         """
         Get all pinned messages from a channel.
 
@@ -517,14 +497,10 @@ class ChannelRequests(CanRequest):
             "privacy_level": StagePrivacyLevel(privacy_level),
         }
 
-        result = await self.request(
-            Route("POST", "/stage-instances"), payload=payload, reason=reason
-        )
+        result = await self.request(Route("POST", "/stage-instances"), payload=payload, reason=reason)
         return cast(discord_typings.StageInstanceData, result)
 
-    async def get_stage_instance(
-        self, channel_id: "Snowflake_Type"
-    ) -> discord_typings.StageInstanceData:
+    async def get_stage_instance(self, channel_id: "Snowflake_Type") -> discord_typings.StageInstanceData:
         """
         Get the stage instance associated with a given channel, if it exists.
 
@@ -565,9 +541,7 @@ class ChannelRequests(CanRequest):
         )
         return cast(discord_typings.StageInstanceData, result)
 
-    async def delete_stage_instance(
-        self, channel_id: "Snowflake_Type", reason: str | None = None
-    ) -> None:
+    async def delete_stage_instance(self, channel_id: "Snowflake_Type", reason: str | None = None) -> None:
         """
         Delete a stage instance.
 
@@ -605,9 +579,7 @@ class ChannelRequests(CanRequest):
         }
         payload = dict_filter_none(payload)
 
-        result = await self.request(
-            Route("POST", f"/channels/{int(channel_id)}/tags"), payload=payload
-        )
+        result = await self.request(Route("POST", f"/channels/{int(channel_id)}/tags"), payload=payload)
         return cast(discord_typings.ChannelData, result)
 
     async def edit_tag(
@@ -639,14 +611,10 @@ class ChannelRequests(CanRequest):
         }
         payload = dict_filter_none(payload)
 
-        result = await self.request(
-            Route("PUT", f"/channels/{int(channel_id)}/tags/{int(tag_id)}"), payload=payload
-        )
+        result = await self.request(Route("PUT", f"/channels/{int(channel_id)}/tags/{int(tag_id)}"), payload=payload)
         return cast(discord_typings.ChannelData, result)
 
-    async def delete_tag(
-        self, channel_id: "Snowflake_Type", tag_id: "Snowflake_Type"
-    ) -> discord_typings.ChannelData:
+    async def delete_tag(self, channel_id: "Snowflake_Type", tag_id: "Snowflake_Type") -> discord_typings.ChannelData:
         """
         Delete a forum tag.
 
@@ -654,7 +622,5 @@ class ChannelRequests(CanRequest):
             channel_id: The ID of the forum channel to delete tag it.
             tag_id: The ID of the tag to delete
         """
-        result = await self.request(
-            Route("DELETE", f"/channels/{int(channel_id)}/tags/{int(tag_id)}")
-        )
+        result = await self.request(Route("DELETE", f"/channels/{int(channel_id)}/tags/{int(tag_id)}"))
         return cast(discord_typings.ChannelData, result)

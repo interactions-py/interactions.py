@@ -26,9 +26,7 @@ def mentions(
         return query.match(text) is not None
     elif isinstance(query, models.BaseUser):
         # mentions with <@!ID> aren't detected without the replacement
-        return (query.mention in text.replace("@!", "@")) or (
-            query.tag in text if tag_as_mention else False
-        )
+        return (query.mention in text.replace("@!", "@")) or (query.tag in text if tag_as_mention else False)
     elif isinstance(query, (models.BaseChannel, models.Role)):
         return query.mention in text
     else:

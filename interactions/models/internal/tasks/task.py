@@ -104,9 +104,7 @@ class Task:
                 return self.stop()
 
             try:
-                await asyncio.wait_for(
-                    self._stop.wait(), max(0.0, (fire_time - datetime.now()).total_seconds())
-                )
+                await asyncio.wait_for(self._stop.wait(), max(0.0, (fire_time - datetime.now()).total_seconds()))
             except asyncio.TimeoutError:
                 pass
             else:

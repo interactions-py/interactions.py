@@ -145,9 +145,7 @@ class GatewayClient(WebsocketClient):
             if self._stopping is None:
                 self._stopping = asyncio.create_task(self._close_gateway.wait())
             receiving = asyncio.create_task(self.receive())
-            done, _ = await asyncio.wait(
-                {self._stopping, receiving}, return_when=asyncio.FIRST_COMPLETED
-            )
+            done, _ = await asyncio.wait({self._stopping, receiving}, return_when=asyncio.FIRST_COMPLETED)
 
             if receiving in done:
                 # Note that we check for a received message first, because if both completed at
@@ -192,9 +190,7 @@ class GatewayClient(WebsocketClient):
                         f"High Latency! shard ID {self.shard[0]} heartbeat took {self.latency[-1]:.1f}s to be acknowledged!"
                     )
                 else:
-                    self.logger.debug(
-                        f"❤ Heartbeat acknowledged after {self.latency[-1]:.5f} seconds"
-                    )
+                    self.logger.debug(f"❤ Heartbeat acknowledged after {self.latency[-1]:.5f} seconds")
 
                 return self._acknowledged.set()
 
@@ -216,7 +212,9 @@ class GatewayClient(WebsocketClient):
                 self._trace = data.get("_trace", [])
                 self.sequence = seq
                 self.session_id = data["session_id"]
-                self.ws_resume_url = f"{data['resume_gateway_url']}?encoding=json&v={__api_version__}&compress=zlib-stream"
+                self.ws_resume_url = (
+                    f"{data['resume_gateway_url']}?encoding=json&v={__api_version__}&compress=zlib-stream"
+                )
                 self.logger.info(f"Shard {self.shard[0]} has connected to gateway!")
                 self.logger.debug(f"Session ID: {self.session_id} Trace: {self._trace}")
                 return self.state.client.dispatch(events.WebsocketReady(data))
@@ -235,20 +233,14 @@ class GatewayClient(WebsocketClient):
                 processor = self.state.client.processors.get(event_name)
                 if processor:
                     try:
-                        asyncio.create_task(
-                            processor(events.RawGatewayEvent(data.copy(), override_name=event_name))
-                        )
+                        asyncio.create_task(processor(events.RawGatewayEvent(data.copy(), override_name=event_name)))
                     except Exception as ex:
                         self.logger.error(f"Failed to run event processor for {event_name}: {ex}")
                 else:
                     self.logger.debug(f"No processor for `{event_name}`")
 
-        self.state.client.dispatch(
-            events.RawGatewayEvent(data.copy(), override_name="raw_gateway_event")
-        )
-        self.state.client.dispatch(
-            events.RawGatewayEvent(data.copy(), override_name=f"raw_{event.lower()}")
-        )
+        self.state.client.dispatch(events.RawGatewayEvent(data.copy(), override_name="raw_gateway_event"))
+        self.state.client.dispatch(events.RawGatewayEvent(data.copy(), override_name=f"raw_{event.lower()}"))
 
     def close(self) -> None:
         """Shutdown the websocket connection."""
@@ -282,9 +274,7 @@ class GatewayClient(WebsocketClient):
             f"Shard ID {self.shard[0]} has identified itself to Gateway, requesting intents: {self.state.intents}!"
         )
 
-    async def reconnect(
-        self, *, resume: bool = False, code: int = 1012, url: str | None = None
-    ) -> None:
+    async def reconnect(self, *, resume: bool = False, code: int = 1012, url: str | None = None) -> None:
         self.state.clear_ready()
         self._ready.clear()
         await super().reconnect(resume=resume, code=code, url=url)
@@ -312,9 +302,7 @@ class GatewayClient(WebsocketClient):
         await self.send_json({"op": OPCODE.HEARTBEAT, "d": self.sequence}, bypass=True)
         self.logger.debug(f"❤ Shard {self.shard[0]} is sending a Heartbeat")
 
-    async def change_presence(
-        self, activity=None, status: Status = Status.ONLINE, since=None
-    ) -> None:
+    async def change_presence(self, activity=None, status: Status = Status.ONLINE, since=None) -> None:
         """Update the bot's presence status."""
         payload = dict_filter_none(
             {

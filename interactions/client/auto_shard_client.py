@@ -91,9 +91,7 @@ class AutoShardedClient(Client):
             A gateway client for the given ID
         """
         shard_id = (int(guild_id) >> 22) % self.total_shards
-        return next(
-            (state for state in self._connection_states if state.shard_id == shard_id), MISSING
-        ).gateway
+        return next((state for state in self._connection_states if state.shard_id == shard_id), MISSING).gateway
 
     def get_shards_guild(self, shard_id: int) -> list[Guild]:
         """
@@ -105,11 +103,7 @@ class AutoShardedClient(Client):
         Returns:
             A list of guilds
         """
-        return [
-            guild
-            for key, guild in self.cache.guild_cache.items()
-            if ((key >> 22) % self.total_shards) == shard_id
-        ]
+        return [guild for key, guild in self.cache.guild_cache.items() if ((key >> 22) % self.total_shards) == shard_id]
 
     def get_shard_id(self, guild_id: "Snowflake_Type") -> int:
         """
@@ -134,18 +128,14 @@ class AutoShardedClient(Client):
         connection_data = event.data
         expected_guilds = {to_snowflake(guild["id"]) for guild in connection_data["guilds"]}
         shard_id, total_shards = connection_data["shard"]
-        connection_state = next(
-            (state for state in self._connection_states if state.shard_id == shard_id), None
-        )
+        connection_state = next((state for state in self._connection_states if state.shard_id == shard_id), None)
 
         if len(expected_guilds) != 0:
             while True:
                 try:
                     await asyncio.wait_for(self._guild_event.wait(), self.guild_event_timeout)
                 except asyncio.TimeoutError:
-                    self.logger.warning(
-                        "Timeout waiting for guilds cache: Not all guilds will be in cache"
-                    )
+                    self.logger.warning("Timeout waiting for guilds cache: Not all guilds will be in cache")
                     break
                 self._guild_event.clear()
                 if all(self.cache.get_guild(g_id) is not None for g_id in expected_guilds):
@@ -154,9 +144,7 @@ class AutoShardedClient(Client):
 
             if self.fetch_members:
                 self.logger.info(f"Shard {shard_id} is waiting for members to be chunked")
-                await asyncio.gather(
-                    *(guild.chunked.wait() for guild in self.guilds if guild.id in expected_guilds)
-                )
+                await asyncio.gather(*(guild.chunked.wait() for guild in self.guilds if guild.id in expected_guilds))
         else:
             self.logger.warning(
                 f"Shard {shard_id} reports it has 0 guilds, this is an indicator you may be using too many shards"
@@ -249,9 +237,7 @@ class AutoShardedClient(Client):
                 f"Discord recommends you start with {recommended_shards} shard{'s' if recommended_shards != 1 else ''} instead of {self.total_shards}"
             )
 
-        self.logger.debug(
-            f"Starting bot with {self.total_shards} shard{'s' if self.total_shards != 1 else ''}"
-        )
+        self.logger.debug(f"Starting bot with {self.total_shards} shard{'s' if self.total_shards != 1 else ''}")
         self._connection_states: list[ConnectionState] = [
             ConnectionState(self, self.intents, shard_id) for shard_id in range(self.total_shards)
         ]
@@ -276,8 +262,6 @@ class AutoShardedClient(Client):
 
         """
         if shard_id is None:
-            await asyncio.gather(
-                *[shard.change_presence(status, activity) for shard in self._connection_states]
-            )
+            await asyncio.gather(*[shard.change_presence(status, activity) for shard in self._connection_states])
         else:
             await self._connection_states[shard_id].change_presence(status, activity)

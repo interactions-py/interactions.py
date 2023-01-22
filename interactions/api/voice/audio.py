@@ -137,9 +137,7 @@ class Audio(BaseAudio):
 
     def _create_process(self, *, block: bool = True) -> None:
         before = (
-            self.ffmpeg_before_args
-            if isinstance(self.ffmpeg_before_args, list)
-            else self.ffmpeg_before_args.split()
+            self.ffmpeg_before_args if isinstance(self.ffmpeg_before_args, list) else self.ffmpeg_before_args.split()
         )
         after = self.ffmpeg_args if isinstance(self.ffmpeg_args, list) else self.ffmpeg_args.split()
         cmd = [
