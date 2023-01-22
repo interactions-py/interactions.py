@@ -2,7 +2,6 @@ import asyncio
 import functools
 import importlib.util
 import inspect
-import json
 import logging
 import re
 import sys
@@ -49,7 +48,7 @@ from interactions.client.errors import (
     NotFound,
 )
 from interactions.client.smart_cache import GlobalCache
-from interactions.client.utils import NullCache
+from interactions.client.utils import NullCache, FastJson
 from interactions.client.utils.misc_utils import get_event_name, wrap_partial
 from interactions.client.utils.serializer import to_image_data
 from interactions.models import (
@@ -1436,7 +1435,7 @@ class Client(
                     elif _delete_cmds:
                         sync_payload.append(local_cmd_json)
 
-                sync_payload = [json.loads(_dump) for _dump in {json.dumps(_cmd) for _cmd in sync_payload}]
+                sync_payload = [FastJson.loads(_dump) for _dump in {FastJson.dumps(_cmd) for _cmd in sync_payload}]
 
                 if sync_needed_flag or (_delete_cmds and len(sync_payload) < len(remote_commands)):
                     # synchronise commands if flag is set, or commands are to be deleted
