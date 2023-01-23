@@ -897,6 +897,8 @@ class Command(DictSerializerMixin):
             ctx.command = self
             ctx.extension = self.extension
 
+            self.listener.dispatch("on_command", ctx)
+
             try:
                 if self.extension:
                     return await coro(self.extension, ctx, *args, **kwargs)
