@@ -175,7 +175,7 @@ class AutoShardedClient(Client):
                 self.dispatch(events.Startup())
             self.dispatch(events.Ready())
 
-    async def astart(self, token: str) -> None:
+    async def astart(self, token: str | None = None) -> None:
         """
         Asynchronous method to start the bot.
 
@@ -214,7 +214,7 @@ class AutoShardedClient(Client):
         finally:
             await self.stop()
 
-    async def login(self, token) -> None:
+    async def login(self, token: str | None = None) -> None:
         """
         Login to discord via http.
 

@@ -274,6 +274,7 @@ class Client(
         slash_context: Type[BaseContext] = SlashContext,
         status: Status = Status.ONLINE,
         sync_interactions: bool = True,
+        token: str | None = None,
         sync_ext: bool = True,
         total_shards: int = 1,
         basic_logging: bool = False,
@@ -329,6 +330,8 @@ class Client(
         """The object to instantiate for Modal Context"""
         self.slash_context: Type[BaseContext] = slash_context
         """The object to instantiate for Slash Context"""
+
+        self.token: str | None = token
 
         # flags
         self._ready = asyncio.Event()
@@ -834,7 +837,7 @@ class Client(
         self._ready.set()
         self.dispatch(events.Ready())
 
-    async def login(self, token) -> None:
+    async def login(self, token: str | None = None) -> None:
         """
         Login to discord via http.
 
@@ -845,13 +848,19 @@ class Client(
             token str: Your bot's token
 
         """
+        if not self.token and not token:
+            raise RuntimeError(
+                "No token provided - please provide a token in the client constructor or via the login method."
+            )
+        self.token = (token or self.token).strip()
+
         # i needed somewhere to put this call,
         # login will always run after initialisation
         # so im gathering commands here
         self._gather_callbacks()
 
         self.logger.debug("Attempting to login")
-        me = await self.http.login(token.strip())
+        me = await self.http.login(self.token)
         self._user = NaffUser.from_dict(me, self)
         self.cache.place_user_data(me)
         self._app = Application.from_dict(await self.http.get_current_bot_information(), self)
@@ -862,7 +871,7 @@ class Client(
 
         self.dispatch(events.Login())
 
-    async def astart(self, token: str) -> None:
+    async def astart(self, token: str | None = None) -> None:
         """
         Asynchronous method to start the bot.
 
@@ -882,7 +891,7 @@ class Client(
         finally:
             await self.stop()
 
-    def start(self, token: str) -> None:
+    def start(self, token: str | None = None) -> None:
         """
         Start the bot.
 
