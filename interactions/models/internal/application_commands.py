@@ -1111,6 +1111,7 @@ def application_commands_to_dict(
             for cmd in cmd_list:
                 cmd.scopes = list(scopes)
                 cmd.description = base_description
+                cmd.nsfw = nsfw
             # end validation of attributes
             cmd_data = squash_subcommand(cmd_list)
         else:
