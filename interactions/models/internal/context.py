@@ -310,6 +310,11 @@ class BaseInteractionContext(BaseContext):
         """The invoke target of the interaction."""
         return self._command_name
 
+    @property
+    def deferred_ephemeral(self) -> bool:
+        """Whether the interaction has been deferred ephemerally."""
+        return self.deferred and self.ephemeral
+
     def option_processing_hook(self, option: dict) -> typing.Any:
         """
         Hook for extending options processing.
