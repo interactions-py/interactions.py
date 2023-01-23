@@ -23,12 +23,11 @@ from interactions import (
     BrandColors,
 )
 from interactions.client.utils.serializer import export_converter
-from interactions.models.discord.emoji import process_emoji
+from interactions.models.discord.emoji import process_emoji, PartialEmoji
 
 if TYPE_CHECKING:
     from interactions import Client
     from interactions.ext.prefixed_commands.context import PrefixedContext
-    from interactions.models.discord.emoji import PartialEmoji
 
 __all__ = ("Paginator",)
 
@@ -271,10 +270,12 @@ class Paginator:
             current = self.pages[self.page_index]
             output.append(
                 StringSelectMenu(
-                    [
-                        StringSelectOption(f"{i+1} {p.get_summary if isinstance(p, Page) else p.title}", str(i))
+                    *(
+                        StringSelectOption(
+                            label=f"{i+1} {p.get_summary if isinstance(p, Page) else p.title}", value=str(i)
+                        )
                         for i, p in enumerate(self.pages)
-                    ],
+                    ),
                     custom_id=f"{self._uuid}|select",
                     placeholder=f"{self.page_index+1} {current.get_summary if isinstance(current, Page) else current.title}",
                     max_values=1,
@@ -285,8 +286,8 @@ class Paginator:
         if self.show_first_button:
             output.append(
                 Button(
-                    self.default_button_color,
-                    emoji=self.first_button_emoji,
+                    style=self.default_button_color,
+                    emoji=PartialEmoji.from_dict(process_emoji(self.first_button_emoji)),
                     custom_id=f"{self._uuid}|first",
                     disabled=disable or self.page_index == 0,
                 )
@@ -294,8 +295,8 @@ class Paginator:
         if self.show_back_button:
             output.append(
                 Button(
-                    self.default_button_color,
-                    emoji=self.back_button_emoji,
+                    style=self.default_button_color,
+                    emoji=PartialEmoji.from_dict(process_emoji(self.back_button_emoji)),
                     custom_id=f"{self._uuid}|back",
                     disabled=disable or self.page_index == 0,
                 )
@@ -304,8 +305,8 @@ class Paginator:
         if self.show_callback_button:
             output.append(
                 Button(
-                    self.default_button_color,
-                    emoji=self.callback_button_emoji,
+                    style=self.default_button_color,
+                    emoji=PartialEmoji.from_dict(process_emoji(self.callback_button_emoji)),
                     custom_id=f"{self._uuid}|callback",
                     disabled=disable,
                 )
@@ -314,8 +315,8 @@ class Paginator:
         if self.show_next_button:
             output.append(
                 Button(
-                    self.default_button_color,
-                    emoji=self.next_button_emoji,
+                    style=self.default_button_color,
+                    emoji=PartialEmoji.from_dict(process_emoji(self.next_button_emoji)),
                     custom_id=f"{self._uuid}|next",
                     disabled=disable or self.page_index >= len(self.pages) - 1,
                 )
@@ -323,8 +324,8 @@ class Paginator:
         if self.show_last_button:
             output.append(
                 Button(
-                    self.default_button_color,
-                    emoji=self.last_button_emoji,
+                    style=self.default_button_color,
+                    emoji=PartialEmoji.from_dict(process_emoji(self.last_button_emoji)),
                     custom_id=f"{self._uuid}|last",
                     disabled=disable or self.page_index >= len(self.pages) - 1,
                 )
