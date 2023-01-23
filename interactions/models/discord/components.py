@@ -36,25 +36,6 @@ __all__ = (
 )
 
 
-__all__ = (
-    "BaseComponent",
-    "InteractiveComponent",
-    "ActionRow",
-    "Button",
-    "BaseSelectMenu",
-    "StringSelectOption",
-    "StringSelectMenu",
-    "UserSelectMenu",
-    "RoleSelectMenu",
-    "MentionableSelectMenu",
-    "ChannelSelectMenu",
-    "process_components",
-    "spread_to_rows",
-    "get_components_ids",
-    "TYPE_COMPONENT_MAPPING",
-)
-
-
 class BaseComponent(DictSerializationMixin):
     """
     A base component class.
@@ -63,6 +44,11 @@ class BaseComponent(DictSerializationMixin):
         This should never be directly instantiated.
 
     """
+
+    type: ComponentTypes
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type}>"
 
     @classmethod
     @abstractmethod
@@ -123,6 +109,9 @@ class InteractiveComponent(BaseComponent):
             other = BaseComponent.from_dict_factory(other)
         return self.custom_id == other.custom_id and self.type == other.type
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} custom_id={self.custom_id}>"
+
 
 class ActionRow(BaseComponent):
     """
@@ -147,6 +136,9 @@ class ActionRow(BaseComponent):
     @classmethod
     def from_dict(cls, data: discord_typings.ActionRowData) -> "ActionRow":
         return cls(*data["components"])
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} components={len(self.components)}>"
 
     def add_component(self, *components: dict | BaseComponent) -> None:
         """
@@ -264,6 +256,9 @@ class Button(InteractiveComponent):
             disabled=data.get("disabled", False),
         )
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} style={self.style} label={self.label} emoji={self.emoji} custom_id={self.custom_id} url={self.url} disabled={self.disabled}>"
+
     def to_dict(self) -> discord_typings.ButtonComponentData:
         return {
             "type": self.type.value,  # type: ignore
@@ -315,6 +310,9 @@ class BaseSelectMenu(InteractiveComponent):
             custom_id=data["custom_id"],
             disabled=data.get("disabled", False),
         )
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} custom_id={self.custom_id} placeholder={self.placeholder} min_values={self.min_values} max_values={self.max_values} disabled={self.disabled}>"
 
     def to_dict(self) -> discord_typings.SelectMenuComponentData:
         return {
@@ -383,6 +381,9 @@ class StringSelectOption(BaseComponent):
             default=data.get("default", False),
         )
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} label={self.label} value={self.value} description={self.description} emoji={self.emoji} default={self.default}>"
+
     def to_dict(self) -> discord_typings.SelectMenuOptionData:
         return {
             "label": self.label,
@@ -436,6 +437,9 @@ class StringSelectMenu(BaseSelectMenu):
             custom_id=data["custom_id"],
             disabled=data.get("disabled", False),
         )
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} custom_id={self.custom_id} placeholder={self.placeholder} min_values={self.min_values} max_values={self.max_values} disabled={self.disabled} options={self.options}>"
 
     def to_dict(self) -> discord_typings.SelectMenuComponentData:
         return {
@@ -563,6 +567,9 @@ class ChannelSelectMenu(BaseSelectMenu):
             disabled=data.get("disabled", False),
             channel_types=data.get("channel_types", []),
         )
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} custom_id={self.custom_id} placeholder={self.placeholder} min_values={self.min_values} max_values={self.max_values} disabled={self.disabled} channel_types={self.channel_types}>"
 
     def to_dict(self) -> discord_typings.SelectMenuComponentData:
         return {
