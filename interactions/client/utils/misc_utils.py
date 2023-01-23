@@ -1,10 +1,14 @@
 import functools
 import inspect
 import re
-from typing import Callable, Iterable, List, Optional, Any, Union
+from typing import Callable, Iterable, List, Optional, Any, Union, TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.client.const import T
+from interactions.models.discord.enums import ComponentTypes
+
+if TYPE_CHECKING:
+    from interactions.models.discord.components import BaseComponent
 
 __all__ = (
     "escape_mentions",
@@ -233,3 +237,13 @@ async def maybe_coroutine(func: Callable, *args, **kwargs) -> Any:
         return await func(*args, **kwargs)
     else:
         return func(*args, **kwargs)
+
+
+def disable_components(*components: "BaseComponent") -> list["BaseComponent"]:
+    """Disables all components in a list of components."""
+    for component in components:
+        if component.type == ComponentTypes.ACTION_ROW:
+            disable_components(*component.components)  # noqa
+        else:
+            component.disabled = True
+    return list(components)
