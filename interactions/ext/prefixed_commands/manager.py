@@ -1,8 +1,7 @@
 import contextlib
 from asyncio import TimeoutError
-from typing import Optional, Callable, Any, Coroutine, cast, Iterable
 from collections import defaultdict
-from typing_extensions import Self
+from typing import Optional, Callable, Any, Coroutine, cast, Iterable
 
 from interactions.api.events.base import RawGatewayEvent
 from interactions.api.events.discord import MessageCreate
@@ -12,14 +11,13 @@ from interactions.api.events.internal import (
     CallbackAdded,
     ExtensionUnload,
 )
-from interactions.models.discord.message import Message
-from interactions.models.internal.listener import listen
 from interactions.client.client import Client
 from interactions.client.utils.input_utils import get_args, get_first_word
-
-from .utils import when_mentioned
+from interactions.models.discord.message import Message
+from interactions.models.internal.listener import listen
 from .command import PrefixedCommand
 from .context import PrefixedContext
+from .utils import when_mentioned
 
 __all__ = ("PrefixedInjectedClient", "PrefixedManager", "setup")
 

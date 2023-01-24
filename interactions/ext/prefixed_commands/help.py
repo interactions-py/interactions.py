@@ -2,12 +2,12 @@ import functools
 from logging import Logger
 
 import attrs
+
 from interactions import Embed, get_logger
 from interactions.ext.paginators import Paginator
 from interactions.models.discord.color import BrandColors, Color
-
-from .context import PrefixedContext
 from .command import prefixed_command, PrefixedCommand
+from .context import PrefixedContext
 from .manager import PrefixedInjectedClient
 
 __all__ = ("PrefixedHelpCommand",)
