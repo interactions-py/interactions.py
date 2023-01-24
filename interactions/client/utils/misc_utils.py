@@ -190,6 +190,7 @@ def get_parameters(callback: Callable) -> dict[str, inspect.Parameter]:
     return {p.name: p for p in inspect.signature(callback).parameters.values()}
 
 
+@functools.lru_cache(maxsize=50)
 def get_event_name(event: Union[str, "events.BaseEvent"]) -> str:
     """
     Get the event name smartly from an event class or string name.
