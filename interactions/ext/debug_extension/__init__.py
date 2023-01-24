@@ -21,22 +21,30 @@ from .utils import get_cache_state, debug_embed, strf_delta
 
 __all__ = ("DebugExtension",)
 
+from interactions.client.utils import get_event_name
+
 
 class DebugExtension(DebugExec, DebugAppCMD, DebugExts, Extension):
+    class Metadata(Extension.Metadata):
+        name = "Debug Extension"
+        description = "Debugging utilities for interactions.py"
+        version = "1.0.0"
+        url = "https://github.com/interactions-py/interactions.py"
+        requirements = ["interactions>=5.0.0"]
+
     def __init__(self, bot: Client) -> None:
         bot.logger.info("Debug Extension is mounting!")
 
         super().__init__(bot)
         self.add_ext_check(checks.is_owner())
 
-        bot.logger.info("Debug Extension is growing!")
         tracemalloc.start()
         bot.logger.warning("Tracemalloc started")
 
     async def async_start(self) -> None:
         loop = asyncio.get_running_loop()
         loop.set_debug(True)
-        self.bot.logger.warning("Asyncio debug mode is enabled")
+        self.bot.logger.warning("Asyncio debug mode enabled")
 
     @listen()
     async def on_startup(self) -> None:
