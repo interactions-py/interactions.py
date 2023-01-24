@@ -65,7 +65,7 @@ class DebugExtension(DebugExec, DebugAppCMD, DebugExts, Extension):
         e.set_thumbnail(self.bot.user.avatar.url)
         e.add_field("Operating System", platform.platform())
 
-        e.add_field("Version Info", f"Naff@{__version__} | Py@{__py_version__}")
+        e.add_field("Version Info", f"I.py@{__version__} | Py@{__py_version__}")
 
         e.add_field("Start Time", f"{uptime.format(TimestampStyles.RelativeTime)}")
 
