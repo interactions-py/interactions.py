@@ -55,8 +55,7 @@ def get_all_commands(module: ModuleType) -> Dict[str, Callable]:
 
 
 class Jurigged(Extension):
-    @listen(event_name="on_startup")
-    async def jurigged_startup(self) -> None:
+    async def async_start(self) -> None:
         """Jurigged starting utility."""
         self.command_cache = {}
         self.bot.logger.warning("Setting sync_ext to True by default for syncing changes")
