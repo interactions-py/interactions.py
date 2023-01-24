@@ -234,6 +234,26 @@ class Embed(DictSerializationMixin):
         metadata=no_export_meta,
     )
 
+    @property
+    def image(self) -> Optional[EmbedAttachment]:
+        """
+        The image of the embed.
+
+        Raises:
+            ValueError: If there are multiple images in the embed.
+        """
+        if len(self.images) <= 1:
+            return self.images[0] if self.images else None
+        raise ValueError("There are multiple images in this embed, use `images` instead")
+
+    @image.setter
+    def image(self, value: Optional[EmbedAttachment]) -> None:
+        """Set the image of the embed."""
+        if value is None:
+            self.images = []
+        else:
+            self.images = [value]
+
     @title.validator
     def _name_validation(self, attribute: str, value: Any) -> None:
         """Validate the embed title."""
