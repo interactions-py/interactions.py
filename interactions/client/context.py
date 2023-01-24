@@ -1,8 +1,8 @@
 import asyncio
+from contextlib import suppress
 from datetime import datetime
 from logging import Logger
 from typing import TYPE_CHECKING, List, Optional, Tuple, Union
-from contextlib import suppress
 
 from ..api.error import LibraryException
 from ..api.models.channel import Channel, Thread
@@ -176,8 +176,13 @@ class _Context(ClientSerializerMixin):
         :return: The deferred message
         :rtype: Message
         """
-        if edit_origin and self.type in {InteractionType.APPLICATION_COMMAND, InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE}:
-            raise LibraryException(message="You cannot defer with edit_origin parameter in this type of interaction")
+        if edit_origin and self.type in {
+            InteractionType.APPLICATION_COMMAND,
+            InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE,
+        }:
+            raise LibraryException(
+                message="You cannot defer with edit_origin parameter in this type of interaction"
+            )
 
         if not self.responded:
             self.deferred = True
@@ -645,7 +650,6 @@ class CommandContext(_Context):
             _client=self._client,
             author={"_client": self._client, "id": None, "username": None, "discriminator": None},
         )
-
 
     async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]:
         """
