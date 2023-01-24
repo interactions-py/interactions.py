@@ -544,7 +544,7 @@ class Client(
                     if coro.delay_until_ready and not self.is_ready:
                         await self.wait_until_ready()
 
-                if len(_event.__attrs_attrs__) == 2:
+                if len(_event.__attrs_attrs__) == 2 and coro.event != "event":
                     # override_name & bot & logging
                     await _coro()
                 else:
@@ -968,6 +968,11 @@ class Client(
             for idx in sorted(index_to_remove, reverse=True):
                 _waits.pop(idx)
 
+        if "event" in self.listeners:
+            # special meta event listener
+            for _listen in self.listeners["event"]:
+                self._queue_task(_listen, event, *args, **kwargs)
+
     async def wait_until_ready(self) -> None:
         """Waits for the client to become ready."""
         await self._ready.wait()
@@ -1146,6 +1151,9 @@ class Client(
             listener Listener: The listener to add to the client
 
         """
+        if listener.event == "event":
+            self.logger.critical(f"Subscribing to `{listener.event}` - Meta Events are very expensive; remember to remove it before releasing your bot")
+
         if not listener.is_default_listener:
             # check that the required intents are enabled
 
