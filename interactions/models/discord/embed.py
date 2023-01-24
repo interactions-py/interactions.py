@@ -13,7 +13,7 @@ from interactions.client.const import (
     EMBED_FIELD_VALUE_LENGTH,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_converters import optional as c_optional
+from interactions.client.utils.attr_converters import optional as c_optional, list_converter
 from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.client.utils.serializer import no_export_meta, export_converter
 from interactions.models.discord.color import Color, process_color
@@ -207,10 +207,10 @@ class Embed(DictSerializationMixin):
         repr=False, default=None, converter=c_optional(EmbedAttachment.from_dict)
     )
     """The thumbnail of the embed"""
-    image: Optional[EmbedAttachment] = attrs.field(
-        repr=False, default=None, converter=c_optional(EmbedAttachment.from_dict)
+    images: list[EmbedAttachment] = attrs.field(
+        repr=False, factory=list, converter=list_converter(EmbedAttachment.from_dict)
     )
-    """The image of the embed"""
+    """The images of the embed"""
     video: Optional[EmbedAttachment] = attrs.field(
         repr=False,
         default=None,
@@ -233,6 +233,26 @@ class Embed(DictSerializationMixin):
         converter=c_optional(EmbedTypes),
         metadata=no_export_meta,
     )
+
+    @property
+    def image(self) -> Optional[EmbedAttachment]:
+        """
+        The image of the embed.
+
+        Raises:
+            ValueError: If there are multiple images in the embed.
+        """
+        if len(self.images) <= 1:
+            return self.images[0] if self.images else None
+        raise ValueError("There are multiple images in this embed, use `images` instead")
+
+    @image.setter
+    def image(self, value: Optional[EmbedAttachment]) -> None:
+        """Set the image of the embed."""
+        if value is None:
+            self.images = []
+        else:
+            self.images = [value]
 
     @title.validator
     def _name_validation(self, attribute: str, value: Any) -> None:
@@ -296,7 +316,7 @@ class Embed(DictSerializationMixin):
                 self.author,
                 self.thumbnail,
                 self.footer,
-                self.image,
+                self.images,
                 self.video,
             )
         )
@@ -336,7 +356,43 @@ class Embed(DictSerializationMixin):
             url: the url of the image to use
 
         """
-        self.image = EmbedAttachment(url=url)
+        self.images = [EmbedAttachment(url=url)]
+
+    def set_images(self, *images: str) -> None:
+        """
+        Set multiple images for the embed.
+
+        Note:
+            To use multiple images, you must also set a url for this embed.
+
+        Warning:
+            This takes advantage of an undocumented feature of the API, and may be removed at any time.
+
+        Args:
+            images: the images to use
+
+        """
+        if len(self.images) + 1 > 1 and not self.url:
+            raise ValueError("To use multiple images, you must also set a url for this embed")
+
+        self.images = [EmbedAttachment(url=url) for url in images]
+
+    def add_image(self, image: str) -> None:
+        """
+        Add an image to the embed.
+
+        Note:
+            To use multiple images, you must also set a url for this embed.
+
+        Warning:
+            This takes advantage of an undocumented feature of the API, and may be removed at any time.
+
+        Args:
+            image: the image to add
+        """
+        if len(self.images) + 1 > 1 and not self.url:
+            raise ValueError("To use multiple images, you must also set a url for this embed")
+        self.images.append(EmbedAttachment(url=image))
 
     def set_footer(self, text: str, icon_url: Optional[str] = None) -> None:
         """
@@ -381,6 +437,25 @@ class Embed(DictSerializationMixin):
             else:
                 raise TypeError(f"Expected EmbedField, str or dict, got {type(_field).__name__}")
 
+    def to_dict(self) -> Dict[str, Any]:
+        data = super().to_dict()
+        images = data.pop("images", [])
+
+        if images:
+            if len(images) > 1:
+                if not self.url:
+                    raise ValueError("To use multiple images, you must also set a url for this embed")
+
+                data["image"] = images[0]
+                data = [data]
+
+                for image in images[1:]:
+                    data.append({"image": image, "url": self.url})
+            else:
+                data["image"] = images[0]
+
+        return data
+
 
 def process_embeds(embeds: Optional[Union[List[Union[Embed, Dict]], Union[Embed, Dict]]]) -> Optional[List[dict]]:
     """
@@ -399,7 +474,10 @@ def process_embeds(embeds: Optional[Union[List[Union[Embed, Dict]], Union[Embed,
 
     if isinstance(embeds, Embed):
         # Single embed, convert it to dict and wrap it into a list for discord.
-        return [embeds.to_dict()]
+        out = embeds.to_dict()
+        if isinstance(out, list):
+            return out
+        return [out]
 
     if isinstance(embeds, dict):
         # We assume the dict correctly represents a single discord embed and just send it blindly
@@ -408,6 +486,9 @@ def process_embeds(embeds: Optional[Union[List[Union[Embed, Dict]], Union[Embed,
 
     if isinstance(embeds, list):
         # A list of embeds, convert Embed to dict representation if needed.
-        return [embed.to_dict() if isinstance(embed, Embed) else embed for embed in embeds]
+        out = [embed.to_dict() if isinstance(embed, Embed) else embed for embed in embeds]
+        if any(isinstance(embed, list) for embed in out):
+            raise ValueError("You cannot send multiple embeds when using multiple images in a single embed")
+        return out
 
     raise ValueError(f"Invalid embeds: {embeds}")
