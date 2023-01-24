@@ -13,24 +13,24 @@ from typing import (
     TYPE_CHECKING,
     Type,
     TypeGuard,
-    Coroutine,
 )
-from typing_extensions import Self
 
 import attrs
-from naff.client.utils.attr_utils import docs
-from interactions.client.errors import BadArgument
+from typing_extensions import Self
+
 from interactions.client.const import MISSING
+from interactions.client.errors import BadArgument
 from interactions.client.utils.input_utils import _quotes
 from interactions.client.utils.misc_utils import get_object_name, maybe_coroutine
+from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.converters import (
     _LiteralConverter,
     NoArgumentConverter,
     Greedy,
     MODEL_TO_CONVERTER,
 )
-from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.protocols import Converter
+from ...client.utils.attr_utils import docs
 
 if TYPE_CHECKING:
     from .context import PrefixedContext

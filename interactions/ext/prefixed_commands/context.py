@@ -1,13 +1,13 @@
 from typing import Optional, Union, Iterable, TYPE_CHECKING
+
 from typing_extensions import Self
 
-
-from interactions.client.mixins.send import SendMixin
 from interactions.client.client import Client
-from interactions.models.internal.context import BaseContext
+from interactions.client.mixins.send import SendMixin
+from interactions.models.discord.embed import Embed
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.message import Message
-from interactions.models.discord.embed import Embed
+from interactions.models.internal.context import BaseContext
 from interactions.models.misc.context_manager import Typing
 
 if TYPE_CHECKING:
