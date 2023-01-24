@@ -106,7 +106,13 @@ class Extension:
 
             elif isinstance(val, Task):
                 wrap_partial(val, instance)
-        bot.dispatch(events.ExtensionCommandParse(instance, callables))
+
+            elif isinstance(val, models.Listener):
+                val.extension = instance
+                val = wrap_partial(val, instance)
+                bot.add_listener(val)  # type: ignore
+                instance._listeners.append(val)
+        bot.dispatch(events.ExtensionCommandParse(extension=instance, callables=callables))
 
         instance.extension_name = inspect.getmodule(instance).__name__
         instance.bot.ext[instance.name] = instance
@@ -117,7 +123,7 @@ class Extension:
             else:
                 raise TypeError("async_start is a reserved method and must be a coroutine")
 
-        bot.dispatch(events.ExtensionLoad(instance))
+        bot.dispatch(events.ExtensionLoad(extension=instance))
         return instance
 
     @property
