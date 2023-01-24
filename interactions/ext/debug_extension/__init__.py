@@ -12,7 +12,7 @@ from interactions import (
     TimestampStyles,
     Intents,
 )
-from interactions.client.const import get_logger, __version__, __py_version__
+from interactions.client.const import __version__, __py_version__
 from interactions.models.internal import checks
 from .debug_application_cmd import DebugAppCMD
 from .debug_exec import DebugExec

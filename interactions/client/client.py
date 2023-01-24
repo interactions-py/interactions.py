@@ -26,7 +26,7 @@ from typing import (
 import interactions.api.events as events
 import interactions.client.const as constants
 from interactions.api.events import BaseEvent, RawGatewayEvent, processors
-from interactions.api.events.internal import CallbackAdded
+from interactions.api.events.internal import CallbackAdded, ExtensionLoad
 from interactions.api.gateway.gateway import GatewayClient
 from interactions.api.gateway.state import ConnectionState
 from interactions.api.http.http_client import HTTPClient
@@ -1152,7 +1152,9 @@ class Client(
 
         """
         if listener.event == "event":
-            self.logger.critical(f"Subscribing to `{listener.event}` - Meta Events are very expensive; remember to remove it before releasing your bot")
+            self.logger.critical(
+                f"Subscribing to `{listener.event}` - Meta Events are very expensive; remember to remove it before releasing your bot"
+            )
 
         if not listener.is_default_listener:
             # check that the required intents are enabled
