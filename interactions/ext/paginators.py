@@ -20,7 +20,8 @@ from interactions import (
     StringSelectMenu,
     StringSelectOption,
     Color,
-    BrandColors, )
+    BrandColors,
+)
 from interactions.client.utils.serializer import export_converter
 from interactions.models.discord.emoji import process_emoji, PartialEmoji
 
@@ -434,6 +435,9 @@ class Paginator:
                 return await ctx.defer(edit_origin=True)
         return None
 
+
 def setup(_) -> None:
     """A dummy setup function to trip the extension loader"""
-    raise RuntimeError("`interactions.ext.paginator` should not be loaded as an extension - instead import it and use it in your code.")
+    raise RuntimeError(
+        "`interactions.ext.paginator` should not be loaded as an extension - instead import it and use it in your code."
+    )

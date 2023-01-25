@@ -514,7 +514,7 @@ class Guild(BaseGuild):
 
         for command in data:
             command_permissions = CommandPermissions(client=self._client, command_id=command["id"], guild=self)
-            perms = [ApplicationCommandPermission.from_dict(perm, self) for perm in command["permissions"]]
+            perms = [ApplicationCommandPermission.from_dict(perm, self._client) for perm in command["permissions"]]
 
             command_permissions.update_permissions(*perms)
 
