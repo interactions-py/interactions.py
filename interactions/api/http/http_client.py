@@ -258,25 +258,31 @@ class HTTPClient(
         if not isinstance(files, list):
             files = [files]
 
+        attachments = []
+
         form_data = FormData(quote_fields=False)
-        form_data.add_field("payload_json", FastJson.dumps(payload))
 
         for index, file in enumerate(files):
             file_data = models.open_file(file).read()
 
             if isinstance(file, models.File):
                 form_data.add_field(
-                    f"files[{index}]" if len(files) > 1 else "file",
+                    f"files[{index}]",
                     file_data,
                     filename=file.file_name,
                     content_type=file.content_type if file.content_type else get_file_mimetype(file_data),
                 )
+                attachments.append({"id": index, "description": file.description, "filename": file.file_name})
             else:
                 form_data.add_field(
-                    f"files[{index}]" if len(files) > 1 else "file",
+                    f"files[{index}]",
                     file_data,
                     content_type=get_file_mimetype(file_data),
                 )
+        if attachments:
+            payload["attachments"] = attachments
+
+        form_data.add_field("payload_json", FastJson.dumps(payload))
         return form_data
 
     async def request(
