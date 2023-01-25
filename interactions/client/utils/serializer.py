@@ -1,9 +1,8 @@
-import copy
 from base64 import b64encode
 from datetime import datetime, timezone
-from io import IOBase, BufferedReader
+from io import IOBase
 from pathlib import Path
-from typing import Optional, BinaryIO
+from typing import Optional
 
 from attr import fields, has
 

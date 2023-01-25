@@ -4,6 +4,7 @@ from .internal import *
 from .base import *
 
 __all__ = (
+    "processors",
     "ApplicationCommandPermissionsUpdate",
     "AutocompleteCompletion",
     "AutocompleteError",
