@@ -1,4 +1,4 @@
-from .command import PrefixedCommandParameter, PrefixedCommand, prefixed_command
+from .command import prefixed_command, PrefixedCommand, PrefixedCommandParameter
 from .context import PrefixedContext
 
 from .help import PrefixedHelpCommand
