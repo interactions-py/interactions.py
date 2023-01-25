@@ -6,7 +6,7 @@ import discord_typings
 
 from interactions.client.const import MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils import dict_filter_none, dict_filter
+from interactions.client.utils import dict_filter
 from interactions.models.discord.components import ComponentTypes
 from interactions.models.internal.application_commands import CallbackTypes
 

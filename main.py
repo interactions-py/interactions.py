@@ -3,7 +3,7 @@ import os
 import uuid
 
 import interactions
-from interactions import Client, listen, slash_command, BrandColours, File
+from interactions import Client, listen, slash_command, BrandColours
 
 logging.basicConfig()
 logging.getLogger("interactions").setLevel(logging.DEBUG)
