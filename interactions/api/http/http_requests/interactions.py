@@ -277,7 +277,7 @@ class InteractionRequests(CanRequest):
 
     async def batch_get_application_command_permissions(
         self, application_id: "Snowflake_Type", scope: "Snowflake_Type"
-    ) -> list[discord_typings.ApplicationCommandPermissionsData]:
+    ) -> list[discord_typings.GuildApplicationCommandPermissionData]:
         """
         Get permission data for all commands in a scope.
 
@@ -295,4 +295,4 @@ class InteractionRequests(CanRequest):
                 f"/applications/{int(application_id)}/guilds/{int(scope)}/commands/permissions",
             )
         )
-        return cast(list[discord_typings.ApplicationCommandPermissionsData], result)
+        return cast(list[discord_typings.GuildApplicationCommandPermissionData], result)
