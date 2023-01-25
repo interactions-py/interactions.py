@@ -168,7 +168,7 @@ class _Context(ClientSerializerMixin):
         .. versionchanged:: 4.4.0
             Now returns the created message object
 
-        This "defers" a component response, allowing up
+        This "defers" an interaction response, allowing up
         to a 15-minute delay between invocation and responding.
 
         :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
