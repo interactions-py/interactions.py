@@ -107,7 +107,7 @@ class Jurigged(Extension):
         Jurigged prerun event.
 
         Args:
-            path: Path to file
+            _path: Path to file
             cf: File information
         """
         if self.bot.get_ext(cf.module_name):
@@ -119,7 +119,7 @@ class Jurigged(Extension):
         Jurigged postrun event.
 
         Args:
-            path: Path to file
+            _path: Path to file
             cf: File information
         """
         if self.bot.get_ext(cf.module_name):

@@ -185,6 +185,7 @@ class ScheduledEvent(DiscordObject):
             start_time: The scheduled start time of the event
             end_time: The scheduled end time of the event
             status: The status of the event
+            external_location: The location of the event (1-100 characters)
             entity_metadata: The metadata of the event
             privacy_level: The privacy level of the event
             cover_image: the cover image of the scheduled event
