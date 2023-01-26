@@ -11,3 +11,19 @@ from .user_events import UserEvents
 from .voice_events import VoiceEvents
 from ._template import Processor
 from .auto_mod import AutoModEvents
+
+__all__ = (
+    "ChannelEvents",
+    "GuildEvents",
+    "IntegrationEvents",
+    "MemberEvents",
+    "MessageEvents",
+    "ReactionEvents",
+    "RoleEvents",
+    "StageEvents",
+    "ThreadEvents",
+    "UserEvents",
+    "VoiceEvents",
+    "Processor",
+    "AutoModEvents",
+)

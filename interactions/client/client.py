@@ -26,7 +26,7 @@ from typing import (
 import interactions.api.events as events
 import interactions.client.const as constants
 from interactions.api.events import BaseEvent, RawGatewayEvent, processors
-from interactions.api.events.internal import CallbackAdded, ExtensionLoad
+from interactions.api.events.internal import CallbackAdded
 from interactions.api.gateway.gateway import GatewayClient
 from interactions.api.gateway.state import ConnectionState
 from interactions.api.http.http_client import HTTPClient

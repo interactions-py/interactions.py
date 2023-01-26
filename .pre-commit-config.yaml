@@ -63,6 +63,10 @@ repos:
 #        name: isort Formatting
 #        language: python
 #        types: [file, python]
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.0.0
+    hooks:
+    - id: autoflake
 ci:
   autoupdate_branch: "unstable"
   autofix_prs: true

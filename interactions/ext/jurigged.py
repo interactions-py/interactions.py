@@ -3,7 +3,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Callable, Dict
 
-from interactions import Extension, SlashCommand, listen
+from interactions import Extension, SlashCommand
 from interactions.client.errors import ExtensionLoadException, ExtensionNotFound
 from interactions.client.utils.misc_utils import find
 from interactions.client.const import get_logger
