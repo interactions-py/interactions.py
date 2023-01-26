@@ -640,16 +640,29 @@ __all__ = (
 )
 
 ########################################################################################################################
-# Credits
-# LordOfPolls -- Lead Contributor
-# AlbertUnruh -- Contributor
-# artem30801 -- Contributor
-# Astrea49 -- Contributor
-# benwoo1110 -- Contributor
-# Bluenix2 -- Contributor
-# Kigstn -- Contributor
-# leestarb -- Contributor
-# silasary -- Contributor
-# Wolfhound905 -- Contributor
-# zevaryx -- Contributor
+# Noteworthy Credits
+# LordOfPolls      -- Lead Contributor
+# Eunwoo1104       -- Founder
+# i0bs             -- Ex-Lead Contributor
+# DeltaXWizard     -- Ex-Lead Contributor
+
+# AlbertUnruh      -- Contributor
+# artem30801       -- Contributor
+# Astrea49         -- Contributor
+# benwoo1110       -- Contributor
+# Bluenix2         -- Contributor
+# Catalyst4222     -- Contributor
+# Damego           -- Contributor
+# Dorukyum         -- Contributor
+# Dworv            -- Contributor
+# Jimmy-Blue       -- Contributor
+# Kigstn           -- Contributor
+# leestarb         -- Contributor
+# Nanrech          -- Contributor
+# silasary         -- Contributor
+# Toricane         -- Contributor
+# VArt3mis         -- Contributor
+# Wolfhound905     -- Contributor
+# zevaryx          -- Contributor
+
 ########################################################################################################################
