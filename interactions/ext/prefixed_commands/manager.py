@@ -1,7 +1,7 @@
 import contextlib
 from asyncio import TimeoutError
 from collections import defaultdict
-from typing import Optional, Callable, Any, Coroutine, cast, Iterable
+from typing import Optional, Callable, Any, Coroutine, Self, cast, Iterable
 
 from interactions.api.events.base import RawGatewayEvent
 from interactions.api.events.discord import MessageCreate

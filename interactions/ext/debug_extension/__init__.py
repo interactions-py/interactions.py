@@ -17,11 +17,9 @@ from interactions.models.internal import checks
 from .debug_application_cmd import DebugAppCMD
 from .debug_exec import DebugExec
 from .debug_exts import DebugExts
-from .utils import get_cache_state, debug_embed, strf_delta
+from .utils import get_cache_state, debug_embed
 
 __all__ = ("DebugExtension",)
-
-from interactions.client.utils import get_event_name
 
 
 class DebugExtension(DebugExec, DebugAppCMD, DebugExts, Extension):
