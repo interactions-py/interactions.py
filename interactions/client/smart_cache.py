@@ -643,7 +643,10 @@ class GlobalCache:
             [self.delete_channel(c) for c in guild.channels]
             [self.delete_member(m.id, guild_id) for m in guild.members]
             [self.delete_role(r) for r in guild.roles]
-            # todo: Guilds dont store a list of their emoji, how do we get them so we can cleanup?
+            if self.enable_emoji_cache:  # todo: this is ungodly slow, find a better way to do this
+                for emoji in self.emoji_cache:
+                    if emoji._guild_id == guild_id:  # noqa
+                        self.delete_emoji(emoji)
 
     # endregion Guild cache
 
