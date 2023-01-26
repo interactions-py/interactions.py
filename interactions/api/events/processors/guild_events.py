@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.api.events.discord import (
+    BanCreate,
+    BanRemove,
     GuildAuditLogEntryCreate,
     GuildEmojisUpdate,
     IntegrationCreate,
