@@ -29,7 +29,7 @@ EncoderStructurePointer = ctypes.POINTER(EncoderStructure)
 
 def error_lt(result, func, args) -> int:
     if result < 0:
-        raise Exception
+        raise ValueError(f"Error code: {result}")
     return result
 
 
@@ -37,7 +37,7 @@ def error_ne(result, func, args) -> int:
     # noinspection PyProtectedMember
     ret = args[-1]._obj
     if ret.value != 0:
-        raise Exception
+        raise ValueError(f"Error code: {ret.value}")
     return result
 
 

@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import functools
 import importlib.util
 import inspect
@@ -579,11 +580,8 @@ class Client(
 
         if isinstance(error, HTTPException):
             # HTTPException's are of 3 known formats, we can parse them for human readable errors
-            try:
+            with contextlib.suppress(Exception):
                 out = [str(error)]
-            except Exception:  # noqa : S110
-                pass
-
         get_logger().error(
             "Ignoring exception in {}:{}{}".format(source, "\n" if len(out) > 1 else " ", "".join(out)),
         )
@@ -619,7 +617,7 @@ class Client(
                 ctx=event.ctx,
             )
         )
-        try:
+        with contextlib.suppress(errors.NaffException):
             if isinstance(event.error, errors.CommandOnCooldown):
                 await event.ctx.send(
                     embeds=Embed(
@@ -654,8 +652,6 @@ class Client(
                         description=f"```\n{out[:EMBED_MAX_DESC_LENGTH-8]}```",
                     )
                 )
-        except errors.NaffException:
-            pass
 
     @Listener.create(is_default_listener=True)
     async def on_command_completion(self, event: events.CommandCompletion) -> None:
@@ -907,7 +903,7 @@ class Client(
         except ImportError:
             has_uvloop = False
 
-        try:
+        with contextlib.suppress(KeyboardInterrupt):
             if has_uvloop:
                 self.logger.info("uvloop is installed, using it")
                 if sys.version_info >= (3, 11):
@@ -918,10 +914,6 @@ class Client(
                     asyncio.run(self.astart(token))
             else:
                 asyncio.run(self.astart(token))
-        except KeyboardInterrupt:
-            # ignore, cus this is useless and can be misleading to the
-            # user
-            pass
 
     async def start_gateway(self) -> None:
         """Starts the gateway connection."""
@@ -945,8 +937,7 @@ class Client(
             event: The event to be dispatched.
 
         """
-        listeners = self.listeners.get(event.resolved_name, [])
-        if listeners:
+        if listeners := self.listeners.get(event.resolved_name, []):
             self.logger.debug(f"Dispatching Event: {event.resolved_name}")
             event.bot = self
             for _listen in listeners:
@@ -957,8 +948,7 @@ class Client(
                         f"An error occurred attempting during {event.resolved_name} event processing"
                     ) from e
 
-        _waits = self.waits.get(event.resolved_name, [])
-        if _waits:
+        if _waits := self.waits.get(event.resolved_name, []):
             index_to_remove = []
             for i, _wait in enumerate(_waits):
                 result = _wait(event)
@@ -1031,7 +1021,9 @@ class Client(
         def predicate(event) -> bool:
             if modal.custom_id != event.ctx.custom_id:
                 return False
-            if author and author != to_snowflake(event.ctx.author):
+            if not author:
+                return True
+            elif author != to_snowflake(event.ctx.author):
                 return False
             return True
 
@@ -1162,7 +1154,7 @@ class Client(
             event_class_name = "".join([name.capitalize() for name in listener.event.split("_")])
             if event_class := globals().get(event_class_name):
                 if required_intents := _INTENT_EVENTS.get(event_class):  # noqa
-                    if not any(required_intent in self.intents for required_intent in required_intents):
+                    if all(required_intent not in self.intents for required_intent in required_intents):
                         self.logger.warning(
                             f"Event `{listener.event}` will not work since the required intent is not set -> Requires any of: `{required_intents}`"
                         )
@@ -1246,11 +1238,10 @@ class Client(
         """
         for listener in command.listeners:
             # I know this isn't an ideal solution, but it means we can lookup callbacks with O(1)
-            if listener not in self._component_callbacks.keys():
-                self._component_callbacks[listener] = command
-                continue
-            else:
+            if listener in self._component_callbacks.keys():
                 raise ValueError(f"Duplicate Component! Multiple component callbacks for `{listener}`")
+            self._component_callbacks[listener] = command
+            continue
 
     def add_modal_callback(self, command: ModalCommand) -> None:
         """
@@ -1260,11 +1251,10 @@ class Client(
             command: The command to add
         """
         for listener in command.listeners:
-            if listener not in self._modal_callbacks.keys():
-                self._modal_callbacks[listener] = command
-                continue
-            else:
+            if listener in self._modal_callbacks.keys():
                 raise ValueError(f"Duplicate Component! Multiple modal callbacks for `{listener}`")
+            self._modal_callbacks[listener] = command
+            continue
 
     def add_command(self, func: Callable) -> None:
         """
@@ -1371,12 +1361,11 @@ class Client(
                     cmd_name = str(cmd.name)
                     cmd_data = remote_cmds.get(cmd_name, MISSING)
                     if cmd_data is MISSING:
-                        if cmd_name not in found:
-                            if warn_missing:
-                                self.logger.error(
-                                    f'Detected yet to sync slash command "/{cmd_name}" for scope '
-                                    f"{'global' if scope == GLOBAL_SCOPE else scope}"
-                                )
+                        if cmd_name not in found and warn_missing:
+                            self.logger.error(
+                                f'Detected yet to sync slash command "/{cmd_name}" for scope '
+                                f"{'global' if scope == GLOBAL_SCOPE else scope}"
+                            )
                         continue
                     else:
                         found.add(cmd_name)
@@ -1511,8 +1500,7 @@ class Client(
             command_id = Snowflake(cmd_data["id"])
             command_name = cmd_data["name"]
 
-            command = self.interactions_by_scope[scope].get(command_name)
-            if command:
+            if command := self.interactions_by_scope[scope].get(command_name):
                 command.cmd_id[scope] = command_id
                 self._interaction_lookup[command_id] = command
                 continue
@@ -1526,17 +1514,13 @@ class Client(
                         if subcommand["type"] == OptionTypes.SUB_COMMAND_GROUP:
                             for _sc in subcommand.get("options", []):
                                 subcommand_name = f"{subcommand_name} {_sc['name']}"
-                                command = self.interactions_by_scope[scope].get(subcommand_name)
-                                if command:
+                                if command := self.interactions_by_scope[scope].get(subcommand_name):
                                     command.cmd_id[scope] = command_id
                                     self._interaction_lookup[command_id] = command
-                                    continue
-                        else:
-                            command = self.interactions_by_scope[scope].get(subcommand_name)
-                            if command:
-                                command.cmd_id[scope] = command_id
-                                self._interaction_lookup[command_id] = command
-                                continue
+                        elif command := self.interactions_by_scope[scope].get(subcommand_name):
+                            command.cmd_id[scope] = command_id
+                            self._interaction_lookup[command_id] = command
+                            continue
                         self.logger.warning(f"Could not find command {subcommand_name} in internal cache!")
             self.logger.warning(f"Could not find command {command_name} in internal cache!")
 
@@ -1718,8 +1702,7 @@ class Client(
     def __load_module(self, module, module_name, **load_kwargs) -> None:
         """Internal method that handles loading a module."""
         try:
-            setup = getattr(module, "setup", None)
-            if setup:
+            if setup := getattr(module, "setup", None):
                 setup(self, **load_kwargs)
             else:
                 self.logger.debug("No setup function found in %s", module_name)
@@ -1732,7 +1715,7 @@ class Client(
                         obj(self, **load_kwargs)
                         found = True
                 if not found:
-                    raise Exception(f"{module_name} contains no Extensions")
+                    raise ValueError(f"{module_name} contains no Extensions")
 
         except ExtensionLoadException:
             raise
@@ -1791,11 +1774,9 @@ class Client(
         if module is None and not force:
             raise ExtensionNotFound(f"No extension called {name} is loaded")
 
-        try:
+        with contextlib.suppress(AttributeError):
             teardown = getattr(module, "teardown")
             teardown(**unload_kwargs)
-        except AttributeError:
-            pass
 
         for ext in self.get_extensions(name):
             ext.drop(**unload_kwargs)
@@ -1804,12 +1785,11 @@ class Client(
         self.__modules.pop(name, None)
 
         if self.sync_ext and self._ready.is_set():
-            if self.sync_ext and self._ready.is_set():
-                try:
-                    asyncio.get_running_loop()
-                except RuntimeError:
-                    return
-                asyncio.create_task(self.synchronise_interactions())
+            try:
+                asyncio.get_running_loop()
+            except RuntimeError:
+                return
+            asyncio.create_task(self.synchronise_interactions())
 
     def reload_extension(
         self,
@@ -2137,8 +2117,7 @@ class Client(
 
         """
         regions_data = await self.http.list_voice_regions()
-        regions = VoiceRegion.from_list(regions_data)
-        return regions
+        return VoiceRegion.from_list(regions_data)
 
     async def connect_to_vc(
         self,

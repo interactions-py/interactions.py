@@ -183,7 +183,7 @@ class VoiceGateway(WebsocketClient):
                 self.ssrc = data["ssrc"]
                 self.voice_modes = [mode for mode in data["modes"] if mode in Encryption.SUPPORTED]
 
-                if len(self.voice_modes) == 0:
+                if not self.voice_modes:
                     self.logger.critical("NO VOICE ENCRYPTION MODES SHARED WITH GATEWAY!")
 
                 await self.establish_voice_socket()

@@ -145,43 +145,38 @@ class ConnectionState:
             Bots may only be `playing` `streaming` `listening` `watching` or `competing`, other activity types are likely to fail.
 
         """
-        if activity is not MISSING:
-            if activity is None:
-                activity = []
-            else:
-                if not isinstance(activity, Activity):
-                    # squash whatever the user passed into an activity
-                    activity = Activity.create(name=str(activity))
-
-                if activity.type == ActivityType.STREAMING:
-                    if not activity.url:
-                        self.logger.warning("Streaming activity cannot be set without a valid URL attribute")
-                elif activity.type not in [
-                    ActivityType.GAME,
-                    ActivityType.STREAMING,
-                    ActivityType.LISTENING,
-                    ActivityType.WATCHING,
-                    ActivityType.COMPETING,
-                ]:
-                    self.logger.warning(
-                        f"Activity type `{ActivityType(activity.type).name}` may not be enabled for bots"
-                    )
-        else:
+        if activity is MISSING:
             activity = self.client.activity
 
+        elif activity is None:
+            activity = []
+        else:
+            if not isinstance(activity, Activity):
+                # squash whatever the user passed into an activity
+                activity = Activity.create(name=str(activity))
+
+            if activity.type == ActivityType.STREAMING:
+                if not activity.url:
+                    self.logger.warning("Streaming activity cannot be set without a valid URL attribute")
+            elif activity.type not in [
+                ActivityType.GAME,
+                ActivityType.STREAMING,
+                ActivityType.LISTENING,
+                ActivityType.WATCHING,
+                ActivityType.COMPETING,
+            ]:
+                self.logger.warning(f"Activity type `{ActivityType(activity.type).name}` may not be enabled for bots")
         if status:
             if not isinstance(status, Status):
                 try:
                     status = Status[status.upper()]
                 except KeyError:
                     raise ValueError(f"`{status}` is not a valid status type. Please use the Status enum") from None
+        elif self.client.status:
+            status = self.client.status
         else:
-            # in case the user set status to None
-            if self.client.status:
-                status = self.client.status
-            else:
-                self.logger.warning("Status must be set to a valid status type, defaulting to online")
-                status = Status.ONLINE
+            self.logger.warning("Status must be set to a valid status type, defaulting to online")
+            status = Status.ONLINE
 
         self.client._status = status
         self.client._activity = activity

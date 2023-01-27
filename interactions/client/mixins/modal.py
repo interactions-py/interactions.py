@@ -22,7 +22,7 @@ class ModalMixin:
         """Send a modal to the user."""
         if self.responded:
             raise RuntimeError("Cannot send modal after responding")
-        payload = modal.to_dict() if not isinstance(modal, dict) else modal
+        payload = modal if isinstance(modal, dict) else modal.to_dict()
 
         await self.client.http.post_initial_response(payload, self.id, self.token)
 

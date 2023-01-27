@@ -1,3 +1,4 @@
+import contextlib
 import uuid
 from abc import abstractmethod
 from typing import Any, Dict, Iterator, List, Optional, TYPE_CHECKING, Union
@@ -83,11 +84,9 @@ class BaseComponent(DictSerializationMixin):
 
         mapping = alternate_mapping or TYPE_COMPONENT_MAPPING
 
-        component_class = mapping.get(component_type, None)
-        if not component_class:
-            raise TypeError(f"Unsupported component type for {data} ({component_type}), please consult the docs.")
-
-        return component_class.from_dict(data)
+        if component_class := mapping.get(component_type, None):
+            return component_class.from_dict(data)
+        raise TypeError(f"Unsupported component type for {data} ({component_type}), please consult the docs.")
 
 
 class InteractiveComponent(BaseComponent):
@@ -230,16 +229,14 @@ class Button(InteractiveComponent):
 
         self.type: ComponentTypes = ComponentTypes.BUTTON
 
-        if self.style != ButtonStyles.URL:
-            # automatically set the custom_id if it's not a URL button, and it's not already set
-            if self.custom_id is None:
-                self.custom_id = str(uuid.uuid4())
-        else:
+        if self.style == ButtonStyles.URL:
             if self.custom_id is not None:
                 raise ValueError("URL buttons cannot have a custom_id.")
             if self.url is None:
                 raise ValueError("URL buttons must have a url.")
 
+        elif self.custom_id is None:
+            self.custom_id = str(uuid.uuid4())
         if not self.label and not self.emoji:
             raise ValueError("Buttons must have a label or an emoji.")
 
@@ -360,13 +357,10 @@ class StringSelectOption(BaseComponent):
         if isinstance(value, str):
             return cls(label=value, value=value)
 
-        try:
+        with contextlib.suppress(TypeError):
             possible_iter = iter(value)
 
             return cls(label=possible_iter[0], value=possible_iter[1])
-        except TypeError:
-            pass
-
         raise TypeError(f"Cannot convert {value} of type {type(value)} to a SelectOption")
 
     @classmethod

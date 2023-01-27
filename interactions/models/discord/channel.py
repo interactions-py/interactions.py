@@ -450,9 +450,12 @@ class MessageableMixin(SendMixin):
                 # fails predicate
                 continue
 
-            if avoid_loading_msg:
-                if message._author_id == self._client.user.id and MessageFlags.LOADING in message.flags:
-                    continue
+            if (
+                avoid_loading_msg
+                and message._author_id == self._client.user.id
+                and MessageFlags.LOADING in message.flags
+            ):
+                continue
 
             if message.id < fourteen_days_ago:
                 # message is too old to be purged
@@ -694,11 +697,11 @@ class ThreadableMixin:
                 removed_thread_ids.append(thread["id"])
         threads_data["threads"] = cleaned_threads_data_threads
 
-        # delete the member data which is not needed
-        cleaned_member_data_threads = []
-        for thread_member in threads_data["members"]:
-            if thread_member["id"] not in removed_thread_ids:
-                cleaned_member_data_threads.append(thread_member)
+        cleaned_member_data_threads = [
+            thread_member
+            for thread_member in threads_data["members"]
+            if thread_member["id"] not in removed_thread_ids
+        ]
         threads_data["members"] = cleaned_member_data_threads
 
         return models.ThreadList.from_dict(threads_data, self._client)
@@ -782,7 +785,7 @@ class BaseChannel(DiscordObject):
             The new channel object.
 
         """
-        channel_type = data.get("type", None)
+        channel_type = data.get("type")
         channel_class = TYPE_CHANNEL_MAPPING.get(channel_type, None)
         if not channel_class:
             client.logger.error(f"Unsupported channel type for {data} ({channel_type}).")
@@ -1054,26 +1057,23 @@ class GuildChannel(BaseChannel):
             if is_member:
                 return instance.channel_permissions(self)
 
-            else:
-                permissions = instance.permissions
+            permissions = instance.permissions
 
-                for overwrite in self.permission_overwrites:
-                    if overwrite.id == instance.id:
-                        permissions &= ~overwrite.deny
-                        permissions |= overwrite.allow
-                        break
+            for overwrite in self.permission_overwrites:
+                if overwrite.id == instance.id:
+                    permissions &= ~overwrite.deny
+                    permissions |= overwrite.allow
+                    break
 
-                return permissions
+            return permissions
 
         else:
             instance = to_snowflake(instance)
             guild = self.guild
-            instance = guild.get_member(instance) or guild.get_role(instance)
-
-            if not instance:
+            if instance := guild.get_member(instance) or guild.get_role(instance):
+                return self.permissions_for(instance)
+            else:
                 raise ValueError("Unable to find any member or role by given instance ID")
-
-            return self.permissions_for(instance)
 
     async def add_permission(
         self,
@@ -1307,7 +1307,7 @@ class GuildChannel(BaseChannel):
         """
         return await self.guild.create_channel(
             channel_type=self.type,
-            name=name if name else self.name,
+            name=name or self.name,
             topic=getattr(self, "topic", MISSING),
             position=self.position,
             permission_overwrites=self.permission_overwrites,
@@ -2360,10 +2360,9 @@ class GuildStageVoice(GuildVoice):
             reason: The reason for closing the stage
 
         """
-        if not self.stage_instance:
+        if not self.stage_instance and not await self.get_stage_instance():
             # we dont know of an active stage instance, so lets check for one
-            if not await self.get_stage_instance():
-                raise ValueError("No stage instance found")
+            raise ValueError("No stage instance found")
 
         await self.stage_instance.delete(reason=reason)
 

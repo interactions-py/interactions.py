@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import shutil
 import threading
 from asyncio import AbstractEventLoop, run_coroutine_threadsafe
@@ -45,10 +46,8 @@ class Player(threading.Thread):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        try:
+        with contextlib.suppress(AttributeError):
             self.state.ws.cond = None
-        except AttributeError:
-            pass
 
     def stop(self) -> None:
         """Stop playing completely."""
@@ -129,12 +128,11 @@ class Player(threading.Thread):
 
                 if data := self.current_audio.read(self._encoder.frame_size):
                     self.state.ws.send_packet(data, self._encoder, needs_encode=self.current_audio.needs_encode)
+                elif self.current_audio.locked_stream or not self.current_audio.audio_complete:
+                    # if more audio is expected
+                    self.state.ws.send_packet(b"\xF8\xFF\xFE", self._encoder, needs_encode=False)
                 else:
-                    if self.current_audio.locked_stream or not self.current_audio.audio_complete:
-                        # if more audio is expected
-                        self.state.ws.send_packet(b"\xF8\xFF\xFE", self._encoder, needs_encode=False)
-                    else:
-                        break
+                    break
 
                 if not start:
                     start = perf_counter()
