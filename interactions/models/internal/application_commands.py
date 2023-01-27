@@ -944,6 +944,7 @@ def slash_option(
         opt_type: The type of option
         description: 1-100 character description of option
         required: If the parameter is required or optional--default false
+        autocomplete: If autocomplete interactions are enabled for this STRING, INTEGER, or NUMBER type option
         choices: A list of choices the user has to pick between (max 25)
         channel_types: The channel types permitted. The option needs to be a channel
         min_value: The minimum value permitted. The option needs to be an integer or float

@@ -566,7 +566,6 @@ class GlobalCache:
 
         Args:
             channel_id: The channel to be deleted
-            guild_id: A guild to delete references of this channel from.
         """
         channel_id = to_snowflake(channel_id)
         channel = self.channel_cache.pop(channel_id, None)
