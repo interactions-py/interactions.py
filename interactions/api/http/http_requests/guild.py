@@ -218,6 +218,9 @@ class GuildRequests(CanRequest):
 
         Args:
             guild_id: The ID of the guild to query
+            before: snowflake to get entries before
+            after: snowflake to get entries after
+            limit: max number of entries to get
 
         Returns:
             List of ban objects
@@ -394,7 +397,7 @@ class GuildRequests(CanRequest):
             position_changes: A list of dicts representing the roles to move and their new positions
 
             ``{"id": role_id, "position": new_position}``
-            position: The new position of this role in the hierarchy
+
             reason: The reason for this action
 
         Returns:
@@ -524,6 +527,7 @@ class GuildRequests(CanRequest):
         Args:
             guild_id: The ID of the guild
             integration_id: The ID of the integration to remove
+            reason: The reason for this action
 
         """
         await self.request(
