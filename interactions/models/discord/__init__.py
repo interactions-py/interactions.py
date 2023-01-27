@@ -67,7 +67,7 @@ from .components import (
 )
 
 from .embed import Embed, EmbedAttachment, EmbedAuthor, EmbedField, EmbedFooter, EmbedProvider
-from .emoji import PartialEmoji, CustomEmoji
+from .emoji import PartialEmoji, CustomEmoji, process_emoji_req_format, process_emoji
 from .enums import (
     WebSocketOPCodes,
     Intents,
@@ -241,6 +241,8 @@ __all__ = (
     "ApplicationFlags",
     "TeamMembershipState",
     "PremiumTypes",
+    "process_emoji",
+    "process_emoji_req_format",
     "MessageTypes",
     "MessageActivityTypes",
     "MessageFlags",
