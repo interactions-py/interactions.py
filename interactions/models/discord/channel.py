@@ -698,9 +698,7 @@ class ThreadableMixin:
         threads_data["threads"] = cleaned_threads_data_threads
 
         cleaned_member_data_threads = [
-            thread_member
-            for thread_member in threads_data["members"]
-            if thread_member["id"] not in removed_thread_ids
+            thread_member for thread_member in threads_data["members"] if thread_member["id"] not in removed_thread_ids
         ]
         threads_data["members"] = cleaned_member_data_threads
 

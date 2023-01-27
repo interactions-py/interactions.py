@@ -822,7 +822,7 @@ class AutocompleteContext(BaseInteractionContext):
         elif self.focused_option.type == OptionTypes.NUMBER:
             type_cast = float
         else:
-            type_cast = lambda x: x
+            type_cast = None
 
         processed_choices = []
         for choice in choices:
@@ -833,4 +833,4 @@ class AutocompleteContext(BaseInteractionContext):
                 name = str(choice)
                 value = choice
 
-            processed_choices.append({"name": name, "value": type_cast(value)})
+            processed_choices.append({"name": name, "value": type_cast(value) if type_cast else value})
