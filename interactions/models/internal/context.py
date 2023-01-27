@@ -464,6 +464,8 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             **kwargs,
         )
 
+    respond = send
+
     async def delete(self, message: "Snowflake_Type") -> None:
         """
         Delete a message sent in response to this interaction.
