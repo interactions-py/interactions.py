@@ -168,7 +168,9 @@ class HTTPClient(
 ):
     """A http client for sending requests to the Discord API."""
 
-    def __init__(self, connector: BaseConnector | None = None, logger: Logger = MISSING, show_ratelimit_tracebacks: bool=False) -> None:
+    def __init__(
+        self, connector: BaseConnector | None = None, logger: Logger = MISSING, show_ratelimit_tracebacks: bool = False
+    ) -> None:
         self.connector: BaseConnector | None = connector
         self.__session: ClientSession | None = None
         self.token: str | None = None
