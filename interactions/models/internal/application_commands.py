@@ -82,9 +82,8 @@ def name_validator(_: Any, attr: Attribute, value: str) -> None:
 
 
 def desc_validator(_: Any, attr: Attribute, value: str) -> None:
-    if value:
-        if not 1 <= len(value) <= SLASH_CMD_MAX_DESC_LENGTH:
-            raise ValueError(f"Description must be between 1 and {SLASH_CMD_MAX_DESC_LENGTH} characters long")
+    if value and not 1 <= len(value) <= SLASH_CMD_MAX_DESC_LENGTH:
+        raise ValueError(f"Description must be between 1 and {SLASH_CMD_MAX_DESC_LENGTH} characters long")
 
 
 @attrs.define(
@@ -218,9 +217,8 @@ class InteractionCommand(BaseCommand):
     _application_id: "Snowflake_Type" = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
 
     def __attrs_post_init__(self) -> None:
-        if self.callback is not None:
-            if hasattr(self.callback, "auto_defer"):
-                self.auto_defer = self.callback.auto_defer
+        if self.callback is not None and hasattr(self.callback, "auto_defer"):
+            self.auto_defer = self.callback.auto_defer
 
         super().__attrs_post_init__()
 
@@ -395,7 +393,7 @@ class SlashCommandOption(DictSerializationMixin):
 
     @type.validator
     def _type_validator(self, attribute: str, value: int) -> None:
-        if value == OptionTypes.SUB_COMMAND or value == OptionTypes.SUB_COMMAND_GROUP:
+        if value in (OptionTypes.SUB_COMMAND, OptionTypes.SUB_COMMAND_GROUP):
             raise ValueError(
                 "Options cannot be SUB_COMMAND or SUB_COMMAND_GROUP. If you want to use subcommands, "
                 "see the @sub_command() decorator."
@@ -415,30 +413,26 @@ class SlashCommandOption(DictSerializationMixin):
     @min_value.validator
     def _min_value_validator(self, attribute: str, value: Optional[float]) -> None:
         if value is not None:
-            if self.type != OptionTypes.INTEGER and self.type != OptionTypes.NUMBER:
+            if self.type not in [OptionTypes.INTEGER, OptionTypes.NUMBER]:
                 raise ValueError("`min_value` can only be supplied with int or float options")
 
-            if self.type == OptionTypes.INTEGER:
-                if isinstance(value, float):
-                    raise ValueError("`min_value` needs to be an int in an int option")
+            if self.type == OptionTypes.INTEGER and isinstance(value, float):
+                raise ValueError("`min_value` needs to be an int in an int option")
 
-            if self.max_value is not None and self.min_value is not None:
-                if self.max_value < self.min_value:
-                    raise ValueError("`min_value` needs to be <= than `max_value`")
+            if self.max_value is not None and self.min_value is not None and self.max_value < self.min_value:
+                raise ValueError("`min_value` needs to be <= than `max_value`")
 
     @max_value.validator
     def _max_value_validator(self, attribute: str, value: Optional[float]) -> None:
         if value is not None:
-            if self.type != OptionTypes.INTEGER and self.type != OptionTypes.NUMBER:
+            if self.type not in (OptionTypes.INTEGER, OptionTypes.NUMBER):
                 raise ValueError("`max_value` can only be supplied with int or float options")
 
-            if self.type == OptionTypes.INTEGER:
-                if isinstance(value, float):
-                    raise ValueError("`max_value` needs to be an int in an int option")
+            if self.type == OptionTypes.INTEGER and isinstance(value, float):
+                raise ValueError("`max_value` needs to be an int in an int option")
 
-            if self.max_value and self.min_value:
-                if self.max_value < self.min_value:
-                    raise ValueError("`min_value` needs to be <= than `max_value`")
+            if self.max_value and self.min_value and self.max_value < self.min_value:
+                raise ValueError("`min_value` needs to be <= than `max_value`")
 
     @min_length.validator
     def _min_length_validator(self, attribute: str, value: Optional[int]) -> None:
@@ -446,9 +440,8 @@ class SlashCommandOption(DictSerializationMixin):
             if self.type != OptionTypes.STRING:
                 raise ValueError("`min_length` can only be supplied with string options")
 
-            if self.max_length is not None and self.min_length is not None:
-                if self.max_length < self.min_length:
-                    raise ValueError("`min_length` needs to be <= than `max_length`")
+            if self.max_length is not None and self.min_length is not None and self.max_length < self.min_length:
+                raise ValueError("`min_length` needs to be <= than `max_length`")
 
             if self.min_length < 0:
                 raise ValueError("`min_length` needs to be >= 0")
@@ -459,9 +452,8 @@ class SlashCommandOption(DictSerializationMixin):
             if self.type != OptionTypes.STRING:
                 raise ValueError("`max_length` can only be supplied with string options")
 
-            if self.min_length is not None and self.max_length is not None:
-                if self.max_length < self.min_length:
-                    raise ValueError("`min_length` needs to be <= than `max_length`")
+            if self.min_length is not None and self.max_length is not None and self.max_length < self.min_length:
+                raise ValueError("`min_length` needs to be <= than `max_length`")
 
             if self.max_length < 1:
                 raise ValueError("`max_length` needs to be >= 1")
@@ -572,18 +564,16 @@ class SlashCommand(InteractionCommand):
     @options.validator
     def options_validator(self, attribute: str, value: List) -> None:
         if value:
-            if isinstance(value, list):
-                if len(value) > SLASH_CMD_MAX_OPTIONS:
-                    raise ValueError(f"Slash commands can only hold {SLASH_CMD_MAX_OPTIONS} options")
-                if value != sorted(
-                    value,
-                    key=lambda x: x.required if isinstance(x, SlashCommandOption) else x["required"],
-                    reverse=True,
-                ):
-                    raise ValueError("Required options must go before optional options")
-
-            else:
+            if not isinstance(value, list):
                 raise TypeError("Options attribute must be either None or a list of options")
+            if len(value) > SLASH_CMD_MAX_OPTIONS:
+                raise ValueError(f"Slash commands can only hold {SLASH_CMD_MAX_OPTIONS} options")
+            if value != sorted(
+                value,
+                key=lambda x: x.required if isinstance(x, SlashCommandOption) else x["required"],
+                reverse=True,
+            ):
+                raise ValueError("Required options must go before optional options")
 
     def autocomplete(self, option_name: str) -> Callable[..., Coroutine]:
         """A decorator to declare a coroutine as an option autocomplete."""
@@ -742,7 +732,7 @@ def slash_command(
 
         _description = description
         if _description is MISSING:
-            _description = func.__doc__ if func.__doc__ else "No Description Set"
+            _description = func.__doc__ or "No Description Set"
 
         cmd = SlashCommand(
             name=name,
@@ -751,7 +741,7 @@ def slash_command(
             sub_cmd_name=sub_cmd_name,
             sub_cmd_description=sub_cmd_description,
             description=_description,
-            scopes=scopes if scopes else [GLOBAL_SCOPE],
+            scopes=scopes or [GLOBAL_SCOPE],
             default_member_permissions=perm,
             dm_permission=dm_permission,
             callback=func,
@@ -809,7 +799,7 @@ def subcommand(
 
         _description = description
         if _description is MISSING:
-            _description = func.__doc__ if func.__doc__ else "No Description Set"
+            _description = func.__doc__ or "No Description Set"
 
         cmd = SlashCommand(
             name=base,
@@ -820,7 +810,7 @@ def subcommand(
             sub_cmd_description=_description,
             default_member_permissions=base_default_member_permissions,
             dm_permission=base_dm_permission,
-            scopes=scopes if scopes else [GLOBAL_SCOPE],
+            scopes=scopes or [GLOBAL_SCOPE],
             callback=func,
             options=options,
             nsfw=nsfw,
@@ -866,7 +856,7 @@ def context_menu(
         cmd = ContextMenu(
             name=name,
             type=context_type,
-            scopes=scopes if scopes else [GLOBAL_SCOPE],
+            scopes=scopes or [GLOBAL_SCOPE],
             default_member_permissions=perm,
             dm_permission=dm_permission,
             callback=func,
@@ -955,7 +945,7 @@ def slash_option(
 
     def wrapper(func: SlashCommandT) -> SlashCommandT:
         if hasattr(func, "cmd_id"):
-            raise Exception("slash_option decorators must be positioned under a slash_command decorator")
+            raise ValueError("slash_option decorators must be positioned under a slash_command decorator")
 
         option = SlashCommandOption(
             name=name,
@@ -963,7 +953,7 @@ def slash_option(
             description=description,
             required=required,
             autocomplete=autocomplete,
-            choices=choices if choices else [],
+            choices=choices or [],
             channel_types=channel_types,
             min_value=min_value,
             max_value=max_value,
@@ -991,7 +981,7 @@ def slash_default_member_permission(
 
     def wrapper(func: SlashCommandT) -> SlashCommandT:
         if hasattr(func, "cmd_id"):
-            raise Exception(
+            raise ValueError(
                 "slash_default_member_permission decorators must be positioned under a slash_command decorator"
             )
 
@@ -1016,7 +1006,7 @@ def auto_defer(ephemeral: bool = False, time_until_defer: float = 0.0) -> Callab
 
     def wrapper(func: InterCommandT) -> InterCommandT:
         if hasattr(func, "cmd_id"):
-            raise Exception("auto_defer decorators must be positioned under a slash_command decorator")
+            raise ValueError("auto_defer decorators must be positioned under a slash_command decorator")
         func.auto_defer = AutoDefer(enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer)
         return func
 
@@ -1097,15 +1087,15 @@ def application_commands_to_dict(
             )
             nsfw = cmd_list[0].nsfw
 
-            if not all(str(c.description) in (str(base_description), "No Description Set") for c in cmd_list):
+            if any(str(c.description) not in (str(base_description), "No Description Set") for c in cmd_list):
                 client.logger.warning(
                     f"Conflicting descriptions found in `{cmd_list[0].name}` subcommands; `{str(base_description)}` will be used"
                 )
-            if not all(c.default_member_permissions == cmd_list[0].default_member_permissions for c in cmd_list):
+            if any(c.default_member_permissions != cmd_list[0].default_member_permissions for c in cmd_list):
                 raise ValueError(f"Conflicting `default_member_permissions` values found in `{cmd_list[0].name}`")
-            if not all(c.dm_permission == cmd_list[0].dm_permission for c in cmd_list):
+            if any(c.dm_permission != cmd_list[0].dm_permission for c in cmd_list):
                 raise ValueError(f"Conflicting `dm_permission` values found in `{cmd_list[0].name}`")
-            if not all(c.nsfw == nsfw for c in cmd_list):
+            if any(c.nsfw != nsfw for c in cmd_list):
                 client.logger.warning(f"Conflicting `nsfw` values found in {cmd_list[0].name} - `True` will be used")
                 nsfw = True
 
@@ -1182,22 +1172,21 @@ def _compare_options(local_opt_list: dict, remote_opt_list: dict) -> bool:
             local_option = local_opt_list[i]
             remote_option = remote_opt_list[i]
 
-            if local_option["type"] == remote_option["type"]:
-                if local_option["type"] in (OptionTypes.SUB_COMMAND_GROUP, OptionTypes.SUB_COMMAND):
-                    if not _compare_commands(local_option, remote_option) or not _compare_options(
-                        local_option.get("options", []), remote_option.get("options", [])
+            if local_option["type"] != remote_option["type"]:
+                return False
+            if local_option["type"] in (OptionTypes.SUB_COMMAND_GROUP, OptionTypes.SUB_COMMAND):
+                if not _compare_commands(local_option, remote_option) or not _compare_options(
+                    local_option.get("options", []), remote_option.get("options", [])
+                ):
+                    return False
+            else:
+                for local_name, comparison_data in options_lookup.items():
+                    remote_name, default_value = comparison_data
+                    if local_option.get(local_name, default_value) != post_process.get(remote_name, lambda name: name)(
+                        remote_option.get(remote_name, default_value)
                     ):
                         return False
-                else:
-                    for local_name, comparison_data in options_lookup.items():
-                        remote_name, default_value = comparison_data
-                        if local_option.get(local_name, default_value) != post_process.get(
-                            remote_name, lambda name: name
-                        )(remote_option.get(remote_name, default_value)):
-                            return False
 
-            else:
-                return False
     return True
 
 

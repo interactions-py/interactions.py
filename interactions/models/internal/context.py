@@ -38,7 +38,7 @@ from interactions.models.internal.application_commands import (
     InteractionCommand,
 )
 
-__all__ = [
+__all__ = (
     "AutocompleteContext",
     "BaseContext",
     "BaseInteractionContext",
@@ -48,7 +48,7 @@ __all__ = [
     "ModalContext",
     "Resolved",
     "SlashContext",
-]
+)
 
 
 if typing.TYPE_CHECKING:
@@ -508,11 +508,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         )
 
         if file:
-            if files:
-                files = [file, *files]
-            else:
-                files = [file]
-
+            files = (file, *files) if files else (file,)
         message_data = await self.client.http.edit_interaction_message(
             payload=message_payload,
             application_id=self.client.app.id,
@@ -643,6 +639,15 @@ class ComponentContext(InteractionContext):
         instance.custom_id = payload["data"]["custom_id"]
         instance.component_type = payload["data"]["component_type"]
 
+        searches = {
+            "users": instance.component_type in (ComponentTypes.USER_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+            "members": instance.guild_id
+            and instance.component_type in (ComponentTypes.USER_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+            "channels": instance.component_type in (ComponentTypes.CHANNEL_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+            "roles": instance.guild_id
+            and instance.component_type in (ComponentTypes.ROLE_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+        }
+
         if instance.component_type in (
             ComponentTypes.USER_SELECT,
             ComponentTypes.CHANNEL_SELECT,
@@ -655,28 +660,14 @@ class ComponentContext(InteractionContext):
 
                     if resolved := instance.resolved.get(key):
                         instance.values[i] = resolved
-                    else:
-                        searches = {
-                            "users": instance.component_type
-                            in (ComponentTypes.USER_SELECT, ComponentTypes.MENTIONABLE_SELECT),
-                            "members": instance.guild_id
-                            and instance.component_type
-                            in (ComponentTypes.USER_SELECT, ComponentTypes.MENTIONABLE_SELECT),
-                            "channels": instance.component_type
-                            in (ComponentTypes.CHANNEL_SELECT, ComponentTypes.MENTIONABLE_SELECT),
-                            "roles": instance.guild_id
-                            and instance.component_type
-                            in (ComponentTypes.ROLE_SELECT, ComponentTypes.MENTIONABLE_SELECT),
-                        }
-
-                        if searches["members"] and (member := instance.client.cache.get_member(instance.guild_id, key)):
-                            instance.values[i] = member
-                        elif searches["users"] and (user := instance.client.cache.get_user(key)):
-                            instance.values[i] = user
-                        elif searches["roles"] and (role := instance.client.cache.get_role(key)):
-                            instance.values[i] = role
-                        elif searches["channels"] and (channel := instance.client.cache.get_channel(key)):
-                            instance.values[i] = channel
+                    elif searches["members"] and (member := instance.client.cache.get_member(instance.guild_id, key)):
+                        instance.values[i] = member
+                    elif searches["users"] and (user := instance.client.cache.get_user(key)):
+                        instance.values[i] = user
+                    elif searches["roles"] and (role := instance.client.cache.get_role(key)):
+                        instance.values[i] = role
+                    elif searches["channels"] and (channel := instance.client.cache.get_channel(key)):
+                        instance.values[i] = channel
         return instance
 
     async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
@@ -824,9 +815,17 @@ class AutocompleteContext(BaseInteractionContext):
         Args:
             choices: 25 choices the user can pick
         """
+        if self.focused_option.type == OptionTypes.STRING:
+            type_cast = str
+        elif self.focused_option.type == OptionTypes.INTEGER:
+            type_cast = int
+        elif self.focused_option.type == OptionTypes.NUMBER:
+            type_cast = float
+        else:
+            type_cast = lambda x: x
+
         processed_choices = []
         for choice in choices:
-            name = None
             if isinstance(choice, dict):
                 name = choice["name"]
                 value = choice["value"]
@@ -834,14 +833,4 @@ class AutocompleteContext(BaseInteractionContext):
                 name = str(choice)
                 value = choice
 
-            if self.focused_option.type == OptionTypes.STRING:
-                if not isinstance(value, str):
-                    value = str(value)
-            elif self.focused_option.type == OptionTypes.INTEGER:
-                if not isinstance(value, int):
-                    value = int(value)
-            elif self.focused_option.type == OptionTypes.NUMBER:
-                if not isinstance(value, float):
-                    value = float(value)
-
-            processed_choices.append({"name": name, "value": value})
+            processed_choices.append({"name": name, "value": type_cast(value)})

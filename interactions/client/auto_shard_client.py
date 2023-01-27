@@ -130,7 +130,7 @@ class AutoShardedClient(Client):
         shard_id, total_shards = connection_data["shard"]
         connection_state = next((state for state in self._connection_states if state.shard_id == shard_id), None)
 
-        if len(expected_guilds) != 0:
+        if expected_guilds:
             while True:
                 try:
                     await asyncio.wait_for(self._guild_event.wait(), self.guild_event_timeout)

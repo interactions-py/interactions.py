@@ -254,7 +254,7 @@ class HTTPClient(
             return payload
 
         if not isinstance(files, list):
-            files = [files]
+            files = (files,)
 
         attachments = []
 

@@ -103,11 +103,10 @@ class Task:
             if fire_time is None:
                 return self.stop()
 
-            try:
-                await asyncio.wait_for(self._stop.wait(), max(0.0, (fire_time - datetime.now()).total_seconds()))
-            except asyncio.TimeoutError:
-                pass
-            else:
+            future = asyncio.create_task(self._stop.wait())
+            timeout = (fire_time - datetime.now()).total_seconds()
+            done, _ = await asyncio.wait([future], timeout=timeout, return_when=asyncio.FIRST_COMPLETED)
+            if future in done:
                 return None
 
             self._fire(fire_time)
