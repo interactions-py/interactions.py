@@ -6,7 +6,7 @@ from ...utils.missing import MISSING
 from ...utils.utils import search_iterable
 from ..error import LibraryException
 from .channel import Channel
-from .flags import Permissions, MemberFlags
+from .flags import MemberFlags, Permissions
 from .misc import AllowedMentions, File, IDMixin, Snowflake
 from .role import Role
 from .user import User

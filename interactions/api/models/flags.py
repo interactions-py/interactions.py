@@ -2,7 +2,15 @@ from enum import IntFlag
 
 from ...client.enums import StrEnum
 
-__all__ = ("Intents", "AppFlags", "StatusType", "UserFlags", "Permissions", "MessageFlags", "MemberFlags")
+__all__ = (
+    "Intents",
+    "AppFlags",
+    "StatusType",
+    "UserFlags",
+    "Permissions",
+    "MessageFlags",
+    "MemberFlags",
+)
 
 
 class Intents(IntFlag):
