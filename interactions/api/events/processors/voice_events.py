@@ -32,7 +32,7 @@ class VoiceEvents(EventMixinTemplate):
                 self.dispatch(events.VoiceUserMove(after, after.member, before.channel, after.channel))
         elif not before and after:
             self.dispatch(events.VoiceUserJoin(after, after.member, after.channel))
-        elif before and not after:
+        elif before:
             self.dispatch(events.VoiceUserLeave(before, before.member, before.channel))
 
     @Processor.define()

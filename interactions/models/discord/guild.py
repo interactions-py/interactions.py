@@ -631,26 +631,25 @@ class Guild(BaseGuild):
 
         if chunk.get("chunk_index") != chunk.get("chunk_count") - 1:
             return self.logger.debug(f"Cached chunk of {len(chunk.get('members'))} members for {self.id}")
-        else:
-            members = self._chunk_cache
-            self.logger.info(f"Processing {len(members)} members for {self.id}")
+        members = self._chunk_cache
+        self.logger.info(f"Processing {len(members)} members for {self.id}")
 
-            s = time.monotonic()
-            start_time = time.perf_counter()
+        s = time.monotonic()
+        start_time = time.perf_counter()
 
-            for member in members:
-                self._client.cache.place_member_data(self.id, member)
-                if (time.monotonic() - s) > 0.05:
-                    # look, i get this *could* be a thread, but because it needs to modify data in the main thread,
-                    # it is still blocking. So by periodically yielding to the event loop, we can avoid blocking, and still
-                    # process this data properly
-                    await asyncio.sleep(0)
-                    s = time.monotonic()
+        for member in members:
+            self._client.cache.place_member_data(self.id, member)
+            if (time.monotonic() - s) > 0.05:
+                # look, i get this *could* be a thread, but because it needs to modify data in the main thread,
+                # it is still blocking. So by periodically yielding to the event loop, we can avoid blocking, and still
+                # process this data properly
+                await asyncio.sleep(0)
+                s = time.monotonic()
 
-            total_time = time.perf_counter() - start_time
-            self.chunk_cache = []
-            self.logger.info(f"Cached members for {self.id} in {total_time:.2f} seconds")
-            self.chunked.set()
+        total_time = time.perf_counter() - start_time
+        self.chunk_cache = []
+        self.logger.info(f"Cached members for {self.id} in {total_time:.2f} seconds")
+        self.chunked.set()
 
     async def fetch_audit_log(
         self,
@@ -1283,9 +1282,8 @@ class Guild(BaseGuild):
         if external_location is not MISSING:
             entity_metadata = {"location": external_location}
 
-        if event_type == ScheduledEventType.EXTERNAL:
-            if external_location == MISSING:
-                raise EventLocationNotProvided("Location is required for external events")
+        if event_type == ScheduledEventType.EXTERNAL and external_location == MISSING:
+            raise EventLocationNotProvided("Location is required for external events")
 
         payload = {
             "name": name,
@@ -1434,28 +1432,27 @@ class Guild(BaseGuild):
         payload = {}
 
         if name:
-            payload.update({"name": name})
+            payload["name"] = name
 
         if permissions:
-            payload.update({"permissions": str(int(permissions))})
+            payload["permissions"] = str(int(permissions))
 
-        colour = colour or color
-        if colour:
-            payload.update({"color": colour.value})
+        if colour := colour or color:
+            payload["color"] = colour.value
 
         if hoist:
-            payload.update({"hoist": True})
+            payload["hoist"] = True
 
         if mentionable:
-            payload.update({"mentionable": True})
+            payload["mentionable"] = True
 
         if icon:
             # test if the icon is probably a unicode emoji (str and len() == 1) or a path / bytes obj
             if isinstance(icon, str) and len(icon) == 1:
-                payload.update({"unicode_emoji": icon})
+                payload["unicode_emoji"] = icon
 
             else:
-                payload.update({"icon": to_image_data(icon)})
+                payload["icon"] = to_image_data(icon)
 
         result = await self._client.http.create_guild_role(guild_id=self.id, payload=payload, reason=reason)
         return self._client.cache.place_role_data(guild_id=self.id, data=[result])[to_snowflake(result["id"])]
@@ -1939,8 +1936,7 @@ class Guild(BaseGuild):
 
         """
         regions_data = await self._client.http.get_guild_voice_regions(self.id)
-        regions = models.VoiceRegion.from_list(regions_data)
-        return regions
+        return models.VoiceRegion.from_list(regions_data)
 
     @property
     def gui_sorted_channels(self) -> list["models.TYPE_GUILD_CHANNEL"]:
@@ -2331,13 +2327,12 @@ class AuditLogHistory(AsyncIterator):
                 self.last = namedtuple("temp", "id")
                 self.last.id = self.after
             log = await self.guild.fetch_audit_log(limit=self.get_limit, after=self.last.id)
-            entries = log.entries if log.entries else []
-
         else:
             if self.before and not self.last:
                 self.last = namedtuple("temp", "id")
                 self.last.id = self.before
 
             log = await self.guild.fetch_audit_log(limit=self.get_limit, before=self.last.id)
-            entries = log.entries if log.entries else []
+        entries = log.entries or []
+
         return entries

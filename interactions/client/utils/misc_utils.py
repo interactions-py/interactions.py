@@ -60,10 +60,7 @@ def find(predicate: Callable[[T], bool], sequence: Iterable[T]) -> Optional[T]:
         A match if found, otherwise None
 
     """
-    for el in sequence:
-        if predicate(el):
-            return el
-    return None
+    return next((el for el in sequence if predicate(el)), None)
 
 
 def find_all(predicate: Callable[[T], bool], sequence: Iterable[T]) -> List[T]:
@@ -106,7 +103,7 @@ def get(sequence: Iterable[T], **kwargs: Any) -> Optional[T]:
         return sequence[0]
 
     for el in sequence:
-        if any(not hasattr(el, attr) for attr in kwargs.keys()):
+        if any(not hasattr(el, attr) for attr in kwargs):
             continue
         if all(getattr(el, attr) == value for attr, value in kwargs.items()):
             return el
@@ -135,7 +132,7 @@ def get_all(sequence: Iterable[T], **kwargs: Any) -> List[T]:
 
     matches = []
     for el in sequence:
-        if any(not hasattr(el, attr) for attr in kwargs.keys()):
+        if any(not hasattr(el, attr) for attr in kwargs):
             continue
         if all(getattr(el, attr) == value for attr, value in kwargs.items()):
             matches.append(el)

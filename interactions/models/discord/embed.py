@@ -113,9 +113,7 @@ class EmbedAttachment(DictSerializationMixin):  # thumbnail or image or video
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any]) -> Dict[str, Any]:
-        if isinstance(data, str):
-            return {"url": data}
-        return data
+        return {"url": data} if isinstance(data, str) else data
 
     @property
     def size(self) -> tuple[Optional[int], Optional[int]]:
@@ -151,10 +149,7 @@ class EmbedFooter(DictSerializationMixin):
         Returns:
             An EmbedFooter object
         """
-        if isinstance(ingest, str):
-            return cls(text=ingest)
-        else:
-            return cls.from_dict(ingest)
+        return cls(text=ingest) if isinstance(ingest, str) else cls.from_dict(ingest)
 
     def __len__(self) -> int:
         return len(self.text)
@@ -249,10 +244,7 @@ class Embed(DictSerializationMixin):
     @image.setter
     def image(self, value: Optional[EmbedAttachment]) -> None:
         """Set the image of the embed."""
-        if value is None:
-            self.images = []
-        else:
-            self.images = [value]
+        self.images = [] if value is None else [value]
 
     @title.validator
     def _name_validation(self, attribute: str, value: Any) -> None:
@@ -277,9 +269,8 @@ class Embed(DictSerializationMixin):
     @fields.validator
     def _fields_validation(self, attribute: str, value: Any) -> None:
         """Validate the fields."""
-        if isinstance(value, list):
-            if len(value) > EMBED_MAX_FIELDS:
-                raise ValueError(f"Embeds can only hold {EMBED_MAX_FIELDS} fields")
+        if isinstance(value, list) and len(value) > EMBED_MAX_FIELDS:
+            raise ValueError(f"Embeds can only hold {EMBED_MAX_FIELDS} fields")
 
     def _check_object(self) -> None:
         self._name_validation("title", self.title)
@@ -372,7 +363,7 @@ class Embed(DictSerializationMixin):
             images: the images to use
 
         """
-        if len(self.images) + 1 > 1 and not self.url:
+        if len(self.images) + len(images) > 1 and not self.url:
             raise ValueError("To use multiple images, you must also set a url for this embed")
 
         self.images = [EmbedAttachment(url=url) for url in images]
@@ -390,7 +381,7 @@ class Embed(DictSerializationMixin):
         Args:
             image: the image to add
         """
-        if len(self.images) + 1 > 1 and not self.url:
+        if len(self.images) > 0 and not self.url:
             raise ValueError("To use multiple images, you must also set a url for this embed")
         self.images.append(EmbedAttachment(url=image))
 
@@ -439,9 +430,7 @@ class Embed(DictSerializationMixin):
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
-        images = data.pop("images", [])
-
-        if images:
+        if images := data.pop("images", []):
             if len(images) > 1:
                 if not self.url:
                     raise ValueError("To use multiple images, you must also set a url for this embed")
@@ -449,8 +438,7 @@ class Embed(DictSerializationMixin):
                 data["image"] = images[0]
                 data = [data]
 
-                for image in images[1:]:
-                    data.append({"image": image, "url": self.url})
+                data.extend({"image": image, "url": self.url} for image in images[1:])
             else:
                 data["image"] = images[0]
 
@@ -475,10 +463,7 @@ def process_embeds(embeds: Optional[Union[List[Union[Embed, Dict]], Union[Embed,
     if isinstance(embeds, Embed):
         # Single embed, convert it to dict and wrap it into a list for discord.
         out = embeds.to_dict()
-        if isinstance(out, list):
-            return out
-        return [out]
-
+        return out if isinstance(out, list) else [out]
     if isinstance(embeds, dict):
         # We assume the dict correctly represents a single discord embed and just send it blindly
         # after wrapping it in a list for discord

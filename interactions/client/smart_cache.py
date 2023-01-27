@@ -50,14 +50,13 @@ def create_cache(
         return {}
     if ttl == 0 and hard_limit == 0 and soft_limit == 0:
         return NullCache()
-    else:
-        if not soft_limit:
-            soft_limit = int(hard_limit / 4) if hard_limit else 50
-        return TTLCache(
-            hard_limit=hard_limit or float("inf"),
-            soft_limit=soft_limit or 0,
-            ttl=ttl or float("inf"),
-        )
+    if not soft_limit:
+        soft_limit = int(hard_limit / 4) if hard_limit else 50
+    return TTLCache(
+        hard_limit=hard_limit or float("inf"),
+        soft_limit=soft_limit or 0,
+        ttl=ttl or float("inf"),
+    )
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -227,8 +226,7 @@ class GlobalCache:
             member.update_from_dict(data)
 
         self.place_user_guild(user_id, guild_id)
-        guild = self.guild_cache.get(guild_id)
-        if guild:
+        if guild := self.guild_cache.get(guild_id):
             # todo: this is slow, find a faster way
             guild._member_ids.add(user_id)  # noqa
         return member
@@ -544,8 +542,7 @@ class GlobalCache:
         """
         user_id = to_snowflake(user_id)
         channel_id = await self.fetch_dm_channel_id(user_id)
-        channel = await self.fetch_channel(channel_id)
-        return channel
+        return await self.fetch_channel(channel_id)
 
     def get_dm_channel(self, user_id: Optional["Snowflake_Type"]) -> Optional["DM"]:
         """
@@ -635,9 +632,7 @@ class GlobalCache:
         Args:
             guild_id: The ID of the guild
         """
-        guild = self.guild_cache.pop(to_snowflake(guild_id), None)
-
-        if guild:
+        if guild := self.guild_cache.pop(to_snowflake(guild_id), None):
             # delete associated objects
             [self.delete_channel(c) for c in guild.channels]
             [self.delete_member(m.id, guild_id) for m in guild.members]
@@ -726,8 +721,7 @@ class GlobalCache:
         Args:
             role_id: The ID of the role
         """
-        role = self.role_cache.pop(to_snowflake(role_id), None)
-        if role:
+        if role := self.role_cache.pop(to_snowflake(role_id), None):
             if guild := self.get_guild(role._guild_id):
                 # noinspection PyProtectedMember
                 guild._role_ids.discard(role_id)
@@ -761,9 +755,7 @@ class GlobalCache:
         """
         user_id = to_snowflake(data["user_id"])
 
-        # try to remove the user from the _voice_member_ids list of the old channel obj, if that exists
-        old_state = self.get_voice_state(user_id)
-        if old_state:
+        if old_state := self.get_voice_state(user_id):
             # noinspection PyProtectedMember
             if user_id in old_state.channel._voice_member_ids:
                 # noinspection PyProtectedMember

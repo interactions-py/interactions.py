@@ -3,6 +3,7 @@ import asyncio
 import sys
 import time
 import zlib
+from asyncio import Task
 from types import TracebackType
 from typing import TypeVar, TYPE_CHECKING
 
@@ -230,8 +231,7 @@ class GatewayClient(WebsocketClient):
             case _:
                 # the above events are "special", and are handled by the gateway itself, the rest can be dispatched
                 event_name = f"raw_{event.lower()}"
-                processor = self.state.client.processors.get(event_name)
-                if processor:
+                if processor := self.state.client.processors.get(event_name):
                     try:
                         asyncio.create_task(processor(events.RawGatewayEvent(data.copy(), override_name=event_name)))
                     except Exception as ex:
@@ -304,15 +304,19 @@ class GatewayClient(WebsocketClient):
 
     async def change_presence(self, activity=None, status: Status = Status.ONLINE, since=None) -> None:
         """Update the bot's presence status."""
-        payload = dict_filter_none(
+        await self.send_json(
             {
-                "since": int(since if since else time.time() * 1000),
-                "activities": [activity] if activity else [],
-                "status": status,
-                "afk": False,
+                "op": OPCODE.PRESENCE,
+                "d": dict_filter_none(
+                    {
+                        "since": int(since or time.time() * 1000),
+                        "activities": [activity] if activity else [],
+                        "status": status,
+                        "afk": False,
+                    }
+                ),
             }
         )
-        await self.send_json({"op": OPCODE.PRESENCE, "d": payload})
 
     async def request_member_chunks(
         self,
@@ -339,10 +343,9 @@ class GatewayClient(WebsocketClient):
         }
         await self.send_json(payload)
 
-    async def _process_member_chunk(self, chunk: dict) -> None:
+    async def _process_member_chunk(self, chunk: dict) -> Task[None]:
 
-        guild = self.state.client.cache.get_guild(to_snowflake(chunk.get("guild_id")))
-        if guild:
+        if guild := self.state.client.cache.get_guild(to_snowflake(chunk.get("guild_id"))):
             return asyncio.create_task(guild.process_member_chunk(chunk))
         raise ValueError(f"No guild exists for {chunk.get('guild_id')}")
 

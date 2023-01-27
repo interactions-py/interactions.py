@@ -195,9 +195,7 @@ class HTTPClient(
             The BucketLock object for this route
         """
         if bucket_hash := self._endpoints.get(route.rl_bucket):
-            # we have seen this route before, we know which bucket it is associated with
-            lock = self.ratelimit_locks.get(bucket_hash)
-            if lock:
+            if lock := self.ratelimit_locks.get(bucket_hash):
                 # if we have an active lock on this route, it'll still be in the cache
                 # return that lock
                 return lock
@@ -270,7 +268,7 @@ class HTTPClient(
                     f"files[{index}]",
                     file_data,
                     filename=file.file_name,
-                    content_type=file.content_type if file.content_type else get_file_mimetype(file_data),
+                    content_type=file.content_type or get_file_mimetype(file_data),
                 )
                 attachments.append({"id": index, "description": file.description, "filename": file.file_name})
             else:
@@ -349,7 +347,6 @@ class HTTPClient(
                                     f"Bot has exceeded global ratelimit, locking REST API for {result['retry_after']} seconds"
                                 )
                                 self.global_lock.set_reset_time(float(result["retry_after"]))
-                                continue
                             elif result.get("message") == "The resource is being rate limited.":
                                 # resource ratelimit is reached
                                 self.logger.warning(
@@ -358,7 +355,6 @@ class HTTPClient(
                                 )
                                 # lock this resource and wait for unlock
                                 await lock.defer_unlock(float(result["retry_after"]))
-                                continue
                             else:
                                 # endpoint ratelimit is reached
                                 # 429's are unfortunately unavoidable, but we can attempt to avoid them
@@ -367,7 +363,7 @@ class HTTPClient(
                                     f"{route.endpoint} Has exceeded it's ratelimit ({lock.limit})! Reset in {lock.delta} seconds"
                                 )
                                 await lock.defer_unlock()  # lock this route and wait for unlock
-                                continue
+                            continue
                         elif lock.remaining == 0:
                             # Last call available in the bucket, lock until reset
                             self.logger.debug(
@@ -427,7 +423,7 @@ class HTTPClient(
 
         """
         self.__session = ClientSession(
-            connector=self.connector if self.connector else aiohttp.TCPConnector(limit=self.global_lock.max_requests),
+            connector=self.connector or aiohttp.TCPConnector(limit=self.global_lock.max_requests),
             json_serialize=FastJson.dumps,
         )
         self.token = token

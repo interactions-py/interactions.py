@@ -176,7 +176,7 @@ class Audio(BaseAudio):
                     self.buffer.initialised.set()
 
                 return
-            if not len(self.buffer) >= self._max_buffer_size:
+            if len(self.buffer) < self._max_buffer_size:
                 self.buffer.extend(self.process.stdout.read(3840))
             else:
                 if not self.buffer.initialised.is_set():
