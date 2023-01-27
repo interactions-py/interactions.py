@@ -272,6 +272,7 @@ class Client(
         modal_context: Type[BaseContext] = ModalContext,
         send_command_tracebacks: bool = True,
         shard_id: int = 0,
+        show_ratelimit_tracebacks: bool = False,
         slash_context: Type[BaseContext] = SlashContext,
         status: Status = Status.ONLINE,
         sync_interactions: bool = True,
@@ -317,7 +318,7 @@ class Client(
 
         # resources
 
-        self.http: HTTPClient = HTTPClient(logger=self.logger)
+        self.http: HTTPClient = HTTPClient(logger=self.logger, show_ratelimit_tracebacks=show_ratelimit_tracebacks)
         """The HTTP client to use when interacting with discord endpoints"""
 
         # context factories
