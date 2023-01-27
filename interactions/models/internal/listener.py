@@ -106,7 +106,7 @@ def listen(
     delay_until_ready: bool = False,
     is_default_listener: bool = False,
     disable_default_listeners: bool = False,
-) -> Callable[[Callable[..., Coroutine]], Listener]:
+) -> Callable[[Coroutine], Listener]:
     """
     Decorator to make a function an event listener.
 
