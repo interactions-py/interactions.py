@@ -15,7 +15,7 @@ from interactions.client.utils.serializer import to_image_data
 from interactions.models.discord.activity import Activity
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.color import Color
-from interactions.models.discord.enums import Permissions, PremiumTypes, UserFlags, Status
+from interactions.models.discord.enums import Permissions, PremiumTypes, UserFlags, Status, MemberFlags
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.role import Role
 from interactions.models.discord.snowflake import Snowflake_Type
@@ -253,6 +253,12 @@ class Member(DiscordObject, _SendDMMixin):
     nick: Optional[str] = attrs.field(repr=True, default=None, metadata=docs("The user's nickname in this guild'"))
     deaf: bool = attrs.field(repr=False, default=False, metadata=docs("Has this user been deafened in voice channels?"))
     mute: bool = attrs.field(repr=False, default=False, metadata=docs("Has this user been muted in voice channels?"))
+    flags: MemberFlags = attrs.field(
+        repr=False,
+        default=0,
+        converter=MemberFlags,
+        metadata=docs("The flags associated with this guild member")
+    )
     joined_at: "Timestamp" = attrs.field(
         repr=False,
         default=MISSING,
