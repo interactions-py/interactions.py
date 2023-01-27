@@ -254,10 +254,7 @@ class Member(DiscordObject, _SendDMMixin):
     deaf: bool = attrs.field(repr=False, default=False, metadata=docs("Has this user been deafened in voice channels?"))
     mute: bool = attrs.field(repr=False, default=False, metadata=docs("Has this user been muted in voice channels?"))
     flags: MemberFlags = attrs.field(
-        repr=False,
-        default=0,
-        converter=MemberFlags,
-        metadata=docs("The flags associated with this guild member")
+        repr=False, default=0, converter=MemberFlags, metadata=docs("The flags associated with this guild member")
     )
     joined_at: "Timestamp" = attrs.field(
         repr=False,
