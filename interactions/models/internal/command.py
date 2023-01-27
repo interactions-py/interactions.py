@@ -237,7 +237,6 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
                     kwargs[param.name] = func(*ano_args)
                 else:
                     args.append(func(*ano_args))
-                continue
             elif param.name in context.kwargs:
                 # if parameter is in kwargs, user obviously wants it, pass it
                 if param.kind != param.POSITIONAL_ONLY:
@@ -248,25 +247,23 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
                     c_args.remove(context.kwargs[param.name])
             elif param.default is not param.empty:
                 kwargs[param.name] = param.default
-            else:
-                if not str(param).startswith("*"):
-                    if param.kind != param.KEYWORD_ONLY:
-                        try:
-                            args.append(await convert(c_args.pop(0)))
-                        except IndexError:
-                            raise ValueError(
-                                f"{context.invoke_target} expects {len([p for p in parameters.values() if p.default is p.empty]) + len(callback.args)}"
-                                f" arguments but received {len(context.args)} instead"
-                            ) from None
-                    else:
-                        raise ValueError(f"Unable to resolve argument: {param.name}")
+            elif not str(param).startswith("*"):
+                if param.kind == param.KEYWORD_ONLY:
+                    raise ValueError(f"Unable to resolve argument: {param.name}")
 
+                try:
+                    args.append(await convert(c_args.pop(0)))
+                except IndexError:
+                    raise ValueError(
+                        f"{context.invoke_target} expects {len([p for p in parameters.values() if p.default is p.empty]) + len(callback.args)}"
+                        f" arguments but received {len(context.args)} instead"
+                    ) from None
         if any(kwargs_reg.match(str(param)) for param in parameters.values()):
             # if user has `**kwargs` pass all remaining kwargs
-            kwargs = kwargs | {k: v for k, v in context.kwargs.items() if k not in kwargs}
+            kwargs |= {k: v for k, v in context.kwargs.items() if k not in kwargs}
         if any(args_reg.match(str(param)) for param in parameters.values()):
             # user has `*args` pass all remaining args
-            args = args + [await convert(c) for c in c_args]
+            args += [await convert(c) for c in c_args]
         return await self.call_with_binding(_call, context, *args, **kwargs)
 
     async def _can_run(self, context: "BaseContext") -> bool:

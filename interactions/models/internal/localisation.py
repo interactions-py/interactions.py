@@ -60,12 +60,12 @@ class LocalisedField:
     @cached_property
     def _code_mapping(self) -> dict:
         """Generates a lookup table for this object on demand to allow for value retrieval with locale codes"""
-        data = {}
+        data = []
         for attr in self.__attrs_attrs__:
             if attr.name != self.default_locale:
                 if code := attr.metadata.get("locale-code"):
-                    data[code] = attr.name
-        return data
+                    data.append((code, attr.name))
+        return {code: name for code, name in data}
 
     @property
     def default(self) -> str:
@@ -117,10 +117,9 @@ class LocalisedField:
     def to_locale_dict(self) -> dict:
         data = {}
         for attr in self.__attrs_attrs__:
-            if attr.name != self.default_locale:
-                if "locale-code" in attr.metadata:
-                    if val := getattr(self, attr.name):
-                        data[attr.metadata["locale-code"]] = val
+            if attr.name != self.default_locale and "locale-code" in attr.metadata:
+                if val := getattr(self, attr.name):
+                    data[attr.metadata["locale-code"]] = val
 
         if not data:
             data = None  # handle discord being stupid
