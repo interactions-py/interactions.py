@@ -15,8 +15,8 @@ from interactions.models import (
     slash_option,
     OptionTypes,
     application_commands_to_dict,
-    checks,
 )
+from interactions.models.internal import checks
 from .utils import debug_embed
 
 __all__ = ("DebugAppCMD",)
