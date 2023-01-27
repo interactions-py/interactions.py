@@ -302,6 +302,7 @@ class HTTPClient(
             payload: The payload for this request
             files: The files to send with this request
             reason: Attach a reason to this request, used for audit logs
+            params: Query string parameters
 
         """
         # Assemble headers

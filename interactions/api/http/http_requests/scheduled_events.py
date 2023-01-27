@@ -43,6 +43,7 @@ class ScheduledEventsRequests:
 
         Args:
             guild_id: The guild to get scheduled event from
+            scheduled_event_id: The target scheduled event to fetch
             with_user_count: Whether to include the user count in the response
 
         Returns:

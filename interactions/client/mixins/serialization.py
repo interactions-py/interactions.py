@@ -72,7 +72,7 @@ class DictSerializationMixin:
         Process and converts list data received from discord api to object class instances.
 
         Args:
-            data: The json data received from discord api.
+            datas: The json data received from discord api.
 
         Returns:
             List of object class instances.

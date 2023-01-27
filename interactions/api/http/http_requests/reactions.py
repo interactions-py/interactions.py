@@ -131,6 +131,8 @@ class ReactionRequests:
             channel_id: The channel this is taking place in.
             message_id: The message to get the reaction.
             emoji: The emoji to get. (format: `name:id`)
+            limit: max number of entries to get
+            after: snowflake to get entries after
 
         Returns:
             List of users who reacted with the emoji.
