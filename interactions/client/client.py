@@ -1273,6 +1273,10 @@ class Client(
             self.add_listener(func)
         elif not isinstance(func, BaseCommand):
             raise TypeError("Invalid command type")
+        
+        if not func.callback:
+            # for group = SlashCommand(...) usage
+            return
 
         if isinstance(func.callback, functools.partial):
             ext = getattr(func, "extension", None)
