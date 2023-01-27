@@ -6,7 +6,7 @@ from ...utils.missing import MISSING
 from ...utils.utils import search_iterable
 from ..error import LibraryException
 from .channel import Channel
-from .flags import Permissions
+from .flags import Permissions, MemberFlags
 from .misc import AllowedMentions, File, IDMixin, Snowflake
 from .role import Role
 from .user import User
@@ -38,6 +38,7 @@ class Member(ClientSerializerMixin, IDMixin):
     :ivar datetime premium_since: The timestamp the member has been a server booster since.
     :ivar bool deaf: Whether the member is deafened.
     :ivar bool mute: Whether the member is muted.
+    :ivar MemberFlags flags: The guild member flags. Default to 0.
     :ivar Optional[bool] pending: Whether the member is pending to pass membership screening.
     :ivar Optional[Permissions] permissions: Whether the member has permissions.
     :ivar Optional[str] communication_disabled_until: How long until they're unmuted, if any.
@@ -53,6 +54,7 @@ class Member(ClientSerializerMixin, IDMixin):
     )
     deaf: bool = field()
     mute: bool = field()
+    flags: MemberFlags = field(converter=convert_int(MemberFlags), repr=False)
     is_pending: Optional[bool] = field(default=None, repr=False)
     pending: Optional[bool] = field(default=None, repr=False)
     permissions: Optional[Permissions] = field(
@@ -64,7 +66,6 @@ class Member(ClientSerializerMixin, IDMixin):
     hoisted_role: Optional[Any] = field(
         default=None, repr=False
     )  # TODO: Investigate what this is for when documented by Discord.
-    flags: int = field(repr=False)  # TODO: Investigate what this is for when documented by Discord.
 
     def __getattr__(self, name):
         # Forward any attributes the user has to make it easier for devs
