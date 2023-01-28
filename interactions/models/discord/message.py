@@ -24,7 +24,9 @@ from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.client.utils.text_utils import mentions
 from interactions.models.discord.channel import BaseChannel
+from interactions.models.discord.emoji import process_emoji_req_format
 from interactions.models.discord.file import UPLOADABLE_TYPE
+from interactions.models.discord.embed import process_embeds
 from .base import DiscordObject
 from .enums import (
     ChannelTypes,
@@ -756,7 +758,7 @@ class Message(BaseMessage):
             emoji: the emoji to react with
 
         """
-        emoji = models.process_emoji_req_format(emoji)
+        emoji = process_emoji_req_format(emoji)
         await self._client.http.create_reaction(self._channel_id, self.id, emoji)
 
     async def remove_reaction(
@@ -772,7 +774,7 @@ class Message(BaseMessage):
             member: Member to remove reaction of. Default's to NAFF bot user.
 
         """
-        emoji_str = models.process_emoji_req_format(emoji)
+        emoji_str = process_emoji_req_format(emoji)
         if not member:
             member = self._client.user
         user_id = to_snowflake(member)
@@ -915,7 +917,7 @@ def process_message_payload(
         Dictionary
 
     """
-    embeds = models.process_embeds(embeds)
+    embeds = process_embeds(embeds)
     if isinstance(embeds, list):
         embeds = embeds if all(e is not None for e in embeds) else None
 

@@ -162,8 +162,5 @@ class Modal:
 
         Args:
             *components: The components to add.
-
-        Returns:
-
         """
         self.components.extend(components)
