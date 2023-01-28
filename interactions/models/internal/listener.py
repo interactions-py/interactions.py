@@ -1,9 +1,9 @@
 import asyncio
 import inspect
-from typing import Coroutine, Callable
+from typing import Callable
 
 from interactions.api.events.internal import BaseEvent
-from interactions.client.const import MISSING, Absent
+from interactions.client.const import MISSING, Absent, AsyncCallable
 from interactions.client.utils import get_event_name
 from interactions.models.internal.callback import CallbackObject
 
@@ -14,7 +14,7 @@ class Listener(CallbackObject):
 
     event: str
     """Name of the event to listen to."""
-    callback: Coroutine
+    callback: AsyncCallable
     """Coroutine to call when the event is triggered."""
     is_default_listener: bool
     """Whether this listener is provided automatically by the library, and might be unwanted by users."""
@@ -25,7 +25,7 @@ class Listener(CallbackObject):
 
     def __init__(
         self,
-        func: Callable[..., Coroutine],
+        func: AsyncCallable,
         event: str,
         *,
         delay_until_ready: bool = False,
@@ -54,7 +54,7 @@ class Listener(CallbackObject):
         delay_until_ready: bool = False,
         is_default_listener: bool = False,
         disable_default_listeners: bool = False,
-    ) -> Callable[[Coroutine], "Listener"]:
+    ) -> Callable[[AsyncCallable], "Listener"]:
         """
         Decorator for creating an event listener.
 
@@ -70,7 +70,7 @@ class Listener(CallbackObject):
 
         """
 
-        def wrapper(coro: Coroutine) -> "Listener":
+        def wrapper(coro: AsyncCallable) -> "Listener":
             if not asyncio.iscoroutinefunction(coro):
                 raise TypeError("Listener must be a coroutine")
 
@@ -106,7 +106,7 @@ def listen(
     delay_until_ready: bool = False,
     is_default_listener: bool = False,
     disable_default_listeners: bool = False,
-) -> Callable[[Coroutine], Listener]:
+) -> Callable[[AsyncCallable], Listener]:
     """
     Decorator to make a function an event listener.
 
