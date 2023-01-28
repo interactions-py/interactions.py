@@ -163,7 +163,7 @@ When responding to a component you need to satisfy discord either by responding 
         # you can also pass an ActionRow, or a list of ActionRows. Then a press on any component in there will be listened for
         used_component = await bot.wait_for_component(components=components, check=check, timeout=30)
 
-    except TimeoutError:  
+    except TimeoutError:
         print("Timed Out!")
 
         components[0].components[0].disabled = True

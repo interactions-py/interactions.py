@@ -38,6 +38,7 @@ from interactions.client.const import (
     Absent,
     EMBED_MAX_DESC_LENGTH,
     get_logger,
+    AsyncCallable,
 )
 from interactions.client.errors import (
     BotException,
@@ -1091,7 +1092,7 @@ class Client(
         """A decorator that registers a command. Aliases `interactions.slash_command`"""
         raise NotImplementedError  # TODO: implement
 
-    def listen(self, event_name: Absent[str] = MISSING) -> Listener:
+    def listen(self, event_name: Absent[str] = MISSING) -> Callable[[AsyncCallable], Listener]:
         """
         A decorator to be used in situations that Naff can't automatically hook your listeners. Ideally, the standard listen decorator should be used, not this.
 
@@ -1103,7 +1104,7 @@ class Client(
 
         """
 
-        def wrapper(coro: Callable[..., Coroutine]) -> Listener:
+        def wrapper(coro: AsyncCallable) -> Listener:
             listener = Listener.create(event_name)(coro)
             self.add_listener(listener)
             return listener
@@ -1112,7 +1113,7 @@ class Client(
 
     event = listen  # alias for easier migration
 
-    def add_event_processor(self, event_name: Absent[str] = MISSING) -> Callable[..., Coroutine]:
+    def add_event_processor(self, event_name: Absent[str] = MISSING) -> Callable[[AsyncCallable], AsyncCallable]:
         """
         A decorator to be used to add event processors.
 
@@ -1124,7 +1125,7 @@ class Client(
 
         """
 
-        def wrapper(coro: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
+        def wrapper(coro: AsyncCallable) -> AsyncCallable:
             name = event_name
             if name is MISSING:
                 name = coro.__name__

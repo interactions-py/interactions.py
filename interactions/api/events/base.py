@@ -1,10 +1,10 @@
 import re
-from typing import TYPE_CHECKING, Callable, Coroutine
+from typing import TYPE_CHECKING
 
 import attrs
 
 import interactions.models as models
-from interactions.client.const import MISSING
+from interactions.client.const import MISSING, AsyncCallable
 from interactions.client.utils.attr_utils import docs
 from interactions.models.discord.snowflake import to_snowflake
 
@@ -34,7 +34,7 @@ class BaseEvent:
         return _event_reg.sub("_", name).lower()
 
     @classmethod
-    def listen(cls, coro: Callable[..., Coroutine], client: "Client") -> "models.Listener":
+    def listen(cls, coro: AsyncCallable, client: "Client") -> "models.Listener":
         """
         A shortcut for creating a listener for this event
 

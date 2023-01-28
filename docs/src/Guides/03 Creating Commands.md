@@ -374,7 +374,7 @@ Checks allow you to define who can use your commands however you want.
 There are a few pre-made checks for you to use, and you can simply create your own custom checks.
 
 === "Build-In Check"
-    Check that the author is the owner of the bot:  
+    Check that the author is the owner of the bot:
 
     ```py
     @is_owner()
@@ -384,7 +384,7 @@ There are a few pre-made checks for you to use, and you can simply create your o
     ```
 
 === "Custom Check"
-    Check that the author's name starts with `a`:  
+    Check that the author's name starts with `a`:
 
     ```py
     async def my_check(ctx: Context):
