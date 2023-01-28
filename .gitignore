@@ -15,3 +15,6 @@ __pycache__
 *.token
 *.pypirc
 *.code-workspace
+/coverage.xml
+/TestResults.xml
+/.coverage
