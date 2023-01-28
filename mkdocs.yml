@@ -1,0 +1,165 @@
+site_name: Interactions.py
+repo_url: https://github.com/interactions-py/interactions.py
+repo_name: interactions-py/interactions.py
+copyright: Copyright &copy; 2023 - Present LordOfPolls – <a href="#__consent">Change cookie settings</a>
+docs_dir: docs/src
+edit_uri: edit/master/docs/src
+site_url: https://interactions-py.github.io/interactions.py/
+
+theme:
+  name: material
+  favicon: images/favicon.png
+  #  custom_dir: docs/overrides
+  features:
+    - header.autohide
+    - navigation.instant
+    - navigation.top
+    - navigation.tabs
+    - search.suggest
+    - search.share
+    - navigation.indexes
+    - navigation.prune
+    - toc.follow
+    - content.tooltips
+    - content.code.annotate
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+  icon:
+    repo: fontawesome/brands/github-alt
+
+  logo: images/logo-minified.svg
+  font:
+    code: Roboto Mono
+
+
+extra:
+  social:
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/hpfNhH8BsY
+      name: Discord Server
+    - icon: fontawesome/brands/github
+      link: https://github.com/Discord-Snake-Pit/naff
+      name: Github Repository
+    - icon: fontawesome/brands/trello
+      link: https://trello.com/b/LVjnmYKt/dev-board
+      name: Trello Board
+  analytics:
+    provider: google
+    property: G-817ZC2FC56
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/heart
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/heart-broken
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Please create an <a href="https://github.com/NAFTeam/NAFF/issues/new/choose">issue on Github</a> if you have any suggestions.
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+    actions:
+      - accept
+      - reject
+
+extra_css:
+  - extra.css
+
+extra_javascript:
+  - scripts/feedback.js
+
+plugins:
+  - search
+  - awesome-pages
+  - autorefs
+  #  - git-committers:
+  #        repository: NAFTeam/NAFF
+  #        branch: docs-refresh
+  #        token: !ENV [GH_TOKEN]
+  - git-revision-date-localized:
+      fallback_to_build_date: true
+  - mkdocstrings:
+      #    custom_templates: docs/templates
+      enable_inventory: true
+      handlers:
+        python:
+          selection:
+            inherited_members: true
+            filters:
+              - "!^_"
+          rendering:
+            members_order: source
+            show_bases: True
+            show_root_toc_entry: False
+            group_by_category: False
+            heading_level: 3
+            show_if_no_docstring: False # temporary, this will be reverted to False once we're done with docs
+      watch:
+        - interactions
+  - minify:
+      minify_html: true
+  # keep these at the bottom of the plugins list
+#  - privacy:
+#      externals: bundle
+#      enabled: !ENV [ DEPLOY, False ]
+#  - offline:
+#      enabled: !ENV [ DEPLOY, False ]
+
+
+markdown_extensions:
+  - meta
+  - tables
+  - admonition
+  - pymdownx.details
+  - pymdownx.snippets:
+      base_path: docs/_snippets
+      check_paths: True
+  - pymdownx.highlight:
+      linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.keys
+  - pymdownx.saneheaders
+  - pymdownx.smartsymbols
+  - pymdownx.tabbed
+  - pymdownx.tasklist
+  - pymdownx.tilde
+  - toc:
+      permalink: true
+      toc_depth: 6
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - abbr
+  - attr_list
+  - md_in_html
