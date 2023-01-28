@@ -44,6 +44,8 @@ class Role(DiscordObject):
     premium_subscriber: bool = attrs.field(
         repr=False, default=_sentinel, converter=partial(sentinel_converter, sentinel=_sentinel)
     )
+    subscription_listing_id: "Snowflake_Type | None" = attrs.field(default=None, repr=False)
+    purchasable_or_has_subscribers: bool = attrs.field(default=False)
     _icon: Asset | None = attrs.field(repr=False, default=None)
     _unicode_emoji: PartialEmoji | None = attrs.field(
         repr=False, default=None, converter=optional_c(PartialEmoji.from_str)
@@ -82,6 +84,14 @@ class Role(DiscordObject):
 
         if icon_hash := data.get("icon"):
             data["icon"] = Asset.from_path_hash(client, f"role-icons/{data['id']}/{{}}", icon_hash)
+
+        if "premium_subscriber" in data:
+            if data["premium_subscriber"] is None:
+                data["premium_subscriber"] = True
+            else:
+                data["premium_subscriber"] = bool(data["premium_subscriber"])
+        else:
+            data["premium_subscriber"] = False
 
         return data
 
