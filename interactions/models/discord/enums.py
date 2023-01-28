@@ -366,6 +366,7 @@ class MessageTypes(CursedIntEnum):
     GUILD_INVITE_REMINDER = 22
     CONTEXT_MENU_COMMAND = 23
     AUTO_MODERATION_ACTION = 24
+    ROLE_SUBSCRIPTION_PURCHASE = 25
 
 
 class EmbedTypes(Enum):
