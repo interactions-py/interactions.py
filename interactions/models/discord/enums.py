@@ -12,6 +12,7 @@ __all__ = (
     "ApplicationFlags",
     "TeamMembershipState",
     "PremiumTypes",
+    "MemberFlags",
     "MessageTypes",
     "MessageActivityTypes",
     "MessageFlags",
@@ -937,3 +938,10 @@ class AutoModLanuguageType(Enum):
     PROFANITY = "PROFANITY"
     SEXUAL = "SEXUAL_CONTENT"
     INSULTS_AND_SLURS = "SLURS"
+
+
+class MemberFlags(DiscordIntFlag):
+    DID_REJOIN = 1 << 0
+    COMPLETED_ONBOARDING = 1 << 1
+    BYPASSES_VERIFICATION = 1 << 2
+    STARTED_ONBOARDING = 1 << 3
