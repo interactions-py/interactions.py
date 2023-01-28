@@ -380,7 +380,7 @@ class Client(
         self._modal_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self.processors: Dict[str, Callable[..., Coroutine]] = {}
         self.__modules = {}
-        self.ext = {}
+        self.ext: Dict[str, Extension] = {}
         """A dictionary of mounted ext"""
         self.listeners: Dict[str, list[Listener]] = {}
         self.waits: Dict[str, List] = {}
