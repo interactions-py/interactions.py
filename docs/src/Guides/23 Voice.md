@@ -12,13 +12,13 @@ Then you'll need to download [FFmpeg](https://ffmpeg.org) and place it in your p
 Now you've got those; let's make a simple play command to get you started.
 
 ```python
-import naff
-from naff.api.voice.audio import AudioVolume
+import interactions
+from interactions.api.voice.audio import AudioVolume
 
 
-@naff.slash_command("play", "play a song!")
-@naff.slash_option("song", "The song to play", 3, True)
-async def play(self, ctx: naff.InteractionContext, song: str):
+@interactions.slash_command("play", "play a song!")
+@interactions.slash_option("song", "The song to play", 3, True)
+async def play(self, ctx: interactions.InteractionContext, song: str):
     if not ctx.voice_state:
         # if we haven't already joined a voice channel
         # join the authors vc
@@ -43,21 +43,21 @@ If you want to play your own files, you can do that too! Create an `AudioVolume`
     If your audio is already encoded, use the standard `Audio` object instead. You'll lose volume manipulation, however.
 
 ```python
-import naff
-from naff.api.voice.audio import AudioVolume
+import interactions
+from interactions.api.voice.audio import AudioVolume
 
 
-@naff.slash_command("play", "play a song!")
-async def play_file(ctx: naff.InteractionContext):
+@interactions.slash_command("play", "play a song!")
+async def play_file(ctx: interactions.InteractionContext):
     audio = AudioVolume("some_file.wav")
     await ctx.voice_state.play(audio)
 ```
 
-Check out [Active Voice State](/API Reference/models/naff/active_voice_state/) for a list of available methods and attributes.
+Check out [Active Voice State](/interactions.py/API Reference/API Reference/models/Internal/active_voice_state/) for a list of available methods and attributes.
 
 ## Okay, but what about Soundcloud?
 
-NAFF has an extension library called [`NAFFAudio`](https://github.com/NAFTeam/NAFF-Audio) which can help with that.
+interactions.py has an extension library called [`NAFFAudio`](https://github.com/NAFTeam/NAFF-Audio) which can help with that.
 It has an object called `YTAudio` which can be used to play audio from Soundcloud and other video platforms.
 
 ```

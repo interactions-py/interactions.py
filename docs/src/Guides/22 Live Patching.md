@@ -1,11 +1,11 @@
 # Live Patching
 
-NAFF has a few built-in extensions that add some features, primarily for debugging. One of these extensions that you can enable separately is to add [`jurigged`](https://github.com/breuleux/jurigged) for live patching of code.
+interactions.py has a few built-in extensions that add some features, primarily for debugging. One of these extensions that you can enable separately is to add [`jurigged`](https://github.com/breuleux/jurigged) for live patching of code.
 
 ## How to enable
 
 ```py
-bot.load_extension("naff.ext.jurigged")
+bot.load_extension("interactions.ext.jurigged")
 ```
 
 That's it! The extension will handle all of the leg work, and all you'll notice is that you have more messages in your logs (depending on the log level).
@@ -16,4 +16,4 @@ That's it! The extension will handle all of the leg work, and all you'll notice 
 
 ## How is this useful?
 
-NAFF takes advantage of jurigged to reload any and all commands that were edited whenever a change is made, allowing you to have more uptime with while still adding/improving features of your bot.
+interactions.py takes advantage of jurigged to reload any and all commands that were edited whenever a change is made, allowing you to have more uptime with while still adding/improving features of your bot.

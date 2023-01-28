@@ -21,9 +21,9 @@ And this is great when debugging.  But it consumes your rate limit, can run into
 
 # So what should I do instead?
 
-NAFF contains built-in support for Sentry.io, a cloud error tracking platform.
+interactions.py contains built-in support for Sentry.io, a cloud error tracking platform.
 
-To enable it, call `bot.load_extension('naff.ext.sentry', token=SENTRY_TOKEN)` as early as possible in your startup. (Load it before your own extensions, so it can catch intitialization errors in those extensions)
+To enable it, call `bot.load_extension('interactions.ext.sentry', token=SENTRY_TOKEN)` as early as possible in your startup. (Load it before your own extensions, so it can catch intitialization errors in those extensions)
 
 # What does this do that vanilla Sentry doesn't?
 

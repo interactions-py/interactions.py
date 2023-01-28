@@ -292,7 +292,7 @@ class Guild(BaseGuild):
 
         Args:
             name: name of the guild (2-100 characters)
-            client: The NAFF client
+            client: The client
             icon: An icon for the guild
             verification_level: The guild's verification level
             default_message_notifications: The default message notification level

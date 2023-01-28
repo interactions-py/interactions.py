@@ -73,21 +73,21 @@ components = Button(
 await channel.send("Look a Button!", components=components)
 ```
 
-For more information, please visit the API reference [here](/API Reference/models/Discord/components/#naff.models.discord.components.Button).
+For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Discord/components/#interactions.models.discord.components.Button).
 
 ### I Need More Style
 
 You are in luck, there are a bunch of colours you can choose from.
     <br>![Button Colours](../images/Components/buttons.png "Button Colours")
 
-The colours correspond to the styles found in `ButtonStyles`. Click [here](/API Reference/models/Discord/enums/#naff.models.discord.enums.ButtonStyles) for more information.
+The colours correspond to the styles found in `ButtonStyles`. Click [here](/interactions.py/API Reference/API Reference/models/Discord/enums/#interactions.models.discord.enums.ButtonStyles) for more information.
 
 If you use `ButtonStyles.URL`, you can pass an url to the button with `url`. Users who click the button will get redirected to your url.
 ```python
 components = Button(
     style=ButtonStyles.URL,
     label="Click Me",
-    url="https://github.com/Discord-Snake-Pit/NAFF",
+    url="https://github.com/interactions-py/interactions.py",
 )
 
 await channel.send("Look a Button!", components=components)
@@ -106,7 +106,7 @@ If you want to use string options, then you use `StringSelect`. Simply pass a li
 You can also define how many options users can choose by setting `min_values` and `max_values`.
 
 ```python
-from naff import StringSelectMenu, SelectOption
+from interactions import StringSelectMenu, SelectOption
 
 components = StringSelectMenu(
     options=[
@@ -119,14 +119,12 @@ components = StringSelectMenu(
 
 await channel.send("Look a Select!", components=components)
 ```
-    ??? note
-        You can only have upto 25 options in a Select
+??? note
+    You can only have upto 25 options in a Select
 
 Alternatively, you can use `RoleSelectMenu`, `UserSelectMenu` and `ChannelSelectMenu` to select roles, users and channels respectively. These select menus are very similar to `StringSelectMenu`, but they don't allow you to pass a list of options; it's all done behind the scenes.
 
-```python
-
-For more information, please visit the API reference [here](/API Reference/models/Discord/components/#naff.models.discord.components.Select).
+For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Discord/components/#interactions.models.discord.components.Select).
 
 ## Responding
 
@@ -163,7 +161,7 @@ When responding to a component you need to satisfy discord either by responding 
         # you can also pass an ActionRow, or a list of ActionRows. Then a press on any component in there will be listened for
         used_component = await bot.wait_for_component(components=components, check=check, timeout=30)
 
-    except TimeoutError:  
+    except TimeoutError:
         print("Timed Out!")
 
         components[0].components[0].disabled = True
@@ -175,7 +173,7 @@ When responding to a component you need to satisfy discord either by responding 
 
     You can also use this to check for a normal message instead of a component interaction.
 
-    For more information, please visit the API reference [here](/API Reference/client/).
+    For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/client/).
 
 
 === ":two: Persistent Callback Option 1"

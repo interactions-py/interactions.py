@@ -236,7 +236,7 @@ class Client(
         disable_dm_commands: Should interaction commands be disabled in DMs?
         basic_logging: Utilise basic logging to output library data to console. Do not use in combination with `Client.logger`
         logging_level: The level of logging to use for basic_logging. Do not use in combination with `Client.logger`
-        logger: The logger NAFF should use. Do not use in combination with `Client.basic_logging` and `Client.logging_level`. Note: Different loggers with multiple clients are not supported
+        logger: The logger interactions.py should use. Do not use in combination with `Client.basic_logging` and `Client.logging_level`. Note: Different loggers with multiple clients are not supported
 
     Optionally, you can configure the caches here, by specifying the name of the cache, followed by a dict-style object to use.
     It is recommended to use `smart_cache.create_cache` to configure the cache here.
@@ -291,7 +291,7 @@ class Client(
 
         # Set Up logger and overwrite the constant
         self.logger = logger
-        """The logger NAFF should use. Do not use in combination with `Client.basic_logging` and `Client.logging_level`.
+        """The logger interactions.py should use. Do not use in combination with `Client.basic_logging` and `Client.logging_level`.
         !!! note
             Different loggers with multiple clients are not supported"""
         constants._logger = logger

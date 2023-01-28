@@ -10,7 +10,7 @@ Tasks work by creating an `asyncio.Task` to run a loop to check if the task is r
     Decorators are by far the easier way to run tasks, with very simple syntax to get started.
 
     ```python
-    from naff import Task, IntervalTrigger
+    from interactions import Task, IntervalTrigger
 
     @Task.create(IntervalTrigger(minutes=10)) # (1)!
     async def print_every_ten():
@@ -24,7 +24,7 @@ Tasks work by creating an `asyncio.Task` to run a loop to check if the task is r
     You can also manually register tasks
 
     ```python
-    from naff import Task, IntervalTrigger
+    from interactions import Task, IntervalTrigger
 
     async def print_every_ten():
         print("It's been 10 minutes!")
@@ -39,7 +39,7 @@ By default, there are a few triggers available to the user.
     These triggers run every set interval.
 
     ```python
-    from naff import Task, IntervalTrigger
+    from interactions import Task, IntervalTrigger
 
     @Task.create(IntervalTrigger(minutes=10))
     async def print_every_ten():
@@ -52,7 +52,7 @@ By default, there are a few triggers available to the user.
 
     ```python
     from datetime import datetime, timedelta
-    from naff import Task, DateTrigger
+    from interactions import Task, DateTrigger
 
     future = datetime.strptime("%d-%m-%Y", "01-01-2100") # (1)!
 
@@ -70,7 +70,7 @@ By default, there are a few triggers available to the user.
     These triggers are similar to DateTriggers, but trigger daily at the specified hour, minute, and second.
 
     ```python
-    from naff import Task, TimeTrigger
+    from interactions import Task, TimeTrigger
 
     @Task.create(TimeTrigger(hour=0, minute=0)) # (1)!
     async def midnight():
@@ -85,7 +85,7 @@ By default, there are a few triggers available to the user.
     These triggers are special, in that you can pass in a list of different triggers, and if any of them are triggered, it runs the function.
 
     ```python
-    from naff import Task, OrTrigger, TimeTrigger
+    from interactions import Task, OrTrigger, TimeTrigger
 
     @Task.create(OrTrigger(TimeTrigger(hour=5, minute=0), TimeTrigger(hour=17, minute=0)) # (1)!
     async def five():
@@ -101,7 +101,7 @@ To start a task that has been created, you need to run the `Task.start()` method
 === ":one: Decorators"
 
     ```python
-    from naff import Client, Intents, Task, IntervalTrigger, listen
+    from interactions import Client, Intents, Task, IntervalTrigger, listen
 
     @Task.create(IntervalTrigger(minutes=10))
     async def print_every_ten():
@@ -120,7 +120,7 @@ To start a task that has been created, you need to run the `Task.start()` method
 === ":two: Manual Registration"
 
     ```python
-    from naff import Client, Intents, Task, IntervalTrigger, listen
+    from interactions import Client, Intents, Task, IntervalTrigger, listen
 
     async def print_every_ten():
         print("It's been 10 minutes!")

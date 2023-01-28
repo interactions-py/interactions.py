@@ -117,7 +117,7 @@ SELF = TypeVar("SELF")
 
 def _log_type_mismatch(cls, value) -> None:
     get_logger().error(
-        f"Class `{cls.__name__}` received an invalid and unexpected value `{value}`. Please update NAFF or report this issue on GitHub - https://github.com/NAFTeam/NAFF/issues"
+        f"Class `{cls.__name__}` received an invalid and unexpected value `{value}`. Please update interactions.py or report this issue on GitHub - https://github.com/interactions-py/interactions.py/issues"
     )
 
 

@@ -23,7 +23,7 @@ There are two different ways to install this library and create your bot.
     ### Template Feature
     - Basic, ready to go bot
     - Implementation of best practises
-    - NAFF, and general extensibility
+    - General extensibility
     - Example command, context menu, component, and event
     - Logging to both console and file
     - Pip and poetry config
@@ -83,7 +83,7 @@ There are two different ways to install this library and create your bot.
     Now let's get a basic bot going, for your code, you'll want something like this:
 
     ```python
-    from naff import Client, Intents, listen
+    from interactions import Client, Intents, listen
 
     bot = Client(intents=Intents.DEFAULT)
     # intents are what events we want to receive from discord, `DEFAULT` is usually fine
