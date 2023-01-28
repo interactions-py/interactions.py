@@ -3,7 +3,7 @@ import functools
 import inspect
 from typing import TYPE_CHECKING, Callable, Coroutine
 
-from interactions.client.const import Absent, MISSING
+from interactions.client.const import Absent, MISSING, AsyncCallable
 from interactions.models.discord.user import NaffUser
 
 if TYPE_CHECKING:
@@ -15,16 +15,16 @@ __all__ = ("Processor", "EventMixinTemplate")
 
 class Processor:
 
-    callback: Coroutine
+    callback: AsyncCallable
     event_name: str
 
-    def __init__(self, callback: Coroutine, name: str) -> None:
+    def __init__(self, callback: AsyncCallable, name: str) -> None:
         self.callback = callback
         self.event_name = name
 
     @classmethod
-    def define(cls, event_name: Absent[str] = MISSING) -> Callable[[Coroutine], "Processor"]:
-        def wrapper(coro: Coroutine) -> "Processor":
+    def define(cls, event_name: Absent[str] = MISSING) -> Callable[[AsyncCallable], "Processor"]:
+        def wrapper(coro: AsyncCallable) -> "Processor":
             name = event_name
             if name is MISSING:
                 name = coro.__name__

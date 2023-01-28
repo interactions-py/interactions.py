@@ -50,7 +50,7 @@ await modal_ctx.send(f"""You input {modal_ctx.responses["short_text"]} and {moda
 `bot.wait_for_modal()` returns `ModalContext` which, to nobodies surprise, you need to respond to as well. Respond to it by utilising `modal_ctx.send()`, as you are probably already used to.
 
 To get the data the user input, you can use `modal_ctx.responses`. This returns a dictionary with the `custom_id` you set for your components as keys, and the users inputs as values.
-As previously mentioned, you really want to set your own `custom_id` otherwise you will have problems figuring out which input belongs to which component.  
+As previously mentioned, you really want to set your own `custom_id` otherwise you will have problems figuring out which input belongs to which component.
 
 ## Customising Components
 
