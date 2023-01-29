@@ -1,6 +1,6 @@
 ??? Hint "Example Usage:"
     ```python
-    from naff import slash_command, cooldown, Buckets
+    from interactions import slash_command, cooldown, Buckets
 
     @slash_command(name='cmd')
     @cooldown(Buckets.user, 1, 10) # (1)!

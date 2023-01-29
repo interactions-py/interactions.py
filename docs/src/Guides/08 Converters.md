@@ -40,7 +40,7 @@ As you can see, a converter can transparently convert what Discord sends you (a 
 
 ## `Converter`
 
-You may also use the `Converter` class that `NAFF` has as well.
+You may also use the `Converter` class that `interactions.py` has as well.
 
 ```python
 class UpperConverter(Converter):

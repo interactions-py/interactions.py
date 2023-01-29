@@ -18,22 +18,24 @@ Below is an example of a bot, one with extensions, one without.
         # File: `main.py`
         import logging
 
-        import naff.const
-        from naff.client import Client
-        from naff.models.application_commands import slash_command, slash_option
-        from naff.models.command import prefixed_command
-        from naff.models.context import InteractionContext
-        from naff.models.discord_objects.components import Button, ActionRow
-        from naff.models.enums import ButtonStyles
-        from naff.models.enums import Intents
-        from naff.models.events import Component
-        from naff.models.listener import listen
+        import interactions.const
+        from interactions.client import Client
+        from interactions.models.application_commands import slash_command, slash_option
+        from interactions.models.context import InteractionContext
+        from interactions.models.discord_objects.components import Button, ActionRow
+        from interactions.models.enums import ButtonStyles
+        from interactions.models.enums import Intents
+        from interactions.models.events import Component
+        from interactions.models.listener import listen
+        from interactions.ext import prefixed_commands
+        from interactions.ext.prefixed_commands import prefixed_command
 
         logging.basicConfig()
-        cls_log = logging.getLogger(naff.const.logger_name)
+        cls_log = logging.getLogger(interactions.const.logger_name)
         cls_log.setLevel(logging.DEBUG)
 
         bot = Client(intents=Intents.DEFAULT, sync_interactions=True, asyncio_debug=True)
+        prefixed_commands.setup(bot)
 
 
         @listen()
@@ -93,19 +95,21 @@ Below is an example of a bot, one with extensions, one without.
         # File: `main.py`
         import logging
 
-        import naff.const
-        from naff.client import Client
-        from naff.models.context import ComponentContext
-        from naff.models.enums import Intents
-        from naff.models.events import Component
-        from naff.models.listener import listen
+        import interactions.const
+        from interactions.client import Client
+        from interactions.models.context import ComponentContext
+        from interactions.models.enums import Intents
+        from interactions.models.events import Component
+        from interactions.models.listener import listen
+        from interactions.ext import prefixed_commands
 
 
         logging.basicConfig()
-        cls_log = logging.getLogger(naff.const.logger_name)
+        cls_log = logging.getLogger(interactions.const.logger_name)
         cls_log.setLevel(logging.DEBUG)
 
         bot = Client(intents=Intents.DEFAULT, sync_interactions=True, asyncio_debug=True)
+        prefixed_commands.setup(bot)
 
 
         @listen()
@@ -138,10 +142,11 @@ Below is an example of a bot, one with extensions, one without.
 
         # File: `test_components.py`
 
-        from naff.models.command import prefixed_command
-        from naff.models.discord_objects.components import Button, ActionRow
-        from naff.models.enums import ButtonStyles
-        from naff.models.extension import Extension
+        from interactions.models.command import prefixed_command
+        from interactions.models.discord_objects.components import Button, ActionRow
+        from interactions.models.enums import ButtonStyles
+        from interactions.models.extension import Extension
+        from interactions.ext.prefixed_commands import prefixed_command
 
 
         class ButtonExampleSkin(Extension):
@@ -182,7 +187,7 @@ Extensions are effectively just another python file that contains a class that i
 inside this extension, you can put whatever you would like. And upon loading, the contents are added to the bot.
 
 ```python
-from naff import Extension
+from interactions import Extension
 
 
 class SomeClass(Extension):
@@ -190,10 +195,10 @@ class SomeClass(Extension):
 
 
 def setup(bot):
-    # This is called by naff so it knows how to load the Extension
+    # This is called by interactions.py so it knows how to load the Extension
     SomeClass(bot)
 ```
-As you can see, there's one extra bit, a function called `setup`, this function acts as an entry point for NAFF,
+As you can see, there's one extra bit, a function called `setup`, this function acts as an entry point for interactions.py,
 so it knows how to load the extension properly.
 
 To load a extension, you simply add the following to your `main` script, just above `bot.start`:
@@ -217,7 +222,7 @@ Any arguments you pass to the `setup` or `teardown` methods, will also be passed
 Here is a basic "Extension switching" example:
 
 ```python
-from naff import Extension
+from interactions import Extension
 
 
 class SomeExtension(Extension):

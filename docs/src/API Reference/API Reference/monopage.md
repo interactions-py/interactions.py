@@ -68,7 +68,7 @@ This file holds the entire API reference in a single page; should that be your p
 ::: interactions.models.discord.timestamp
 
 ---
-## naff Models
+## Internal Models
 ::: interactions.models.internal.extension
 ::: interactions.models.internal.cooldowns
 ::: interactions.models.internal.checks

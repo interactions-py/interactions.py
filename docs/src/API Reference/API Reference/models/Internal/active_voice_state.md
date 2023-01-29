@@ -1,7 +1,7 @@
 ??? Hint "Example Usage:"
     ```python
-    from naff import slash_command, slash_option, OptionTypes, InteractionContext
-    from naff.api.voice.audio import AudioVolume
+    from interactions import slash_command, slash_option, OptionTypes, InteractionContext
+    from interactions.api.voice.audio import AudioVolume
 
 
     @slash_command("play")
