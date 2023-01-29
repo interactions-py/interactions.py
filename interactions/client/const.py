@@ -35,6 +35,7 @@ Attributes:
 """
 import inspect
 import logging
+import os
 import sys
 from collections import defaultdict
 from importlib.metadata import version as _v
@@ -74,6 +75,7 @@ __all__ = (
     "Absent",
     "T",
     "T_co",
+    "LIB_PATH",
 )
 
 _ver_info = sys.version_info
@@ -207,3 +209,6 @@ T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
 Absent = Union[T, Missing]
 AsyncCallable = Callable[..., Coroutine]
+
+LIB_PATH = os.sep.join(__file__.split(os.sep)[:-2])
+"""The path to the library folder."""

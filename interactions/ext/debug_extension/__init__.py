@@ -39,6 +39,9 @@ class DebugExtension(DebugExec, DebugAppCMD, DebugExts, Extension):
         tracemalloc.start()
         bot.logger.warning("Tracemalloc started")
 
+        self.client.http.show_ratelimit_traceback = True
+        bot.logger.warning("Ratelimit tracebacks enabled")
+
     async def async_start(self) -> None:
         loop = asyncio.get_running_loop()
         loop.set_debug(True)
