@@ -75,9 +75,9 @@ __all__ = (
 
 def name_validator(_: Any, attr: Attribute, value: str) -> None:
     if value:
-        if not re.match(rf"^[\w-]{{1,{SLASH_CMD_NAME_LENGTH}}}$", value) or value != value.lower():  # noqa: W605
+        if not re.match(f"^[\\w-]{{1,{SLASH_CMD_NAME_LENGTH}}}$", value) or value != value.lower():
             raise ValueError(
-                f"Slash Command names must be lower case and match this regex: ^[\w-]{1, {SLASH_CMD_NAME_LENGTH} }$"  # noqa: W605
+                f"Slash Command names must be lower case and match this regex: ^[\\w-]{1, {SLASH_CMD_NAME_LENGTH} }$"
             )
 
 
