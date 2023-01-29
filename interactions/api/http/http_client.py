@@ -1,8 +1,10 @@
 """This file handles the interaction with discords http endpoints."""
 import asyncio
+import inspect
+import os
 import time
 from logging import Logger
-from typing import Any, cast
+from typing import Any, cast, Callable
 from urllib.parse import quote as _uriquote
 from weakref import WeakValueDictionary
 
@@ -166,7 +168,9 @@ class HTTPClient(
 ):
     """A http client for sending requests to the Discord API."""
 
-    def __init__(self, connector: BaseConnector | None = None, logger: Logger = MISSING) -> None:
+    def __init__(
+        self, connector: BaseConnector | None = None, logger: Logger = MISSING, show_ratelimit_tracebacks: bool = False
+    ) -> None:
         self.connector: BaseConnector | None = connector
         self.__session: ClientSession | None = None
         self.token: str | None = None
@@ -174,6 +178,7 @@ class HTTPClient(
         self._max_attempts: int = 3
 
         self.ratelimit_locks: WeakValueDictionary[str, BucketLock] = WeakValueDictionary()
+        self.show_ratelimit_traceback: bool = show_ratelimit_tracebacks
         self._endpoints = {}
 
         self.user_agent: str = (
@@ -343,15 +348,17 @@ class HTTPClient(
                             if result.get("global", False):
                                 # global ratelimit is reached
                                 # if we get a global, that's pretty bad, this would usually happen if the user is hitting the api from 2 clients sharing a token
-                                self.logger.error(
-                                    f"Bot has exceeded global ratelimit, locking REST API for {result['retry_after']} seconds"
+                                self.log_ratelimit(
+                                    self.logger.warning,
+                                    f"Bot has exceeded global ratelimit, locking REST API for {result['retry_after']} seconds",
                                 )
                                 self.global_lock.set_reset_time(float(result["retry_after"]))
                             elif result.get("message") == "The resource is being rate limited.":
                                 # resource ratelimit is reached
-                                self.logger.warning(
+                                self.log_ratelimit(
+                                    self.logger.warning,
                                     f"{route.endpoint} The resource is being rate limited! "
-                                    f"Reset in {result.get('retry_after')} seconds"
+                                    f"Reset in {result.get('retry_after')} seconds",
                                 )
                                 # lock this resource and wait for unlock
                                 await lock.defer_unlock(float(result["retry_after"]))
@@ -359,15 +366,17 @@ class HTTPClient(
                                 # endpoint ratelimit is reached
                                 # 429's are unfortunately unavoidable, but we can attempt to avoid them
                                 # so long as these are infrequent we're doing well
-                                self.logger.warning(
-                                    f"{route.endpoint} Has exceeded it's ratelimit ({lock.limit})! Reset in {lock.delta} seconds"
+                                self.log_ratelimit(
+                                    self.logger.warning,
+                                    f"{route.endpoint} Has exceeded it's ratelimit ({lock.limit})! Reset in {lock.delta} seconds",
                                 )
                                 await lock.defer_unlock()  # lock this route and wait for unlock
                             continue
                         elif lock.remaining == 0:
                             # Last call available in the bucket, lock until reset
-                            self.logger.debug(
-                                f"{route.endpoint} Has exhausted its ratelimit ({lock.limit})! Locking route for {lock.delta} seconds"
+                            self.log_ratelimit(
+                                self.logger.debug,
+                                f"{route.endpoint} Has exhausted its ratelimit ({lock.limit})! Locking route for {lock.delta} seconds",
                             )
                             await lock.blind_defer_unlock()  # lock this route, but continue processing the current response
 
@@ -403,6 +412,29 @@ class HTTPClient(
             raise DiscordError(response, response_data=result, route=route)
         else:
             raise HTTPException(response, response_data=result, route=route)
+
+    def log_ratelimit(self, log_func: Callable, message: str) -> None:
+        """
+        Logs a ratelimit message, optionally with a traceback if show_ratelimit_traceback is True
+
+        Args:
+            log_func: The logging function to use
+            message: The message to log
+        """
+        if self.show_ratelimit_traceback:
+            if frame := next(
+                (frame for frame in inspect.stack() if constants.LIB_PATH not in frame.filename),
+                None,
+            ):
+                frame_info = inspect.getframeinfo(frame[0])
+                filename = os.path.relpath(frame_info.filename, os.getcwd())
+
+                traceback = (
+                    f"{filename}:{frame_info.lineno} in {frame_info.function}:: {frame_info.code_context[0].strip()}"
+                )
+                message = f"{message} | Caused By: {traceback}"
+
+        log_func(message)
 
     async def request_cdn(self, url, asset) -> bytes:  # pyright: ignore [reportGeneralTypeIssues]
         self.logger.debug(f"{asset} requests {url} from CDN")
