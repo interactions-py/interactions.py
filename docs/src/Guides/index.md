@@ -39,12 +39,6 @@ These guides are meant to help you get started with the library and offer a poin
 
     As everyone knows from surfing the web, popups are really great. Everyone loves them and they make for a great UX. Luckily for you, you have the option to regale your users love for them by using modals.
 
--   [__:material-text: Prefixed Commands__](07 Creating Prefixed Commands.md)
-
-    ---
-
-    Going old-school with prefixed-commands? No problem. Let's get your message commands up and running.
-
 -   [__:material-account-convert: Converters__](08 Converters.md)
 
     ---
@@ -69,14 +63,14 @@ These guides are meant to help you get started with the library and offer a poin
 
     You have learned how to create interactions and how to keep your code clean with extensions. This guide show you how to elevate your extensions to the next level.
 
--   [__:material-music: Voice Support__](22 Voice.md)
+-   [__:material-music: Voice Support__](23 Voice.md)
 
     ---
 
     So you want to start playing some 🎵tunes🎶 in voice channels? Well let's get that going for you.
 
 
--   [__:material-earth-plus: Localisation__](23 Localisation.md)
+-   [__:material-earth-plus: Localisation__](24 Localisation.md)
 
     ---
 
@@ -104,7 +98,7 @@ These guides are meant to help you get started with the library and offer a poin
 
     ---
 
-    Whats different between NAFF and discord.py?
+    What's the difference between interactions.py and discord.py?
 
 -   [__:material-package-up: 2.x Migration Guide__](98 2.x Migration.md)
 

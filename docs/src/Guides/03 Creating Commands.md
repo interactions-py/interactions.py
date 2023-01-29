@@ -24,8 +24,8 @@ async def my_long_command_function(ctx: InteractionContext):
 
     await ctx.send("Hello World")
 ```
-    ??? note
-        Command names must be lowercase and can only contain `-` and `_` as special symbols and must not contain spaces.
+??? note
+    Command names must be lowercase and can only contain `-` and `_` as special symbols and must not contain spaces.
 
 When testing, it is recommended to use non-global commands, as they sync instantly.
 For that, you can either define `scopes` in every command or set `debug_scope` in the bot instantiation which sets the scope automatically for all commands.
@@ -37,7 +37,7 @@ async def my_command_function(ctx: InteractionContext):
     await ctx.send("Hello World")
 ```
 
-For more information, please visit the API reference [here](/API Reference/models/Naff/application_commands/#naff.models.internal.application_commands.slash_command).
+For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.slash_command).
 
 ## Subcommands
 
@@ -85,7 +85,7 @@ This will show up in discord as `/base group command`. There are two ways to add
 
 ## But I Need More Options
 
-Interactions can also have options. There are a bunch of different [types of options](/API Reference/models/Naff/application_commands/#naff.models.internal.application_commands.OptionTypes):
+Interactions can also have options. There are a bunch of different [types of options](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.OptionTypes):
 
 | Option Type               | Return Type                                | Description                                                                                 |
 |---------------------------|--------------------------------------------|---------------------------------------------------------------------------------------------|
@@ -129,7 +129,7 @@ async def my_command_function(ctx: InteractionContext, integer_option: int = 5):
     await ctx.send(f"You input {integer_option}")
 ```
 
-For more information, please visit the API reference [here](/API Reference/models/Naff/application_commands/#naff.models.internal.application_commands.slash_option).
+For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.slash_option).
 
 ## Restricting Options
 
@@ -205,7 +205,7 @@ async def my_command_function(ctx: InteractionContext, integer_option: int):
     await ctx.send(f"You input {integer_option} which is either 1 or 2")
 ```
 
-For more information, please visit the API reference [here](/API Reference/models/Naff/application_commands/#naff.models.internal.application_commands.SlashCommandChoice).
+For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.SlashCommandChoice).
 
 ## I Need More Than 25 Choices
 

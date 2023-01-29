@@ -1,1 +1,1 @@
-[:fontawesome-brands-github: GitHub Repo](https://github.com/Discord-Snake-Pit/NAFF)
+[:fontawesome-brands-github: GitHub Repo](https://github.com/interactions-py/interactions.py)

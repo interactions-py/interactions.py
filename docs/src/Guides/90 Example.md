@@ -6,8 +6,9 @@
 
 import logging
 
-from naff import Client, Intents, listen
-from naff.api.events import Component
+from interactions import Client, Intents, listen
+from interactions.api.events import Component
+from interactions.ext import prefixed_commands
 
 # define your own logger with custom logging settings
 logging.basicConfig()
@@ -15,6 +16,7 @@ cls_log = logging.getLogger("MyLogger")
 cls_log.setLevel(logging.DEBUG)
 
 bot = Client(intents=Intents.DEFAULT, sync_interactions=True, asyncio_debug=True, logger=cls_log)
+prefixed_commands.setup(bot)
 
 
 @listen()
@@ -48,7 +50,8 @@ bot.start("Token")
 
 ```python
 
-from naff import prefixed_command, Button, ActionRow, ButtonStyles, Extension
+from interactions import Button, ActionRow, ButtonStyles, Extension
+from interactions.ext.prefixed_commands import prefixed_command
 
 
 class ButtonExampleSkin(Extension):
@@ -89,7 +92,7 @@ def setup(bot):
 
 ```python
 
-from naff import slash_command, slash_option, InteractionContext, context_menu, CommandTypes, Button, ActionRow, ButtonStyles, Extension
+from interactions import slash_command, slash_option, InteractionContext, context_menu, CommandTypes, Button, ActionRow, ButtonStyles, Extension
 
 
 class CommandsExampleSkin(Extension):

@@ -83,7 +83,7 @@ class Paginator:
     client: "Client" = attrs.field(
         repr=False,
     )
-    """The NAFF client to hook listeners into"""
+    """The client to hook listeners into"""
 
     page_index: int = attrs.field(repr=False, kw_only=True, default=0)
     """The index of the current page being displayed"""
@@ -174,7 +174,7 @@ class Paginator:
         """Create a paginator system from a list of embeds.
 
         Args:
-            client: A reference to the NAFF client
+            client: A reference to the client
             *embeds: The embeds to use for each page
             timeout: A timeout to wait before closing the paginator
 
@@ -197,7 +197,7 @@ class Paginator:
         Create a paginator system from a string.
 
         Args:
-            client: A reference to the NAFF client
+            client: A reference to the client
             content: The content to paginate
             prefix: The prefix for each page to use
             suffix: The suffix for each page to use
@@ -231,7 +231,7 @@ class Paginator:
         Create a paginator from a list of strings. Useful to maintain formatting.
 
         Args:
-            client: A reference to the NAFF client
+            client: A reference to the client
             content: The content to paginate
             prefix: The prefix for each page to use
             suffix: The suffix for each page to use

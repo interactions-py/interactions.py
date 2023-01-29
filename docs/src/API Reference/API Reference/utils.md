@@ -1,7 +1,7 @@
 These are a collection of utility methods that are used throughout the library. There are several more that are not included here, as they are reserved for internal use.
 
 !!! info
-    All of these methods can be imported from the `naff.client.utils` namespace
+    All of these methods can be imported from the `interactions.client.utils` namespace
 
 ## Formatting
 These methods are to help you format strings for messages.

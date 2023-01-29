@@ -5,7 +5,7 @@ Context menus work off `ctx.target` which contains the object the user interacte
 
 You can also define `scopes` and `permissions` for them, just like with interactions.
 
-For more information, please visit the API reference [here](/API Reference/models/Naff/application_commands/#naff.models.internal.application_commands.context_menu).
+For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.context_menu).
 
 ## Message Context Menus
 
@@ -32,5 +32,5 @@ async def ping(ctx: InteractionContext):
     member: Member = ctx.target
     await ctx.send(member.mention)
 ```
-    ??? note
-        Command names must be lowercase and can only contain `-` and `_` as special symbols and must not contain spaces.
+??? note
+    Command names must be lowercase and can only contain `-` and `_` as special symbols and must not contain spaces.
