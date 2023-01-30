@@ -338,10 +338,10 @@ class Member(DiscordObject, _SendDMMixin):
 
     def __getattr__(self, name: str) -> Any:
         # this allows for transparent access to user attributes
-        if not self.__class__._user_ref:
+        if not hasattr(self.__class__._user_ref, "__iter__"):
             self.__class__._user_ref = frozenset(dir(User))
 
-        if name in self._user_ref:
+        if name in self.__class__._user_ref:
             return getattr(self.user, name)
         else:
             raise AttributeError(f"Neither `User` or `Member` have attribute {name}")
