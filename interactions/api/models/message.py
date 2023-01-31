@@ -384,7 +384,7 @@ class Embed(DictSerializerMixin):
     author: Optional[EmbedAuthor] = field(converter=EmbedAuthor, default=None)
     fields: Optional[List[EmbedField]] = field(converter=convert_list(EmbedField), default=None)
 
-    def add_field(self, name: str, value: str, inline: Optional[bool] = False):
+    def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
@@ -401,7 +401,7 @@ class Embed(DictSerializerMixin):
         self.fields.append(EmbedField(name=name, value=value, inline=inline))
         return self
 
-    def clear_fields(self):
+    def clear_fields(self) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
@@ -413,7 +413,7 @@ class Embed(DictSerializerMixin):
 
     def insert_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
-    ):
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
@@ -433,7 +433,7 @@ class Embed(DictSerializerMixin):
 
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
-    ):
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
@@ -454,7 +454,7 @@ class Embed(DictSerializerMixin):
             raise IndexError("No fields at this index") from e
         return self
 
-    def remove_field(self, index: int):
+    def remove_field(self, index: int) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
@@ -472,7 +472,7 @@ class Embed(DictSerializerMixin):
             raise IndexError("Field not Found at index") from e
         return self
 
-    def remove_author(self):
+    def remove_author(self) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
@@ -489,7 +489,7 @@ class Embed(DictSerializerMixin):
         url: Optional[str] = None,
         icon_url: Optional[str] = None,
         proxy_icon_url: Optional[str] = None,
-    ):
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
@@ -508,7 +508,7 @@ class Embed(DictSerializerMixin):
 
     def set_footer(
         self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None
-    ):
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
@@ -528,7 +528,7 @@ class Embed(DictSerializerMixin):
         proxy_url: Optional[str] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
-    ):
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
@@ -549,7 +549,7 @@ class Embed(DictSerializerMixin):
         proxy_url: Optional[str] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
-    ):
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
@@ -570,7 +570,7 @@ class Embed(DictSerializerMixin):
         proxy_url: Optional[str] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
-    ):
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
 
