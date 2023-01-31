@@ -445,7 +445,7 @@ class Embed(DictSerializerMixin):
             elif value is None and key in self._json.keys():
                 del self._json[key]
 
-    def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
+    def add_field(self, name: str, value: str, inline: Optional[bool] = False):
         """
         Adds a field to the embed
 
@@ -464,17 +464,20 @@ class Embed(DictSerializerMixin):
         # We must use "=" here to call __setattr__. Append does not call any magic, making it impossible to modify the
         # json when using it, so the object what would be sent wouldn't be modified.
         # Imo this is still better than doing a `self._json.update({"fields": [field._json for ...]})`
+        return self
 
-    def clear_fields(self) -> None:
+    def clear_fields(self):
         """
         Clears all the fields of the embed
         """
 
         self.fields = []
+        return self
+
 
     def insert_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
-    ) -> None:
+    ):
         """
         Inserts a field in the embed at the specified index
 
@@ -495,10 +498,11 @@ class Embed(DictSerializerMixin):
 
         except AttributeError as e:
             raise AttributeError("No fields found in Embed") from e
+        return self
 
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
-    ) -> None:
+    ):
         """
         Overwrites the field in the embed at the specified index
 
@@ -522,8 +526,9 @@ class Embed(DictSerializerMixin):
 
         except IndexError as e:
             raise IndexError("No fields at this index") from e
+        return self
 
-    def remove_field(self, index: int) -> None:
+    def remove_field(self, index: int):
         """
         Remove field at the specified index
 
@@ -541,14 +546,16 @@ class Embed(DictSerializerMixin):
 
         except IndexError as e:
             raise IndexError("Field not Found at index") from e
+        return self
 
-    def remove_author(self) -> None:
+    def remove_author(self):
         """
         Removes the embed's author
         """
 
         with contextlib.suppress(AttributeError):
             del self.author
+        return self
 
     def set_author(
         self,
@@ -556,7 +563,7 @@ class Embed(DictSerializerMixin):
         url: Optional[str] = None,
         icon_url: Optional[str] = None,
         proxy_icon_url: Optional[str] = None,
-    ) -> None:
+    ):
         """
         Sets the embed's author
 
@@ -573,10 +580,11 @@ class Embed(DictSerializerMixin):
         self.author = EmbedAuthor(
             name=name, url=url, icon_url=icon_url, proxy_icon_url=proxy_icon_url
         )
+        return self
 
     def set_footer(
         self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None
-    ) -> None:
+    ):
         """
         Sets the embed's footer
 
@@ -589,6 +597,7 @@ class Embed(DictSerializerMixin):
         """
 
         self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
+        return self
 
     def set_image(
         self,
@@ -596,7 +605,7 @@ class Embed(DictSerializerMixin):
         proxy_url: Optional[str] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
-    ) -> None:
+    ):
         """
         Sets the embed's image
 
@@ -611,6 +620,7 @@ class Embed(DictSerializerMixin):
         """
 
         self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+        return self
 
     def set_video(
         self,
@@ -618,7 +628,7 @@ class Embed(DictSerializerMixin):
         proxy_url: Optional[str] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
-    ) -> None:
+    ):
         """
         Sets the embed's video
 
@@ -633,6 +643,7 @@ class Embed(DictSerializerMixin):
         """
 
         self.video = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+        return self
 
     def set_thumbnail(
         self,
@@ -640,7 +651,7 @@ class Embed(DictSerializerMixin):
         proxy_url: Optional[str] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
-    ) -> None:
+    ):
         """
         Sets the embed's thumbnail
 
@@ -655,6 +666,7 @@ class Embed(DictSerializerMixin):
         """
 
         self.thumbnail = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+        return self
 
 
 @define()
