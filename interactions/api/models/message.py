@@ -387,7 +387,8 @@ class Embed(DictSerializerMixin):
     def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Adds a field to the embed
 
@@ -405,7 +406,8 @@ class Embed(DictSerializerMixin):
     def clear_fields(self) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Clears all the fields of the embed
         """
@@ -418,7 +420,8 @@ class Embed(DictSerializerMixin):
     ) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Inserts a field in the embed at the specified index
 
@@ -439,7 +442,8 @@ class Embed(DictSerializerMixin):
     ) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Overwrites the field in the embed at the specified index
 
@@ -461,7 +465,8 @@ class Embed(DictSerializerMixin):
     def remove_field(self, index: int) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Remove field at the specified index
 
@@ -480,7 +485,8 @@ class Embed(DictSerializerMixin):
     def remove_author(self) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Removes the embed's author
         """
@@ -498,7 +504,8 @@ class Embed(DictSerializerMixin):
     ) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Sets the embed's author
 
@@ -518,7 +525,8 @@ class Embed(DictSerializerMixin):
     ) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Sets the embed's footer
 
@@ -539,7 +547,8 @@ class Embed(DictSerializerMixin):
     ) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Sets the embed's image
 
@@ -561,7 +570,8 @@ class Embed(DictSerializerMixin):
     ) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Sets the embed's video
 
@@ -583,7 +593,8 @@ class Embed(DictSerializerMixin):
     ) -> "Embed":
         """
         .. versionadded:: 4.2.0
-        .. versionchanged:: v4.4.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Sets the embed's thumbnail
 
