@@ -1,19 +1,20 @@
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
-from ...api.cache import Cache
 from ..models.guild import Guild
 from ..models.member import Member
 from ..models.misc import Snowflake
 from .request import _Request
 from .route import Route
 
+if TYPE_CHECKING:
+    from ...api.cache import Cache
+
 __all__ = ("MemberRequest",)
 
 
 class MemberRequest:
-
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass

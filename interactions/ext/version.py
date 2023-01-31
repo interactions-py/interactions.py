@@ -193,7 +193,7 @@ class Version:
                 VersionAlphanumericType.RELEASE_CANDIDATE,
             )
             amount: int = 0
-            for key, value in kwargs:
+            for key, value in kwargs.items():
                 if key in identifiers and len(value) == 1:
                     amount += 1
                     cls.__version = f"{cls.__version}-{key}.{value}"

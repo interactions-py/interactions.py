@@ -1,17 +1,21 @@
-from typing import List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
-from ...api.cache import Cache
+from aiohttp import MultipartWriter
+
 from ..models import Snowflake
+from ..models.message import File
 from .request import _Request
 from .route import Route
+
+if TYPE_CHECKING:
+    from ...api.cache import Cache
 
 __all__ = ("InteractionRequest",)
 
 
 class InteractionRequest:
-
     _req: _Request
-    cache: Cache
+    cache: "Cache"
 
     def __init__(self) -> None:
         pass
@@ -215,7 +219,11 @@ class InteractionRequest:
         )
 
     async def create_interaction_response(
-        self, token: str, application_id: int, data: dict
+        self,
+        token: str,
+        application_id: int,
+        data: dict,
+        files: Optional[List[File]] = None,
     ) -> None:
         """
         Posts initial response to an interaction, but you need to add the token.
@@ -223,9 +231,29 @@ class InteractionRequest:
         :param token: Token.
         :param application_id: Application ID snowflake
         :param data: The data to send.
+        :param files: The files to send.
         """
+
+        file_data = None
+        if files:
+
+            file_data = MultipartWriter("form-data")
+            part = file_data.append_json(data)
+            part.set_content_disposition("form-data", name="payload_json")
+            data = None
+
+            for id, file in enumerate(files):
+                part = file_data.append(
+                    file._fp,
+                )
+                part.set_content_disposition(
+                    "form-data", name=f"files[{str(id)}]", filename=file._filename
+                )
+
         return await self._req.request(
-            Route("POST", f"/interactions/{application_id}/{token}/callback"), json=data
+            Route("POST", f"/interactions/{application_id}/{token}/callback"),
+            json=data,
+            data=file_data,
         )
 
     # This is still Interactions, but this also applies to webhooks
@@ -247,7 +275,12 @@ class InteractionRequest:
         )
 
     async def edit_interaction_response(
-        self, data: dict, token: str, application_id: str, message_id: str = "@original"
+        self,
+        data: dict,
+        token: str,
+        application_id: str,
+        files: Optional[List[File]] = None,
+        message_id: str = "@original",
     ) -> dict:
         """
         Edits an existing interaction message, but token needs to be manually called.
@@ -255,17 +288,35 @@ class InteractionRequest:
         :param data: A dictionary containing the new response.
         :param token: the token of the interaction
         :param application_id: Application ID snowflake.
+        :param files: The files to send.
         :param message_id: Message ID snowflake. Defaults to `@original` which represents the initial response msg.
         :return: Updated message data.
         """
         # ^ again, I don't know if python will let me
+        file_data = None
+        if files:
+
+            file_data = MultipartWriter("form-data")
+            part = file_data.append_json(data)
+            part.set_content_disposition("form-data", name="payload_json")
+            data = None
+
+            for id, file in enumerate(files):
+                part = file_data.append(
+                    file._fp,
+                )
+                part.set_content_disposition(
+                    "form-data", name=f"files[{id}]", filename=file._filename
+                )
+
         return await self._req.request(
             Route("PATCH", f"/webhooks/{application_id}/{token}/messages/{message_id}"),
             json=data,
+            data=file_data,
         )
 
     async def delete_interaction_response(
-        self, token: str, application_id: str, message_id: int = "original"
+        self, token: str, application_id: str, message_id: int = "@original"
     ) -> None:
         """
         Deletes an existing interaction message.
@@ -282,15 +333,39 @@ class InteractionRequest:
             Route("DELETE", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}")
         )
 
-    async def _post_followup(self, data: dict, token: str, application_id: str) -> dict:
+    async def _post_followup(
+        self,
+        data: dict,
+        token: str,
+        application_id: str,
+        files: Optional[List[File]] = None,
+    ) -> dict:
         """
         Send a followup to an interaction.
 
         :param data: the payload to send
         :param application_id: the id of the application
         :param token: the token of the interaction
+        :param files: the files to send
         """
 
+        file_data = None
+        if files:
+            file_data = MultipartWriter("form-data")
+            part = file_data.append_json(data)
+            part.set_content_disposition("form-data", name="payload_json")
+            data = None
+
+            for id, file in enumerate(files):
+                part = file_data.append(
+                    file._fp,
+                )
+                part.set_content_disposition(
+                    "form-data", name=f"files[{id}]", filename=file._filename
+                )
+
         return await self._req.request(
-            Route("POST", f"/webhooks/{application_id}/{token}"), json=data
+            Route("POST", f"/webhooks/{application_id}/{token}"),
+            json=data,
+            data=file_data,
         )

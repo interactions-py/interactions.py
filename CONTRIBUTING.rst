@@ -20,11 +20,9 @@ error may be produced:
 .. code-block:: python
 
     import interactions
-    from logging import basicConfig, DEBUG
 
-    basicConfig(level=DEBUG)
-
-    bot = interactions.Client(token="...")
+    bot = interactions.Client(token="...", logging=True)
+    # ``True`` sets logging to DEBUG automatically but you can also set another logging level
 
     bot.start()
 
