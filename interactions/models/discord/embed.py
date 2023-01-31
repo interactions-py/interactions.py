@@ -242,9 +242,10 @@ class Embed(DictSerializationMixin):
         raise ValueError("There are multiple images in this embed, use `images` instead")
 
     @image.setter
-    def image(self, value: Optional[EmbedAttachment]) -> None:
+    def image(self, value: Optional[EmbedAttachment]) -> "Embed":
         """Set the image of the embed."""
         self.images = [] if value is None else [value]
+        return self
 
     @title.validator
     def _name_validation(self, attribute: str, value: Any) -> None:
@@ -317,7 +318,7 @@ class Embed(DictSerializationMixin):
         name: str,
         url: Optional[str] = None,
         icon_url: Optional[str] = None,
-    ) -> None:
+    ) -> "Embed":
         """
         Set the author field of the embed.
 
@@ -328,8 +329,9 @@ class Embed(DictSerializationMixin):
 
         """
         self.author = EmbedAuthor(name=name, url=url, icon_url=icon_url)
+        return self
 
-    def set_thumbnail(self, url: str) -> None:
+    def set_thumbnail(self, url: str) -> "Embed":
         """
         Set the thumbnail of the embed.
 
@@ -338,8 +340,9 @@ class Embed(DictSerializationMixin):
 
         """
         self.thumbnail = EmbedAttachment(url=url)
+        return self
 
-    def set_image(self, url: str) -> None:
+    def set_image(self, url: str) -> "Embed":
         """
         Set the image of the embed.
 
@@ -348,8 +351,9 @@ class Embed(DictSerializationMixin):
 
         """
         self.images = [EmbedAttachment(url=url)]
+        return self
 
-    def set_images(self, *images: str) -> None:
+    def set_images(self, *images: str) -> "Embed":
         """
         Set multiple images for the embed.
 
@@ -367,8 +371,9 @@ class Embed(DictSerializationMixin):
             raise ValueError("To use multiple images, you must also set a url for this embed")
 
         self.images = [EmbedAttachment(url=url) for url in images]
+        return self
 
-    def add_image(self, image: str) -> None:
+    def add_image(self, image: str) -> "Embed":
         """
         Add an image to the embed.
 
@@ -384,8 +389,9 @@ class Embed(DictSerializationMixin):
         if len(self.images) > 0 and not self.url:
             raise ValueError("To use multiple images, you must also set a url for this embed")
         self.images.append(EmbedAttachment(url=image))
+        return self
 
-    def set_footer(self, text: str, icon_url: Optional[str] = None) -> None:
+    def set_footer(self, text: str, icon_url: Optional[str] = None) -> "Embed":
         """
         Set the footer field of the embed.
 
@@ -395,8 +401,9 @@ class Embed(DictSerializationMixin):
 
         """
         self.footer = EmbedFooter(text=text, icon_url=icon_url)
+        return self
 
-    def add_field(self, name: str, value: Any, inline: bool = False) -> None:
+    def add_field(self, name: str, value: Any, inline: bool = False) -> "Embed":
         """
         Add a field to the embed.
 
@@ -409,7 +416,9 @@ class Embed(DictSerializationMixin):
         self.fields.append(EmbedField(name, str(value), inline))
         self._fields_validation("fields", self.fields)
 
-    def add_fields(self, *fields: EmbedField | str | dict) -> None:
+        return self
+
+    def add_fields(self, *fields: EmbedField | str | dict) -> "Embed":
         """
         Add multiple fields to the embed.
 
@@ -427,6 +436,7 @@ class Embed(DictSerializationMixin):
                 self.add_field(**_field)
             else:
                 raise TypeError(f"Expected EmbedField, str or dict, got {type(_field).__name__}")
+        return self
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
