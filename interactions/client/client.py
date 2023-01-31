@@ -1520,7 +1520,7 @@ class Client(
                 continue
             else:
                 for subcommand in cmd_data.get("options", []):
-                    if subcommand["TYPE"] in (
+                    if subcommand["type"] in (
                         OptionTypes.SUB_COMMAND,
                         OptionTypes.SUB_COMMAND_GROUP,
                     ):
