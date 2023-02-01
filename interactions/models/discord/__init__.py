@@ -138,7 +138,6 @@ from .message import (
     MessageActivity,
     MessageInteraction,
     MessageReference,
-    MessageTypes,
     process_allowed_mentions,
     process_message_payload,
     process_message_reference,

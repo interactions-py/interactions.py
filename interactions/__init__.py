@@ -435,6 +435,7 @@ __all__ = (
     "errors",
     "events",
     "ExplicitContentFilterLevels",
+    "ext",
     "Extension",
     "File",
     "FlatUIColors",
