@@ -372,8 +372,8 @@ class Client(
         # collections
         self.interactions_by_scope: Dict["Snowflake_Type", Dict[str, InteractionCommand]] = {}
         """A dictionary of registered application commands: `{scope: [commands]}`"""
-        self._interaction_lookup: dict[Snowflake, InteractionCommand] = {}
-        """A dictionary of registered application commands: `{id: command}`"""
+        self._interaction_lookup: dict[str, InteractionCommand] = {}
+        """A dictionary of registered application commands: `{name: command}`"""
         self.interaction_tree: Dict[
             "Snowflake_Type", Dict[str, InteractionCommand | Dict[str, InteractionCommand]]
         ] = {}
@@ -1375,7 +1375,7 @@ class Client(
                         continue
                     else:
                         found.add(cmd_name)
-                    self._interaction_lookup[Snowflake(cmd_data["id"])] = cmd
+                    self._interaction_lookup[cmd.resolved_name] = cmd
                     cmd.cmd_id[scope] = int(cmd_data["id"])
 
             if warn_missing:
@@ -1471,18 +1471,26 @@ class Client(
         t = time.perf_counter() - s
         self.logger.debug(f"Sync of {len(cmd_scopes)} scopes took {t} seconds")
 
-    def get_application_cmd_by_id(self, cmd_id: "Snowflake_Type") -> Optional[InteractionCommand]:
+    def get_application_cmd_by_id(
+        self, cmd_id: "Snowflake_Type", *, scope: "Snowflake_Type" = None
+    ) -> Optional[InteractionCommand]:
         """
         Get a application command from the internal cache by its ID.
 
         Args:
             cmd_id: The ID of the command
+            scope: Optionally specify a scope to search in
 
         Returns:
             The command, if one with the given ID exists internally, otherwise None
 
         """
-        return self._interaction_lookup.get(Snowflake(cmd_id))
+        if scope is not None:
+            return self.interactions_by_scope.get(scope, {}).get(cmd_id)
+        return next(
+            (scope[cmd_id] for scope in self.interactions_by_scope.values() if cmd_id in scope),
+            None,
+        )
 
     def _raise_sync_exception(self, e: HTTPException, cmds_json: dict, cmd_scope: "Snowflake_Type") -> NoReturn:
         try:
@@ -1508,7 +1516,7 @@ class Client(
 
             if command := self.interactions_by_scope[scope].get(command_name):
                 command.cmd_id[scope] = command_id
-                self._interaction_lookup[command_id] = command
+                self._interaction_lookup[command.resolved_name] = command
                 continue
             else:
                 for subcommand in cmd_data.get("options", []):
@@ -1522,14 +1530,10 @@ class Client(
                                 subcommand_name = f"{subcommand_name} {_sc['name']}"
                                 if command := self.interactions_by_scope[scope].get(subcommand_name):
                                     command.cmd_id[scope] = command_id
-                                    self._interaction_lookup[command_id] = command
+                                    self._interaction_lookup[command.resolved_name] = command
                         elif command := self.interactions_by_scope[scope].get(subcommand_name):
                             command.cmd_id[scope] = command_id
-                            self._interaction_lookup[command_id] = command
-                            continue
-
-            if command_id not in self._interaction_lookup:
-                self.logger.warning(f"Could not resolve {command_name}({command_id}) to a command")
+                            self._interaction_lookup[command.resolved_name] = command
 
     async def get_context(self, data: dict) -> InteractionContext:
         match data["type"]:

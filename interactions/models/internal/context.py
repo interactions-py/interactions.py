@@ -291,7 +291,10 @@ class BaseInteractionContext(BaseContext):
 
     @property
     def command(self) -> InteractionCommand:
-        return self.client._interaction_lookup[self.command_id]  # noqa W0212
+        try:
+            return self.client._interaction_lookup[self._command_name]  # noqa W0212
+        except KeyError:
+            breakpoint()
 
     @property
     def expires_at(self) -> typing.Optional[datetime.datetime]:
@@ -541,9 +544,9 @@ class SlashContext(InteractionContext, ModalMixin):
                     kwargs[option["name"]] = hook_result
 
                 if option["type"] in (OptionTypes.SUB_COMMAND, OptionTypes.SUB_COMMAND_GROUP):
-                    if option["type"] == OptionTypes.SUB_COMMAND:
-                        self._command_name = f"{self._command_name} {option['name']}"
-                    return gather_options(option["options"])
+                    self._command_name = f"{self._command_name} {option['name']}"
+                    if option["type"] == OptionTypes.SUB_COMMAND_GROUP:
+                        return gather_options(option["options"])
 
                 value = option.get("value")
 
