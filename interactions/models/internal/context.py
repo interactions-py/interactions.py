@@ -610,7 +610,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
             raise RuntimeError("Interaction has already been responded to.")
 
         payload = {
-            "Type": CallbackTypes.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackTypes.DEFERRED_UPDATE_MESSAGE
+            "type": CallbackTypes.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackTypes.DEFERRED_UPDATE_MESSAGE
         }
         if ephemeral:
             if edit_origin:
