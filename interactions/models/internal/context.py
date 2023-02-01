@@ -291,10 +291,7 @@ class BaseInteractionContext(BaseContext):
 
     @property
     def command(self) -> InteractionCommand:
-        try:
-            return self.client._interaction_lookup[self._command_name]  # noqa W0212
-        except KeyError:
-            breakpoint()
+        return self.client._interaction_lookup[self._command_name]  # noqa W0212
 
     @property
     def expires_at(self) -> typing.Optional[datetime.datetime]:

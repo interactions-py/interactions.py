@@ -1,7 +1,7 @@
 import contextlib
 import uuid
 from abc import abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, TYPE_CHECKING, Union
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 import discord_typings
 
@@ -10,11 +10,9 @@ from interactions.client.const import (
     MISSING,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
+from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.emoji import process_emoji
 from interactions.models.discord.enums import ButtonStyles, ComponentTypes, ChannelTypes
-
-if TYPE_CHECKING:
-    from interactions.models.discord.emoji import PartialEmoji
 
 __all__ = (
     "BaseComponent",
@@ -215,7 +213,7 @@ class Button(InteractiveComponent):
         *,
         style: ButtonStyles,
         label: str | None = None,
-        emoji: "PartialEmoji | None" = None,
+        emoji: "PartialEmoji | None | str" = None,
         custom_id: str = None,
         url: str | None = None,
         disabled: bool = False,
@@ -240,6 +238,9 @@ class Button(InteractiveComponent):
         if not self.label and not self.emoji:
             raise ValueError("Buttons must have a label or an emoji.")
 
+        if isinstance(self.emoji, str):
+            self.emoji = PartialEmoji.from_str(self.emoji)
+
     @classmethod
     def from_dict(cls, data: discord_typings.ButtonComponentData) -> "Button":
         return cls(
@@ -255,11 +256,15 @@ class Button(InteractiveComponent):
         return f"<{self.__class__.__name__} type={self.type} style={self.style} label={self.label} emoji={self.emoji} custom_id={self.custom_id} url={self.url} disabled={self.disabled}>"
 
     def to_dict(self) -> discord_typings.ButtonComponentData:
+        emoji = self.emoji.to_dict() if self.emoji else None
+        if emoji and hasattr(emoji, "to_dict"):
+            emoji = emoji.to_dict()
+
         return {
             "type": self.type.value,  # type: ignore
             "style": self.style.value,  # type: ignore
             "label": self.label,
-            "emoji": self.emoji.to_dict() if self.emoji else None,
+            "emoji": emoji,
             "custom_id": self.custom_id,
             "url": self.url,
             "disabled": self.disabled,
@@ -347,6 +352,9 @@ class StringSelectOption(BaseComponent):
         self.emoji: PartialEmoji | None = emoji
         self.default: bool = default
 
+        if isinstance(self.emoji, str):
+            self.emoji = PartialEmoji.from_str(self.emoji)
+
     @classmethod
     def converter(cls, value: Any) -> "StringSelectOption":
         if isinstance(value, StringSelectOption):
@@ -377,11 +385,15 @@ class StringSelectOption(BaseComponent):
         return f"<{self.__class__.__name__} label={self.label} value={self.value} description={self.description} emoji={self.emoji} default={self.default}>"
 
     def to_dict(self) -> discord_typings.SelectMenuOptionData:
+        emoji = self.emoji.to_dict() if self.emoji else None
+        if emoji and hasattr(emoji, "to_dict"):
+            emoji = emoji.to_dict()
+
         return {
             "label": self.label,
             "value": self.value,
             "description": self.description,
-            "emoji": self.emoji.to_dict() if self.emoji else None,
+            "emoji": emoji,
             "default": self.default,
         }
 
