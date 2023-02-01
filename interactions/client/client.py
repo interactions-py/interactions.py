@@ -1527,8 +1527,9 @@ class Client(
                             command.cmd_id[scope] = command_id
                             self._interaction_lookup[command_id] = command
                             continue
-                        self.logger.warning(f"Could not find command {subcommand_name} in internal cache!")
-            self.logger.warning(f"Could not find command {command_name} in internal cache!")
+
+            if command_id not in self._interaction_lookup:
+                self.logger.warning(f"Could not resolve {command_name}({command_id}) to a command")
 
     async def get_context(self, data: dict) -> InteractionContext:
         match data["type"]:
