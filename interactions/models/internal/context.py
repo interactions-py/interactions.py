@@ -347,7 +347,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         if self.deferred or self.responded:
             raise RuntimeError("Interaction has already been responded to.")
 
-        payload = {"Type": CallbackTypes.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE}
+        payload = {"type": CallbackTypes.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE}
         if ephemeral:
             payload["data"] = {"flags": MessageFlags.EPHEMERAL}
 
@@ -542,8 +542,7 @@ class SlashContext(InteractionContext, ModalMixin):
 
                 if option["type"] in (OptionTypes.SUB_COMMAND, OptionTypes.SUB_COMMAND_GROUP):
                     self._command_name = f"{self._command_name} {option['name']}"
-                    if option["type"] == OptionTypes.SUB_COMMAND_GROUP:
-                        return gather_options(option["options"])
+                    return gather_options(option["options"])
 
                 value = option.get("value")
 
