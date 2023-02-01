@@ -208,6 +208,8 @@ class Button(InteractiveComponent):
 
     """
 
+    Styles: ButtonStyles = ButtonStyles
+
     def __init__(
         self,
         *,
