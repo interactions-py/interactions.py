@@ -563,6 +563,8 @@ class ChannelSelectMenu(BaseSelectMenu):
         self.channel_types: list[ChannelTypes] | None = channel_types or []
         self.type: ComponentTypes = ComponentTypes.CHANNEL_SELECT
 
+    ChannelTypes: ChannelTypes = ChannelTypes
+
     @classmethod
     def from_dict(cls, data: discord_typings.SelectMenuComponentData) -> "ChannelSelectMenu":
         return cls(
