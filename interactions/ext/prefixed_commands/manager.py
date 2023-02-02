@@ -14,6 +14,7 @@ from interactions.api.events.internal import (
 )
 from interactions.client.client import Client
 from interactions.client.utils.input_utils import get_args, get_first_word
+from interactions.models.discord.enums import Intents
 from interactions.models.discord.message import Message
 from interactions.models.internal.listener import listen
 from .command import PrefixedCommand
@@ -68,6 +69,12 @@ class PrefixedManager:
         self.prefixed_context = prefixed_context
         self.commands: dict[str, PrefixedCommand] = {}
         self._ext_command_list: defaultdict[str, set[str]] = defaultdict(set)
+
+        if (default_prefix or generate_prefixes) and Intents.GUILD_MESSAGE_CONTENT not in client.intents:
+            client.logger.warning(
+                "Prefixed commands will not work since the required intent is not set -> Requires:"
+                f" {Intents.GUILD_MESSAGE_CONTENT.__repr__()} or usage of the default mention prefix as the prefix"
+            )
 
         if default_prefix is None and generate_prefixes is None:
             # by default, use mentioning the bot as the prefix
