@@ -45,17 +45,17 @@ Just type `bot.load("extension")`
   - ✅ Annotation support
     
     
-    ### Debug Ext
+  ### Debug Ext
     
-    A fully featured debug and utilities suite to help you get your bots made
+  A fully featured debug and utilities suite to help you get your bots made
     
-    ### Jurigged
+  ### Jurigged
     
-    A hot reloading extension allowing you to automagically update your bot without reboots
+  A hot reloading extension allowing you to automagically update your bot without reboots
     
-    ### Sentry
+  ### Sentry
     
-    Integrates Sentry.io error tracking into your bot with a single line
+  Integrates Sentry.io error tracking into your bot with a single line
 
 </details>
 
