@@ -1521,8 +1521,8 @@ class Client(
             else:
                 for subcommand in cmd_data.get("options", []):
                     if subcommand["type"] in (
-                            OptionType.SUB_COMMAND,
-                            OptionType.SUB_COMMAND_GROUP,
+                        OptionType.SUB_COMMAND,
+                        OptionType.SUB_COMMAND_GROUP,
                     ):
                         subcommand_name = f"{command_name} {subcommand['name']}"
                         if subcommand["type"] == OptionType.SUB_COMMAND_GROUP:
@@ -1572,8 +1572,8 @@ class Client(
         interaction_data = event.data
 
         if interaction_data["type"] in (
-                InteractionType.APPLICATION_COMMAND,
-                InteractionType.AUTOCOMPLETE,
+            InteractionType.APPLICATION_COMMAND,
+            InteractionType.AUTOCOMPLETE,
         ):
             interaction_id = interaction_data["data"]["id"]
             name = interaction_data["data"]["name"]

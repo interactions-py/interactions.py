@@ -648,10 +648,10 @@ class ComponentContext(InteractionContext):
         }
 
         if instance.component_type in (
-                ComponentType.USER_SELECT,
-                ComponentType.CHANNEL_SELECT,
-                ComponentType.ROLE_SELECT,
-                ComponentType.MENTIONABLE_SELECT,
+            ComponentType.USER_SELECT,
+            ComponentType.CHANNEL_SELECT,
+            ComponentType.ROLE_SELECT,
+            ComponentType.MENTIONABLE_SELECT,
         ):
             for i, value in enumerate(instance.values):
                 if re.match(r"\d{17,}", value):
