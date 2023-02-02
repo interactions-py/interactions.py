@@ -1,5 +1,3 @@
-# interactions.py
-
 ![image](https://img.shields.io/pypi/dm/discord-py-slash-command.svg)
 ![image](https://img.shields.io/pypi/pyversions/discord-py-interactions.svg)
 ![image](https://img.shields.io/pypi/v/discord-py-interactions.svg)
@@ -9,26 +7,24 @@
 
 ------------------------------------------------------------------------
 
-A highly extensible, easy to use, and feature complete bot framework for Discord. 
-`Interactions.py` is the culmination of years of experience in the Discord API and bot development. 
-This library has been built from the ground up with community feedback and suggestions in mind. 
+# Interactions.py - A Feature-rich Discord Bot Framework for Python
+
+A highly extensible, easy to use, and feature complete bot framework for Discord, `Interactions.py` is the culmination of years of experience in the Discord API and bot development. This library has been built from the ground up with community feedback and suggestions in mind, providing a modern and intuitive API for easy interaction with the Discord API in Python. 
 
 ## Key Features
-- ✅ 100% coverage of the application commands API
+Interactions.py offers a range of features for building Discord bots with Python, including:
+- ✅ 100% coverage of the Discord API
 - ✅ Dynamic cache with TTL support
-- ✅ Modern and Pythonic API
+- ✅ Modern and Pythonic API for easy interaction with Discord
 - ✅ Proper rate-limit handling
 - ✅ Feature parity with most other Discord API wrappers
-- ✅ Easy to use
-- ✅ Event-Triggered callbacks 
-- ✅ Global decorators 
-- ✅ Easily extendable
-- ✅ Fully automated command synchronisation 
+- ✅ Fully automated command synchronisation
+
+In addition to its core functionality, Interactions.py also provides a range of optional extensions, allowing you to further customize your bot and add new features with ease.
 
 ## Extensibility
 
-So the stock library doesn't do what you want? No problem! Builtin extensions are available to extend the functionality of the library. 
-And if none of those strike your fancy there are a myriad of other extension libraries available.
+So the stock library doesn't do what you want? No problem! Builtin extensions are available to extend the functionality of the library. And if none of those strike your fancy there are a myriad of other extension libraries available.
 
 Just type `bot.load("extension")`
 
@@ -61,6 +57,8 @@ Just type `bot.load("extension")`
 
 ## Where do I start?
 
+Getting started with Interactions.py is easy! Simply install it via `pip` and start building your Discord bot in Python:
+
 `pip install -U discord-py-interactions`
 ```python
 import interactions
@@ -74,5 +72,4 @@ async def on_start():
 bot.start("token")
 ```
 
-Please check out our [quickstart guide](https://interactionspy.rtfd.io/en/latest/quickstart.html) for
-some basic examples.
+With Interactions.py, you can quickly and easily build complex Discord bots with Python. Check out our [quickstart guide](https://interactionspy.rtfd.io/en/latest/quickstart.html) for more information.
