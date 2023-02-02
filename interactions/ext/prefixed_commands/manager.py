@@ -71,7 +71,7 @@ class PrefixedManager:
         self._ext_command_list: defaultdict[str, set[str]] = defaultdict(set)
 
         if (
-            default_prefix or (generate_prefixes != when_mentioned)
+            default_prefix or (generate_prefixes and generate_prefixes != when_mentioned)
         ) and Intents.GUILD_MESSAGE_CONTENT not in client.intents:
             client.logger.warning(
                 "Prefixed commands will not work since the required intent is not set -> Requires:"
