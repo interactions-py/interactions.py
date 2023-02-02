@@ -38,7 +38,7 @@ Just type `bot.load("extension")`
    ### Prefixed Commands
     
    Prefixed commands, message commands, or legacy commands. 
-   Whatever you want to call them, by default the `interactions.py` library will not handle these. That said, there is a built-in extension available if you need to support them. 
+   Whatever you want to call them, by default the `interactions.py` library will not handle these. But rest assured this extension will get you going
     
   - ✅ Hybrid Commands
   - ✅ Automatic command registration
