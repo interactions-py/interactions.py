@@ -157,7 +157,7 @@ async def test(ctx: PrefixedContext, an_int: int, a_float: float):
 
 ![Basic Type Conversion](../images/PrefixedCommands/BasicTypeConversion.png "The above running with the arguments: 1 2.5")
 
-Words/arguments will automatically be converted to the specified type. If `interactions.py` is unable to convert it (a user could easily pass a letter into `an_int`), then it will raise a `BadArgument` error, which can be handled by an error handler. Error handling is handled similarly to how it is handled with [slash commands](/Guides/03 Creating Commands).
+Words/arguments will automatically be converted to the specified type. If `interactions.py` is unable to convert it (a user could easily pass a letter into `an_int`), then it will raise a `BadArgument` error, which can be handled by an error handler. Error handling is handled similarly to how it is handled with [slash commands](../03 Creating Commands).
 
 You can even pass in a function for parameters:
 
@@ -190,7 +190,7 @@ elif lowered in {"no", "n", "false", "f", "0", "disable", "off"}:
 
 ### Converters
 
-Converters work much in the same way as they do for other commands; see [the guide for converters for reference](/Guides/08 Converters).
+Converters work much in the same way as they do for other commands; see [the guide for converters for reference](../08 Converters).
 
 There are a few specific converters that only work with prefixed commands due to their nature, however.
 
@@ -208,7 +208,7 @@ The argument here will automatically be converted into a `Member` object:
 
 ![Discord Model Conversion](../images/PrefixedCommands/DiscordModelConversion.png "The above running with a user passed in.")
 
-A table of supported objects and their converters can be found [here](/Guides/08 Converters#discord-model-converters). You may use the Discord model itself in your command for prefixed commands, just like the above, and their respective converter will be used under the hood.
+A table of supported objects and their converters can be found [here](../08 Converters#discord-model-converters). You may use the Discord model itself in your command for prefixed commands, just like the above, and their respective converter will be used under the hood.
 
 #### `typing.Union`
 
