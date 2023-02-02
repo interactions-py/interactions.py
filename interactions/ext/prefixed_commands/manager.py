@@ -70,7 +70,9 @@ class PrefixedManager:
         self.commands: dict[str, PrefixedCommand] = {}
         self._ext_command_list: defaultdict[str, set[str]] = defaultdict(set)
 
-        if (default_prefix or generate_prefixes) and Intents.GUILD_MESSAGE_CONTENT not in client.intents:
+        if (
+            default_prefix or (generate_prefixes != when_mentioned)
+        ) and Intents.GUILD_MESSAGE_CONTENT not in client.intents:
             client.logger.warning(
                 "Prefixed commands will not work since the required intent is not set -> Requires:"
                 f" {Intents.GUILD_MESSAGE_CONTENT.__repr__()} or usage of the default mention prefix as the prefix"
