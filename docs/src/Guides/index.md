@@ -76,6 +76,12 @@ These guides are meant to help you get started with the library and offer a poin
 
     So your bot has grown, and now you need to ~~localize~~ localise your bot. Well thank god we support localisation then, huh?
 
+-   [__:material-text: Prefixed Commands__](26 Prefixed Commands.md)
+
+    ---
+
+    Going old-school with prefixed-commands? No problem. Let's get your message commands up and running.
+
 -   [__:material-book-open-page-variant: Pagination__](30 Pagination.md)
 
     ---
