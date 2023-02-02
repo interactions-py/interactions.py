@@ -70,7 +70,7 @@ from interactions.models import (
     ScheduledEvent,
     InteractionCommand,
     SlashCommand,
-    OptionTypes,
+    OptionType,
     to_snowflake,
     ComponentCommand,
     application_commands_to_dict,
@@ -1521,11 +1521,11 @@ class Client(
             else:
                 for subcommand in cmd_data.get("options", []):
                     if subcommand["type"] in (
-                        OptionTypes.SUB_COMMAND,
-                        OptionTypes.SUB_COMMAND_GROUP,
+                            OptionType.SUB_COMMAND,
+                            OptionType.SUB_COMMAND_GROUP,
                     ):
                         subcommand_name = f"{command_name} {subcommand['name']}"
-                        if subcommand["type"] == OptionTypes.SUB_COMMAND_GROUP:
+                        if subcommand["type"] == OptionType.SUB_COMMAND_GROUP:
                             for _sc in subcommand.get("options", []):
                                 subcommand_name = f"{subcommand_name} {_sc['name']}"
                                 if command := self.interactions_by_scope[scope].get(subcommand_name):

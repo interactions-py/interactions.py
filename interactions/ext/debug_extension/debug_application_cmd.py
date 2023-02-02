@@ -13,7 +13,7 @@ from interactions.models import (
     File,
     Message,
     slash_option,
-    OptionTypes,
+    OptionType,
     application_commands_to_dict,
 )
 from interactions.models.internal import checks
@@ -63,19 +63,19 @@ class DebugAppCMD(Extension):
     @slash_option(
         "cmd_id",
         "The ID of the command you want to lookup",
-        opt_type=OptionTypes.STRING,
+        opt_type=OptionType.STRING,
         required=True,
     )
     @slash_option(
         "scope",
         "The scope ID of the command, if you want to search for the cmd on remote",
-        opt_type=OptionTypes.STRING,
+        opt_type=OptionType.STRING,
         required=True,
     )
     @slash_option(
         "remote",
         "Should we search locally or remote for this command (default local)",
-        opt_type=OptionTypes.BOOLEAN,
+        opt_type=OptionType.BOOLEAN,
         required=False,
     )
     async def cmd_lookup(
@@ -129,7 +129,7 @@ class DebugAppCMD(Extension):
     @slash_option(
         "scope",
         "The scope ID of the command, if it is not registered in the bot (0 for global)",
-        opt_type=OptionTypes.STRING,
+        opt_type=OptionType.STRING,
         required=True,
     )
     async def list_scope(self, ctx: InteractionContext, scope: str) -> Message:

@@ -69,11 +69,11 @@ def deserialize_subcommands(
     """
     out = []
     for opt in options:
-        if opt["type"] == models.internal.OptionTypes.SUB_COMMAND_GROUP:
+        if opt["type"] == models.internal.OptionType.SUB_COMMAND_GROUP:
             out += deserialize_subcommands(
                 base_cmd, opt["options"], {"name": opt["name"], "description": opt["description"]}
             )
-        elif opt["type"] == models.internal.OptionTypes.SUB_COMMAND:
+        elif opt["type"] == models.internal.OptionType.SUB_COMMAND:
             out.append(
                 models.internal.SlashCommand(
                     name=base_cmd.name,
@@ -104,5 +104,5 @@ def deserialize_options(options: list[dict]) -> list["SlashCommandOption"]:
     return [
         models.internal.SlashCommandOption(**opt)
         for opt in options
-        if opt["type"] not in (models.internal.OptionTypes.SUB_COMMAND_GROUP, models.internal.OptionTypes.SUB_COMMAND)
+        if opt["type"] not in (models.internal.OptionType.SUB_COMMAND_GROUP, models.internal.OptionType.SUB_COMMAND)
     ]

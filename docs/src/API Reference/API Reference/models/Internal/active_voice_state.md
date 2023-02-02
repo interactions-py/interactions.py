@@ -1,11 +1,11 @@
 ??? Hint "Example Usage:"
     ```python
-    from interactions import slash_command, slash_option, OptionTypes, InteractionContext
+    from interactions import slash_command, slash_option, OptionType, InteractionContext
     from interactions.api.voice.audio import AudioVolume
 
 
     @slash_command("play")
-    @slash_option("song", "The song to play", OptionTypes.STRING, required=True)
+    @slash_option("song", "The song to play", OptionType.STRING, required=True)
     async def test_cmd(ctx: InteractionContext, song: str):
         await ctx.defer()
 

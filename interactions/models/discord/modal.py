@@ -8,7 +8,7 @@ from interactions.client.const import MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import dict_filter
 from interactions.models.discord.components import ComponentType
-from interactions.models.internal.application_commands import CallbackTypes
+from interactions.models.internal.application_commands import CallbackType
 
 __all__ = ("InputText", "Modal", "ParagraphText", "ShortText", "TextStyles")
 
@@ -138,7 +138,7 @@ class Modal:
         self.components: list[InputText] = list(components)
         self.custom_id: str = custom_id or str(uuid.uuid4())
 
-        self.type = CallbackTypes.MODAL
+        self.type = CallbackType.MODAL
 
     def to_dict(self) -> discord_typings.ModalInteractionData:
         return {
