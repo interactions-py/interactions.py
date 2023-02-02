@@ -9,7 +9,7 @@
 
 # Interactions.py - A Feature-rich Discord Bot Framework for Python
 
-A highly extensible, easy to use, and feature complete bot framework for Discord, `Interactions.py` is the culmination of years of experience in the Discord API and bot development. This library has been built from the ground up with community feedback and suggestions in mind, providing a modern and intuitive API for easy interaction with the Discord API in Python. 
+A highly extensible, easy to use, and feature complete bot framework for Discord, `Interactions.py` is the culmination of years of experience in the Discord API and bot development. This library has been built from the ground up with community feedback and suggestions in mind, providing a modern and intuitive API for easy interaction with the Discord API in Python.
 
 ## Key Features
 Interactions.py offers a range of features for building Discord bots with Python, including:
@@ -32,25 +32,25 @@ Just type `bot.load("extension")`
     <summary>Extensions</summary>
 
    ### Prefixed Commands
-    
-   Prefixed commands, message commands, or legacy commands. 
+
+   Prefixed commands, message commands, or legacy commands.
    Whatever you want to call them, by default the `interactions.py` library will not handle these. But rest assured this extension will get you going
-    
+
   - ✅ Hybrid Commands
   - ✅ Automatic command registration
   - ✅ Annotation support
-    
-    
+
+
   ### Debug Ext
-    
+
   A fully featured debug and utilities suite to help you get your bots made
-    
+
   ### Jurigged
-    
+
   A hot reloading extension allowing you to automagically update your bot without reboots
-    
+
   ### Sentry
-    
+
   Integrates Sentry.io error tracking into your bot with a single line
 
 </details>
@@ -68,7 +68,7 @@ bot = interactions.Client()
 @interactions.listen()
 async def on_start():
     print("Bot is ready!")
-    
+
 bot.start("token")
 ```
 
