@@ -10,7 +10,7 @@ from interactions import (
     ComponentContext,
     ActionRow,
     Button,
-    ButtonStyles,
+    ButtonStyle,
     spread_to_rows,
     ComponentCommand,
     BaseContext,
@@ -135,7 +135,7 @@ class Paginator:
     """The default title to show on the embeds"""
     default_color: Color = attrs.field(repr=False, default=BrandColors.BLURPLE)
     """The default colour to show on the embeds"""
-    default_button_color: Union[ButtonStyles, int] = attrs.field(repr=False, default=ButtonStyles.BLURPLE)
+    default_button_color: Union[ButtonStyle, int] = attrs.field(repr=False, default=ButtonStyle.BLURPLE)
     """The color of the buttons"""
 
     _uuid: str = attrs.field(repr=False, factory=uuid.uuid4)

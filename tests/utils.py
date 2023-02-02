@@ -34,7 +34,7 @@ def generate_dummy_context(
     #     "id": random.randint(111111111111111111, 999999999999999999),
     #     "locale": SAMPLE_LOCALE(),
     #     "guild_locale": SAMPLE_LOCALE(),
-    #     "type": InteractionTypes.PING,
+    #     "type": InteractionType.PING,
     #     "data": {}
     # })
     ctx = PrefixedContext.from_message(client, Message.from_dict(message, client))

@@ -23,7 +23,7 @@ Below is an example of a bot, one with extensions, one without.
         from interactions.models.application_commands import slash_command, slash_option
         from interactions.models.context import InteractionContext
         from interactions.models.discord_objects.components import Button, ActionRow
-        from interactions.models.enums import ButtonStyles
+        from interactions.models.enums import ButtonStyle
         from interactions.models.enums import Intents
         from interactions.models.events import Component
         from interactions.models.listener import listen
@@ -64,7 +64,7 @@ Below is an example of a bot, one with extensions, one without.
         async def multiple_buttons(ctx):
             await ctx.send(
                 "2 buttons in a row",
-                components=[Button(ButtonStyles.BLURPLE, "A blurple button"), Button(ButtonStyles.RED, "A red button")],
+                components=[Button(ButtonStyle.BLURPLE, "A blurple button"), Button(ButtonStyle.RED, "A red button")],
             )
 
 
@@ -72,7 +72,7 @@ Below is an example of a bot, one with extensions, one without.
         async def action_rows(ctx):
             await ctx.send(
                 "2 buttons in 2 rows, using nested lists",
-                components=[[Button(ButtonStyles.BLURPLE, "A blurple button")], [Button(ButtonStyles.RED, "A red button")]],
+                components=[[Button(ButtonStyle.BLURPLE, "A blurple button")], [Button(ButtonStyle.RED, "A red button")]],
             )
 
 
@@ -81,8 +81,8 @@ Below is an example of a bot, one with extensions, one without.
             await ctx.send(
                 "2 buttons in 2 rows, using explicit action_rows lists",
                 components=[
-                    ActionRow(Button(ButtonStyles.BLURPLE, "A blurple button")),
-                    ActionRow(Button(ButtonStyles.RED, "A red button")),
+                    ActionRow(Button(ButtonStyle.BLURPLE, "A blurple button")),
+                    ActionRow(Button(ButtonStyle.RED, "A red button")),
                 ],
             )
 
@@ -144,7 +144,7 @@ Below is an example of a bot, one with extensions, one without.
 
         from interactions.models.command import prefixed_command
         from interactions.models.discord_objects.components import Button, ActionRow
-        from interactions.models.enums import ButtonStyles
+        from interactions.models.enums import ButtonStyle
         from interactions.models.extension import Extension
         from interactions.ext.prefixed_commands import prefixed_command
 
@@ -152,20 +152,20 @@ Below is an example of a bot, one with extensions, one without.
         class ButtonExampleSkin(Extension):
             @prefixed_command()
             async def blurple_button(self, ctx):
-                await ctx.send("hello there", components=Button(ButtonStyles.BLURPLE, "A blurple button"))
+                await ctx.send("hello there", components=Button(ButtonStyle.BLURPLE, "A blurple button"))
 
             @prefixed_command()
             async def multiple_buttons(self, ctx):
                 await ctx.send(
                     "2 buttons in a row",
-                    components=[Button(ButtonStyles.BLURPLE, "A blurple button"), Button(ButtonStyles.RED, "A red button")],
+                    components=[Button(ButtonStyle.BLURPLE, "A blurple button"), Button(ButtonStyle.RED, "A red button")],
                 )
 
             @prefixed_command()
             async def action_rows(self, ctx):
                 await ctx.send(
                     "2 buttons in 2 rows, using nested lists",
-                    components=[[Button(ButtonStyles.BLURPLE, "A blurple button")], [Button(ButtonStyles.RED, "A red button")]],
+                    components=[[Button(ButtonStyle.BLURPLE, "A blurple button")], [Button(ButtonStyle.RED, "A red button")]],
                 )
 
             @prefixed_command()
@@ -173,8 +173,8 @@ Below is an example of a bot, one with extensions, one without.
                 await ctx.send(
                     "2 buttons in 2 rows, using explicit action_rows lists",
                     components=[
-                        ActionRow(Button(ButtonStyles.BLURPLE, "A blurple button")),
-                        ActionRow(Button(ButtonStyles.RED, "A red button")),
+                        ActionRow(Button(ButtonStyle.BLURPLE, "A blurple button")),
+                        ActionRow(Button(ButtonStyle.RED, "A red button")),
                     ],
                 )
 

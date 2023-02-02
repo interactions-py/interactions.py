@@ -83,11 +83,11 @@ from interactions.models.discord.color import BrandColors
 from interactions.models.discord.components import get_components_ids, BaseComponent
 from interactions.models.discord.embed import Embed
 from interactions.models.discord.enums import (
-    ComponentTypes,
+    ComponentType,
     Intents,
-    InteractionTypes,
+    InteractionType,
     Status,
-    ChannelTypes,
+    ChannelType,
 )
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import Snowflake, to_snowflake_list
@@ -1537,13 +1537,13 @@ class Client(
 
     async def get_context(self, data: dict) -> InteractionContext:
         match data["type"]:
-            case InteractionTypes.MESSAGE_COMPONENT:
+            case InteractionType.MESSAGE_COMPONENT:
                 cls = self.component_context.from_dict(self, data)
-            case InteractionTypes.AUTOCOMPLETE:
+            case InteractionType.AUTOCOMPLETE:
                 cls = self.autocomplete_context.from_dict(self, data)
-            case InteractionTypes.MODAL_RESPONSE:
+            case InteractionType.MODAL_RESPONSE:
                 cls = self.modal_context.from_dict(self, data)
-            case InteractionTypes.APPLICATION_COMMAND:
+            case InteractionType.APPLICATION_COMMAND:
                 cls = self.slash_context.from_dict(self, data)
             case _:
                 self.logger.warning(f"Unknown interaction type [{data['type']}] - please update or report this.")
@@ -1553,7 +1553,7 @@ class Client(
             try:
                 cls.channel = await self.cache.fetch_channel(data["channel_id"])
             except Forbidden:
-                cls.channel = BaseChannel.from_dict({"id": data["channel_id"], "type": ChannelTypes.GUILD_TEXT}, self)
+                cls.channel = BaseChannel.from_dict({"id": data["channel_id"], "type": ChannelType.GUILD_TEXT}, self)
         return cls
 
     async def _run_slash_command(self, command: SlashCommand, ctx: "InteractionContext") -> Any:
@@ -1572,8 +1572,8 @@ class Client(
         interaction_data = event.data
 
         if interaction_data["type"] in (
-            InteractionTypes.APPLICATION_COMMAND,
-            InteractionTypes.AUTOCOMPLETE,
+                InteractionType.APPLICATION_COMMAND,
+                InteractionType.AUTOCOMPLETE,
         ):
             interaction_id = interaction_data["data"]["id"]
             name = interaction_data["data"]["name"]
@@ -1609,7 +1609,7 @@ class Client(
             else:
                 self.logger.error(f"Unknown cmd_id received:: {interaction_id} ({name})")
 
-        elif interaction_data["type"] == InteractionTypes.MESSAGE_COMPONENT:
+        elif interaction_data["type"] == InteractionType.MESSAGE_COMPONENT:
             # Buttons, Selects, ContextMenu::Message
             ctx = await self.get_context(interaction_data)
             component_type = interaction_data["data"]["component_type"]
@@ -1623,13 +1623,13 @@ class Client(
                     completion_callback=events.ComponentCompletion,
                 )
 
-            if component_type == ComponentTypes.BUTTON:
+            if component_type == ComponentType.BUTTON:
                 self.dispatch(events.ButtonPressed(ctx))
 
-            if component_type == ComponentTypes.STRING_SELECT:
+            if component_type == ComponentType.STRING_SELECT:
                 self.dispatch(events.Select(ctx))
 
-        elif interaction_data["type"] == InteractionTypes.MODAL_RESPONSE:
+        elif interaction_data["type"] == InteractionType.MODAL_RESPONSE:
             ctx = await self.get_context(interaction_data)
             self.dispatch(events.ModalCompletion(ctx=ctx))
 

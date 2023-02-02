@@ -7,7 +7,7 @@ import discord_typings
 from interactions.client.const import MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import dict_filter
-from interactions.models.discord.components import ComponentTypes
+from interactions.models.discord.components import ComponentType
 from interactions.models.internal.application_commands import CallbackTypes
 
 __all__ = ("InputText", "Modal", "ParagraphText", "ShortText", "TextStyles")
@@ -42,7 +42,7 @@ class InputText(DictSerializationMixin):
         self.min_length = min_length
         self.max_length = max_length
 
-        self.type = ComponentTypes.INPUT_TEXT
+        self.type = ComponentType.INPUT_TEXT
 
     def to_dict(
         self,
@@ -148,7 +148,7 @@ class Modal:
                 "custom_id": self.custom_id,
                 "components": [
                     {
-                        "type": ComponentTypes.ACTION_ROW,
+                        "type": ComponentType.ACTION_ROW,
                         "components": [c.to_dict() if hasattr(c, "to_dict") else c],
                     }
                     for c in self.components

@@ -141,7 +141,7 @@ If you are using an `OptionTypes.CHANNEL` option, you can restrict the channel a
     description="Channel Option",
     required=True,
     opt_type=OptionTypes.CHANNEL,
-    channel_types=[ChannelTypes.GUILD_TEXT]
+    channel_types=[ChannelType.GUILD_TEXT]
 )
 async def my_command_function(ctx: InteractionContext, channel_option: GUILD_TEXT):
     await channel_option.send("This is a text channel in a guild")

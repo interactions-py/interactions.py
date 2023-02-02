@@ -23,7 +23,7 @@ if TYPE_CHECKING:
         Member,
         Role,
         BaseChannel,
-        ChannelTypes,
+        ChannelType,
         Attachment,
     )
 
@@ -177,7 +177,7 @@ def slash_channel_option(
     required: bool = False,
     autocomplete: bool = False,
     choices: List[Union["SlashCommandChoice", dict]] = None,
-    channel_types: Optional[list[Union["ChannelTypes", int]]] = None,
+    channel_types: Optional[list[Union["ChannelType", int]]] = None,
 ) -> Type["BaseChannel"]:
     """
     Annotates an argument as a channel type slash command option.

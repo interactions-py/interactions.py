@@ -19,8 +19,8 @@ from interactions.client.mixins.send import SendMixin
 from interactions.models.discord.enums import (
     Permissions,
     MessageFlags,
-    InteractionTypes,
-    ComponentTypes,
+    InteractionType,
+    ComponentType,
 )
 from interactions.models.discord.message import (
     AllowedMentions,
@@ -281,7 +281,7 @@ class BaseInteractionContext(BaseContext):
 
         instance.guild_id = Snowflake(payload.get("guild_id"))
 
-        if payload["type"] == InteractionTypes.APPLICATION_COMMAND:
+        if payload["type"] == InteractionType.APPLICATION_COMMAND:
             instance.command_id = Snowflake(payload["data"]["id"])
             instance._command_name = payload["data"]["name"]
 
@@ -528,7 +528,7 @@ class SlashContext(InteractionContext, ModalMixin):
         return instance
 
     def process_options(self, data: discord_typings.InteractionCallbackData) -> None:
-        if not data["type"] == InteractionTypes.APPLICATION_COMMAND:
+        if not data["type"] == InteractionType.APPLICATION_COMMAND:
             self.args = []
             self.kwargs = {}
             return
@@ -639,19 +639,19 @@ class ComponentContext(InteractionContext):
         instance.component_type = payload["data"]["component_type"]
 
         searches = {
-            "users": instance.component_type in (ComponentTypes.USER_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+            "users": instance.component_type in (ComponentType.USER_SELECT, ComponentType.MENTIONABLE_SELECT),
             "members": instance.guild_id
-            and instance.component_type in (ComponentTypes.USER_SELECT, ComponentTypes.MENTIONABLE_SELECT),
-            "channels": instance.component_type in (ComponentTypes.CHANNEL_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+            and instance.component_type in (ComponentType.USER_SELECT, ComponentType.MENTIONABLE_SELECT),
+            "channels": instance.component_type in (ComponentType.CHANNEL_SELECT, ComponentType.MENTIONABLE_SELECT),
             "roles": instance.guild_id
-            and instance.component_type in (ComponentTypes.ROLE_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+            and instance.component_type in (ComponentType.ROLE_SELECT, ComponentType.MENTIONABLE_SELECT),
         }
 
         if instance.component_type in (
-            ComponentTypes.USER_SELECT,
-            ComponentTypes.CHANNEL_SELECT,
-            ComponentTypes.ROLE_SELECT,
-            ComponentTypes.MENTIONABLE_SELECT,
+                ComponentType.USER_SELECT,
+                ComponentType.CHANNEL_SELECT,
+                ComponentType.ROLE_SELECT,
+                ComponentType.MENTIONABLE_SELECT,
         ):
             for i, value in enumerate(instance.values):
                 if re.match(r"\d{17,}", value):

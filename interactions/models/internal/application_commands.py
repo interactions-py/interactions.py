@@ -34,7 +34,7 @@ from interactions.client.utils import optional
 from interactions.client.utils.attr_utils import attrs_validator, docs
 from interactions.client.utils.misc_utils import get_parameters
 from interactions.client.utils.serializer import no_export_meta
-from interactions.models.discord.enums import ChannelTypes, CommandTypes, Permissions
+from interactions.models.discord.enums import ChannelType, CommandType, Permissions
 from interactions.models.discord.role import Role
 from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 from interactions.models.discord.user import BaseUser
@@ -313,14 +313,14 @@ class ContextMenu(InteractionCommand):
     name: LocalisedField = attrs.field(
         repr=False, metadata=docs("1-32 character name"), converter=LocalisedField.converter
     )
-    type: CommandTypes = attrs.field(repr=False, metadata=docs("The type of command, defaults to 1 if not specified"))
+    type: CommandType = attrs.field(repr=False, metadata=docs("The type of command, defaults to 1 if not specified"))
 
     @type.validator
     def _type_validator(self, attribute: str, value: int) -> None:
-        if not isinstance(value, CommandTypes):
-            if value not in CommandTypes.__members__.values():
+        if not isinstance(value, CommandType):
+            if value not in CommandType.__members__.values():
                 raise ValueError("Context Menu type not recognised, please consult the docs.")
-        elif value == CommandTypes.CHAT_INPUT:
+        elif value == CommandType.CHAT_INPUT:
             raise ValueError(
                 "The CHAT_INPUT type is basically slash commands. Please use the @slash_command() " "decorator instead."
             )
@@ -385,7 +385,7 @@ class SlashCommandOption(DictSerializationMixin):
     required: bool = attrs.field(repr=False, default=True)
     autocomplete: bool = attrs.field(repr=False, default=False)
     choices: List[Union[SlashCommandChoice, Dict]] = attrs.field(repr=False, factory=list)
-    channel_types: Optional[list[Union[ChannelTypes, int]]] = attrs.field(repr=False, default=None)
+    channel_types: Optional[list[Union[ChannelType, int]]] = attrs.field(repr=False, default=None)
     min_value: Optional[float] = attrs.field(repr=False, default=None)
     max_value: Optional[float] = attrs.field(repr=False, default=None)
     min_length: Optional[int] = attrs.field(repr=False, default=None)
@@ -405,9 +405,9 @@ class SlashCommandOption(DictSerializationMixin):
             if self.type != OptionTypes.CHANNEL:
                 raise ValueError("The option needs to be CHANNEL to use this")
 
-            allowed_int = [channel_type.value for channel_type in ChannelTypes]
+            allowed_int = [channel_type.value for channel_type in ChannelType]
             for item in value:
-                if (item not in allowed_int) and (item not in ChannelTypes):
+                if (item not in allowed_int) and (item not in ChannelType):
                     raise ValueError(f"{value} is not allowed here")
 
     @min_value.validator
@@ -822,7 +822,7 @@ def subcommand(
 
 def context_menu(
     name: str | LocalisedName,
-    context_type: "CommandTypes",
+    context_type: "CommandType",
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
     default_member_permissions: Optional["Permissions"] = None,
     dm_permission: bool = True,
@@ -920,7 +920,7 @@ def slash_option(
     required: bool = False,
     autocomplete: bool = False,
     choices: List[Union[SlashCommandChoice, dict]] = None,
-    channel_types: Optional[list[Union[ChannelTypes, int]]] = None,
+    channel_types: Optional[list[Union[ChannelType, int]]] = None,
     min_value: Optional[float] = None,
     max_value: Optional[float] = None,
     min_length: Optional[int] = None,
@@ -1209,7 +1209,7 @@ def sync_needed(local_cmd: dict, remote_cmd: Optional[dict] = None) -> bool:
         # basic comparison of attributes
         return True
 
-    if remote_cmd["type"] == CommandTypes.CHAT_INPUT:
+    if remote_cmd["type"] == CommandType.CHAT_INPUT:
         try:
             if not _compare_options(local_cmd["options"], remote_cmd["options"]):
                 # options are not the same, sync needed

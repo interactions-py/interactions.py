@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import interactions.client.const as const
 import interactions.models as models
-from interactions.models.discord.enums import CommandTypes
+from interactions.models.discord.enums import CommandType
 
 if TYPE_CHECKING:
     from interactions import InteractionCommand, SlashCommand, SlashCommandOption
@@ -22,16 +22,16 @@ def deserialize_app_cmds(data: list[dict]) -> list["InteractionCommand"]:
     """
     out = []
     command_mapping = {
-        CommandTypes.CHAT_INPUT: models.internal.SlashCommand,
-        CommandTypes.USER: models.internal.ContextMenu,
-        CommandTypes.MESSAGE: models.internal.ContextMenu,
+        CommandType.CHAT_INPUT: models.internal.SlashCommand,
+        CommandType.USER: models.internal.ContextMenu,
+        CommandType.MESSAGE: models.internal.ContextMenu,
     }
 
     for cmd_dict in data:
         options = cmd_dict.pop("options", [])
         cmd_type = cmd_dict["type"]
 
-        if cmd_type == CommandTypes.CHAT_INPUT:
+        if cmd_type == CommandType.CHAT_INPUT:
             del cmd_dict["type"]
         else:
             del cmd_dict["description"]
