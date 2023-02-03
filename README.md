@@ -71,4 +71,4 @@ async def on_start():
 bot.start("token")
 ```
 
-With Interactions.py, you can quickly and easily build complex Discord bots with Python. Check out our [quickstart guide](https://interactionspy.rtfd.io/en/latest/quickstart.html) for more information.
+With interactions.py, you can quickly and easily build complex Discord applications with Python. Check out our [quickstart guide](https://interactionspy.rtfd.io/en/latest/quickstart.html) for more information.
