@@ -173,9 +173,10 @@ class ApplicationCommand(DictSerializerMixin):
     :ivar str description: The description of the application command.
     :ivar Optional[List[Option]] options: The "options"/arguments of the application command.
     :ivar Optional[bool] default_permission: The default permission accessibility state of the application command.
+    :ivar Optional[bool] nsfw: Indicates whether the command is age-restricted.
     :ivar int version: The Application Command version autoincrement identifier.
     :ivar str default_member_permissions: The default member permission state of the application command.
-    :ivar boolean dm_permission: The application permissions if executed in a Direct Message.
+    :ivar bool dm_permission: The application permissions if executed in a Direct Message.
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The localisation dictionary for the application command name, if any.
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The localisation dictionary for the application command description, if any.
     """
@@ -188,6 +189,7 @@ class ApplicationCommand(DictSerializerMixin):
     description: str = field()
     options: Optional[List[Option]] = field(converter=convert_list(Option), default=None)
     default_permission: Optional[bool] = field(default=None)
+    nsfw: Optional[bool] = field(default=None)
     version: int = field(default=None)
     default_member_permissions: str = field()
     dm_permission: bool = field(default=None)
@@ -386,6 +388,7 @@ class Command(DictSerializerMixin):
     :ivar Optional[Union[int, Guild, List[int], List[Guild]]] scope: The scope of the command.
     :ivar Optional[str] default_member_permissions: The default member permissions of the command.
     :ivar Optional[bool] dm_permission: The DM permission of the command.
+    :ivar Optional[bool] nsfw: Indicates whether the command is age-restricted. Defaults to ``False``.
     :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
     :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
     :ivar bool default_scope: Whether the command should use the default scope. Defaults to ``True``.
@@ -407,6 +410,7 @@ class Command(DictSerializerMixin):
     scope: Optional[Union[int, Guild, List[int], List[Guild]]] = field(default=MISSING)
     default_member_permissions: Optional[str] = field(default=MISSING)
     dm_permission: Optional[bool] = field(default=MISSING)
+    nsfw: Optional[bool] = field(default=None)
     name_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     description_localizations: Optional[Dict[Union[str, Locale], str]] = field(default=MISSING)
     default_scope: bool = field(default=True)
@@ -479,6 +483,7 @@ class Command(DictSerializerMixin):
             description_localizations=self.description_localizations,
             default_member_permissions=self.default_member_permissions,
             dm_permission=self.dm_permission,
+            nsfw=self.nsfw,
         )
 
     @property
@@ -896,6 +901,8 @@ class Command(DictSerializerMixin):
             ctx.client = self.client
             ctx.command = self
             ctx.extension = self.extension
+
+            self.listener.dispatch("on_command", ctx)
 
             try:
                 if self.extension:

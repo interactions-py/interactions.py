@@ -1,6 +1,14 @@
-from enum import Enum, IntEnum
+import logging
+from enum import Enum
+from typing import Any, Type
+
+from ..base import get_logger
+
+log: logging.Logger = get_logger("enums")
 
 __all__ = (
+    "IntEnum",
+    "StrEnum",
     "ApplicationCommandType",
     "InteractionType",
     "InteractionCallbackType",
@@ -11,6 +19,35 @@ __all__ = (
     "TextStyleType",
     "Locale",
 )
+
+
+def _cursed_enum(cls: Type[Enum], obj: type, value: Any) -> Enum:
+    log.info(f"Enum class {cls.__name__} received an unexpected value `{value}`.")
+
+    new = obj.__new__(cls)  # type: ignore
+    new._name_ = f"UNKNOWN: {value}"
+    new._value_ = value
+
+    return cls._value2member_map_.setdefault(value, new)
+
+
+class IntEnum(int, Enum):
+    """Enum where members must be ints"""
+
+    @classmethod
+    def _missing_(cls, value: int) -> Enum:
+        return _cursed_enum(cls, int, value)
+
+
+class StrEnum(str, Enum):
+    """Enum where members must be strings"""
+
+    @classmethod
+    def _missing_(cls, value: str) -> Enum:
+        return _cursed_enum(cls, str, value)
+
+    def __str__(self):
+        return self.value
 
 
 class ApplicationCommandType(IntEnum):
@@ -168,7 +205,7 @@ class TextStyleType(IntEnum):
     PARAGRAPH = 2
 
 
-class Locale(str, Enum):
+class Locale(StrEnum):
     """
     .. versionadded:: 4.2.0
 

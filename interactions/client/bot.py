@@ -22,7 +22,7 @@ from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.role import Role
-from ..api.models.team import Application
+from ..api.models.team import Application, ApplicationRoleConnectionMetadata
 from ..api.models.user import User
 from ..base import get_logger
 from ..utils.attrs_utils import convert_list
@@ -486,7 +486,8 @@ class Client:
         self._websocket._closing_lock.set()  # Toggles the "ready-to-shutdown" state for the bot.
         # And subsequently, the processes will close itself.
 
-        await self._http._req._session.close()  # Closes the HTTP session associated with the client.
+        if isinstance(self._http, HTTPClient):
+            await self._http._req._session.close()  # Closes the HTTP session associated with the client.
 
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
@@ -1068,6 +1069,7 @@ class Client:
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
@@ -1121,6 +1123,10 @@ class Client:
             The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
         :param Optional[Union[int, Permissions]] default_member_permissions: The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param Optional[bool] nsfw:
+            .. versionadded:: 4.4.0
+
+            Indicates whether the command is age-restricted. Defaults to ``False``
         :param Optional[bool] default_scope:
             .. versionadded:: 4.3.0
 
@@ -1139,6 +1145,7 @@ class Client:
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                nsfw=nsfw,
                 name_localizations=name_localizations,
                 description_localizations=description_localizations,
                 default_scope=default_scope,
@@ -1157,6 +1164,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
@@ -1183,6 +1191,10 @@ class Client:
             The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
         :param Optional[Union[int, Permissions]] default_member_permissions: The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param Optional[bool] nsfw:
+            .. versionadded:: 4.4.0
+
+            Indicates whether the command is age-restricted. Defaults to ``False``
         :param Optional[bool] default_scope:
             .. versionadded:: 4.3.0
 
@@ -1198,6 +1210,7 @@ class Client:
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                nsfw=nsfw,
                 name_localizations=name_localizations,
                 default_scope=default_scope,
             )(coro)
@@ -1212,6 +1225,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
@@ -1239,6 +1253,10 @@ class Client:
         :param Optional[Union[int, Permissions]] default_member_permissions:
         The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param Optional[bool] nsfw:
+            .. versionadded:: 4.4.0
+
+            Indicates whether the command is age-restricted. Defaults to ``False``
         :param Optional[bool] default_scope:
             .. versionadded:: 4.3.0
 
@@ -1254,6 +1272,7 @@ class Client:
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                nsfw=nsfw,
                 name_localizations=name_localizations,
                 default_scope=default_scope,
             )(coro)
@@ -1620,7 +1639,8 @@ class Client:
 
     async def _logout(self) -> None:
         await self._websocket.close()
-        await self._http._req.close()
+        if isinstance(self._http, HTTPClient):
+            await self._http._req.close()
 
     async def wait_for(
         self,
@@ -1856,6 +1876,43 @@ class Client:
         Gets the bot's user information.
         """
         return User(**await self._http.get_self(), _client=self._http)
+
+    async def get_role_connection_metadata(self) -> List[ApplicationRoleConnectionMetadata]:
+        """
+        .. versionadded:: 4.4.0
+
+        Gets the bot's role connection metadata.
+
+        :return: The list of bot's role connection metadata.
+        """
+
+        res: List[dict] = await self._http.get_application_role_connection_metadata(
+            application_id=int(self.me.id)
+        )
+        return [ApplicationRoleConnectionMetadata(**metadata) for metadata in res]
+
+    async def update_role_connection_metadata(
+        self,
+        metadata: Union[List[ApplicationRoleConnectionMetadata], ApplicationRoleConnectionMetadata],
+    ) -> List[ApplicationRoleConnectionMetadata]:
+        """
+        .. versionadded:: 4.4.0
+
+        Updates the bot's role connection metadata.
+
+        .. note::
+            This method overwrites all current bot's role connection metadata.
+
+        :param List[ApplicationRoleConnectionMetadata] metadata: The list of role connection metadata. The maximum is five.
+        :return: The updated list of bot's role connection metadata.
+        """
+        if not isinstance(metadata, list):
+            metadata = [metadata]
+
+        res: List[dict] = await self._http.update_application_role_connection_metadata(
+            application_id=int(self.me.id), payload=[_._json for _ in metadata]
+        )
+        return [ApplicationRoleConnectionMetadata(**_) for _ in res]
 
 
 class Extension:

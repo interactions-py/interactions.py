@@ -20,7 +20,8 @@ def command(
     name_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
     default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
-    dm_permission: Optional[bool] = MISSING
+    dm_permission: Optional[bool] = MISSING,
+    nsfw: Optional[bool] = MISSING,
 ) -> Union[List[dict], dict]:  # sourcery skip: low-code-quality
     """
     A wrapper designed to interpret the client-facing API for
@@ -78,6 +79,7 @@ def command(
         )
     )
     _dm_permission: bool = True if dm_permission is MISSING else dm_permission
+    _nsfw: bool = False if nsfw is MISSING else nsfw
 
     payloads: list = []
 
@@ -102,6 +104,7 @@ def command(
                 description_localizations=_description_localizations,
                 default_member_permissions=_default_member_permissions,
                 dm_permission=_dm_permission,
+                nsfw=_nsfw,
             )
             payloads.append(payload._json)
     else:
@@ -114,6 +117,7 @@ def command(
             description_localizations=_description_localizations,
             default_member_permissions=_default_member_permissions,
             dm_permission=_dm_permission,
+            nsfw=_nsfw,
         )
         return payload._json
 
