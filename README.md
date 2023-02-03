@@ -24,7 +24,7 @@ In addition to its core functionality, Interactions.py also provides a range of 
 
 ## Extensibility
 
-So the stock library doesn't do what you want? No problem! Builtin extensions are available to extend the functionality of the library. And if none of those strike your fancy there are a myriad of other extension libraries available.
+So the base library doesn't do what you want? No problem! With builtin extensions, you are able to extend the functionality of the library. And if none of those pique your interest, there are a myriad of other extension libraries available.
 
 Just type `bot.load("extension")`
 
