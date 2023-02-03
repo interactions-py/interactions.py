@@ -856,6 +856,8 @@ class ComponentContext(_Context):
 
         :rtype: Optional[Union[Button, SelectMenu]]
         """
+        if self.message is None:
+            return
         if self.message.components is None:
             return
         for action_row in self.message.components:
