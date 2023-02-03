@@ -39,7 +39,6 @@ Just type `bot.load("extension")`
   - ✅ Automatic command registration
   - ✅ Annotation support
 
-
   ### Debug Ext
 
   A fully featured debug and utilities suite to help you get your bots made
