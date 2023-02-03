@@ -403,7 +403,6 @@ class WebSocketClient:
                     _option = self.__sub_command_context(option, _context)
                     __kwargs.update(_option)
 
-            self._dispatch.dispatch("on_command", _context)
         elif data["type"] == InteractionType.MESSAGE_COMPONENT:
             _name = f"component_{_context.data.custom_id}"
 
