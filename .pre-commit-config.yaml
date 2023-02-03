@@ -25,6 +25,7 @@ repos:
     - id: check-yaml
       name: YAML Structure
       language: python
+      args: ['--unsafe']
     - id: check-toml
       name: TOML Structure
     - id: check-merge-conflict
