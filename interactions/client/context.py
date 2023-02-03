@@ -846,3 +846,19 @@ class ComponentContext(_Context):
             for component in action_row.components:
                 if component.custom_id == self.custom_id:
                     return component.label
+
+    @property
+    def component(self) -> Optional[Union[Button, SelectMenu]]:
+        """
+        .. versionadded:: 4.4.0
+
+        The component that you interacted.
+
+        :rtype: Optional[Union[Button, SelectMenu]]
+        """
+        if self.message.components is None:
+            return
+        for action_row in self.message.components:
+            for component in action_row.components:
+                if component.custom_id == self.custom_id:
+                    return component
