@@ -14,7 +14,7 @@ A highly extensible, easy to use, and feature complete framework for Discord.
 interactions.py is the culmination of years of experience with Discord's APIs and bot development. This framework has been built from the ground up with community feedback and suggestions in mind. Our framework provides a modern and intuitive set of language bindings for easy interaction with Discord.
 
 ## Key Features
-Interactions.py offers a range of features for building Discord bots with Python, including:
+interactions.py offers a wide range of features for building Python-powered Discord bots and web applications alike:
 - ✅ 100% coverage of the Discord API
 - ✅ Dynamic cache with TTL support
 - ✅ Modern and Pythonic API for easy interaction with Discord
