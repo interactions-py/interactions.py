@@ -19,8 +19,8 @@ from interactions.client.mixins.send import SendMixin
 from interactions.models.discord.enums import (
     Permissions,
     MessageFlags,
-    InteractionTypes,
-    ComponentTypes,
+    InteractionType,
+    ComponentType,
 )
 from interactions.models.discord.message import (
     AllowedMentions,
@@ -32,8 +32,8 @@ from interactions.models.discord.message import (
 from interactions.models.discord.snowflake import Snowflake, Snowflake_Type, to_snowflake
 from interactions.models.discord.embed import Embed
 from interactions.models.internal.application_commands import (
-    OptionTypes,
-    CallbackTypes,
+    OptionType,
+    CallbackType,
     SlashCommandOption,
     InteractionCommand,
 )
@@ -281,7 +281,7 @@ class BaseInteractionContext(BaseContext):
 
         instance.guild_id = Snowflake(payload.get("guild_id"))
 
-        if payload["type"] == InteractionTypes.APPLICATION_COMMAND:
+        if payload["type"] == InteractionType.APPLICATION_COMMAND:
             instance.command_id = Snowflake(payload["data"]["id"])
             instance._command_name = payload["data"]["name"]
 
@@ -347,7 +347,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         if self.deferred or self.responded:
             raise RuntimeError("Interaction has already been responded to.")
 
-        payload = {"type": CallbackTypes.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE}
+        payload = {"type": CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE}
         if ephemeral:
             payload["data"] = {"flags": MessageFlags.EPHEMERAL}
 
@@ -371,7 +371,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
                 )
             else:
                 payload = {
-                    "type": CallbackTypes.CHANNEL_MESSAGE_WITH_SOURCE,
+                    "type": CallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
                     "data": message_payload,
                 }
                 message_data = await self.client.http.post_initial_response(payload, self.id, self.token, files=files)
@@ -528,7 +528,7 @@ class SlashContext(InteractionContext, ModalMixin):
         return instance
 
     def process_options(self, data: discord_typings.InteractionCallbackData) -> None:
-        if not data["type"] == InteractionTypes.APPLICATION_COMMAND:
+        if not data["type"] == InteractionType.APPLICATION_COMMAND:
             self.args = []
             self.kwargs = {}
             return
@@ -540,7 +540,7 @@ class SlashContext(InteractionContext, ModalMixin):
                 if hook_result := self.option_processing_hook(option):
                     kwargs[option["name"]] = hook_result
 
-                if option["type"] in (OptionTypes.SUB_COMMAND, OptionTypes.SUB_COMMAND_GROUP):
+                if option["type"] in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP):
                     self._command_name = f"{self._command_name} {option['name']}"
                     return gather_options(option["options"])
 
@@ -548,7 +548,7 @@ class SlashContext(InteractionContext, ModalMixin):
 
                 # resolve data using the cache
                 match option["type"]:
-                    case OptionTypes.USER:
+                    case OptionType.USER:
                         if self.guild_id:
                             value = (
                                 self.client.cache.get_member(self.guild_id, value)
@@ -557,11 +557,11 @@ class SlashContext(InteractionContext, ModalMixin):
                             )
                         else:
                             value = self.client.cache.get_user(value) or value
-                    case OptionTypes.CHANNEL:
+                    case OptionType.CHANNEL:
                         value = self.client.cache.get_channel(value)
-                    case OptionTypes.ROLE:
+                    case OptionType.ROLE:
                         value = self.client.cache.get_role(value) or value
-                    case OptionTypes.MENTIONABLE:
+                    case OptionType.MENTIONABLE:
                         snow = Snowflake(value)
                         if user := (
                             self.client.cache.get_member(self.guild_id, snow) or self.client.cache.get_user(snow)
@@ -610,7 +610,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
             raise RuntimeError("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackTypes.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackTypes.DEFERRED_UPDATE_MESSAGE
+            "type": CallbackType.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackType.DEFERRED_UPDATE_MESSAGE
         }
         if ephemeral:
             if edit_origin:
@@ -639,19 +639,19 @@ class ComponentContext(InteractionContext):
         instance.component_type = payload["data"]["component_type"]
 
         searches = {
-            "users": instance.component_type in (ComponentTypes.USER_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+            "users": instance.component_type in (ComponentType.USER_SELECT, ComponentType.MENTIONABLE_SELECT),
             "members": instance.guild_id
-            and instance.component_type in (ComponentTypes.USER_SELECT, ComponentTypes.MENTIONABLE_SELECT),
-            "channels": instance.component_type in (ComponentTypes.CHANNEL_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+            and instance.component_type in (ComponentType.USER_SELECT, ComponentType.MENTIONABLE_SELECT),
+            "channels": instance.component_type in (ComponentType.CHANNEL_SELECT, ComponentType.MENTIONABLE_SELECT),
             "roles": instance.guild_id
-            and instance.component_type in (ComponentTypes.ROLE_SELECT, ComponentTypes.MENTIONABLE_SELECT),
+            and instance.component_type in (ComponentType.ROLE_SELECT, ComponentType.MENTIONABLE_SELECT),
         }
 
         if instance.component_type in (
-            ComponentTypes.USER_SELECT,
-            ComponentTypes.CHANNEL_SELECT,
-            ComponentTypes.ROLE_SELECT,
-            ComponentTypes.MENTIONABLE_SELECT,
+            ComponentType.USER_SELECT,
+            ComponentType.CHANNEL_SELECT,
+            ComponentType.ROLE_SELECT,
+            ComponentType.MENTIONABLE_SELECT,
         ):
             for i, value in enumerate(instance.values):
                 if re.match(r"\d{17,}", value):
@@ -681,7 +681,7 @@ class ComponentContext(InteractionContext):
             raise RuntimeError("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackTypes.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackTypes.DEFERRED_UPDATE_MESSAGE
+            "type": CallbackType.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackType.DEFERRED_UPDATE_MESSAGE
         }
         if ephemeral:
             if edit_origin:
@@ -755,7 +755,7 @@ class ComponentContext(InteractionContext):
             self.deferred = False
             self.defer_edit_origin = False
         else:
-            payload = {"type": CallbackTypes.UPDATE_MESSAGE, "data": message_payload}
+            payload = {"type": CallbackType.UPDATE_MESSAGE, "data": message_payload}
             await self.client.http.post_initial_response(payload, str(self.id), self.token, files=files or file)
             message_data = await self.client.http.get_interaction_message(self.client.app.id, self.token)
 
@@ -814,11 +814,11 @@ class AutocompleteContext(BaseInteractionContext):
         Args:
             choices: 25 choices the user can pick
         """
-        if self.focused_option.type == OptionTypes.STRING:
+        if self.focused_option.type == OptionType.STRING:
             type_cast = str
-        elif self.focused_option.type == OptionTypes.INTEGER:
+        elif self.focused_option.type == OptionType.INTEGER:
             type_cast = int
-        elif self.focused_option.type == OptionTypes.NUMBER:
+        elif self.focused_option.type == OptionType.NUMBER:
             type_cast = float
         else:
             type_cast = None

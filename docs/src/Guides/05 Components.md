@@ -13,11 +13,11 @@ If you want to define the layout yourself, you have to put them in an `ActionRow
     components: list[ActionRow] = [
         ActionRow(
             Button(
-                style=ButtonStyles.GREEN,
+                style=ButtonStyle.GREEN,
                 label="Click Me",
             ),
             Button(
-                style=ButtonStyles.GREEN,
+                style=ButtonStyle.GREEN,
                 label="Click Me Too",
             )
         )
@@ -30,11 +30,11 @@ If you want to define the layout yourself, you have to put them in an `ActionRow
     ```python
     components: list[ActionRow] = spread_to_rows(
         Button(
-            style=ButtonStyles.GREEN,
+            style=ButtonStyle.GREEN,
             label="Click Me",
         ),
         Button(
-            style=ButtonStyles.GREEN,
+            style=ButtonStyle.GREEN,
             label="Click Me Too",
         )
     )
@@ -48,7 +48,7 @@ If you want to define the layout yourself, you have to put them in an `ActionRow
 
     ```python
     components = Button(
-        style=ButtonStyles.GREEN,
+        style=ButtonStyle.GREEN,
         label="Click Me",
     )
 
@@ -65,7 +65,7 @@ Buttons are, you guessed right, buttons. Users can click them, and they can be d
 
 ```python
 components = Button(
-    style=ButtonStyles.GREEN,
+    style=ButtonStyle.GREEN,
     label="Click Me",
     disabled=False,
 )
@@ -80,12 +80,12 @@ For more information, please visit the API reference [here](/interactions.py/API
 You are in luck, there are a bunch of colours you can choose from.
     <br>![Button Colours](../images/Components/buttons.png "Button Colours")
 
-The colours correspond to the styles found in `ButtonStyles`. Click [here](/interactions.py/API Reference/API Reference/models/Discord/enums/#interactions.models.discord.enums.ButtonStyles) for more information.
+The colours correspond to the styles found in `ButtonStyle`. Click [here](/interactions.py/API Reference/API Reference/models/Discord/enums/#interactions.models.discord.enums.ButtonStyle) for more information.
 
-If you use `ButtonStyles.URL`, you can pass an url to the button with `url`. Users who click the button will get redirected to your url.
+If you use `ButtonStyle.URL`, you can pass an url to the button with `url`. Users who click the button will get redirected to your url.
 ```python
 components = Button(
-    style=ButtonStyles.URL,
+    style=ButtonStyle.URL,
     label="Click Me",
     url="https://github.com/interactions-py/interactions.py",
 )
@@ -93,7 +93,7 @@ components = Button(
 await channel.send("Look a Button!", components=components)
 ```
 
-`ButtonStyles.URL` does not receive events, or work with callbacks.
+`ButtonStyle.URL` does not receive events, or work with callbacks.
 
 ## Select Your Favorite
 
@@ -146,7 +146,7 @@ When responding to a component you need to satisfy discord either by responding 
     ```python
     components = Button(
         custom_id="my_button_id",
-        style=ButtonStyles.GREEN,
+        style=ButtonStyle.GREEN,
         label="Click Me",
     )
 
@@ -183,7 +183,7 @@ When responding to a component you need to satisfy discord either by responding 
     async def my_command(...):
         components = Button(
             custom_id="my_button_id",
-            style=ButtonStyles.GREEN,
+            style=ButtonStyle.GREEN,
             label="Click Me",
         )
 
@@ -209,7 +209,7 @@ When responding to a component you need to satisfy discord either by responding 
     async def my_command(...):
         components = Button(
             custom_id="my_button_id",
-            style=ButtonStyles.GREEN,
+            style=ButtonStyle.GREEN,
             label="Click Me",
         )
 
@@ -230,7 +230,7 @@ When responding to a component you need to satisfy discord either by responding 
     async def my_command(...):
         components = Button(
             custom_id="my_button_id",
-            style=ButtonStyles.GREEN,
+            style=ButtonStyle.GREEN,
             label="Click Me",
         )
 

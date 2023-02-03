@@ -5,7 +5,7 @@ from typing import Callable, Iterable, List, Optional, Any, Union, TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.client.const import T
-from interactions.models.discord.enums import ComponentTypes
+from interactions.models.discord.enums import ComponentType
 
 if TYPE_CHECKING:
     from interactions.models.discord.components import BaseComponent
@@ -240,7 +240,7 @@ async def maybe_coroutine(func: Callable, *args, **kwargs) -> Any:
 def disable_components(*components: "BaseComponent") -> list["BaseComponent"]:
     """Disables all components in a list of components."""
     for component in components:
-        if component.type == ComponentTypes.ACTION_ROW:
+        if component.type == ComponentType.ACTION_ROW:
             disable_components(*component.components)  # noqa
         else:
             component.disabled = True

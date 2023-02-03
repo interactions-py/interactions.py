@@ -6,40 +6,40 @@ from typing import Iterator, Tuple, TypeVar, Type
 from interactions.client.const import get_logger
 
 __all__ = (
-    "WebSocketOPCodes",
+    "WebSocketOPCode",
     "Intents",
     "UserFlags",
     "ApplicationFlags",
     "TeamMembershipState",
-    "PremiumTypes",
+    "PremiumType",
     "MemberFlags",
-    "MessageTypes",
-    "MessageActivityTypes",
+    "MessageType",
+    "MessageActivityType",
     "MessageFlags",
     "Permissions",
-    "ChannelTypes",
-    "ComponentTypes",
-    "CommandTypes",
-    "InteractionTypes",
-    "ButtonStyles",
-    "MentionTypes",
-    "OverwriteTypes",
-    "DefaultNotificationLevels",
-    "ExplicitContentFilterLevels",
-    "MFALevels",
-    "VerificationLevels",
-    "NSFWLevels",
-    "PremiumTiers",
+    "ChannelType",
+    "ComponentType",
+    "CommandType",
+    "InteractionType",
+    "ButtonStyle",
+    "MentionType",
+    "OverwriteType",
+    "DefaultNotificationLevel",
+    "ExplicitContentFilterLevel",
+    "MFALevel",
+    "VerificationLevel",
+    "NSFWLevel",
+    "PremiumTier",
     "SystemChannelFlags",
     "ChannelFlags",
-    "VideoQualityModes",
+    "VideoQualityMode",
     "AutoArchiveDuration",
     "ActivityType",
-    "ActivityFlags",
+    "ActivityFlag",
     "Status",
     "StagePrivacyLevel",
     "IntegrationExpireBehaviour",
-    "InviteTargetTypes",
+    "InviteTargetType",
     "ScheduledEventPrivacyLevel",
     "ScheduledEventType",
     "ScheduledEventStatus",
@@ -139,7 +139,7 @@ class CursedIntEnum(IntEnum):
         return _return_cursed_enum(cls, value)
 
 
-class WebSocketOPCodes(CursedIntEnum):
+class WebSocketOPCode(CursedIntEnum):
     """Codes used by the Gateway to signify events."""
 
     DISPATCH = 0
@@ -328,7 +328,7 @@ class TeamMembershipState(CursedIntEnum):
     ACCEPTED = 2
 
 
-class PremiumTypes(CursedIntEnum):
+class PremiumType(CursedIntEnum):
     """Types of premium membership."""
 
     NONE = 0
@@ -339,7 +339,7 @@ class PremiumTypes(CursedIntEnum):
     """Full Nitro membership"""
 
 
-class MessageTypes(CursedIntEnum):
+class MessageType(CursedIntEnum):
     """Types of message."""
 
     DEFAULT = 0
@@ -369,7 +369,7 @@ class MessageTypes(CursedIntEnum):
     ROLE_SUBSCRIPTION_PURCHASE = 25
 
 
-class EmbedTypes(Enum):
+class EmbedType(Enum):
     """Types of embed."""
 
     RICH = "rich"
@@ -381,7 +381,7 @@ class EmbedTypes(Enum):
     AUTOMOD_MESSAGE = "auto_moderation_message"
 
 
-class MessageActivityTypes(CursedIntEnum):
+class MessageActivityType(CursedIntEnum):
     """An activity object, similar to an embed."""
 
     JOIN = 1
@@ -534,7 +534,7 @@ class Permissions(DiscordIntFlag):  # type: ignore
     ALL = AntiFlag()
 
 
-class ChannelTypes(CursedIntEnum):
+class ChannelType(CursedIntEnum):
     """Types of channel."""
 
     GUILD_TEXT = 0
@@ -571,7 +571,7 @@ class ChannelTypes(CursedIntEnum):
         return self.value in {2, 13}
 
 
-class ComponentTypes(CursedIntEnum):
+class ComponentType(CursedIntEnum):
     """The types of components supported by discord."""
 
     ACTION_ROW = 1
@@ -592,7 +592,7 @@ class ComponentTypes(CursedIntEnum):
     """Select menu for picking from channels"""
 
 
-class CommandTypes(CursedIntEnum):
+class CommandType(CursedIntEnum):
     """The interaction commands supported by discord."""
 
     CHAT_INPUT = 1
@@ -603,7 +603,7 @@ class CommandTypes(CursedIntEnum):
     """A UI-based command that shows up when you right click or tap on a message"""
 
 
-class InteractionTypes(CursedIntEnum):
+class InteractionType(CursedIntEnum):
     """The type of interaction received by discord."""
 
     PING = 1
@@ -621,7 +621,7 @@ class InteractionPermissionTypes(CursedIntEnum):
     CHANNEL = 3
 
 
-class ButtonStyles(CursedIntEnum):
+class ButtonStyle(CursedIntEnum):
     """The styles of buttons supported."""
 
     # Based on discord api
@@ -646,7 +646,7 @@ class ButtonStyles(CursedIntEnum):
     URL = 5
 
 
-class MentionTypes(str, Enum):
+class MentionType(str, Enum):
     """Types of mention."""
 
     EVERYONE = "everyone"
@@ -654,21 +654,21 @@ class MentionTypes(str, Enum):
     USERS = "users"
 
 
-class OverwriteTypes(CursedIntEnum):
+class OverwriteType(CursedIntEnum):
     """Types of permission overwrite."""
 
     ROLE = 0
     MEMBER = 1
 
 
-class DefaultNotificationLevels(CursedIntEnum):
+class DefaultNotificationLevel(CursedIntEnum):
     """Default Notification levels for dms and guilds."""
 
     ALL_MESSAGES = 0
     ONLY_MENTIONS = 1
 
 
-class ExplicitContentFilterLevels(CursedIntEnum):
+class ExplicitContentFilterLevel(CursedIntEnum):
     """Automatic filtering of explicit content."""
 
     DISABLED = 0
@@ -676,14 +676,14 @@ class ExplicitContentFilterLevels(CursedIntEnum):
     ALL_MEMBERS = 2
 
 
-class MFALevels(CursedIntEnum):
+class MFALevel(CursedIntEnum):
     """Does the user use 2FA."""
 
     NONE = 0
     ELEVATED = 1
 
 
-class VerificationLevels(CursedIntEnum):
+class VerificationLevel(CursedIntEnum):
     """Levels of verification needed by a guild."""
 
     NONE = 0
@@ -698,7 +698,7 @@ class VerificationLevels(CursedIntEnum):
     """Must have a verified phone number on their Discord Account"""
 
 
-class NSFWLevels(CursedIntEnum):
+class NSFWLevel(CursedIntEnum):
     """A guilds NSFW Level."""
 
     DEFAULT = 0
@@ -707,7 +707,7 @@ class NSFWLevels(CursedIntEnum):
     AGE_RESTRICTED = 3
 
 
-class PremiumTiers(CursedIntEnum):
+class PremiumTier(CursedIntEnum):
     """The boost level of a server."""
 
     NONE = 0
@@ -745,7 +745,7 @@ class ChannelFlags(DiscordIntFlag):
     NONE = 0
 
 
-class VideoQualityModes(CursedIntEnum):
+class VideoQualityMode(CursedIntEnum):
     """Video quality settings."""
 
     AUTO = 1
@@ -787,7 +787,7 @@ class ActivityType(CursedIntEnum):
     """Alias for `GAME`"""
 
 
-class ActivityFlags(DiscordIntFlag):
+class ActivityFlag(DiscordIntFlag):
     INSTANCE = 1 << 0
     JOIN = 1 << 1
     SPECTATE = 1 << 2
@@ -822,7 +822,7 @@ class IntegrationExpireBehaviour(CursedIntEnum):
     KICK = 1
 
 
-class InviteTargetTypes(CursedIntEnum):
+class InviteTargetType(CursedIntEnum):
     STREAM = 1
     EMBEDDED_APPLICATION = 2
 

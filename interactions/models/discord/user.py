@@ -15,7 +15,7 @@ from interactions.client.utils.serializer import to_image_data
 from interactions.models.discord.activity import Activity
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.color import Color
-from interactions.models.discord.enums import Permissions, PremiumTypes, UserFlags, Status, MemberFlags
+from interactions.models.discord.enums import Permissions, PremiumType, UserFlags, Status, MemberFlags
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.role import Role
 from interactions.models.discord.snowflake import Snowflake_Type
@@ -117,10 +117,10 @@ class User(BaseUser):
         converter=UserFlags,
         metadata=docs("The flags associated with this user"),
     )
-    premium_type: "PremiumTypes" = attrs.field(
+    premium_type: "PremiumType" = attrs.field(
         repr=False,
         default=0,
-        converter=PremiumTypes,
+        converter=PremiumType,
         metadata=docs("The type of nitro subscription on a user's account"),
     )
 

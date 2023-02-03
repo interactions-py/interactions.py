@@ -12,7 +12,7 @@ from interactions.client.const import MISSING, __api_version__
 from interactions.client.utils.input_utils import FastJson
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.discord.enums import Status
-from interactions.models.discord.enums import WebSocketOPCodes as OPCODE
+from interactions.models.discord.enums import WebSocketOPCode as OPCODE
 from interactions.models.discord.snowflake import to_snowflake
 from interactions.models.internal.cooldowns import CooldownSystem
 from .websocket import WebsocketClient

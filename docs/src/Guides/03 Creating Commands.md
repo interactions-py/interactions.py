@@ -85,19 +85,19 @@ This will show up in discord as `/base group command`. There are two ways to add
 
 ## But I Need More Options
 
-Interactions can also have options. There are a bunch of different [types of options](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.OptionTypes):
+Interactions can also have options. There are a bunch of different [types of options](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.OptionType):
 
 | Option Type               | Return Type                                | Description                                                                                 |
 |---------------------------|--------------------------------------------|---------------------------------------------------------------------------------------------|
-| `OptionTypes.STRING`      | `str`                                      | Limit the input to a string.                                                                |
-| `OptionTypes.INTEGER`     | `int`                                      | Limit the input to a integer.                                                               |
-| `OptionTypes.NUMBER`      | `float`                                    | Limit the input to a float.                                                                 |
-| `OptionTypes.BOOLEAN`     | `bool`                                     | Let the user choose either `True` or `False`.                                               |
-| `OptionTypes.USER`        | `Member` in guilds, else `User`            | Let the user choose a discord user from an automatically-generated list of options.         |
-| `OptionTypes.CHANNEL`     | `GuildChannel` in guilds, else `DMChannel` | Let the user choose a discord channel from an automatically-generated list of options.      |
-| `OptionTypes.ROLE`        | `Role`                                     | Let the user choose a discord role from an automatically-generated list of options.         |
-| `OptionTypes.MENTIONABLE` | `DiscordObject`                            | Let the user chose any discord mentionable from an automatically generated list of options. |
-| `OptionTypes.ATTACHMENT`  | `Attachment`                               | Let the user upload an attachment.                                                          |
+| `OptionType.STRING`      | `str`                                      | Limit the input to a string.                                                                |
+| `OptionType.INTEGER`     | `int`                                      | Limit the input to a integer.                                                               |
+| `OptionType.NUMBER`      | `float`                                    | Limit the input to a float.                                                                 |
+| `OptionType.BOOLEAN`     | `bool`                                     | Let the user choose either `True` or `False`.                                               |
+| `OptionType.USER`        | `Member` in guilds, else `User`            | Let the user choose a discord user from an automatically-generated list of options.         |
+| `OptionType.CHANNEL`     | `GuildChannel` in guilds, else `DMChannel` | Let the user choose a discord channel from an automatically-generated list of options.      |
+| `OptionType.ROLE`        | `Role`                                     | Let the user choose a discord role from an automatically-generated list of options.         |
+| `OptionType.MENTIONABLE` | `DiscordObject`                            | Let the user chose any discord mentionable from an automatically generated list of options. |
+| `OptionType.ATTACHMENT`  | `Attachment`                               | Let the user upload an attachment.                                                          |
 
 Now that you know all the options you have for options, you can opt into adding options to your interaction.
 
@@ -108,7 +108,7 @@ You do that by using the `@slash_option()` decorator and passing the option name
     name="integer_option",
     description="Integer Option",
     required=True,
-    opt_type=OptionTypes.INTEGER
+    opt_type=OptionType.INTEGER
 )
 async def my_command_function(ctx: InteractionContext, integer_option: int):
     await ctx.send(f"You input {integer_option}")
@@ -123,7 +123,7 @@ Always make sure to define all required options first, this is a Discord require
     name="integer_option",
     description="Integer Option",
     required=False,
-    opt_type=OptionTypes.INTEGER
+    opt_type=OptionType.INTEGER
 )
 async def my_command_function(ctx: InteractionContext, integer_option: int = 5):
     await ctx.send(f"You input {integer_option}")
@@ -133,15 +133,15 @@ For more information, please visit the API reference [here](/interactions.py/API
 
 ## Restricting Options
 
-If you are using an `OptionTypes.CHANNEL` option, you can restrict the channel a user can choose by setting `channel_types`:
+If you are using an `OptionType.CHANNEL` option, you can restrict the channel a user can choose by setting `channel_types`:
 ```python
 @slash_command(name="my_command", ...)
 @slash_option(
     name="channel_option",
     description="Channel Option",
     required=True,
-    opt_type=OptionTypes.CHANNEL,
-    channel_types=[ChannelTypes.GUILD_TEXT]
+    opt_type=OptionType.CHANNEL,
+    channel_types=[ChannelType.GUILD_TEXT]
 )
 async def my_command_function(ctx: InteractionContext, channel_option: GUILD_TEXT):
     await channel_option.send("This is a text channel in a guild")
@@ -149,14 +149,14 @@ async def my_command_function(ctx: InteractionContext, channel_option: GUILD_TEX
     await ctx.send("...")
 ```
 
-You can also set an upper and lower limit for both `OptionTypes.INTEGER` and `OptionTypes.NUMBER` by setting `min_value` and `max_value`:
+You can also set an upper and lower limit for both `OptionType.INTEGER` and `OptionType.NUMBER` by setting `min_value` and `max_value`:
 ```python
 @slash_command(name="my_command", ...)
 @slash_option(
     name="integer_option",
     description="Integer Option",
     required=True,
-    opt_type=OptionTypes.INTEGER,
+    opt_type=OptionType.INTEGER,
     min_value=10,
     max_value=15
 )
@@ -164,14 +164,14 @@ async def my_command_function(ctx: InteractionContext, integer_option: int):
     await ctx.send(f"You input {integer_option} which is always between 10 and 15")
 ```
 
-The same can be done with the length of an option when using `OptionTypes.STRING` by setting `min_length` and `max_length`:
+The same can be done with the length of an option when using `OptionType.STRING` by setting `min_length` and `max_length`:
 ```python
 @slash_command(name="my_command", ...)
 @slash_option(
     name="string_option",
     description="String Option",
     required=True,
-    opt_type=OptionTypes.STRING,
+    opt_type=OptionType.STRING,
     min_length=5,
     max_length=10
 )
@@ -195,7 +195,7 @@ To create a choice, simply fill `choices` in `@slash_option()`. An option can ha
     name="integer_option",
     description="Integer Option",
     required=True,
-    opt_type=OptionTypes.INTEGER,
+    opt_type=OptionType.INTEGER,
     choices=[
         SlashCommandChoice(name="One", value=1),
         SlashCommandChoice(name="Two", value=2)
@@ -219,7 +219,7 @@ To use autocomplete options, set `autocomplete=True` in `@slash_option()`:
     name="string_option",
     description="String Option",
     required=True,
-    opt_type=OptionTypes.STRING,
+    opt_type=OptionType.STRING,
     autocomplete=True
 )
 async def my_command_function(ctx: InteractionContext, string_option: str):
@@ -262,7 +262,7 @@ You are in luck. There are currently four different ways to create interactions,
         name="integer_option",
         description="Integer Option",
         required=True,
-        opt_type=OptionTypes.INTEGER
+        opt_type=OptionType.INTEGER
     )
     async def my_command_function(ctx: InteractionContext, integer_option: int):
         await ctx.send(f"You input {integer_option}")
@@ -278,7 +278,7 @@ You are in luck. There are currently four different ways to create interactions,
                 name="integer_option",
                 description="Integer Option",
                 required=True,
-                opt_type=OptionTypes.INTEGER
+                opt_type=OptionType.INTEGER
             )
         ]
     )
@@ -307,7 +307,7 @@ You are in luck. There are currently four different ways to create interactions,
                     name="integer_option",
                     description="Integer Option",
                     required=True,
-                    opt_type=OptionTypes.INTEGER
+                    opt_type=OptionType.INTEGER
                 )
             ]
         )
@@ -434,7 +434,7 @@ def my_own_int_option():
         return slash_option(
             name="integer_option",
             description="Integer Option",
-            opt_type=OptionTypes.INTEGER,
+            opt_type=OptionType.INTEGER,
             required=True
         )(func)
 

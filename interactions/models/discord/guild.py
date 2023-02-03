@@ -23,14 +23,14 @@ from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.misc.iterator import AsyncIterator
 from .base import DiscordObject, ClientObject
 from .enums import (
-    NSFWLevels,
+    NSFWLevel,
     Permissions,
     SystemChannelFlags,
-    VerificationLevels,
-    DefaultNotificationLevels,
-    ExplicitContentFilterLevels,
-    MFALevels,
-    ChannelTypes,
+    VerificationLevel,
+    DefaultNotificationLevel,
+    ExplicitContentFilterLevel,
+    MFALevel,
+    ChannelType,
     IntegrationExpireBehaviour,
     ScheduledEventPrivacyLevel,
     ScheduledEventType,
@@ -160,17 +160,17 @@ class Guild(BaseGuild):
     """True if the server widget is enabled."""
     widget_channel_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
     """The channel id that the widget will generate an invite to, or None if set to no invite."""
-    verification_level: Union[VerificationLevels, int] = attrs.field(repr=False, default=VerificationLevels.NONE)
+    verification_level: Union[VerificationLevel, int] = attrs.field(repr=False, default=VerificationLevel.NONE)
     """The verification level required for the guild."""
-    default_message_notifications: Union[DefaultNotificationLevels, int] = attrs.field(
-        repr=False, default=DefaultNotificationLevels.ALL_MESSAGES
+    default_message_notifications: Union[DefaultNotificationLevel, int] = attrs.field(
+        repr=False, default=DefaultNotificationLevel.ALL_MESSAGES
     )
     """The default message notifications level."""
-    explicit_content_filter: Union[ExplicitContentFilterLevels, int] = attrs.field(
-        repr=False, default=ExplicitContentFilterLevels.DISABLED
+    explicit_content_filter: Union[ExplicitContentFilterLevel, int] = attrs.field(
+        repr=False, default=ExplicitContentFilterLevel.DISABLED
     )
     """The explicit content filter level."""
-    mfa_level: Union[MFALevels, int] = attrs.field(repr=False, default=MFALevels.NONE)
+    mfa_level: Union[MFALevel, int] = attrs.field(repr=False, default=MFALevel.NONE)
     """The required MFA (Multi Factor Authentication) level for the guild."""
     system_channel_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
     """The id of the channel where guild notices such as welcome messages and boost events are posted."""
@@ -210,7 +210,7 @@ class Guild(BaseGuild):
     """The maximum amount of users in a video channel."""
     welcome_screen: Optional["GuildWelcome"] = attrs.field(repr=False, default=None)
     """The welcome screen of a Community guild, shown to new members, returned in an Invite's guild object."""
-    nsfw_level: Union[NSFWLevels, int] = attrs.field(repr=False, default=NSFWLevels.DEFAULT)
+    nsfw_level: Union[NSFWLevel, int] = attrs.field(repr=False, default=NSFWLevel.DEFAULT)
     """The guild NSFW level."""
     stage_instances: List[dict] = attrs.field(repr=False, factory=list)  # TODO stage instance objects
     """Stage instances in the guild."""
@@ -265,9 +265,9 @@ class Guild(BaseGuild):
         client: "Client",
         *,
         icon: Absent[Optional[UPLOADABLE_TYPE]] = MISSING,
-        verification_level: Absent["VerificationLevels"] = MISSING,
-        default_message_notifications: Absent["DefaultNotificationLevels"] = MISSING,
-        explicit_content_filter: Absent["ExplicitContentFilterLevels"] = MISSING,
+        verification_level: Absent["VerificationLevel"] = MISSING,
+        default_message_notifications: Absent["DefaultNotificationLevel"] = MISSING,
+        explicit_content_filter: Absent["ExplicitContentFilterLevel"] = MISSING,
         roles: Absent[list[dict]] = MISSING,
         channels: Absent[list[dict]] = MISSING,
         afk_channel_id: Absent["Snowflake_Type"] = MISSING,
@@ -719,9 +719,9 @@ class Guild(BaseGuild):
         *,
         name: Absent[Optional[str]] = MISSING,
         description: Absent[Optional[str]] = MISSING,
-        verification_level: Absent[Optional["VerificationLevels"]] = MISSING,
-        default_message_notifications: Absent[Optional["DefaultNotificationLevels"]] = MISSING,
-        explicit_content_filter: Absent[Optional["ExplicitContentFilterLevels"]] = MISSING,
+        verification_level: Absent[Optional["VerificationLevel"]] = MISSING,
+        default_message_notifications: Absent[Optional["DefaultNotificationLevel"]] = MISSING,
+        explicit_content_filter: Absent[Optional["ExplicitContentFilterLevel"]] = MISSING,
         afk_channel: Absent[Optional[Union["models.GuildVoice", Snowflake_Type]]] = MISSING,
         afk_timeout: Absent[Optional[int]] = MISSING,
         system_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
@@ -889,7 +889,7 @@ class Guild(BaseGuild):
 
     async def create_channel(
         self,
-        channel_type: Union[ChannelTypes, int],
+        channel_type: Union[ChannelType, int],
         name: str,
         topic: Absent[Optional[str]] = MISSING,
         position: Absent[Optional[int]] = MISSING,
@@ -970,7 +970,7 @@ class Guild(BaseGuild):
 
         """
         return await self.create_channel(
-            channel_type=ChannelTypes.GUILD_TEXT,
+            channel_type=ChannelType.GUILD_TEXT,
             name=name,
             topic=topic,
             position=position,
@@ -1012,7 +1012,7 @@ class Guild(BaseGuild):
 
         """
         return await self.create_channel(
-            channel_type=ChannelTypes.GUILD_FORUM,
+            channel_type=ChannelType.GUILD_FORUM,
             name=name,
             topic=topic,
             position=position,
@@ -1052,7 +1052,7 @@ class Guild(BaseGuild):
 
         """
         return await self.create_channel(
-            channel_type=ChannelTypes.GUILD_NEWS,
+            channel_type=ChannelType.GUILD_NEWS,
             name=name,
             topic=topic,
             position=position,
@@ -1095,7 +1095,7 @@ class Guild(BaseGuild):
 
         """
         return await self.create_channel(
-            channel_type=ChannelTypes.GUILD_VOICE,
+            channel_type=ChannelType.GUILD_VOICE,
             name=name,
             topic=topic,
             position=position,
@@ -1138,7 +1138,7 @@ class Guild(BaseGuild):
 
         """
         return await self.create_channel(
-            channel_type=ChannelTypes.GUILD_STAGE_VOICE,
+            channel_type=ChannelType.GUILD_STAGE_VOICE,
             name=name,
             topic=topic,
             position=position,
@@ -1172,7 +1172,7 @@ class Guild(BaseGuild):
 
         """
         return await self.create_channel(
-            channel_type=ChannelTypes.GUILD_CATEGORY,
+            channel_type=ChannelType.GUILD_CATEGORY,
             name=name,
             position=position,
             permission_overwrites=permission_overwrites,
@@ -1974,15 +1974,15 @@ class Guild(BaseGuild):
         """
         # sorting is based on this https://github.com/discord/discord-api-docs/issues/4613#issuecomment-1059997612
         sort_map = {
-            ChannelTypes.GUILD_NEWS_THREAD: 1,
-            ChannelTypes.GUILD_PUBLIC_THREAD: 1,
-            ChannelTypes.GUILD_PRIVATE_THREAD: 1,
-            ChannelTypes.GUILD_TEXT: 2,
-            ChannelTypes.GUILD_CATEGORY: 2,
-            ChannelTypes.GUILD_NEWS: 2,
-            ChannelTypes.GUILD_FORUM: 2,  # assumed value
-            ChannelTypes.GUILD_VOICE: 3,
-            ChannelTypes.GUILD_STAGE_VOICE: 3,
+            ChannelType.GUILD_NEWS_THREAD: 1,
+            ChannelType.GUILD_PUBLIC_THREAD: 1,
+            ChannelType.GUILD_PRIVATE_THREAD: 1,
+            ChannelType.GUILD_TEXT: 2,
+            ChannelType.GUILD_CATEGORY: 2,
+            ChannelType.GUILD_NEWS: 2,
+            ChannelType.GUILD_FORUM: 2,  # assumed value
+            ChannelType.GUILD_VOICE: 3,
+            ChannelType.GUILD_STAGE_VOICE: 3,
         }
 
         def channel_sort_func(a, b) -> int:
@@ -2001,7 +2001,7 @@ class Guild(BaseGuild):
                 sorted_channels.remove(channel)
                 parent_index = sorted_channels.index(channel.category)
                 sorted_channels.insert(parent_index + 1, channel)
-            elif channel.type != ChannelTypes.GUILD_CATEGORY:
+            elif channel.type != ChannelType.GUILD_CATEGORY:
                 # move non-category channels to the top
                 sorted_channels.remove(channel)
                 sorted_channels.insert(0, channel)

@@ -4,10 +4,10 @@ import discord_typings
 
 from interactions.models.internal.protocols import CanRequest
 from interactions.models.discord.enums import (
-    ChannelTypes,
+    ChannelType,
     StagePrivacyLevel,
     Permissions,
-    OverwriteTypes,
+    OverwriteType,
 )
 from interactions.client.utils.serializer import dict_filter_none
 
@@ -116,7 +116,7 @@ class ChannelRequests(CanRequest):
         self,
         guild_id: "Snowflake_Type",
         name: str,
-        channel_type: "ChannelTypes | int",
+        channel_type: "ChannelType | int",
         topic: str | None = None,
         position: int | None = None,
         permission_overwrites: Sequence["PermissionOverwrite | dict"] | None = None,
@@ -158,7 +158,7 @@ class ChannelRequests(CanRequest):
             "parent_id": int(parent_id) if parent_id else None,
             "permission_overwrites": list(permission_overwrites) if permission_overwrites else None,
         }
-        if channel_type in (ChannelTypes.GUILD_VOICE, ChannelTypes.GUILD_STAGE_VOICE):
+        if channel_type in (ChannelType.GUILD_VOICE, ChannelType.GUILD_STAGE_VOICE):
             payload.update(
                 bitrate=bitrate,
                 user_limit=user_limit,
@@ -386,7 +386,7 @@ class ChannelRequests(CanRequest):
         self,
         channel_id: "Snowflake_Type",
         overwrite_id: "Snowflake_Type",
-        perm_type: "OverwriteTypes | int",
+        perm_type: "OverwriteType | int",
         allow: "Permissions | int" = 0,
         deny: "Permissions | int" = 0,
         reason: str | None = None,

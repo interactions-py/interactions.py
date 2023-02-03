@@ -14,7 +14,7 @@ These open up if you right-click a message and choose `Apps`.
 This example repeats the selected the message:
 
 ```python
-@context_menu(name="repeat", context_type=CommandTypes.MESSAGE)
+@context_menu(name="repeat", context_type=CommandType.MESSAGE)
 async def repeat(ctx: InteractionContext):
     message: Message = ctx.target
     await ctx.send(message.content)
@@ -27,7 +27,7 @@ These open up if you right-click a user and choose `Apps`.
 This example pings the user:
 
 ```python
-@context_menu(name="ping", context_type=CommandTypes.USER)
+@context_menu(name="ping", context_type=CommandType.USER)
 async def ping(ctx: InteractionContext):
     member: Member = ctx.target
     await ctx.send(member.mention)

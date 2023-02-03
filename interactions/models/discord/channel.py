@@ -28,14 +28,14 @@ from interactions.models.misc.context_manager import Typing
 from interactions.models.misc.iterator import AsyncIterator
 from .enums import (
     ChannelFlags,
-    ChannelTypes,
-    OverwriteTypes,
+    ChannelType,
+    OverwriteType,
     Permissions,
-    VideoQualityModes,
+    VideoQualityMode,
     AutoArchiveDuration,
     StagePrivacyLevel,
     MessageFlags,
-    InviteTargetTypes,
+    InviteTargetType,
 )
 
 if TYPE_CHECKING:
@@ -172,7 +172,7 @@ class PermissionOverwrite(SnowflakeObject, DictSerializationMixin):
 
     """
 
-    type: "OverwriteTypes" = attrs.field(repr=True, converter=OverwriteTypes)
+    type: "OverwriteType" = attrs.field(repr=True, converter=OverwriteType)
     """Permission overwrite type (role or member)"""
     allow: Optional["Permissions"] = attrs.field(
         repr=True, converter=optional_c(Permissions), kw_only=True, default=None
@@ -196,9 +196,9 @@ class PermissionOverwrite(SnowflakeObject, DictSerializationMixin):
 
         """
         if isinstance(target_type, models.Role):
-            return cls(type=OverwriteTypes.ROLE, id=target_type.id)
+            return cls(type=OverwriteType.ROLE, id=target_type.id)
         elif isinstance(target_type, (models.Member, models.User)):
-            return cls(type=OverwriteTypes.MEMBER, id=target_type.id)
+            return cls(type=OverwriteType.MEMBER, id=target_type.id)
         else:
             raise TypeError("target_type must be a Role, Member or User")
 
@@ -487,7 +487,7 @@ class InvitableMixin:
         max_uses: int = 0,
         temporary: bool = False,
         unique: bool = False,
-        target_type: Optional[InviteTargetTypes] = None,
+        target_type: Optional[InviteTargetType] = None,
         target_user: Optional[Union[Snowflake_Type, "models.User"]] = None,
         target_application: Optional[Union[Snowflake_Type, "models.Application"]] = None,
         reason: Optional[str] = None,
@@ -510,19 +510,19 @@ class InvitableMixin:
 
         """
         if target_type:
-            if target_type == InviteTargetTypes.STREAM and not target_user:
+            if target_type == InviteTargetType.STREAM and not target_user:
                 raise ValueError("Stream target must include target user id.")
-            elif target_type == InviteTargetTypes.EMBEDDED_APPLICATION and not target_application:
+            elif target_type == InviteTargetType.EMBEDDED_APPLICATION and not target_application:
                 raise ValueError("Embedded Application target must include target application id.")
 
         if target_user and target_application:
             raise ValueError("Invite target must be either User or Embedded Application, not both.")
         elif target_user:
             target_user = to_snowflake(target_user)
-            target_type = InviteTargetTypes.STREAM
+            target_type = InviteTargetType.STREAM
         elif target_application:
             target_application = to_snowflake(target_application)
-            target_type = InviteTargetTypes.EMBEDDED_APPLICATION
+            target_type = InviteTargetType.EMBEDDED_APPLICATION
 
         invite_data = await self._client.http.create_channel_invite(
             self.id,
@@ -554,7 +554,7 @@ class ThreadableMixin:
         self,
         name: str,
         message: Absent[Snowflake_Type] = MISSING,
-        thread_type: Absent[ChannelTypes] = MISSING,
+        thread_type: Absent[ChannelType] = MISSING,
         invitable: Absent[bool] = MISSING,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
         reason: Absent[str] = None,
@@ -574,13 +574,13 @@ class ThreadableMixin:
             The created thread, if successful
 
         """
-        if self.type == ChannelTypes.GUILD_NEWS and not message:
+        if self.type == ChannelType.GUILD_NEWS and not message:
             raise ValueError("News channel must include message to create thread from.")
 
         elif message and (thread_type or invitable):
             raise ValueError("Message cannot be used with thread_type or invitable.")
 
-        elif thread_type != ChannelTypes.GUILD_PRIVATE_THREAD and invitable:
+        elif thread_type != ChannelType.GUILD_PRIVATE_THREAD and invitable:
             raise ValueError("Invitable only applies to private threads.")
 
         thread_data = await self._client.http.create_thread(
@@ -767,7 +767,7 @@ class WebhookMixin:
 class BaseChannel(DiscordObject):
     name: Optional[str] = attrs.field(repr=True, default=None)
     """The name of the channel (1-100 characters)"""
-    type: Union[ChannelTypes, int] = attrs.field(repr=True, converter=ChannelTypes)
+    type: Union[ChannelType, int] = attrs.field(repr=True, converter=ChannelType)
     """The channel topic (0-1024 characters)"""
 
     @classmethod
@@ -792,7 +792,7 @@ class BaseChannel(DiscordObject):
         if channel_class == GuildPublicThread:
             # attempt to determine if this thread is a forum post (thanks discord)
             parent_channel = client.cache.get_channel(data["parent_id"])
-            if parent_channel and parent_channel.type == ChannelTypes.GUILD_FORUM:
+            if parent_channel and parent_channel.type == ChannelType.GUILD_FORUM:
                 channel_class = GuildForumPost
 
         return channel_class.from_dict(data, client)
@@ -807,7 +807,7 @@ class BaseChannel(DiscordObject):
         *,
         name: Absent[str] = MISSING,
         icon: Absent[UPLOADABLE_TYPE] = MISSING,
-        type: Absent[ChannelTypes] = MISSING,
+        type: Absent[ChannelType] = MISSING,
         position: Absent[int] = MISSING,
         topic: Absent[str] = MISSING,
         nsfw: Absent[bool] = MISSING,
@@ -819,7 +819,7 @@ class BaseChannel(DiscordObject):
         ] = MISSING,
         parent_id: Absent[Snowflake_Type] = MISSING,
         rtc_region: Absent[Union["models.VoiceRegion", str]] = MISSING,
-        video_quality_mode: Absent[VideoQualityModes] = MISSING,
+        video_quality_mode: Absent[VideoQualityMode] = MISSING,
         default_auto_archive_duration: Absent[AutoArchiveDuration] = MISSING,
         archived: Absent[bool] = MISSING,
         auto_archive_duration: Absent[AutoArchiveDuration] = MISSING,
@@ -1076,7 +1076,7 @@ class GuildChannel(BaseChannel):
     async def add_permission(
         self,
         target: Union["PermissionOverwrite", "models.Role", "models.User", "models.Member", "Snowflake_Type"],
-        type: Optional["OverwriteTypes"] = None,
+        type: Optional["OverwriteType"] = None,
         allow: Optional[List["Permissions"] | int] = None,
         deny: Optional[List["Permissions"] | int] = None,
         reason: Optional[str] = None,
@@ -1100,10 +1100,10 @@ class GuildChannel(BaseChannel):
         if not isinstance(target, PermissionOverwrite):
             if isinstance(target, (models.User, models.Member)):
                 target = target.id
-                type = OverwriteTypes.MEMBER
+                type = OverwriteType.MEMBER
             elif isinstance(target, models.Role):
                 target = target.id
-                type = OverwriteTypes.ROLE
+                type = OverwriteType.ROLE
             elif type and isinstance(target, Snowflake_Type):
                 target = to_snowflake(target)
             else:
@@ -1383,7 +1383,7 @@ class GuildCategory(GuildChannel):
 
     async def create_channel(
         self,
-        channel_type: Union[ChannelTypes, int],
+        channel_type: Union[ChannelType, int],
         name: str,
         topic: Absent[Optional[str]] = MISSING,
         position: Absent[Optional[int]] = MISSING,
@@ -1458,7 +1458,7 @@ class GuildCategory(GuildChannel):
 
         """
         return await self.create_channel(
-            channel_type=ChannelTypes.GUILD_TEXT,
+            channel_type=ChannelType.GUILD_TEXT,
             name=name,
             topic=topic,
             position=position,
@@ -1495,7 +1495,7 @@ class GuildCategory(GuildChannel):
 
         """
         return await self.create_channel(
-            channel_type=ChannelTypes.GUILD_NEWS,
+            channel_type=ChannelType.GUILD_NEWS,
             name=name,
             topic=topic,
             position=position,
@@ -1535,7 +1535,7 @@ class GuildCategory(GuildChannel):
 
         """
         return await self.create_channel(
-            channel_type=ChannelTypes.GUILD_VOICE,
+            channel_type=ChannelType.GUILD_VOICE,
             name=name,
             topic=topic,
             position=position,
@@ -1575,7 +1575,7 @@ class GuildCategory(GuildChannel):
 
         """
         return await self.create_channel(
-            channel_type=ChannelTypes.GUILD_STAGE_VOICE,
+            channel_type=ChannelType.GUILD_STAGE_VOICE,
             name=name,
             topic=topic,
             position=position,
@@ -1602,7 +1602,7 @@ class GuildNews(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         parent_id: Absent[Snowflake_Type] = MISSING,
         nsfw: Absent[bool] = MISSING,
         topic: Absent[str] = MISSING,
-        channel_type: Absent["ChannelTypes"] = MISSING,
+        channel_type: Absent["ChannelType"] = MISSING,
         default_auto_archive_duration: Absent["AutoArchiveDuration"] = MISSING,
         reason: Absent[str] = MISSING,
         **kwargs,
@@ -1694,7 +1694,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         parent_id: Absent[Snowflake_Type] = MISSING,
         nsfw: Absent[bool] = MISSING,
         topic: Absent[str] = MISSING,
-        channel_type: Absent["ChannelTypes"] = MISSING,
+        channel_type: Absent["ChannelType"] = MISSING,
         default_auto_archive_duration: Absent["AutoArchiveDuration"] = MISSING,
         rate_limit_per_user: Absent[int] = MISSING,
         reason: Absent[str] = MISSING,
@@ -1753,7 +1753,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         """
         return await self.create_thread(
             name=name,
-            thread_type=ChannelTypes.GUILD_PUBLIC_THREAD,
+            thread_type=ChannelType.GUILD_PUBLIC_THREAD,
             auto_archive_duration=auto_archive_duration,
             reason=reason,
         )
@@ -1780,7 +1780,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         """
         return await self.create_thread(
             name=name,
-            thread_type=ChannelTypes.GUILD_PRIVATE_THREAD,
+            thread_type=ChannelType.GUILD_PRIVATE_THREAD,
             invitable=invitable,
             auto_archive_duration=auto_archive_duration,
             reason=reason,
@@ -1862,7 +1862,7 @@ class ThreadChannel(BaseChannel, MessageableMixin, WebhookMixin):
     @property
     def is_private(self) -> bool:
         """Is this a private thread?"""
-        return self.type == ChannelTypes.GUILD_PRIVATE_THREAD
+        return self.type == ChannelType.GUILD_PRIVATE_THREAD
 
     @property
     def guild(self) -> "models.Guild":
@@ -2200,7 +2200,7 @@ class VoiceChannel(GuildChannel):  # May not be needed, can be directly just Gui
     """The user limit of the voice channel"""
     rtc_region: str = attrs.field(repr=False, default="auto")
     """Voice region id for the voice channel, automatic when set to None"""
-    video_quality_mode: Union[VideoQualityModes, int] = attrs.field(repr=False, default=VideoQualityModes.AUTO)
+    video_quality_mode: Union[VideoQualityMode, int] = attrs.field(repr=False, default=VideoQualityMode.AUTO)
     """The camera video quality mode of the voice channel, 1 when not present"""
     _voice_member_ids: list[Snowflake_Type] = attrs.field(repr=False, factory=list)
 
@@ -2216,7 +2216,7 @@ class VoiceChannel(GuildChannel):  # May not be needed, can be directly just Gui
         bitrate: Absent[int] = MISSING,
         user_limit: Absent[int] = MISSING,
         rtc_region: Absent[str] = MISSING,
-        video_quality_mode: Absent[VideoQualityModes] = MISSING,
+        video_quality_mode: Absent[VideoQualityMode] = MISSING,
         reason: Absent[str] = MISSING,
         **kwargs,
     ) -> Union["GuildVoice", "GuildStageVoice"]:
@@ -2696,15 +2696,15 @@ TYPE_MESSAGEABLE_CHANNEL = Union[
 
 
 TYPE_CHANNEL_MAPPING = {
-    ChannelTypes.GUILD_TEXT: GuildText,
-    ChannelTypes.GUILD_NEWS: GuildNews,
-    ChannelTypes.GUILD_VOICE: GuildVoice,
-    ChannelTypes.GUILD_STAGE_VOICE: GuildStageVoice,
-    ChannelTypes.GUILD_CATEGORY: GuildCategory,
-    ChannelTypes.GUILD_PUBLIC_THREAD: GuildPublicThread,
-    ChannelTypes.GUILD_PRIVATE_THREAD: GuildPrivateThread,
-    ChannelTypes.GUILD_NEWS_THREAD: GuildNewsThread,
-    ChannelTypes.DM: DM,
-    ChannelTypes.GROUP_DM: DMGroup,
-    ChannelTypes.GUILD_FORUM: GuildForum,
+    ChannelType.GUILD_TEXT: GuildText,
+    ChannelType.GUILD_NEWS: GuildNews,
+    ChannelType.GUILD_VOICE: GuildVoice,
+    ChannelType.GUILD_STAGE_VOICE: GuildStageVoice,
+    ChannelType.GUILD_CATEGORY: GuildCategory,
+    ChannelType.GUILD_PUBLIC_THREAD: GuildPublicThread,
+    ChannelType.GUILD_PRIVATE_THREAD: GuildPrivateThread,
+    ChannelType.GUILD_NEWS_THREAD: GuildNewsThread,
+    ChannelType.DM: DM,
+    ChannelType.GROUP_DM: DMGroup,
+    ChannelType.GUILD_FORUM: GuildForum,
 }

@@ -50,27 +50,27 @@ bot.start("Token")
 
 ```python
 
-from interactions import Button, ActionRow, ButtonStyles, Extension
+from interactions import Button, ActionRow, ButtonStyle, Extension
 from interactions.ext.prefixed_commands import prefixed_command
 
 
 class ButtonExampleSkin(Extension):
     @prefixed_command()
     async def blurple_button(self, ctx):
-        await ctx.send("hello there", components=Button(ButtonStyles.BLURPLE, "A blurple button"))
+        await ctx.send("hello there", components=Button(ButtonStyle.BLURPLE, "A blurple button"))
 
     @prefixed_command()
     async def multiple_buttons(self, ctx):
         await ctx.send(
             "2 buttons in a row",
-            components=[Button(ButtonStyles.BLURPLE, "A blurple button"), Button(ButtonStyles.RED, "A red button")],
+            components=[Button(ButtonStyle.BLURPLE, "A blurple button"), Button(ButtonStyle.RED, "A red button")],
         )
 
     @prefixed_command()
     async def action_rows(self, ctx):
         await ctx.send(
             "2 buttons in 2 rows, using nested lists",
-            components=[[Button(ButtonStyles.BLURPLE, "A blurple button")], [Button(ButtonStyles.RED, "A red button")]],
+            components=[[Button(ButtonStyle.BLURPLE, "A blurple button")], [Button(ButtonStyle.RED, "A red button")]],
         )
 
     @prefixed_command()
@@ -78,8 +78,8 @@ class ButtonExampleSkin(Extension):
         await ctx.send(
             "2 buttons in 2 rows, using explicit action_rows lists",
             components=[
-                ActionRow(Button(ButtonStyles.BLURPLE, "A blurple button")),
-                ActionRow(Button(ButtonStyles.RED, "A red button")),
+                ActionRow(Button(ButtonStyle.BLURPLE, "A blurple button")),
+                ActionRow(Button(ButtonStyle.RED, "A red button")),
             ],
         )
 
@@ -92,7 +92,8 @@ def setup(bot):
 
 ```python
 
-from interactions import slash_command, slash_option, InteractionContext, context_menu, CommandTypes, Button, ActionRow, ButtonStyles, Extension
+from interactions import slash_command, slash_option, InteractionContext, context_menu, CommandType, Button, ActionRow,
+    ButtonStyle, Extension
 
 
 class CommandsExampleSkin(Extension):
@@ -112,7 +113,7 @@ class CommandsExampleSkin(Extension):
     async def command_pre_run(self, context, *args, **kwargs):
         print("I ran before the command did!")
 
-    @context_menu(name="user menu", context_type=CommandTypes.USER, scopes=701347683591389185)
+    @context_menu(name="user menu", context_type=CommandType.USER, scopes=701347683591389185)
     async def user_context(self, ctx):
         await ctx.send("Context menu:: user")
 

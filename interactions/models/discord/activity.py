@@ -6,7 +6,7 @@ from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils.attr_converters import timestamp_converter, optional
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.discord.emoji import PartialEmoji
-from interactions.models.discord.enums import ActivityType, ActivityFlags
+from interactions.models.discord.enums import ActivityType, ActivityFlag
 from interactions.models.discord.snowflake import Snowflake_Type
 from interactions.models.discord.timestamp import Timestamp
 
@@ -93,7 +93,7 @@ class Activity(DictSerializationMixin):
     """Secrets for Rich Presence joining and spectating"""
     instance: Optional[bool] = attrs.field(repr=False, default=False)
     """Whether or not the activity is an instanced game session"""
-    flags: Optional[ActivityFlags] = attrs.field(repr=False, default=None, converter=optional(ActivityFlags))
+    flags: Optional[ActivityFlag] = attrs.field(repr=False, default=None, converter=optional(ActivityFlag))
     """Activity flags bitwise OR together, describes what the payload includes"""
     buttons: List[str] = attrs.field(repr=False, factory=list)
     """The custom buttons shown in the Rich Presence (max 2)"""

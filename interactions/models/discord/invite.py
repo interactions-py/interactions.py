@@ -6,7 +6,7 @@ from interactions.client.const import MISSING, Absent
 from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.models.discord.application import Application
-from interactions.models.discord.enums import InviteTargetTypes
+from interactions.models.discord.enums import InviteTargetType
 from interactions.models.discord.guild import GuildPreview
 from interactions.models.discord.snowflake import to_snowflake
 from interactions.models.discord.stage_instance import StageInstance
@@ -40,8 +40,8 @@ class Invite(ClientObject):
     """whether this invite only grants temporary membership"""
 
     # target data
-    target_type: Optional[Union[InviteTargetTypes, int]] = attrs.field(
-        default=None, converter=optional_c(InviteTargetTypes), repr=True
+    target_type: Optional[Union[InviteTargetType, int]] = attrs.field(
+        default=None, converter=optional_c(InviteTargetType), repr=True
     )
     """the type of target for this voice channel invite"""
     approximate_presence_count: Optional[int] = attrs.field(repr=False, default=MISSING)
