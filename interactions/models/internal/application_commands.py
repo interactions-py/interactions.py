@@ -34,7 +34,7 @@ from interactions.client.utils import optional
 from interactions.client.utils.attr_utils import attrs_validator, docs
 from interactions.client.utils.misc_utils import get_parameters
 from interactions.client.utils.serializer import no_export_meta
-from interactions.models.discord.enums import ChannelTypes, CommandTypes, Permissions
+from interactions.models.discord.enums import ChannelType, CommandType, Permissions
 from interactions.models.discord.role import Role
 from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 from interactions.models.discord.user import BaseUser
@@ -48,8 +48,8 @@ if TYPE_CHECKING:
     from interactions import Client
 
 __all__ = (
-    "OptionTypes",
-    "CallbackTypes",
+    "OptionType",
+    "CallbackType",
     "InteractionCommand",
     "ContextMenu",
     "SlashCommandChoice",
@@ -116,7 +116,7 @@ LocalizedName = LocalisedName
 LocalizedDesc = LocalisedDesc
 
 
-class OptionTypes(IntEnum):
+class OptionType(IntEnum):
     """Option types supported by slash commands."""
 
     SUB_COMMAND = 1
@@ -132,7 +132,7 @@ class OptionTypes(IntEnum):
     ATTACHMENT = 11
 
     @classmethod
-    def from_type(cls, t: type) -> "OptionTypes | None":
+    def from_type(cls, t: type) -> "OptionType | None":
         """
         Convert data types to their corresponding OptionType.
 
@@ -159,7 +159,7 @@ class OptionTypes(IntEnum):
             return cls.NUMBER
 
 
-class CallbackTypes(IntEnum):
+class CallbackType(IntEnum):
     """Types of callback supported by interaction response."""
 
     PONG = 1
@@ -313,14 +313,14 @@ class ContextMenu(InteractionCommand):
     name: LocalisedField = attrs.field(
         repr=False, metadata=docs("1-32 character name"), converter=LocalisedField.converter
     )
-    type: CommandTypes = attrs.field(repr=False, metadata=docs("The type of command, defaults to 1 if not specified"))
+    type: CommandType = attrs.field(repr=False, metadata=docs("The type of command, defaults to 1 if not specified"))
 
     @type.validator
     def _type_validator(self, attribute: str, value: int) -> None:
-        if not isinstance(value, CommandTypes):
-            if value not in CommandTypes.__members__.values():
+        if not isinstance(value, CommandType):
+            if value not in CommandType.__members__.values():
                 raise ValueError("Context Menu type not recognised, please consult the docs.")
-        elif value == CommandTypes.CHAT_INPUT:
+        elif value == CommandType.CHAT_INPUT:
             raise ValueError(
                 "The CHAT_INPUT type is basically slash commands. Please use the @slash_command() " "decorator instead."
             )
@@ -376,7 +376,7 @@ class SlashCommandOption(DictSerializationMixin):
     """
 
     name: LocalisedName | str = attrs.field(repr=False, converter=LocalisedName.converter)
-    type: Union[OptionTypes, int] = attrs.field(
+    type: Union[OptionType, int] = attrs.field(
         repr=False,
     )
     description: LocalisedDesc | str = attrs.field(
@@ -385,7 +385,7 @@ class SlashCommandOption(DictSerializationMixin):
     required: bool = attrs.field(repr=False, default=True)
     autocomplete: bool = attrs.field(repr=False, default=False)
     choices: List[Union[SlashCommandChoice, Dict]] = attrs.field(repr=False, factory=list)
-    channel_types: Optional[list[Union[ChannelTypes, int]]] = attrs.field(repr=False, default=None)
+    channel_types: Optional[list[Union[ChannelType, int]]] = attrs.field(repr=False, default=None)
     min_value: Optional[float] = attrs.field(repr=False, default=None)
     max_value: Optional[float] = attrs.field(repr=False, default=None)
     min_length: Optional[int] = attrs.field(repr=False, default=None)
@@ -393,30 +393,30 @@ class SlashCommandOption(DictSerializationMixin):
 
     @type.validator
     def _type_validator(self, attribute: str, value: int) -> None:
-        if value in (OptionTypes.SUB_COMMAND, OptionTypes.SUB_COMMAND_GROUP):
+        if value in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP):
             raise ValueError(
                 "Options cannot be SUB_COMMAND or SUB_COMMAND_GROUP. If you want to use subcommands, "
                 "see the @sub_command() decorator."
             )
 
     @channel_types.validator
-    def _channel_types_validator(self, attribute: str, value: Optional[list[OptionTypes]]) -> None:
+    def _channel_types_validator(self, attribute: str, value: Optional[list[OptionType]]) -> None:
         if value is not None:
-            if self.type != OptionTypes.CHANNEL:
+            if self.type != OptionType.CHANNEL:
                 raise ValueError("The option needs to be CHANNEL to use this")
 
-            allowed_int = [channel_type.value for channel_type in ChannelTypes]
+            allowed_int = [channel_type.value for channel_type in ChannelType]
             for item in value:
-                if (item not in allowed_int) and (item not in ChannelTypes):
+                if (item not in allowed_int) and (item not in ChannelType):
                     raise ValueError(f"{value} is not allowed here")
 
     @min_value.validator
     def _min_value_validator(self, attribute: str, value: Optional[float]) -> None:
         if value is not None:
-            if self.type not in [OptionTypes.INTEGER, OptionTypes.NUMBER]:
+            if self.type not in [OptionType.INTEGER, OptionType.NUMBER]:
                 raise ValueError("`min_value` can only be supplied with int or float options")
 
-            if self.type == OptionTypes.INTEGER and isinstance(value, float):
+            if self.type == OptionType.INTEGER and isinstance(value, float):
                 raise ValueError("`min_value` needs to be an int in an int option")
 
             if self.max_value is not None and self.min_value is not None and self.max_value < self.min_value:
@@ -425,10 +425,10 @@ class SlashCommandOption(DictSerializationMixin):
     @max_value.validator
     def _max_value_validator(self, attribute: str, value: Optional[float]) -> None:
         if value is not None:
-            if self.type not in (OptionTypes.INTEGER, OptionTypes.NUMBER):
+            if self.type not in (OptionType.INTEGER, OptionType.NUMBER):
                 raise ValueError("`max_value` can only be supplied with int or float options")
 
-            if self.type == OptionTypes.INTEGER and isinstance(value, float):
+            if self.type == OptionType.INTEGER and isinstance(value, float):
                 raise ValueError("`max_value` needs to be an int in an int option")
 
             if self.max_value and self.min_value and self.max_value < self.min_value:
@@ -437,7 +437,7 @@ class SlashCommandOption(DictSerializationMixin):
     @min_length.validator
     def _min_length_validator(self, attribute: str, value: Optional[int]) -> None:
         if value is not None:
-            if self.type != OptionTypes.STRING:
+            if self.type != OptionType.STRING:
                 raise ValueError("`min_length` can only be supplied with string options")
 
             if self.max_length is not None and self.min_length is not None and self.max_length < self.min_length:
@@ -449,7 +449,7 @@ class SlashCommandOption(DictSerializationMixin):
     @max_length.validator
     def _max_length_validator(self, attribute: str, value: Optional[int]) -> None:
         if value is not None:
-            if self.type != OptionTypes.STRING:
+            if self.type != OptionType.STRING:
                 raise ValueError("`max_length` can only be supplied with string options")
 
             if self.min_length is not None and self.max_length is not None and self.max_length < self.min_length:
@@ -822,7 +822,7 @@ def subcommand(
 
 def context_menu(
     name: str | LocalisedName,
-    context_type: "CommandTypes",
+    context_type: "CommandType",
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
     default_member_permissions: Optional["Permissions"] = None,
     dm_permission: bool = True,
@@ -916,11 +916,11 @@ SlashCommandT = TypeVar("SlashCommandT", SlashCommand, AsyncCallable)
 def slash_option(
     name: str,
     description: str,
-    opt_type: Union[OptionTypes, int],
+    opt_type: Union[OptionType, int],
     required: bool = False,
     autocomplete: bool = False,
     choices: List[Union[SlashCommandChoice, dict]] = None,
-    channel_types: Optional[list[Union[ChannelTypes, int]]] = None,
+    channel_types: Optional[list[Union[ChannelType, int]]] = None,
     min_value: Optional[float] = None,
     max_value: Optional[float] = None,
     min_length: Optional[int] = None,
@@ -1050,16 +1050,16 @@ def application_commands_to_dict(
                     groups[str(subcommand.group_name)] = {
                         "name": str(subcommand.group_name),
                         "description": str(subcommand.group_description),
-                        "type": int(OptionTypes.SUB_COMMAND_GROUP),
+                        "type": int(OptionType.SUB_COMMAND_GROUP),
                         "options": [],
                         "name_localizations": subcommand.group_name.to_locale_dict(),
                         "description_localizations": subcommand.group_description.to_locale_dict(),
                     }
                 groups[str(subcommand.group_name)]["options"].append(
-                    subcommand.to_dict() | {"type": int(OptionTypes.SUB_COMMAND)}
+                    subcommand.to_dict() | {"type": int(OptionType.SUB_COMMAND)}
                 )
             elif subcommand.is_subcommand:
-                sub_cmds.append(subcommand.to_dict() | {"type": int(OptionTypes.SUB_COMMAND)})
+                sub_cmds.append(subcommand.to_dict() | {"type": int(OptionType.SUB_COMMAND)})
         options = list(groups.values()) + sub_cmds
         output_data["options"] = options
         return output_data
@@ -1174,7 +1174,7 @@ def _compare_options(local_opt_list: dict, remote_opt_list: dict) -> bool:
 
             if local_option["type"] != remote_option["type"]:
                 return False
-            if local_option["type"] in (OptionTypes.SUB_COMMAND_GROUP, OptionTypes.SUB_COMMAND):
+            if local_option["type"] in (OptionType.SUB_COMMAND_GROUP, OptionType.SUB_COMMAND):
                 if not _compare_commands(local_option, remote_option) or not _compare_options(
                     local_option.get("options", []), remote_option.get("options", [])
                 ):
@@ -1209,7 +1209,7 @@ def sync_needed(local_cmd: dict, remote_cmd: Optional[dict] = None) -> bool:
         # basic comparison of attributes
         return True
 
-    if remote_cmd["type"] == CommandTypes.CHAT_INPUT:
+    if remote_cmd["type"] == CommandType.CHAT_INPUT:
         try:
             if not _compare_options(local_cmd["options"], remote_cmd["options"]):
                 # options are not the same, sync needed

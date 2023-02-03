@@ -17,7 +17,7 @@ from interactions.client.utils.attr_converters import optional as c_optional, li
 from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.client.utils.serializer import no_export_meta, export_converter
 from interactions.models.discord.color import Color, process_color
-from interactions.models.discord.enums import EmbedTypes
+from interactions.models.discord.enums import EmbedType
 from interactions.models.discord.timestamp import Timestamp
 
 __all__ = (
@@ -222,10 +222,10 @@ class Embed(DictSerializationMixin):
         metadata=no_export_meta,
     )
     """The provider of the embed, only used for system embeds"""
-    type: EmbedTypes = attrs.field(
+    type: EmbedType = attrs.field(
         repr=False,
-        default=EmbedTypes.RICH,
-        converter=c_optional(EmbedTypes),
+        default=EmbedType.RICH,
+        converter=c_optional(EmbedType),
         metadata=no_export_meta,
     )
 

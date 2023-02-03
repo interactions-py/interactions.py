@@ -23,7 +23,7 @@ if TYPE_CHECKING:
         Member,
         Role,
         BaseChannel,
-        ChannelTypes,
+        ChannelType,
         Attachment,
     )
 
@@ -56,7 +56,7 @@ def slash_str_option(
         choices=choices or [],
         max_length=max_length,
         min_length=min_length,
-        type=models.OptionTypes.STRING,
+        type=models.OptionType.STRING,
     )
     return option  # type: ignore
 
@@ -89,7 +89,7 @@ def slash_float_option(
         choices=choices or [],
         max_value=max_value,
         min_value=min_value,
-        type=models.OptionTypes.NUMBER,
+        type=models.OptionType.NUMBER,
     )
     return option  # type: ignore
 
@@ -122,7 +122,7 @@ def slash_int_option(
         choices=choices or [],
         max_value=max_value,
         min_value=min_value,
-        type=models.OptionTypes.INTEGER,
+        type=models.OptionType.INTEGER,
     )
     return option  # type: ignore
 
@@ -143,7 +143,7 @@ def slash_bool_option(
         name="placeholder",
         description=description,
         required=required,
-        type=models.OptionTypes.BOOLEAN,
+        type=models.OptionType.BOOLEAN,
     )
     return option  # type: ignore
 
@@ -167,7 +167,7 @@ def slash_user_option(
         description=description,
         required=required,
         autocomplete=autocomplete,
-        type=models.OptionTypes.USER,
+        type=models.OptionType.USER,
     )
     return option  # type: ignore
 
@@ -177,7 +177,7 @@ def slash_channel_option(
     required: bool = False,
     autocomplete: bool = False,
     choices: List[Union["SlashCommandChoice", dict]] = None,
-    channel_types: Optional[list[Union["ChannelTypes", int]]] = None,
+    channel_types: Optional[list[Union["ChannelType", int]]] = None,
 ) -> Type["BaseChannel"]:
     """
     Annotates an argument as a channel type slash command option.
@@ -197,7 +197,7 @@ def slash_channel_option(
         autocomplete=autocomplete,
         choices=choices or [],
         channel_types=channel_types,
-        type=models.OptionTypes.CHANNEL,
+        type=models.OptionType.CHANNEL,
     )
     return option  # type: ignore
 
@@ -224,7 +224,7 @@ def slash_role_option(
         required=required,
         autocomplete=autocomplete,
         choices=choices or [],
-        type=models.OptionTypes.ROLE,
+        type=models.OptionType.ROLE,
     )
     return option  # type: ignore
 
@@ -251,7 +251,7 @@ def slash_mentionable_option(
         required=required,
         autocomplete=autocomplete,
         choices=choices or [],
-        type=models.OptionTypes.MENTIONABLE,
+        type=models.OptionType.MENTIONABLE,
     )
     return option  # type: ignore
 
@@ -272,7 +272,7 @@ def slash_attachment_option(
         name="placeholder",
         description=description,
         required=required,
-        type=models.OptionTypes.ATTACHMENT,
+        type=models.OptionType.ATTACHMENT,
     )
 
     return option  # type: ignore

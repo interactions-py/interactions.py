@@ -12,7 +12,7 @@ from interactions.client.const import (
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.emoji import process_emoji
-from interactions.models.discord.enums import ButtonStyles, ComponentTypes, ChannelTypes
+from interactions.models.discord.enums import ButtonStyle, ComponentType, ChannelType
 
 __all__ = (
     "BaseComponent",
@@ -42,7 +42,7 @@ class BaseComponent(DictSerializationMixin):
 
     """
 
-    type: ComponentTypes
+    type: ComponentType
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} type={self.type}>"
@@ -67,7 +67,7 @@ class BaseComponent(DictSerializationMixin):
         cls,
         data: dict,
         *,
-        alternate_mapping: dict[ComponentTypes, "BaseComponent"] | None = None,
+        alternate_mapping: dict[ComponentType, "BaseComponent"] | None = None,
     ) -> "BaseComponent":
         """
         Creates a component from a payload.
@@ -96,7 +96,7 @@ class InteractiveComponent(BaseComponent):
 
     """
 
-    type: ComponentTypes
+    type: ComponentType
     custom_id: str
 
     def __eq__(self, other: Any) -> bool:
@@ -125,7 +125,7 @@ class ActionRow(BaseComponent):
             BaseComponent.from_dict_factory(c) if isinstance(c, dict) else c for c in components
         ]
 
-        self.type: ComponentTypes = ComponentTypes.ACTION_ROW
+        self.type: ComponentType = ComponentType.ACTION_ROW
         self._max_items = ACTION_ROW_MAX_ITEMS
 
     @classmethod
@@ -166,11 +166,11 @@ class ActionRow(BaseComponent):
         for component in components:
             c_type = component.type if hasattr(component, "type") else component["type"]
             if c_type in (
-                ComponentTypes.STRING_SELECT,
-                ComponentTypes.USER_SELECT,
-                ComponentTypes.ROLE_SELECT,
-                ComponentTypes.MENTIONABLE_SELECT,
-                ComponentTypes.CHANNEL_SELECT,
+                ComponentType.STRING_SELECT,
+                ComponentType.USER_SELECT,
+                ComponentType.ROLE_SELECT,
+                ComponentType.MENTIONABLE_SELECT,
+                ComponentType.CHANNEL_SELECT,
             ):
                 # Selects can only be in their own row
                 if buffer:
@@ -199,7 +199,7 @@ class Button(InteractiveComponent):
     Represents a discord ui button.
 
     Attributes:
-        style optional[ButtonStyles, int]: Buttons come in a variety of styles to convey different types of actions.
+        style optional[ButtonStyle, int]: Buttons come in a variety of styles to convey different types of actions.
         label optional[str]: The text that appears on the button, max 80 characters.
         emoji optional[Union[PartialEmoji, dict, str]]: The emoji that appears on the button.
         custom_id Optional[str]: A developer-defined identifier for the button, max 100 characters.
@@ -208,28 +208,28 @@ class Button(InteractiveComponent):
 
     """
 
-    Styles: ButtonStyles = ButtonStyles
+    Styles: ButtonStyle = ButtonStyle
 
     def __init__(
         self,
         *,
-        style: ButtonStyles,
+        style: ButtonStyle,
         label: str | None = None,
         emoji: "PartialEmoji | None | str" = None,
         custom_id: str = None,
         url: str | None = None,
         disabled: bool = False,
     ) -> None:
-        self.style: ButtonStyles = style
+        self.style: ButtonStyle = style
         self.label: str | None = label
         self.emoji: "PartialEmoji | None" = emoji
         self.custom_id: str | None = custom_id
         self.url: str | None = url
         self.disabled: bool = disabled
 
-        self.type: ComponentTypes = ComponentTypes.BUTTON
+        self.type: ComponentType = ComponentType.BUTTON
 
-        if self.style == ButtonStyles.URL:
+        if self.style == ButtonStyle.URL:
             if self.custom_id is not None:
                 raise ValueError("URL buttons cannot have a custom_id.")
             if self.url is None:
@@ -246,7 +246,7 @@ class Button(InteractiveComponent):
     @classmethod
     def from_dict(cls, data: discord_typings.ButtonComponentData) -> "Button":
         return cls(
-            style=ButtonStyles(data["style"]),
+            style=ButtonStyle(data["style"]),
             label=data.get("label"),
             emoji=process_emoji(data.get("emoji")),
             custom_id=data.get("custom_id"),
@@ -283,7 +283,7 @@ class BaseSelectMenu(InteractiveComponent):
         min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
         max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
     """
 
     def __init__(
@@ -301,7 +301,7 @@ class BaseSelectMenu(InteractiveComponent):
         self.max_values: int = max_values
         self.disabled: bool = disabled
 
-        self.type: ComponentTypes = MISSING
+        self.type: ComponentType = MISSING
 
     @classmethod
     def from_dict(cls, data: discord_typings.SelectMenuComponentData) -> "BaseSelectMenu":
@@ -411,7 +411,7 @@ class StringSelectMenu(BaseSelectMenu):
         min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
         max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
     """
 
     def __init__(
@@ -431,7 +431,7 @@ class StringSelectMenu(BaseSelectMenu):
             disabled=disabled,
         )
         self.options: list[StringSelectOption] = [StringSelectOption.converter(option) for option in options]
-        self.type: ComponentTypes = ComponentTypes.STRING_SELECT
+        self.type: ComponentType = ComponentType.STRING_SELECT
 
     @classmethod
     def from_dict(cls, data: discord_typings.SelectMenuComponentData) -> "StringSelectMenu":
@@ -464,7 +464,7 @@ class UserSelectMenu(BaseSelectMenu):
         min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
         max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
     """
 
     def __init__(
@@ -484,7 +484,7 @@ class UserSelectMenu(BaseSelectMenu):
             disabled=disabled,
         )
 
-        self.type: ComponentTypes = ComponentTypes.USER_SELECT
+        self.type: ComponentType = ComponentType.USER_SELECT
 
 
 class RoleSelectMenu(BaseSelectMenu):
@@ -497,7 +497,7 @@ class RoleSelectMenu(BaseSelectMenu):
         min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
         max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentTypes, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
     """
 
     def __init__(
@@ -517,7 +517,7 @@ class RoleSelectMenu(BaseSelectMenu):
             disabled=disabled,
         )
 
-        self.type: ComponentTypes = ComponentTypes.ROLE_SELECT
+        self.type: ComponentType = ComponentType.ROLE_SELECT
 
 
 class MentionableSelectMenu(BaseSelectMenu):
@@ -538,14 +538,14 @@ class MentionableSelectMenu(BaseSelectMenu):
             disabled=disabled,
         )
 
-        self.type: ComponentTypes = ComponentTypes.MENTIONABLE_SELECT
+        self.type: ComponentType = ComponentType.MENTIONABLE_SELECT
 
 
 class ChannelSelectMenu(BaseSelectMenu):
     def __init__(
         self,
         *,
-        channel_types: list[ChannelTypes] | None = None,
+        channel_types: list[ChannelType] | None = None,
         placeholder: str | None = None,
         min_values: int = 1,
         max_values: int = 1,
@@ -560,10 +560,10 @@ class ChannelSelectMenu(BaseSelectMenu):
             disabled=disabled,
         )
 
-        self.channel_types: list[ChannelTypes] | None = channel_types or []
-        self.type: ComponentTypes = ComponentTypes.CHANNEL_SELECT
+        self.channel_types: list[ChannelType] | None = channel_types or []
+        self.type: ComponentType = ComponentType.CHANNEL_SELECT
 
-    ChannelTypes: ChannelTypes = ChannelTypes
+    ChannelTypes: ChannelType = ChannelType
 
     @classmethod
     def from_dict(cls, data: discord_typings.SelectMenuComponentData) -> "ChannelSelectMenu":
@@ -680,7 +680,7 @@ def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) 
     if isinstance(component, str):
         yield component
     elif isinstance(component, dict):
-        if component["type"] == ComponentTypes.actionrow:
+        if component["type"] == ComponentType.actionrow:
             yield from (comp["custom_id"] for comp in component["components"] if "custom_id" in comp)
         elif "custom_id" in component:
             yield component["custom_id"]
@@ -696,11 +696,11 @@ def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) 
 
 
 TYPE_COMPONENT_MAPPING = {
-    ComponentTypes.ACTION_ROW: ActionRow,
-    ComponentTypes.BUTTON: Button,
-    ComponentTypes.STRING_SELECT: StringSelectMenu,
-    ComponentTypes.USER_SELECT: UserSelectMenu,
-    ComponentTypes.CHANNEL_SELECT: ChannelSelectMenu,
-    ComponentTypes.ROLE_SELECT: RoleSelectMenu,
-    ComponentTypes.MENTIONABLE_SELECT: MentionableSelectMenu,
+    ComponentType.ACTION_ROW: ActionRow,
+    ComponentType.BUTTON: Button,
+    ComponentType.STRING_SELECT: StringSelectMenu,
+    ComponentType.USER_SELECT: UserSelectMenu,
+    ComponentType.CHANNEL_SELECT: ChannelSelectMenu,
+    ComponentType.ROLE_SELECT: RoleSelectMenu,
+    ComponentType.MENTIONABLE_SELECT: MentionableSelectMenu,
 }

@@ -14,8 +14,8 @@ from interactions import (
     MessageableMixin,
     GuildNews,
     ThreadableMixin,
-    ExplicitContentFilterLevels,
-    VerificationLevels,
+    ExplicitContentFilterLevel,
+    VerificationLevel,
     Client,
     Guild,
     GuildText,
@@ -41,7 +41,7 @@ from interactions.api.gateway.websocket import WebsocketClient
 from interactions.api.http.route import Route
 from interactions.api.voice.audio import AudioVolume
 from interactions.client.errors import NotFound
-from interactions.models.discord.enums import ButtonStyles
+from interactions.models.discord.enums import ButtonStyle
 from interactions.models.discord.role import Role
 
 __all__ = ()
@@ -95,8 +95,8 @@ async def guild(bot: Client) -> Guild:
             rules_channel=community_channel,
             system_channel=community_channel,
             public_updates_channel=community_channel,
-            explicit_content_filter=ExplicitContentFilterLevels.ALL_MEMBERS,
-            verification_level=VerificationLevels.LOW,
+            explicit_content_filter=ExplicitContentFilterLevel.ALL_MEMBERS,
+            verification_level=VerificationLevel.LOW,
         )
 
     yield guild
@@ -409,18 +409,18 @@ async def test_components(bot: Client, channel: GuildText) -> None:
     thread = await msg.create_thread("Test Thread")
 
     try:
-        await thread.send("Test - single", components=Button(style=ButtonStyles.PRIMARY, label="test"))
+        await thread.send("Test - single", components=Button(style=ButtonStyle.PRIMARY, label="test"))
         await thread.send(
             "Test - list",
             components=[
-                Button(style=ButtonStyles.PRIMARY, label="test"),
-                Button(style=ButtonStyles.PRIMARY, label="test"),
+                Button(style=ButtonStyle.PRIMARY, label="test"),
+                Button(style=ButtonStyle.PRIMARY, label="test"),
             ],
         )
         await thread.send(
             "Test - ActionRow",
             components=ActionRow(
-                *[Button(style=ButtonStyles.PRIMARY, label="test"), Button(style=ButtonStyles.PRIMARY, label="test")]
+                *[Button(style=ButtonStyle.PRIMARY, label="test"), Button(style=ButtonStyle.PRIMARY, label="test")]
             ),
         )
         await thread.send(

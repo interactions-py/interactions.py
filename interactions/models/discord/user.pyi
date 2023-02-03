@@ -7,7 +7,7 @@ from interactions.models.discord.activity import Activity
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.channel import DM, TYPE_GUILD_CHANNEL
 from interactions.models.discord.color import Color
-from interactions.models.discord.enums import Permissions, PremiumTypes, Status, UserFlags
+from interactions.models.discord.enums import Permissions, PremiumType, Status, UserFlags
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.guild import Guild
 from interactions.models.discord.role import Role
@@ -40,7 +40,7 @@ class User(BaseUser):
     bot: bool
     system: bool
     public_flags: UserFlags
-    premium_type: PremiumTypes
+    premium_type: PremiumType
     banner: Optional["Asset"]
     accent_color: Optional["Color"]
     activities: list[Activity]

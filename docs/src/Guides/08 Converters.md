@@ -25,7 +25,7 @@ class DatabaseEntry():
     name="thing",
     description="The user enters a string",
     required=True,
-    opt_type=OptionTypes.STRING
+    opt_type=OptionType.STRING
 )
 async def my_command_function(ctx: InteractionContext, thing: DatabaseEntry):
     await ctx.send(f"***{thing.name}***\n{thing.description}\nScore: {thing.score}/10")
@@ -53,7 +53,7 @@ class UpperConverter(Converter):
     name="to_upper",
     description="The thing to make all caps.",
     required=True,
-    opt_type=OptionTypes.STRING
+    opt_type=OptionType.STRING
 )
 async def upper(ctx: InteractionContext, to_upper: UpperConverter):
     await ctx.send(to_upper)

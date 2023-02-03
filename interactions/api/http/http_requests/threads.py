@@ -5,7 +5,7 @@ from aiohttp import FormData
 
 from interactions.api.http.route import Route
 from interactions.client.const import MISSING, Absent
-from interactions.models.discord.enums import ChannelTypes
+from interactions.models.discord.enums import ChannelType
 from interactions.models.discord.timestamp import Timestamp
 
 __all__ = ("ThreadRequests",)
@@ -199,7 +199,7 @@ class ThreadRequests:
                 reason=reason,
             )
         else:
-            payload["type"] = thread_type or ChannelTypes.GUILD_PUBLIC_THREAD
+            payload["type"] = thread_type or ChannelType.GUILD_PUBLIC_THREAD
             payload["invitable"] = invitable
             return await self.request(Route("POST", f"/channels/{channel_id}/threads"), payload=payload, reason=reason)
 
