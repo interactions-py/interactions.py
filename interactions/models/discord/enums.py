@@ -192,7 +192,7 @@ class Intents(DiscordIntFlag):  # type: ignore
     DIRECT_MESSAGES = 1 << 12
     DIRECT_MESSAGE_REACTIONS = 1 << 13
     DIRECT_MESSAGE_TYPING = 1 << 14
-    GUILD_MESSAGE_CONTENT = 1 << 15
+    MESSAGE_CONTENT = 1 << 15
     GUILD_SCHEDULED_EVENTS = 1 << 16
     AUTO_MODERATION_CONFIGURATION = 1 << 20
     AUTO_MODERATION_EXECUTION = 1 << 21
@@ -203,7 +203,7 @@ class Intents(DiscordIntFlag):  # type: ignore
     TYPING = GUILD_MESSAGE_TYPING | DIRECT_MESSAGE_TYPING
     AUTO_MOD = AUTO_MODERATION_CONFIGURATION | AUTO_MODERATION_EXECUTION
 
-    PRIVILEGED = GUILD_PRESENCES | GUILD_MEMBERS | GUILD_MESSAGE_CONTENT
+    PRIVILEGED = GUILD_PRESENCES | GUILD_MEMBERS | MESSAGE_CONTENT
     NON_PRIVILEGED = AntiFlag(PRIVILEGED)
     DEFAULT = NON_PRIVILEGED
 
@@ -229,7 +229,7 @@ class Intents(DiscordIntFlag):  # type: ignore
         direct_messages=False,
         direct_message_reactions=False,
         direct_message_typing=False,
-        guild_message_content=False,
+        message_content=False,
         guild_scheduled_events=False,
         messages=False,
         reactions=False,
