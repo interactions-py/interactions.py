@@ -56,7 +56,7 @@ Just type `bot.load("extension")`
 
 ## Where do I start?
 
-Getting started with Interactions.py is easy! Simply install it via `pip` and start building your Discord bot in Python:
+Getting started with interactions.py is easy! Simply install it via `pip` and start building your Discord application in Python:
 
 `pip install -U discord-py-interactions`
 ```python
