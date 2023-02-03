@@ -75,7 +75,7 @@ class PrefixedManager:
         ) and Intents.MESSAGE_CONTENT not in client.intents:
             client.logger.warning(
                 "Prefixed commands will not work since the required intent is not set -> Requires:"
-                f" {Intents.GUILD_MESSAGE_CONTENT.__repr__()} or usage of the default mention prefix as the prefix"
+                f" {Intents.MESSAGE_CONTENT.__repr__()} or usage of the default mention prefix as the prefix"
             )
 
         if default_prefix is None and generate_prefixes is None:
