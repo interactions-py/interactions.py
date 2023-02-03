@@ -20,7 +20,7 @@ Interactions.py offers a range of features for building Discord bots with Python
 - ✅ Feature parity with most other Discord API wrappers
 - ✅ Fully automated command synchronisation
 
-In addition to its core functionality, Interactions.py also provides a range of optional extensions, allowing you to further customize your bot and add new features with ease.
+In addition to core functionality, interactions.py provides a range of optional extensions, allowing you to further customize your bot and add new features with ease.
 
 ## Extensibility
 
