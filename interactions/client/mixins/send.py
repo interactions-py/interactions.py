@@ -11,6 +11,8 @@ if TYPE_CHECKING:
     from interactions.models.discord.sticker import Sticker
     from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.enums import MessageFlags
+    from interactions.ext.ui import UI
+
 
 __all__ = ("SendMixin",)
 
@@ -44,6 +46,7 @@ class SendMixin:
         suppress_embeds: bool = False,
         flags: Optional[Union[int, "MessageFlags"]] = None,
         delete_after: Optional[float] = None,
+        ui: Optional["UI"] = None,
         **kwargs: Any,
     ) -> "Message":
         """
@@ -54,6 +57,7 @@ class SendMixin:
             embeds: Embedded rich content (up to 6000 characters).
             embed: Embedded rich content (up to 6000 characters).
             components: The components to include with the message.
+            ui: A UI framework to use for components.
             stickers: IDs of up to 3 stickers in the server to send in the message.
             allowed_mentions: Allowed mentions for the message.
             reply_to: Message to reference, must be from the same channel.
@@ -73,10 +77,13 @@ class SendMixin:
                 flags = MessageFlags(flags)
             flags = flags | MessageFlags.SUPPRESS_EMBEDS
 
+        if components and ui:
+            raise ValueError("You cannot specify both components and ui")
+
         message_payload = models.discord.message.process_message_payload(
             content=content,
             embeds=embeds or embed,
-            components=components,
+            components=components or ui,
             stickers=stickers,
             allowed_mentions=allowed_mentions,
             reply_to=reply_to,

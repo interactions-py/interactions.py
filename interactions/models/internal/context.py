@@ -53,6 +53,7 @@ __all__ = (
 
 if typing.TYPE_CHECKING:
     import interactions
+    from interactions.ext.ui import UI
 
 
 class Resolved:
@@ -417,6 +418,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         flags: typing.Optional[typing.Union[int, "MessageFlags"]] = None,
         delete_after: typing.Optional[float] = None,
         ephemeral: bool = False,
+        ui: typing.Optional["UI"] = None,
         **kwargs: typing.Any,
     ) -> "interactions.Message":
         """
@@ -427,6 +429,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             embeds: Embedded rich content (up to 6000 characters).
             embed: Embedded rich content (up to 6000 characters).
             components: The components to include with the message.
+            ui: A UI framework to use for components.
             stickers: IDs of up to 3 stickers in the server to send in the message.
             allowed_mentions: Allowed mentions for the message.
             reply_to: Message to reference, must be from the same channel.
@@ -453,6 +456,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             embeds=embeds,
             embed=embed,
             components=components,
+            ui=ui,
             stickers=stickers,
             allowed_mentions=allowed_mentions,
             reply_to=reply_to,
@@ -766,6 +770,8 @@ class ComponentContext(InteractionContext):
 
 
 class ModalContext(InteractionContext):
+    custom_id: str
+    """The custom ID of the modal."""
     responses: dict[str, str]
     """The responses of the modal. The key is the `custom_id` of the component."""
 
@@ -775,6 +781,7 @@ class ModalContext(InteractionContext):
         instance.responses = {
             comp["components"][0]["custom_id"]: comp["components"][0]["value"] for comp in payload["data"]["components"]
         }
+        instance.custom_id = payload["data"]["custom_id"]
         return instance
 
 

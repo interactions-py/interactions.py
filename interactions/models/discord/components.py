@@ -1,7 +1,7 @@
 import contextlib
 import uuid
 from abc import abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Union, TYPE_CHECKING
 
 import discord_typings
 
@@ -13,6 +13,9 @@ from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.emoji import process_emoji
 from interactions.models.discord.enums import ButtonStyle, ComponentType, ChannelType
+
+if TYPE_CHECKING:
+    from interactions.ext.ui import UI
 
 __all__ = (
     "BaseComponent",
@@ -98,6 +101,12 @@ class InteractiveComponent(BaseComponent):
 
     type: ComponentType
     custom_id: str
+
+    def __init__(self, *, custom_id: str | None = None) -> None:
+        self.custom_id = self._generate_default_custom_id() if custom_id is None else custom_id
+
+    def _generate_default_custom_id(self) -> str:
+        return str(uuid.uuid4())
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, dict):
@@ -235,8 +244,6 @@ class Button(InteractiveComponent):
             if self.url is None:
                 raise ValueError("URL buttons must have a url.")
 
-        elif self.custom_id is None:
-            self.custom_id = str(uuid.uuid4())
         if not self.label and not self.emoji:
             raise ValueError("Buttons must have a label or an emoji.")
 
@@ -295,7 +302,8 @@ class BaseSelectMenu(InteractiveComponent):
         custom_id: str | None = None,
         disabled: bool = False,
     ) -> None:
-        self.custom_id: str = custom_id or str(uuid.uuid4())
+        super().__init__(custom_id=custom_id)
+
         self.placeholder: str | None = placeholder
         self.min_values: int = min_values
         self.max_values: int = max_values
@@ -448,6 +456,7 @@ class StringSelectMenu(BaseSelectMenu):
         return f"<{self.__class__.__name__} type={self.type} custom_id={self.custom_id} placeholder={self.placeholder} min_values={self.min_values} max_values={self.max_values} disabled={self.disabled} options={self.options}>"
 
     def to_dict(self) -> discord_typings.SelectMenuComponentData:
+
         return {
             **super().to_dict(),
             "options": [option.to_dict() for option in self.options],
@@ -591,6 +600,7 @@ def process_components(
         Union[
             List[List[Union[BaseComponent, Dict]]],
             List[Union[BaseComponent, Dict]],
+            "UI",
             BaseComponent,
             Dict,
         ]
@@ -612,6 +622,9 @@ def process_components(
     if not components:
         # Its just empty, so nothing to process.
         return components
+
+    if hasattr(components, "to_dict"):
+        components = components.to_dict()
 
     if isinstance(components, dict):
         # If a naked dictionary is passed, assume the user knows what they're doing and send it blindly

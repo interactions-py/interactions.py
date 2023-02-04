@@ -1,4 +1,5 @@
 import re
+import typing
 from enum import IntEnum
 from typing import Optional, TYPE_CHECKING, Union, Dict, Any, List
 
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
         MessageReference,
     )
     from interactions.models.discord.sticker import Sticker
+    from interactions.ext.ui import UI
 
 __all__ = ("WebhookTypes", "Webhook")
 
@@ -195,6 +197,7 @@ class Webhook(DiscordObject, SendMixin):
         avatar_url: str = None,
         wait: bool = False,
         thread: "Snowflake_Type" = None,
+        ui: typing.Optional["UI"] = None,
         **kwargs,
     ) -> Optional["Message"]:
         """
@@ -205,6 +208,7 @@ class Webhook(DiscordObject, SendMixin):
             embeds: Embedded rich content (up to 6000 characters).
             embed: Embedded rich content (up to 6000 characters).
             components: The components to include with the message.
+            ui: A UI framework to use for components.
             stickers: IDs of up to 3 stickers in the server to send in the message.
             allowed_mentions: Allowed mentions for the message.
             reply_to: Message to reference, must be from the same channel.

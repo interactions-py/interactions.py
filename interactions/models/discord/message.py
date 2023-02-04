@@ -24,9 +24,9 @@ from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.client.utils.text_utils import mentions
 from interactions.models.discord.channel import BaseChannel
+from interactions.models.discord.embed import process_embeds
 from interactions.models.discord.emoji import process_emoji_req_format
 from interactions.models.discord.file import UPLOADABLE_TYPE
-from interactions.models.discord.embed import process_embeds
 from .base import DiscordObject
 from .enums import (
     ChannelType,
@@ -41,7 +41,7 @@ from .snowflake import to_snowflake, Snowflake_Type, to_snowflake_list, to_optio
 
 if TYPE_CHECKING:
     from interactions.client import Client
-    from interactions import InteractionContext
+    from interactions.ext.ui import UI
 
 __all__ = (
     "Attachment",
@@ -576,6 +576,7 @@ class Message(BaseMessage):
         tts: bool = False,
         flags: Optional[Union[int, MessageFlags]] = None,
         context: "InteractionContext | None" = None,
+        ui: Optional["UI"] = None,
     ) -> "Message":
         """
         Edits the message.
@@ -585,6 +586,7 @@ class Message(BaseMessage):
             embeds: Embedded rich content (up to 6000 characters).
             embed: Embedded rich content (up to 6000 characters).
             components: The components to include with the message.
+            ui: The UI to include with the message.
             allowed_mentions: Allowed mentions for the message.
             attachments: The attachments to keep, only used when editing message.
             files: Files to send, the path, bytes or File() instance, defaults to None. You may have up to 10 files.
@@ -597,6 +599,10 @@ class Message(BaseMessage):
             New message object with edits applied
 
         """
+        if ui and components:
+            raise ValueError("You can only specify one of ui or components.")
+        components = ui or components
+
         if context:
             return await context.edit(
                 self,
@@ -604,6 +610,7 @@ class Message(BaseMessage):
                 embeds=embeds,
                 embed=embed,
                 components=components,
+                ui=ui,
                 allowed_mentions=allowed_mentions,
                 attachments=attachments,
                 files=files,
@@ -885,6 +892,7 @@ def process_message_payload(
         Union[
             List[List[Union["models.BaseComponent", dict]]],
             List[Union["models.BaseComponent", dict]],
+            "UI",
             "models.BaseComponent",
             dict,
         ]
