@@ -945,8 +945,10 @@ class WebSocketClient:
                 self._task.cancel()
                 if self.__heartbeat_event.is_set():
                     self.__heartbeat_event.clear()  # Because we're hardresetting the process
-                    
-            self._dispatch.dispatch("on_disconnect")  # will be followed by the on_ready event after reconnection
+
+            self._dispatch.dispatch(
+                "on_disconnect"
+            )  # will be followed by the on_ready event after reconnection
             # reconnection happens whenever it disconnects either with or without a resume prompt
             # as this is called whenever the WS client closes
 
