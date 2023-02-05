@@ -70,6 +70,6 @@ class BaseUI:
         return self.__stop_event.is_set()
 
     @functools.cached_property
-    def _ordereed_(self) -> list[str]:
+    def _ordered_(self) -> list[str]:
         # depending on how the class was defined, components may be in self.__dict__ or __class__.__dict__ or both
-        return [key for key, val in (self.__dict__ | self.__class__.__dict__).items() if isinstance(val, BaseComponent)]
+        return [key for key, val in (self.__dict__ | self.__class__.__dict__).items() if isinstance(val, self.types)]

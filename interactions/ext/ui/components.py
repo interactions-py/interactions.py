@@ -9,7 +9,6 @@ from interactions import ButtonStyle, ChannelType, ComponentType
 class UIComponent:
     def __init__(self, row: int):
         self.row = row
-        print("UIComponent.__init__", self, row)
 
     def generate_custom_id(self, *_, **__):
         return None
