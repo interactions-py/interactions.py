@@ -85,7 +85,7 @@ This function takes no arguments.
 
 Event: ``on_disconnect``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This event fires whenever the conenction is invalidated, and will often precede an ``on_ready`` event
+This event fires whenever the connection is invalidated and will often precede an ``on_ready`` event
 
 This function takes no arguments.
 
