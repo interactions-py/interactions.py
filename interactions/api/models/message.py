@@ -111,7 +111,7 @@ class MessageActivity(DictSerializerMixin):
 
 
 @define()
-class MessageReference(DictSerializerMixin):
+class MessageReference(ClientSerializerMixin):
     """
     A class object representing the "referenced"/replied message.
 
