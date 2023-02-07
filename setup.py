@@ -35,7 +35,7 @@ extras_require["tests"] = [
 setup(
     name="interactions",
     description=pyproject["tool"]["poetry"]["description"],
-    long_description=(Path(__file__).parent / "README.rst").read_text(),
+    long_description=(Path(__file__).parent / "README.md").read_text(),
     long_description_content_type="text/markdown",
     author="LordOfPolls",
     author_email="naff@lordofpolls.com",
