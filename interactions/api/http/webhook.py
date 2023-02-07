@@ -12,7 +12,6 @@ __all__ = ("WebhookRequest",)
 
 
 class WebhookRequest:
-
     _req: _Request
     cache: Cache
 
@@ -121,7 +120,6 @@ class WebhookRequest:
 
         data = None
         if files is not MISSING and len(files) > 0:
-
             data = MultipartWriter("form-data")
             part = data.append_json(payload)
             part.set_content_disposition("form-data", name="payload_json")

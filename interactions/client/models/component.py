@@ -277,7 +277,6 @@ class ActionRow(DictSerializerMixin):
 def _build_components(components) -> List[dict]:
     # sourcery no-metrics
     def __check_action_row():
-
         if isinstance(components, list) and all(
             isinstance(action_row, (list, ActionRow)) for action_row in components
         ):

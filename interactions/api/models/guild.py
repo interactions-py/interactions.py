@@ -248,7 +248,6 @@ class AsyncMembersIterator(DiscordPaginationIterator):
         start_at: Optional[Union[int, str, Snowflake, Member]] = MISSING,
         check: Optional[Callable[[Member], Union[bool, Awaitable[bool]]]] = None,
     ):
-
         self.__stop: bool = False
 
         super().__init__(obj, _client, maximum=maximum, start_at=start_at, check=check)
@@ -258,7 +257,6 @@ class AsyncMembersIterator(DiscordPaginationIterator):
         self.objects: Optional[List[Member]]
 
     async def get_first_objects(self) -> None:
-
         limit = min(self.maximum, 1000)
 
         if self.maximum == limit:
@@ -280,7 +278,6 @@ class AsyncMembersIterator(DiscordPaginationIterator):
         ]
 
     async def get_objects(self) -> None:
-
         limit = min(500, self.maximum - self.object_count)
         members = await self._client.get_list_of_members(
             guild_id=self.object_id, after=self.after, limit=limit
@@ -309,7 +306,6 @@ class AsyncMembersIterator(DiscordPaginationIterator):
             obj = self.objects.pop(0)
 
             if self.check:
-
                 res = self.check(obj)
                 _res = await res if isawaitable(res) else res
                 while not _res:
@@ -2070,7 +2066,6 @@ class Guild(ClientSerializerMixin, IDMixin):
         res: list = await self._client.get_guild_bans(int(self.id), limit=1000)
 
         while len(res) >= 1000:
-
             for ban in res:
                 ban["user"] = User(**ban["user"])
             _all.extend(res)

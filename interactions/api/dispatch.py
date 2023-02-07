@@ -37,7 +37,6 @@ class Listener:
             if converters := getattr(event, "_converters", None):
                 _kwargs = kwargs.copy()
                 for key, value in _kwargs.items():
-
                     if key in converters.keys():
                         del kwargs[key]
                         kwargs[converters[key]] = value

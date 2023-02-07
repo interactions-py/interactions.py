@@ -318,7 +318,6 @@ def _get_cache(
 def _resolve_kwargs(obj, **kwargs):
     # This function is needed to get correct kwarg names
     if __id := kwargs.pop("parent_id", None):
-
         if version_info >= (3, 9):
             _list = [Message, List[Message], list[Message]]
         else:

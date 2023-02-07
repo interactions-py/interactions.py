@@ -317,7 +317,6 @@ class LibraryException(Exception):
         self.log(self.message)
 
         if _fmt_error:
-
             _flag: bool = (
                 self.message.lower() in self.lookup(self.code).lower()
             )  # creativity is hard

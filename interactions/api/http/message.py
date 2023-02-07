@@ -84,7 +84,6 @@ class MessageRequest:
 
         data = None
         if files is not MISSING and len(files) > 0:
-
             data = MultipartWriter("form-data")
             part = data.append_json(payload)
             part.set_content_disposition("form-data", name="payload_json")
@@ -172,7 +171,6 @@ class MessageRequest:
         """
         data = None
         if files is not MISSING and len(files) > 0:
-
             data = MultipartWriter("form-data")
             part = data.append_json(payload)
             part.set_content_disposition("form-data", name="payload_json")

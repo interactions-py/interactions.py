@@ -66,7 +66,6 @@ class Storage(Generic[_T]):
                 continue
                 # we can only assume that discord did not provide it, falsely deleting is worse than not deleting
             if getattr(old_item, attrib) != getattr(item, attrib):
-
                 if isinstance(getattr(item, attrib), list) and not isinstance(
                     getattr(old_item, attrib), list
                 ):  # could be None
