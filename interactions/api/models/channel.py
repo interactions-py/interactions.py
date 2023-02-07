@@ -233,7 +233,6 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
             obj = self.objects.pop(0)
 
             if self.check:
-
                 res = self.check(obj)
                 _res = await res if isawaitable(res) else res
                 while not _res:
@@ -272,7 +271,6 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
         obj: Union[int, str, "Snowflake", "Channel"],
         _client: "HTTPClient",
     ):
-
         try:
             self.loop = get_running_loop()
         except RuntimeError as e:
@@ -1325,7 +1323,6 @@ class Channel(ClientSerializerMixin, IDMixin):
             _allowed_time = datetime.now(tz=timezone.utc) - timedelta(days=14)
             _stop = False
             while amount > 100:
-
                 messages = [
                     Message(**res)
                     for res in await self._client.get_channel_messages(
@@ -1941,7 +1938,6 @@ class Channel(ClientSerializerMixin, IDMixin):
                     _content["attachments"].append(attach._json)
 
                 else:
-
                     _data = await attach.download()
 
                     __files.append(File(attach.filename, _data))

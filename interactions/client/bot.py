@@ -369,7 +369,6 @@ class Client:
                             return clean, _command
 
                         elif command.get("options") and data.get("options"):
-
                             clean = __check_options(command, data)
 
                         if not clean:
@@ -538,7 +537,6 @@ class Client:
         res = await self._http.get_self_guilds(limit=200)
 
         while len(res) >= 200:
-
             _all.extend(res)
             _after = int(res[-1]["id"])
 
@@ -1513,7 +1511,6 @@ class Client:
             for ext_name, ext in getmembers(
                 extension, lambda x: isinstance(x, type) and issubclass(x, Extension)
             ):
-
                 if ext_name != "Extension":
                     _extension = self._extensions.get(ext_name)
                     with contextlib.suppress(AttributeError):

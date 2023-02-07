@@ -231,7 +231,6 @@ class ThreadRequest:
 
         data = None
         if files is not MISSING and files and len(files) > 0:  # edge case `None`
-
             data = MultipartWriter("form-data")
             part = data.append_json(payload)
             part.set_content_disposition("form-data", name="payload_json")

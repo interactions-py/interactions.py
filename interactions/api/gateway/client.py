@@ -241,7 +241,6 @@ class WebSocketClient:
         """Manages the heartbeat loop."""
         log.debug(f"Sending heartbeat every {self.__heartbeater.delay / 1000} seconds...")
         while not self.__heartbeat_event.is_set():
-
             log.debug("Sending heartbeat...")
             if not self.__heartbeater.event.is_set():
                 log.debug("HEARTBEAT_ACK missing, reconnecting...")
@@ -967,7 +966,6 @@ class WebSocketClient:
         buffer = bytearray()
 
         while True:
-
             if not ignore_lock:
                 # meaning if we're reconnecting or something because of tasks
                 await self.__closed.wait()
@@ -1007,7 +1005,6 @@ class WebSocketClient:
                     await self._reconnect(True)
 
             elif packet.type == WSMsgType.CLOSING:
-
                 if ignore_lock:
                     raise LibraryException(
                         message="Discord unexpectedly closing on receiving by force.", severity=50
@@ -1065,7 +1062,6 @@ class WebSocketClient:
                 await self._client.send_str(packet)
         else:
             async with self.reconnect_lock:  # needs to lock while it reconnects.
-
                 if data["op"] != OpCodeType.HEARTBEAT.value:
                     # This is because the ratelimiter limits already accounts for this.
                     await self._ratelimiter.block()

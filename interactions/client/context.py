@@ -281,7 +281,6 @@ class _Context(ClientSerializerMixin):
             and self.message
             and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
-
             if isinstance(self.message.components, list):
                 _components = self.message.components
             else:
@@ -552,7 +551,6 @@ class CommandContext(_Context):
     async def edit(
         self, content: Optional[str] = MISSING, **kwargs
     ) -> Message:  # sourcery skip: low-code-quality
-
         payload, files = await super().edit(content, **kwargs)
         msg = None
 

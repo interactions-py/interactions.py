@@ -348,7 +348,6 @@ class File:
     def __init__(
         self, filename: str, fp: Optional[IOBase] = MISSING, description: Optional[str] = MISSING
     ):
-
         if not isinstance(filename, str):
             raise LibraryException(
                 message=f"File's first parameter 'filename' must be a string, not {str(type(filename))}",
@@ -378,7 +377,6 @@ class Image:
     """
 
     def __init__(self, file: Union[str, FileIO], fp: Optional[IOBase] = MISSING):
-
         self._URI = "data:image/"
 
         if fp is MISSING or isinstance(file, FileIO):
