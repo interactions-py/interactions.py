@@ -327,6 +327,7 @@ from .models import (
 )
 from .api import events
 from . import ext
+from .client import const
 
 __all__ = (
     "__api_version__",
@@ -401,6 +402,7 @@ __all__ = (
     "ComponentCommand",
     "ComponentContext",
     "ComponentType",
+    "const",
     "context_menu",
     "CONTEXT_MENU_NAME_LENGTH",
     "ContextMenu",
