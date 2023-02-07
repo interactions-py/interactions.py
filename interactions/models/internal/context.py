@@ -29,7 +29,7 @@ from interactions.models.discord.message import (
     MessageReference,
     process_message_payload,
 )
-from interactions.models.discord.snowflake import Snowflake, Snowflake_Type, to_snowflake
+from interactions.models.discord.snowflake import Snowflake, Snowflake_Type, to_snowflake, to_optional_snowflake
 from interactions.models.discord.embed import Embed
 from interactions.models.internal.application_commands import (
     OptionType,
@@ -186,7 +186,9 @@ class BaseContext(metaclass=abc.ABCMeta):
     @property
     def channel(self) -> "interactions.TYPE_MESSAGEABLE_CHANNEL":
         """The channel this context was invoked in."""
-        return self.client.cache.get_channel(self.channel_id)
+        if self.guild_id:
+            return self.client.cache.get_channel(self.channel_id)
+        return self.client.cache.get_dm_channel(self.author_id)
 
     @property
     def message(self) -> typing.Optional["interactions.Message"]:
@@ -262,7 +264,7 @@ class BaseInteractionContext(BaseContext):
         instance.id = Snowflake(payload["id"])
         instance.app_permissions = Permissions(payload.get("app_permissions", 0))
         instance.locale = payload["locale"]
-        instance.guild_locale = payload["guild_locale"]
+        instance.guild_locale = payload.get("guild_locale", instance.locale)
         instance._context_type = payload.get("type", 0)
         instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
 
@@ -279,7 +281,7 @@ class BaseInteractionContext(BaseContext):
             message = client.cache.place_message_data(message_data)
             instance.message_id = message.id
 
-        instance.guild_id = Snowflake(payload.get("guild_id"))
+        instance.guild_id = to_optional_snowflake(payload.get("guild_id"))
 
         if payload["type"] == InteractionType.APPLICATION_COMMAND:
             instance.command_id = Snowflake(payload["data"]["id"])

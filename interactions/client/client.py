@@ -1551,9 +1551,13 @@ class Client(
         if not cls.channel:
             # fallback channel if not provided
             try:
-                cls.channel = await self.cache.fetch_channel(data["channel_id"])
+                if cls.guild_id:
+                    channel = await self.cache.fetch_channel(data["channel_id"])
+                else:
+                    channel = await self.cache.fetch_dm_channel(cls.author_id)
+                cls.channel_id = channel.id
             except Forbidden:
-                cls.channel = BaseChannel.from_dict({"id": data["channel_id"], "type": ChannelType.GUILD_TEXT}, self)
+                self.logger.debug(f"Failed to fetch channel data for {data['channel_id']}")
         return cls
 
     async def _run_slash_command(self, command: SlashCommand, ctx: "InteractionContext") -> Any:
