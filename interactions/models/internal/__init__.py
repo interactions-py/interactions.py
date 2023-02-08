@@ -1,7 +1,4 @@
 from .annotations import (
-    CMD_ARGS,
-    CMD_AUTHOR,
-    CMD_CHANNEL,
     slash_attachment_option,
     slash_bool_option,
     slash_channel_option,
@@ -35,6 +32,7 @@ from .application_commands import (
     SlashCommand,
     SlashCommandChoice,
     SlashCommandOption,
+    SlashCommandParameter,
     subcommand,
     sync_needed,
 )
@@ -106,9 +104,6 @@ __all__ = (
     "CallbackType",
     "ChannelConverter",
     "check",
-    "CMD_ARGS",
-    "CMD_AUTHOR",
-    "CMD_CHANNEL",
     "component_callback",
     "ComponentCommand",
     "ComponentContext",
@@ -181,6 +176,7 @@ __all__ = (
     "SlashCommand",
     "SlashCommandChoice",
     "SlashCommandOption",
+    "SlashCommandParameter",
     "SlashContext",
     "SnowflakeConverter",
     "subcommand",

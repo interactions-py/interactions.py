@@ -1195,6 +1195,9 @@ class Client(
         if command.callback is None:
             return False
 
+        if isinstance(command, SlashCommand):
+            command._parse_parameters()
+
         base, group, sub, *_ = command.resolved_name.split(" ") + [None, None]
 
         for scope in command.scopes:
@@ -1597,12 +1600,12 @@ class Client(
                     elif autocomplete := self._global_autocompletes.get(str(auto_opt.name)):
                         callback = autocomplete
                     else:
-                        breakpoint()
+                        # breakpoint()
                         raise ValueError(f"Autocomplete callback for {str(auto_opt.name)} not found")
 
                     await self.__dispatch_interaction(
                         ctx=ctx,
-                        callback=callback(ctx),
+                        callback=callback(ctx, **ctx.kwargs),
                         callback_kwargs=ctx.kwargs,
                         error_callback=events.AutocompleteError,
                         completion_callback=events.AutocompleteCompletion,

@@ -2,10 +2,11 @@ import asyncio
 import inspect
 import re
 import typing
+import types
+import functools
 from enum import IntEnum
 from typing import (
     TYPE_CHECKING,
-    Annotated,
     Callable,
     Coroutine,
     Dict,
@@ -32,7 +33,7 @@ from interactions.client.const import (
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import optional
 from interactions.client.utils.attr_utils import attrs_validator, docs
-from interactions.client.utils.misc_utils import get_parameters
+from interactions.client.utils.misc_utils import get_parameters, maybe_coroutine
 from interactions.client.utils.serializer import no_export_meta
 from interactions.models.discord.enums import ChannelType, CommandType, Permissions
 from interactions.models.discord.role import Role
@@ -41,10 +42,11 @@ from interactions.models.discord.user import BaseUser
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.localisation import LocalisedField
+from interactions.models.internal.protocols import Converter
 
 if TYPE_CHECKING:
     from interactions.models.discord.snowflake import Snowflake_Type
-    from interactions.models.internal.context import BaseContext
+    from interactions.models.internal.context import BaseContext, InteractionContext
     from interactions import Client
 
 __all__ = (
@@ -54,6 +56,7 @@ __all__ = (
     "ContextMenu",
     "SlashCommandChoice",
     "SlashCommandOption",
+    "SlashCommandParameter",
     "SlashCommand",
     "ComponentCommand",
     "ModalCommand",
@@ -471,6 +474,40 @@ class SlashCommandOption(DictSerializationMixin):
         return data
 
 
+@attrs.define()
+class SlashCommandParameter:
+    name: str = attrs.field()
+    type: typing.Any = attrs.field()
+    kind: inspect._ParameterKind = attrs.field()
+    default: typing.Any = attrs.field(default=MISSING)
+    converter: typing.Optional[typing.Callable] = attrs.field(default=None)
+
+
+def _get_option_from_annotated(annotated: typing.Annotated) -> SlashCommandOption | None:
+    args = typing.get_args(annotated)
+    return next((a for a in args if isinstance(a, SlashCommandOption)), None)
+
+
+def _get_converter_from_annotated(annotated: typing.Annotated) -> Converter | None:
+    args = typing.get_args(annotated)
+    return next((a for a in args if isinstance(a, Converter)), None)
+
+
+def _is_union(anno: typing.Any) -> bool:
+    return typing.get_origin(anno) in {Union, types.UnionType}
+
+
+def _is_optional(anno: typing.Any) -> bool:
+    return _is_union(anno) and types.NoneType in typing.get_args(anno)
+
+
+def _remove_optional(t: OptionType | type) -> Any:
+    non_optional_args: tuple[type] = tuple(a for a in typing.get_args(t) if a is not types.NoneType)  # noqa
+    if len(non_optional_args) == 1:
+        return non_optional_args[0]
+    return typing.Union[non_optional_args]  # type: ignore
+
+
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class SlashCommand(InteractionCommand):
     name: LocalisedName | str = attrs.field(repr=False, converter=LocalisedName.converter)
@@ -501,6 +538,13 @@ class SlashCommand(InteractionCommand):
     options: List[Union[SlashCommandOption, Dict]] = attrs.field(repr=False, factory=list)
     autocomplete_callbacks: dict = attrs.field(repr=False, factory=dict, metadata=no_export_meta)
 
+    parameters: dict[str, SlashCommandParameter] = attrs.field(
+        repr=False,
+        factory=dict,
+        metadata=no_export_meta,
+    )
+    _uses_arg: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
+
     @property
     def resolved_name(self) -> str:
         return (
@@ -521,29 +565,80 @@ class SlashCommand(InteractionCommand):
         return bool(self.sub_cmd_name)
 
     def __attrs_post_init__(self) -> None:
-        if self.callback is not None:
-            params = get_parameters(self.callback)
-            for name, val in params.items():
-                annotation = None
-                if val.annotation and isinstance(val.annotation, SlashCommandOption):
-                    annotation = val.annotation
-                elif typing.get_origin(val.annotation) is Annotated:
-                    for ann in typing.get_args(val.annotation):
-                        if isinstance(ann, SlashCommandOption):
-                            annotation = ann
-
-                if annotation:
-                    if not self.options:
-                        self.options = []
-                    annotation.name = name
-                    self.options.append(annotation)
-
-            if hasattr(self.callback, "options"):
-                if not self.options:
-                    self.options = []
-                self.options += self.callback.options
+        if self.callback is not None and hasattr(self.callback, "options"):
+            if not self.options:
+                self.options = []
+            self.options += self.callback.options
 
         super().__attrs_post_init__()
+
+    def _add_option_from_anno_method(self, name: str, option: SlashCommandOption) -> None:
+        if not self.options:
+            self.options = []
+
+        option.name = name
+        self.options.append(option)
+
+    def _parse_parameters(self) -> None:
+        """
+        Parses the parameters that this command has into a form i.py can use.
+
+        This is purposely separated like this to allow "lazy parsing" - parsing
+        as the command is added to a bot rather than being parsed immediately.
+        This allows variables like "self" to be filtered out, and is useful for
+        potential future additions.
+
+        For slash commands, it is also much faster than inspecting the parameters
+        each time the command is called.
+        It also allows for us to deal with the "annotation method", where users
+        put their options in the annotations itself.
+        """
+        if self.callback is None or self.parameters:
+            return
+
+        if self.has_binding:
+            callback = functools.partial(self.callback, None, None)
+        else:
+            callback = functools.partial(self.callback, None)
+
+        for param in get_parameters(callback).values():
+            if param.kind == inspect._ParameterKind.VAR_POSITIONAL:
+                self._uses_arg = True
+                continue
+
+            if param.kind == inspect._ParameterKind.VAR_KEYWORD:
+                # in case it was set before
+                # we prioritize **kwargs over *args
+                self._uses_arg = False
+                continue
+
+            our_param = SlashCommandParameter(param.name, param.annotation, param.kind)
+            our_param.default = param.default if param.default is not inspect._empty else MISSING
+
+            if param.annotation is not inspect._empty:
+                anno = param.annotation
+                converter = None
+
+                if _is_optional(anno):
+                    anno = _remove_optional(anno)
+
+                if isinstance(anno, SlashCommandOption):
+                    # annotation method, get option and add it in
+                    self._add_option_from_anno_method(param.name, anno)
+
+                if isinstance(anno, Converter):
+                    converter = anno
+                elif typing.get_origin(anno) == typing.Annotated:
+                    if option := _get_option_from_annotated(anno):
+                        # also annotation method
+                        self._add_option_from_anno_method(param.name, option)
+
+                    converter = _get_converter_from_annotated(anno)
+
+                if converter:
+                    our_param.converter = self._get_converter_function(converter, our_param.name)
+
+            self.parameters[param.name] = our_param
 
     def to_dict(self) -> dict:
         data = super().to_dict()
@@ -583,12 +678,13 @@ class SlashCommand(InteractionCommand):
                 raise TypeError("autocomplete must be coroutine")
             self.autocomplete_callbacks[option_name] = call
 
-            # automatically set the option's autocomplete attribute to True
-            for opt in self.options:
-                if isinstance(opt, dict) and str(opt["name"]) == option_name:
-                    opt["autocomplete"] = True
-                elif isinstance(opt, SlashCommandOption) and str(opt.name) == option_name:
-                    opt.autocomplete = True
+            if self.options:
+                # automatically set the option's autocomplete attribute to True
+                for opt in self.options:
+                    if isinstance(opt, dict) and str(opt["name"]) == option_name:
+                        opt["autocomplete"] = True
+                    elif isinstance(opt, SlashCommandOption) and str(opt.name) == option_name:
+                        opt.autocomplete = True
 
             return call
 
@@ -639,6 +735,44 @@ class SlashCommand(InteractionCommand):
             )
 
         return wrapper
+
+    async def call_callback(self, callback: typing.Callable, ctx: "InteractionContext") -> None:
+        if not self.parameters:
+            if self._uses_arg:
+                return await self.call_with_binding(callback, ctx, *ctx.args)
+            else:
+                return await self.call_with_binding(callback, ctx, **ctx.kwargs)
+
+        kwargs_copy = ctx.kwargs.copy()
+
+        new_args = []
+        new_kwargs = {}
+
+        for name, param in self.parameters.items():
+            value = kwargs_copy.pop(name, MISSING)
+            if value is MISSING:
+                continue
+
+            if converter := param.converter:
+                value = await maybe_coroutine(converter, ctx, value)
+
+            if param.kind == inspect.Parameter.POSITIONAL_ONLY:
+                new_args.append(value)
+            else:
+                new_kwargs[name] = value
+
+        # i do want to address one thing: what happens if you have both *args and **kwargs
+        # in your argument?
+        # i would say passing in values for both makes sense... but they're very likely
+        # going to overlap and cause issues and confusion
+        # for the sake of simplicty, i.py assumes kwargs takes priority over args
+        if kwargs_copy:
+            if self._uses_arg:
+                new_args.extend(kwargs_copy.values())
+            else:
+                new_kwargs |= kwargs_copy
+
+        return await self.call_with_binding(callback, ctx, *new_args, **new_kwargs)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

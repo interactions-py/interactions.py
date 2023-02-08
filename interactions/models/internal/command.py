@@ -1,9 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import copy
-import functools
-import re
 import typing
 from typing import (
     Annotated,
@@ -34,10 +31,6 @@ if TYPE_CHECKING:
     from interactions.models.internal.context import BaseContext
 
 __all__ = ("BaseCommand", "check", "cooldown", "max_concurrency")
-
-
-kwargs_reg = re.compile(r"^\*\*\w")
-args_reg = re.compile(r"^\*\w")
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -202,69 +195,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
         return (annotation, getattr(annotation, name, None))
 
     async def call_callback(self, callback: Callable, context: "BaseContext") -> None:
-        _call = callback
-        if self.has_binding:
-            callback = functools.partial(callback, None, None)
-        else:
-            callback = functools.partial(callback, None)
-        parameters = get_parameters(callback)
-        args = []
-        kwargs = {}
-        if len(parameters) == 0:
-            # if no params, user only wants context
-            return await self.call_with_binding(_call, context)
-
-        c_args = copy.copy(context.args)
-        for param in parameters.values():
-            if isinstance(param.annotation, Converter):
-                # for any future dev looking at this:
-                # this checks if the class here has a convert function
-                # it does NOT check if the annotation is actually a subclass of Converter
-                # this is an intended behavior for Protocols with the runtime_checkable decorator
-                convert = functools.partial(
-                    self.try_convert,
-                    self._get_converter_function(param.annotation, param.name),
-                    context,
-                )
-            else:
-                convert = functools.partial(self.try_convert, None, context)
-            func, config = self.param_config(param.annotation, "_annotation_dat")
-            if config:
-                # if user has used an interactions-annotation, run the annotation, and pass the result to the user
-                local = {"context": context, "extension": self.extension, "param": param.name}
-                ano_args = [local[c] for c in config["args"]]
-                if param.kind != param.POSITIONAL_ONLY:
-                    kwargs[param.name] = func(*ano_args)
-                else:
-                    args.append(func(*ano_args))
-            elif param.name in context.kwargs:
-                # if parameter is in kwargs, user obviously wants it, pass it
-                if param.kind != param.POSITIONAL_ONLY:
-                    kwargs[param.name] = await convert(context.kwargs[param.name])
-                else:
-                    args.append(await convert(context.kwargs[param.name]))
-                if context.kwargs[param.name] in c_args:
-                    c_args.remove(context.kwargs[param.name])
-            elif param.default is not param.empty:
-                kwargs[param.name] = param.default
-            elif not str(param).startswith("*"):
-                if param.kind == param.KEYWORD_ONLY:
-                    raise ValueError(f"Unable to resolve argument: {param.name}")
-
-                try:
-                    args.append(await convert(c_args.pop(0)))
-                except IndexError:
-                    raise ValueError(
-                        f"{context.invoke_target} expects {len([p for p in parameters.values() if p.default is p.empty]) + len(callback.args)}"
-                        f" arguments but received {len(context.args)} instead"
-                    ) from None
-        if any(kwargs_reg.match(str(param)) for param in parameters.values()):
-            # if user has `**kwargs` pass all remaining kwargs
-            kwargs |= {k: v for k, v in context.kwargs.items() if k not in kwargs}
-        if any(args_reg.match(str(param)) for param in parameters.values()):
-            # user has `*args` pass all remaining args
-            args += [await convert(c) for c in c_args]
-        return await self.call_with_binding(_call, context, *args, **kwargs)
+        await self.call_with_binding(callback, context, **context.kwargs)  # type: ignore
 
     async def _can_run(self, context: "BaseContext") -> bool:
         """

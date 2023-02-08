@@ -1,4 +1,3 @@
-from .argument import CMD_ARGS, CMD_AUTHOR, CMD_CHANNEL
 from .slash import (
     slash_attachment_option,
     slash_bool_option,
@@ -12,9 +11,6 @@ from .slash import (
 )
 
 __all__ = (
-    "CMD_ARGS",
-    "CMD_AUTHOR",
-    "CMD_CHANNEL",
     "slash_attachment_option",
     "slash_bool_option",
     "slash_channel_option",

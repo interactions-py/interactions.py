@@ -255,22 +255,6 @@ async def one_or_two(ctx: PrefixedContext, num: Literal[1, 2]):
 
 ![Literal Conversion](../images/PrefixedCommands/LiteralConversion.png "The above running with the arguments: 1")
 
-#### `typing.Annotated`
-
-Using `typing.Annotated` can allow you to have more proper typehints when using converters:
-
-```python
-class JudgementConverter(Converter):
-    async def convert(self, ctx: PrefixedContext, argument: str):
-        return f"{ctx.author.mention} is {argument}."
-
-@prefixed_command()
-async def judgement(ctx: PrefixedContext, judgment: Annotated[str, JudgementConverter]):
-    await ctx.reply(judgment)
-```
-
-`interactions.py` will use the second parameter in `Annotated` as the actual converter.
-
 #### `Greedy`
 
 The `Greedy` class, included in this library, specifies `interactions.py` to keep converting as many arguments as it can until it fails to do so. For example:
