@@ -1258,7 +1258,7 @@ class Client(
             self._modal_callbacks[listener] = command
             continue
 
-    def add_global_autocomplete(self, callback: GlobalAutoComplete):
+    def add_global_autocomplete(self, callback: GlobalAutoComplete) -> None:
         """
         Add a global autocomplete to the client.
 
