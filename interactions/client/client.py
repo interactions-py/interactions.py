@@ -78,7 +78,6 @@ from interactions.models import (
     VoiceRegion,
 )
 from interactions.models import Wait
-from interactions.models.discord.channel import BaseChannel
 from interactions.models.discord.color import BrandColors
 from interactions.models.discord.components import get_components_ids, BaseComponent
 from interactions.models.discord.embed import Embed
@@ -87,7 +86,6 @@ from interactions.models.discord.enums import (
     Intents,
     InteractionType,
     Status,
-    ChannelType,
 )
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import Snowflake, to_snowflake_list
