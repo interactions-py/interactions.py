@@ -1594,9 +1594,17 @@ class Client(
                     auto_defer = self.auto_defer
 
                 if auto_opt := getattr(ctx, "focussed_option", None):
+                    if autocomplete := ctx.command.autocomplete_callbacks.get(str(auto_opt.name)):
+                        callback = autocomplete
+                    elif autocomplete := self._global_autocompletes.get(str(auto_opt.name)):
+                        callback = autocomplete
+                    else:
+                        breakpoint()
+                        raise ValueError(f"Autocomplete callback for {str(auto_opt.name)} not found")
+
                     await self.__dispatch_interaction(
                         ctx=ctx,
-                        callback=ctx.command.autocomplete_callbacks[auto_opt](ctx, **ctx.kwargs),
+                        callback=callback(ctx),
                         callback_kwargs=ctx.kwargs,
                         error_callback=events.AutocompleteError,
                         completion_callback=events.AutocompleteCompletion,
