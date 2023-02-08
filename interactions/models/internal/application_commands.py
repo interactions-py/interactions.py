@@ -41,35 +41,38 @@ from interactions.models.discord.user import BaseUser
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.localisation import LocalisedField
+from interactions.models.internal.callback import CallbackObject
 
 if TYPE_CHECKING:
     from interactions.models.discord.snowflake import Snowflake_Type
-    from interactions.models.internal.context import BaseContext
+    from interactions.models.internal.context import BaseContext, AutocompleteContext
     from interactions import Client
 
 __all__ = (
-    "OptionType",
+    "application_commands_to_dict",
+    "auto_defer",
     "CallbackType",
-    "InteractionCommand",
+    "component_callback",
+    "ComponentCommand",
+    "context_menu",
     "ContextMenu",
+    "global_autocomplete",
+    "GlobalAutoComplete",
+    "InteractionCommand",
+    "LocalisedDesc",
+    "LocalisedName",
+    "LocalizedDesc",
+    "LocalizedName",
+    "ModalCommand",
+    "OptionType",
+    "slash_command",
+    "slash_default_member_permission",
+    "slash_option",
+    "SlashCommand",
     "SlashCommandChoice",
     "SlashCommandOption",
-    "SlashCommand",
-    "ComponentCommand",
-    "ModalCommand",
-    "slash_command",
     "subcommand",
-    "context_menu",
-    "component_callback",
-    "slash_option",
-    "slash_default_member_permission",
-    "auto_defer",
-    "application_commands_to_dict",
     "sync_needed",
-    "LocalisedName",
-    "LocalizedName",
-    "LocalizedDesc",
-    "LocalisedDesc",
 )
 
 
@@ -1219,3 +1222,33 @@ def sync_needed(local_cmd: dict, remote_cmd: Optional[dict] = None) -> bool:
                 return True
 
     return False
+
+
+class GlobalAutoComplete(CallbackObject):
+    def __init__(self, option_name: str, callback: Callable):
+        self.callback = callback
+        self.option_name = option_name
+
+
+def global_autocomplete(option_name: str):
+    """
+    Decorator for global autocomplete functions
+
+    Args:
+        option_name: The name of the option to register the autocomplete function for
+
+    Returns:
+        The decorator
+    """
+
+    def decorator(func: Callable):
+        if not asyncio.iscoroutinefunction(func):
+            raise TypeError("Autocomplete functions must be coroutines")
+        return GlobalAutoComplete(option_name, func)
+
+    return decorator
+
+
+@global_autocomplete("test")
+async def some_func(ctx):
+    ...
