@@ -386,6 +386,7 @@ class BaseInteractionContext(BaseContext):
             self.kwargs = {}
         self.args = list(self.kwargs.values())
 
+
 class InteractionContext(BaseInteractionContext, SendMixin):
     async def defer(self, *, ephemeral: bool = False) -> None:
         """
@@ -783,7 +784,6 @@ class AutocompleteContext(BaseInteractionContext):
     @classmethod
     def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
         return super().from_dict(client, payload)
-
 
     @property
     def input_text(self) -> str:
