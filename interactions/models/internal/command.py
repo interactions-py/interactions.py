@@ -304,6 +304,10 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
                 await self.max_concurrency.release(context)
             raise
 
+    def add_check(self, check: Callable[..., Awaitable[bool]]) -> None:
+        """Adds a check into the command."""
+        self.checks.append(check)
+
     def error(self, call: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
         """A decorator to declare a coroutine as one that will be run upon an error."""
         if not asyncio.iscoroutinefunction(call):

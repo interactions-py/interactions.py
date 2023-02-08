@@ -595,14 +595,16 @@ class SlashCommand(InteractionCommand):
         option_name = option_name.lower()
         return wrapper
 
-    def group(self, name: str = None, description: str = "No Description Set") -> "SlashCommand":
-
+    def group(
+        self, name: str = None, description: str = "No Description Set", inherit_checks: bool = True
+    ) -> "SlashCommand":
         return SlashCommand(
             name=self.name,
             description=self.description,
             group_name=name,
             group_description=description,
             scopes=self.scopes,
+            checks=self.checks if inherit_checks else [],
         )
 
     def subcommand(
@@ -613,6 +615,7 @@ class SlashCommand(InteractionCommand):
         group_description: Absent[LocalisedDesc | str] = MISSING,
         options: List[Union[SlashCommandOption, Dict]] = None,
         nsfw: bool = False,
+        inherit_checks: bool = True,
     ) -> Callable[..., "SlashCommand"]:
         def wrapper(call: Callable[..., Coroutine]) -> "SlashCommand":
             nonlocal sub_cmd_description
@@ -636,6 +639,7 @@ class SlashCommand(InteractionCommand):
                 callback=call,
                 scopes=self.scopes,
                 nsfw=nsfw,
+                checks=self.checks if inherit_checks else [],
             )
 
         return wrapper

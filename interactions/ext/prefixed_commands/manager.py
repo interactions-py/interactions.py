@@ -324,18 +324,6 @@ class PrefixedManager:
             command = new_command
             content_parameters = content_parameters.removeprefix(first_word).strip()
 
-            if command.subcommands and command.hierarchical_checking:
-                try:
-                    await new_command._can_run(context)  # will error out if we can't run this command
-                except Exception as e:
-                    if new_command.error_callback:
-                        await new_command.error_callback(e, context)
-                    elif new_command.extension and new_command.extension.extension_error:
-                        await new_command.extension.extension_error(e, context)
-                    else:
-                        self.client.dispatch(CommandError(ctx=context, error=e))
-                    return
-
         if not isinstance(command, PrefixedCommand) or not command.enabled:
             return
 
