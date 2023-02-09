@@ -17,7 +17,6 @@ from asyncio import (
     wait_for,
 )
 from contextlib import suppress
-from enum import IntEnum
 from sys import platform, version_info
 from time import perf_counter
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
@@ -26,7 +25,7 @@ from zlib import decompressobj
 from aiohttp import ClientWebSocketResponse, WSMessage, WSMsgType
 
 from ...base import __version__, get_logger
-from ...client.enums import ComponentType, InteractionType, OptionType
+from ...client.enums import ComponentType, IntEnum, InteractionType, OptionType
 from ...client.models import Option
 from ...utils.missing import MISSING
 from ..dispatch import Listener
@@ -242,7 +241,6 @@ class WebSocketClient:
         """Manages the heartbeat loop."""
         log.debug(f"Sending heartbeat every {self.__heartbeater.delay / 1000} seconds...")
         while not self.__heartbeat_event.is_set():
-
             log.debug("Sending heartbeat...")
             if not self.__heartbeater.event.is_set():
                 log.debug("HEARTBEAT_ACK missing, reconnecting...")
@@ -404,7 +402,6 @@ class WebSocketClient:
                     _option = self.__sub_command_context(option, _context)
                     __kwargs.update(_option)
 
-            self._dispatch.dispatch("on_command", _context)
         elif data["type"] == InteractionType.MESSAGE_COMPONENT:
             _name = f"component_{_context.data.custom_id}"
 
@@ -931,6 +928,12 @@ class WebSocketClient:
                 if self.__heartbeat_event.is_set():
                     self.__heartbeat_event.clear()  # Because we're hardresetting the process
 
+            self._dispatch.dispatch(
+                "on_disconnect"
+            )  # will be followed by the on_ready event after reconnection
+            # reconnection happens whenever it disconnects either with or without a resume prompt
+            # as this is called whenever the WS client closes
+
             if not to_resume:
                 url = self.ws_url if self.ws_url else await self._http.get_gateway()
             else:
@@ -963,7 +966,6 @@ class WebSocketClient:
         buffer = bytearray()
 
         while True:
-
             if not ignore_lock:
                 # meaning if we're reconnecting or something because of tasks
                 await self.__closed.wait()
@@ -1003,7 +1005,6 @@ class WebSocketClient:
                     await self._reconnect(True)
 
             elif packet.type == WSMsgType.CLOSING:
-
                 if ignore_lock:
                     raise LibraryException(
                         message="Discord unexpectedly closing on receiving by force.", severity=50
@@ -1061,7 +1062,6 @@ class WebSocketClient:
                 await self._client.send_str(packet)
         else:
             async with self.reconnect_lock:  # needs to lock while it reconnects.
-
                 if data["op"] != OpCodeType.HEARTBEAT.value:
                     # This is because the ratelimiter limits already accounts for this.
                     await self._ratelimiter.block()

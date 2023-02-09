@@ -27,12 +27,18 @@ class InteractionResolvedData(DictSerializerMixin):
     :ivar Dict[str, Attachment] attachments: The resolved attachments data.
     """
 
-    users: Dict[str, User] = field(converter=convert_dict(value_converter=User))
-    members: Dict[str, Member] = field(converter=convert_dict(value_converter=Member))
-    roles: Dict[str, Role] = field(converter=convert_dict(value_converter=Role))
-    channels: Dict[str, Channel] = field(converter=convert_dict(value_converter=Channel))
-    messages: Dict[str, Message] = field(converter=convert_dict(value_converter=Message))
-    attachments: Dict[str, Attachment] = field(converter=convert_dict(value_converter=Attachment))
+    users: Dict[str, User] = field(converter=convert_dict(value_converter=User), factory=dict)
+    members: Dict[str, Member] = field(converter=convert_dict(value_converter=Member), factory=dict)
+    roles: Dict[str, Role] = field(converter=convert_dict(value_converter=Role), factory=dict)
+    channels: Dict[str, Channel] = field(
+        converter=convert_dict(value_converter=Channel), factory=dict
+    )
+    messages: Dict[str, Message] = field(
+        converter=convert_dict(value_converter=Message), factory=dict
+    )
+    attachments: Dict[str, Attachment] = field(
+        converter=convert_dict(value_converter=Attachment), factory=dict
+    )
 
     def __attrs_post_init__(self):
         if self.members:

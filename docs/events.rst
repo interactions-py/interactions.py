@@ -52,6 +52,7 @@ There are several different internal events:
 
     - ``raw_socket_create``
     - ``on_start``
+    - ``on_disconnect``
     - ``on_interaction``
     - ``on_command``
     - ``on_command_error``
@@ -81,6 +82,13 @@ This function takes no arguments.
 
 .. attention::
     Unlike ``on_ready``, this event will never be dispatched more than once.
+
+Event: ``on_disconnect``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This event fires whenever the connection is invalidated and will often precede an ``on_ready`` event
+
+This function takes no arguments.
+
 
 Event: ``on_interaction``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

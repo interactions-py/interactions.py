@@ -10,7 +10,6 @@ __all__ = ("UserRequest",)
 
 
 class UserRequest:
-
     _req: _Request
     cache: Cache
 

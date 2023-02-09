@@ -209,7 +209,7 @@ class _Request:
                             await asyncio.sleep(_limiter.reset_after)
                             continue
                     if remaining is not None and int(remaining) == 0:
-                        log.warning(
+                        log.debug(
                             f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
                         )
                         self._loop.call_later(reset_after, _limiter.release_lock)

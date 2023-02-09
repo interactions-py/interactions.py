@@ -1,6 +1,16 @@
-from enum import Enum, IntFlag
+from enum import IntFlag
 
-__all__ = ("Intents", "AppFlags", "StatusType", "UserFlags", "Permissions", "MessageFlags")
+from ...client.enums import StrEnum
+
+__all__ = (
+    "Intents",
+    "AppFlags",
+    "StatusType",
+    "UserFlags",
+    "Permissions",
+    "MessageFlags",
+    "MemberFlags",
+)
 
 
 class Intents(IntFlag):
@@ -176,7 +186,7 @@ class AppFlags(IntFlag):
     APPLICATION_COMMAND_BADGE = 1 << 23
 
 
-class StatusType(str, Enum):
+class StatusType(StrEnum):
     """
     An enumerable object representing Discord status icons that a user may have.
     """
@@ -214,3 +224,21 @@ class MessageFlags(IntFlag):
     EPHEMERAL = 1 << 6
     LOADING = 1 << 7
     FAILED_TO_MENTION_SOME_ROLES_IN_THREAD = 1 << 8
+
+
+class MemberFlags(IntFlag):
+    """
+    .. versionadded:: 4.4.0
+
+    An integer flag bitshift object representing member flags on the guild.
+
+    :ivar int DID_REJOIN: Member has left and rejoined the guild
+    :ivar int COMPLETED_ONBOARDING: Member has completed onboarding
+    :ivar int BYPASSES_VERIFICATION: Member bypasses guild verification requirements
+    :ivar int STARTED_ONBOARDING: Member has started onboarding
+    """
+
+    DID_REJOIN = 1 << 0
+    COMPLETED_ONBOARDING = 1 << 1
+    BYPASSES_VERIFICATION = 1 << 2
+    STARTED_ONBOARDING = 1 << 3

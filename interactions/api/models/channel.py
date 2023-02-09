@@ -1,6 +1,5 @@
 from asyncio import Task, create_task, get_running_loop, sleep
 from datetime import datetime, timedelta, timezone
-from enum import IntEnum
 from inspect import isawaitable
 from math import inf
 from typing import (
@@ -17,11 +16,13 @@ from typing import (
 )
 from warnings import warn
 
+from ...client.enums import IntEnum
 from ...utils.abc.base_context_managers import BaseAsyncContextManager
 from ...utils.abc.base_iterators import DiscordPaginationIterator
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
+    convert_int,
     convert_list,
     define,
     field,
@@ -232,7 +233,6 @@ class AsyncHistoryIterator(DiscordPaginationIterator):
             obj = self.objects.pop(0)
 
             if self.check:
-
                 res = self.check(obj)
                 _res = await res if isawaitable(res) else res
                 while not _res:
@@ -271,7 +271,6 @@ class AsyncTypingContextManager(BaseAsyncContextManager):
         obj: Union[int, str, "Snowflake", "Channel"],
         _client: "HTTPClient",
     ):
-
         try:
             self.loop = get_running_loop()
         except RuntimeError as e:
@@ -433,7 +432,7 @@ class Channel(ClientSerializerMixin, IDMixin):
     :ivar Optional[ThreadMetadata] thread_metadata: The thread metadata of the channel.
     :ivar Optional[ThreadMember] member: The member of the thread in the channel.
     :ivar Optional[int] default_auto_archive_duration: The set auto-archive time for all threads to naturally follow in the channel.
-    :ivar Optional[str] permissions: The permissions of the channel.
+    :ivar Optional[Permissions] permissions: The permissions of the channel.
     :ivar Optional[int] flags: The flags of the channel.
     :ivar Optional[int] total_message_sent: Number of messages ever sent in a thread.
     :ivar Optional[int] default_thread_slowmode_delay: The default slowmode delay in seconds for threads, if this channel is a forum.
@@ -484,7 +483,9 @@ class Channel(ClientSerializerMixin, IDMixin):
         converter=ThreadMember, default=None, add_client=True, repr=False
     )
     default_auto_archive_duration: Optional[int] = field(default=None)
-    permissions: Optional[str] = field(default=None, repr=False)
+    permissions: Optional[Permissions] = field(
+        converter=convert_int(Permissions), default=None, repr=False
+    )
     flags: Optional[int] = field(default=None, repr=False)
     total_message_sent: Optional[int] = field(default=None, repr=False)
     default_thread_slowmode_delay: Optional[int] = field(default=None, repr=False)
@@ -1322,7 +1323,6 @@ class Channel(ClientSerializerMixin, IDMixin):
             _allowed_time = datetime.now(tz=timezone.utc) - timedelta(days=14)
             _stop = False
             while amount > 100:
-
                 messages = [
                     Message(**res)
                     for res in await self._client.get_channel_messages(
@@ -1938,7 +1938,6 @@ class Channel(ClientSerializerMixin, IDMixin):
                     _content["attachments"].append(attach._json)
 
                 else:
-
                     _data = await attach.download()
 
                     __files.append(File(attach.filename, _data))
@@ -2070,7 +2069,7 @@ class Channel(ClientSerializerMixin, IDMixin):
             _id = int(id)
             _type = type
 
-        if not _type:
+        if _type is MISSING:
             raise LibraryException(12, "Please set the type of the overwrite!")
 
         overwrites.append(Overwrite(id=_id, type=_type, allow=allow, deny=deny))

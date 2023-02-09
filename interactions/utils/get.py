@@ -1,7 +1,6 @@
 # versionadded declared in docs gen file
 
 from asyncio import sleep
-from enum import Enum
 from inspect import isawaitable
 from logging import getLogger
 from sys import version_info
@@ -28,6 +27,7 @@ from ..api.models.member import Member
 from ..api.models.message import Message
 from ..api.models.misc import Snowflake
 from ..api.models.role import Role
+from ..client.enums import StrEnum
 
 log = getLogger("get")
 
@@ -43,7 +43,7 @@ __all__ = (
 )
 
 
-class Force(str, Enum):
+class Force(StrEnum):
     """
     An enumerable object representing the force types for the get method.
 
@@ -318,7 +318,6 @@ def _get_cache(
 def _resolve_kwargs(obj, **kwargs):
     # This function is needed to get correct kwarg names
     if __id := kwargs.pop("parent_id", None):
-
         if version_info >= (3, 9):
             _list = [Message, List[Message], list[Message]]
         else:

@@ -236,7 +236,6 @@ class InteractionRequest:
 
         file_data = None
         if files:
-
             file_data = MultipartWriter("form-data")
             part = file_data.append_json(data)
             part.set_content_disposition("form-data", name="payload_json")
@@ -295,7 +294,6 @@ class InteractionRequest:
         # ^ again, I don't know if python will let me
         file_data = None
         if files:
-
             file_data = MultipartWriter("form-data")
             part = file_data.append_json(data)
             part.set_content_disposition("form-data", name="payload_json")

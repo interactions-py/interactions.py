@@ -1,4 +1,5 @@
 import asyncio
+from contextlib import suppress
 from datetime import datetime
 from logging import Logger
 from typing import TYPE_CHECKING, List, Optional, Tuple, Union
@@ -160,6 +161,55 @@ class _Context(ClientSerializerMixin):
         res = await self._client.get_guild(int(self.guild_id))
         return Guild(**res, _client=self._client)
 
+    async def defer(
+        self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
+    ) -> Message:
+        """
+        .. versionchanged:: 4.4.0
+            Now returns the created message object
+
+        This "defers" an interaction response, allowing up
+        to a 15-minute delay between invocation and responding.
+
+        :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
+        :param Optional[bool] edit_origin: Whether you want to edit the original message or send a followup message
+        :return: The deferred message
+        :rtype: Message
+        """
+        if edit_origin and self.type in {
+            InteractionType.APPLICATION_COMMAND,
+            InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE,
+        }:
+            raise LibraryException(
+                message="You cannot defer with edit_origin parameter in this type of interaction"
+            )
+
+        if not self.responded:
+            self.deferred = True
+            is_ephemeral: int = MessageFlags.EPHEMERAL.value if bool(ephemeral) else 0
+            # ephemeral doesn't change callback typings. just data json
+            self.callback = (
+                InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+                if edit_origin
+                else InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            )
+
+            await self._client.create_interaction_response(
+                token=self.token,
+                application_id=int(self.id),
+                data={"type": self.callback.value, "data": {"flags": is_ephemeral}},
+            )
+
+            with suppress(LibraryException):
+                res = await self._client.get_original_interaction_response(
+                    self.token, str(self.application_id)
+                )
+                self.message = Message(**res, _client=self._client)
+
+            self.responded = True
+
+            return self.message
+
     async def send(
         self,
         content: Optional[str] = MISSING,
@@ -231,7 +281,6 @@ class _Context(ClientSerializerMixin):
             and self.message
             and self.callback == InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ):
-
             if isinstance(self.message.components, list):
                 _components = self.message.components
             else:
@@ -300,6 +349,9 @@ class _Context(ClientSerializerMixin):
         :param Optional[Union[ActionRow, Button, SelectMenu, List[Union[ActionRow, Button, SelectMenu]]]] components: A component, or list of components for the message.
         :return: The edited message.
         """
+
+        if self.message is None:
+            raise LibraryException(message="There is no message to edit.")
 
         payload = {}
 
@@ -414,6 +466,28 @@ class _Context(ClientSerializerMixin):
         else:
             return any(perm in self.author.permissions for perm in permissions)
 
+    async def delete(self) -> None:
+        """
+        This deletes the interaction response of a message sent by
+        the contextually derived information from this class.
+
+        .. note::
+            Doing this will proceed in the context message no longer
+            being present.
+        """
+        if self.responded and self.message is not None:
+            await self._client.delete_interaction_response(
+                application_id=str(self.application_id),
+                token=self.token,
+                message_id=int(self.message.id),
+            )
+        else:
+            await self._client.delete_interaction_response(
+                application_id=str(self.application_id), token=self.token
+            )
+
+        self.message = None
+
 
 @define()
 class CommandContext(_Context):
@@ -434,7 +508,7 @@ class CommandContext(_Context):
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
     :ivar Optional[Locale] guild_locale: The guild's preferred language, if invoked in a guild.
-    :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
+    :ivar Permissions app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     :ivar Client client:
         .. versionadded:: 4.3.0
 
@@ -477,7 +551,6 @@ class CommandContext(_Context):
     async def edit(
         self, content: Optional[str] = MISSING, **kwargs
     ) -> Message:  # sourcery skip: low-code-quality
-
         payload, files = await super().edit(content, **kwargs)
         msg = None
 
@@ -519,55 +592,23 @@ class CommandContext(_Context):
                 else:
                     self.message = msg = Message(**res, _client=self._client)
         else:
-            try:
-                res = await self._client.edit_interaction_response(
-                    token=self.token,
-                    application_id=str(self.application_id),
-                    data=payload,
-                    files=files,
-                )
-            except LibraryException as e:
-                if e.code in {10015, 10018}:
-                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
-                else:
-                    # if its not ephemeral or some other thing.
-                    raise e from e
-            else:
-                self.message = msg = Message(**res, _client=self._client)
-
-        return msg if msg is not None else Message(**payload, _client=self._client)
-
-    async def defer(self, ephemeral: Optional[bool] = False) -> Message:
-        """
-        .. versionchanged:: 4.4.0
-            Now returns the created message object
-
-        This "defers" an interaction response, allowing up
-        to a 15-minute delay between invocation and responding.
-
-        :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
-        :return: The deferred message
-        :rtype: Message
-        """
-        if not self.responded:
-            self.deferred = True
-            _ephemeral: int = MessageFlags.EPHEMERAL.value if ephemeral else 0
-            self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            self.callback = InteractionCallbackType.UPDATE_MESSAGE
             await self._client.create_interaction_response(
+                data={"type": self.callback.value, "data": payload},
+                files=files,
                 token=self.token,
                 application_id=int(self.id),
-                data={"type": self.callback.value, "data": {"flags": _ephemeral}},
             )
-            try:
-                _msg = await self._client.get_original_interaction_response(
+
+            with suppress(LibraryException):
+                res = await self._client.get_original_interaction_response(
                     self.token, str(self.application_id)
                 )
-            except LibraryException:
-                pass
-            else:
-                self.message = Message(**_msg, _client=self._client)
+                self.message = msg = Message(**res, _client=self._client)
+
             self.responded = True
-            return self.message
+
+        return msg or Message(**payload, _client=self._client)
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload, files = await super().send(content, **kwargs)
@@ -594,46 +635,19 @@ class CommandContext(_Context):
                 files=files,
             )
 
-            try:
-                _msg = await self._client.get_original_interaction_response(
+            with suppress(LibraryException):
+                res = await self._client.get_original_interaction_response(
                     self.token, str(self.application_id)
                 )
-            except LibraryException:
-                pass
-            else:
-                self.message = msg = Message(**_msg, _client=self._client)
+                self.message = msg = Message(**res, _client=self._client)
 
             self.responded = True
 
-        if msg is not None:
-            return msg
-        return Message(
+        return msg or Message(
             **payload,
             _client=self._client,
             author={"_client": self._client, "id": None, "username": None, "discriminator": None},
         )
-
-    async def delete(self) -> None:
-        """
-        This deletes the interaction response of a message sent by
-        the contextually derived information from this class.
-
-        .. note::
-            Doing this will proceed in the context message no longer
-            being present.
-        """
-        if self.responded and self.message is not None:
-            await self._client.delete_interaction_response(
-                application_id=str(self.application_id),
-                token=self.token,
-                message_id=int(self.message.id),
-            )
-        else:
-            await self._client.delete_interaction_response(
-                application_id=str(self.application_id), token=self.token
-            )
-
-        self.message = None
 
     async def populate(self, choices: Union[Choice, List[Choice]]) -> List[Choice]:
         """
@@ -696,7 +710,7 @@ class ComponentContext(_Context):
     :ivar bool deferred: Whether the response was deferred or not.
     :ivar Optional[Locale] locale: The selected language of the user invoking the interaction.
     :ivar Optional[Locale] guild_locale: The guild's preferred language, if invoked in a guild.
-    :ivar str app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
+    :ivar Permissions app_permissions: Bitwise set of permissions the bot has within the channel the interaction was sent from.
     """
 
     async def edit(self, content: Optional[str] = MISSING, **kwargs) -> Message:
@@ -712,14 +726,12 @@ class ComponentContext(_Context):
                 application_id=int(self.id),
             )
 
-            try:
-                _msg = await self._client.get_original_interaction_response(
+            with suppress(LibraryException):
+                res = await self._client.get_original_interaction_response(
                     self.token, str(self.application_id)
                 )
-            except LibraryException:
-                pass
-            else:
-                self.message = msg = Message(**_msg, _client=self._client)
+
+                self.message = msg = Message(**res, _client=self._client)
 
             self.responded = True
         elif self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
@@ -739,7 +751,7 @@ class ComponentContext(_Context):
             self.responded = True
             self.message = msg = Message(**res, _client=self._client)
 
-        return msg if msg is not None else Message(**payload, _client=self._client)
+        return msg or Message(**payload, _client=self._client)
 
     async def send(self, content: Optional[str] = MISSING, **kwargs) -> Message:
         payload, files = await super().send(content, **kwargs)
@@ -766,59 +778,15 @@ class ComponentContext(_Context):
                 files=files,
             )
 
-            try:
-                _msg = await self._client.get_original_interaction_response(
+            with suppress(LibraryException):
+                res = await self._client.get_original_interaction_response(
                     self.token, str(self.application_id)
                 )
-            except LibraryException:
-                pass
-            else:
-                self.message = msg = Message(**_msg, _client=self._client)
+                self.message = msg = Message(**res, _client=self._client)
 
             self.responded = True
 
         return msg if msg is not None else Message(**payload, _client=self._client)
-
-    async def defer(
-        self, ephemeral: Optional[bool] = False, edit_origin: Optional[bool] = False
-    ) -> Message:
-        """
-        .. versionchanged:: 4.4.0
-            Now returns the created message object
-
-        This "defers" a component response, allowing up
-        to a 15-minute delay between invocation and responding.
-
-        :param Optional[bool] ephemeral: Whether the deferred state is hidden or not.
-        :param Optional[bool] edit_origin: Whether you want to edit the original message or send a followup message
-        :return: The deferred message
-        :rtype: Message
-        """
-        if not self.responded:
-
-            self.deferred = True
-            _ephemeral: int = MessageFlags.EPHEMERAL.value if bool(ephemeral) else 0
-            # ephemeral doesn't change callback typings. just data json
-            if edit_origin:
-                self.callback = InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
-            else:
-                self.callback = InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-
-            await self._client.create_interaction_response(
-                token=self.token,
-                application_id=int(self.id),
-                data={"type": self.callback.value, "data": {"flags": _ephemeral}},
-            )
-            try:
-                _msg = await self._client.get_original_interaction_response(
-                    self.token, str(self.application_id)
-                )
-            except LibraryException:
-                pass
-            else:
-                self.message = Message(**_msg, _client=self._client)
-            self.responded = True
-            return self.message
 
     async def disable_all_components(
         self, respond_to_interaction: Optional[bool] = True, **other_kwargs: Optional[dict]
@@ -876,3 +844,20 @@ class ComponentContext(_Context):
             for component in action_row.components:
                 if component.custom_id == self.custom_id:
                     return component.label
+
+    @property
+    def component(self) -> Optional[Union[Button, SelectMenu]]:
+        """
+        .. versionadded:: 4.4.0
+
+        The component that you interacted.
+
+        :rtype: Optional[Union[Button, SelectMenu]]
+        """
+        if self.message is None or self.message.components is None:
+            return
+
+        for action_row in self.message.components:
+            for component in action_row.components:
+                if component.custom_id == self.custom_id:
+                    return component

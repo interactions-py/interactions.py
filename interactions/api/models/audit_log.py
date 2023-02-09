@@ -1,8 +1,8 @@
 # versionadded declared in docs gen file
 
-from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, TypeVar
 
+from ...client.enums import IntEnum
 from ...utils.attrs_utils import DictSerializerMixin, convert_list, define, field
 from .channel import Channel
 from .misc import Snowflake
@@ -235,7 +235,7 @@ class AuditLogEntry(DictSerializerMixin):
     :ivar Snowflake id: ID of the entry
     :ivar AuditLogEvents action_type: Type of action that occurred
     :ivar OptionalAuditEntryInfo options: Additional info for certain event types
-    :ivar str reason: Reason for the change (1-512 characters)
+    :ivar Optional[str] reason: Reason for the change (1-512 characters)
     """
 
     target_id: Optional[str] = field(default=None)

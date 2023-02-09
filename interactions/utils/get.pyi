@@ -1,8 +1,7 @@
-from enum import Enum
 from typing import Awaitable, Coroutine, List, Literal, Optional, Type, TypeVar, Union, overload
 
-from interactions.client.bot import Client
-
+from ..client.bot import Client
+from ..client.enums import StrEnum
 from ..api.http.client import HTTPClient
 from ..api.models.channel import Channel
 from ..api.models.guild import Guild
@@ -19,7 +18,7 @@ _T = TypeVar("_T")
 
 __all__: tuple
 
-class Force(str, Enum):
+class Force(StrEnum):
     """
     An enum representing the force methods for the get method
     """

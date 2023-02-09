@@ -22,7 +22,7 @@ from ..api.models.message import Message
 from ..api.models.misc import Image, Snowflake
 from ..api.models.presence import ClientPresence
 from ..api.models.role import Role
-from ..api.models.team import Application
+from ..api.models.team import Application, ApplicationRoleConnectionMetadata
 from ..api.models.user import User
 from ..base import get_logger
 from ..utils.attrs_utils import convert_list
@@ -71,7 +71,7 @@ class Client:
 
     def __init__(
         self,
-        token: str,
+        token: Optional[str] = None,
         cache_limits: Optional[Dict[type, int]] = None,
         intents: Intents = Intents.DEFAULT,
         shards: Optional[List[Tuple[int]]] = None,
@@ -189,11 +189,15 @@ class Client:
 
         return self._websocket.latency * 1000
 
-    def start(self) -> None:
-        """Starts the client session."""
+    def start(self, token: Optional[str] = None) -> None:
+        """
+        Starts the client session.
+
+        :param Optional[str] token: The token of bot.
+        """
 
         try:
-            self._loop.run_until_complete(self._ready())
+            self._loop.run_until_complete(self._ready(token=token))
         except (CancelledError, Exception) as e:
             self._loop.run_until_complete(self._logout())
             raise e from e
@@ -365,7 +369,6 @@ class Client:
                             return clean, _command
 
                         elif command.get("options") and data.get("options"):
-
                             clean = __check_options(command, data)
 
                         if not clean:
@@ -396,7 +399,7 @@ class Client:
 
         return clean, _command
 
-    async def _ready(self) -> None:
+    async def _ready(self, token: Optional[str] = None) -> None:
         """
         Prepares the client with an internal "ready" check to ensure
         that all conditions have been met in a chronological order:
@@ -414,7 +417,19 @@ class Client:
             |   |___ SYNCHRONIZE
             |   |___ CALLBACK
             LOOP
+
+        :param Optional[str] token: The token of bot.
         """
+        if self._http and token and self._http is not token:
+            raise RuntimeError("You cannot pass a token to the bot twice!")
+        elif not (self._http or token):
+            raise RuntimeError("No token was passed to the bot!")
+
+        if token:
+            self._token = token
+            self._http = token
+            self._websocket._http = token  # Update the websockets token if it wasn't set before
+
         if isinstance(self._http, str):
             self._http = HTTPClient(self._http, self._cache)
 
@@ -470,7 +485,8 @@ class Client:
         self._websocket._closing_lock.set()  # Toggles the "ready-to-shutdown" state for the bot.
         # And subsequently, the processes will close itself.
 
-        await self._http._req._session.close()  # Closes the HTTP session associated with the client.
+        if isinstance(self._http, HTTPClient):
+            await self._http._req._session.close()  # Closes the HTTP session associated with the client.
 
     async def _login(self) -> None:
         """Makes a login with the Discord API."""
@@ -521,7 +537,6 @@ class Client:
         res = await self._http.get_self_guilds(limit=200)
 
         while len(res) >= 200:
-
             _all.extend(res)
             _after = int(res[-1]["id"])
 
@@ -593,11 +608,10 @@ class Client:
             cmd.listener = self._websocket._dispatch
 
             if cmd.default_scope and self._default_scope:
-                cmd.scope = (
+                if isinstance(cmd.scope, list):
                     cmd.scope.extend(self._default_scope)
-                    if isinstance(cmd.scope, list)
-                    else self._default_scope
-                )
+                else:
+                    cmd.scope = self._default_scope
 
             data: Union[dict, List[dict]] = cmd.full_data
             coro = cmd.dispatcher
@@ -695,6 +709,9 @@ class Client:
                         if _guild_id in __blocked_guilds:
                             log.fatal(f"Cannot sync commands on guild with id {_guild_id}!")
                             raise LibraryException(50001, message="Missing Access |")
+                        if _guild_id not in _guild_ids:
+                            log.warning(f"The bot is not in guild with id {_guild_id}")
+                            continue
                         if _guild_command["name"] not in __check_guild_commands[_guild_id]:
                             self.__guild_commands[_guild_id]["clean"] = False
                             self.__guild_commands[_guild_id]["commands"].append(_guild_command)
@@ -1050,6 +1067,7 @@ class Client:
         description_localizations: Optional[Dict[Union[str, Locale], str]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
@@ -1103,6 +1121,10 @@ class Client:
             The dictionary of localization for the ``description`` field. This enforces the same restrictions as the ``description`` field.
         :param Optional[Union[int, Permissions]] default_member_permissions: The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param Optional[bool] nsfw:
+            .. versionadded:: 4.4.0
+
+            Indicates whether the command is age-restricted. Defaults to ``False``
         :param Optional[bool] default_scope:
             .. versionadded:: 4.3.0
 
@@ -1121,6 +1143,7 @@ class Client:
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                nsfw=nsfw,
                 name_localizations=name_localizations,
                 description_localizations=description_localizations,
                 default_scope=default_scope,
@@ -1139,6 +1162,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
@@ -1165,6 +1189,10 @@ class Client:
             The dictionary of localization for the ``name`` field. This enforces the same restrictions as the ``name`` field.
         :param Optional[Union[int, Permissions]] default_member_permissions: The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param Optional[bool] nsfw:
+            .. versionadded:: 4.4.0
+
+            Indicates whether the command is age-restricted. Defaults to ``False``
         :param Optional[bool] default_scope:
             .. versionadded:: 4.3.0
 
@@ -1180,6 +1208,7 @@ class Client:
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                nsfw=nsfw,
                 name_localizations=name_localizations,
                 default_scope=default_scope,
             )(coro)
@@ -1194,6 +1223,7 @@ class Client:
         name_localizations: Optional[Dict[Union[str, Locale], Any]] = MISSING,
         default_member_permissions: Optional[Union[int, Permissions]] = MISSING,
         dm_permission: Optional[bool] = MISSING,
+        nsfw: Optional[bool] = MISSING,
         default_scope: bool = True,
     ) -> Callable[[Callable[..., Coroutine]], Command]:
         """
@@ -1221,6 +1251,10 @@ class Client:
         :param Optional[Union[int, Permissions]] default_member_permissions:
         The permissions bit value of :class:`.Permissions`. If not given, defaults to :attr:`.Permissions.USE_APPLICATION_COMMANDS`
         :param Optional[bool] dm_permission: The application permissions if executed in a Direct Message. Defaults to ``True``.
+        :param Optional[bool] nsfw:
+            .. versionadded:: 4.4.0
+
+            Indicates whether the command is age-restricted. Defaults to ``False``
         :param Optional[bool] default_scope:
             .. versionadded:: 4.3.0
 
@@ -1236,6 +1270,7 @@ class Client:
                 scope=scope,
                 default_member_permissions=default_member_permissions,
                 dm_permission=dm_permission,
+                nsfw=nsfw,
                 name_localizations=name_localizations,
                 default_scope=default_scope,
             )(coro)
@@ -1476,7 +1511,6 @@ class Client:
             for ext_name, ext in getmembers(
                 extension, lambda x: isinstance(x, type) and issubclass(x, Extension)
             ):
-
                 if ext_name != "Extension":
                     _extension = self._extensions.get(ext_name)
                     with contextlib.suppress(AttributeError):
@@ -1602,7 +1636,8 @@ class Client:
 
     async def _logout(self) -> None:
         await self._websocket.close()
-        await self._http._req.close()
+        if isinstance(self._http, HTTPClient):
+            await self._http._req.close()
 
     async def wait_for(
         self,
@@ -1838,6 +1873,43 @@ class Client:
         Gets the bot's user information.
         """
         return User(**await self._http.get_self(), _client=self._http)
+
+    async def get_role_connection_metadata(self) -> List[ApplicationRoleConnectionMetadata]:
+        """
+        .. versionadded:: 4.4.0
+
+        Gets the bot's role connection metadata.
+
+        :return: The list of bot's role connection metadata.
+        """
+
+        res: List[dict] = await self._http.get_application_role_connection_metadata(
+            application_id=int(self.me.id)
+        )
+        return [ApplicationRoleConnectionMetadata(**metadata) for metadata in res]
+
+    async def update_role_connection_metadata(
+        self,
+        metadata: Union[List[ApplicationRoleConnectionMetadata], ApplicationRoleConnectionMetadata],
+    ) -> List[ApplicationRoleConnectionMetadata]:
+        """
+        .. versionadded:: 4.4.0
+
+        Updates the bot's role connection metadata.
+
+        .. note::
+            This method overwrites all current bot's role connection metadata.
+
+        :param List[ApplicationRoleConnectionMetadata] metadata: The list of role connection metadata. The maximum is five.
+        :return: The updated list of bot's role connection metadata.
+        """
+        if not isinstance(metadata, list):
+            metadata = [metadata]
+
+        res: List[dict] = await self._http.update_application_role_connection_metadata(
+            application_id=int(self.me.id), payload=[_._json for _ in metadata]
+        )
+        return [ApplicationRoleConnectionMetadata(**_) for _ in res]
 
 
 class Extension:

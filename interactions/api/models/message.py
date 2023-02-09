@@ -1,9 +1,9 @@
 import contextlib
 from datetime import datetime
-from enum import IntEnum
 from io import BytesIO
 from typing import TYPE_CHECKING, List, Optional, Union
 
+from ...client.enums import IntEnum
 from ...client.models.component import ActionRow, Button, SelectMenu
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
@@ -111,7 +111,7 @@ class MessageActivity(DictSerializerMixin):
 
 
 @define()
-class MessageReference(DictSerializerMixin):
+class MessageReference(ClientSerializerMixin):
     """
     A class object representing the "referenced"/replied message.
 
@@ -384,9 +384,11 @@ class Embed(DictSerializerMixin):
     author: Optional[EmbedAuthor] = field(converter=EmbedAuthor, default=None)
     fields: Optional[List[EmbedField]] = field(converter=convert_list(EmbedField), default=None)
 
-    def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> None:
+    def add_field(self, name: str, value: str, inline: Optional[bool] = False) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Adds a field to the embed
 
@@ -399,21 +401,27 @@ class Embed(DictSerializerMixin):
             self.fields = []
 
         self.fields.append(EmbedField(name=name, value=value, inline=inline))
+        return self
 
-    def clear_fields(self) -> None:
+    def clear_fields(self) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Clears all the fields of the embed
         """
 
         self.fields = []
+        return self
 
     def insert_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
-    ) -> None:
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Inserts a field in the embed at the specified index
 
@@ -427,12 +435,15 @@ class Embed(DictSerializerMixin):
             self.fields = []
 
         self.fields.insert(index, EmbedField(name=name, value=value, inline=inline))
+        return self
 
     def set_field_at(
         self, index: int, name: str, value: str, inline: Optional[bool] = False
-    ) -> None:
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Overwrites the field in the embed at the specified index
 
@@ -449,10 +460,13 @@ class Embed(DictSerializerMixin):
             self.fields[index] = EmbedField(name=name, value=value, inline=inline)
         except IndexError as e:
             raise IndexError("No fields at this index") from e
+        return self
 
-    def remove_field(self, index: int) -> None:
+    def remove_field(self, index: int) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Remove field at the specified index
 
@@ -466,16 +480,20 @@ class Embed(DictSerializerMixin):
             self.fields.pop(index)
         except IndexError as e:
             raise IndexError("Field not Found at index") from e
+        return self
 
-    def remove_author(self) -> None:
+    def remove_author(self) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Removes the embed's author
         """
 
         with contextlib.suppress(AttributeError):
             del self.author
+        return self
 
     def set_author(
         self,
@@ -483,9 +501,11 @@ class Embed(DictSerializerMixin):
         url: Optional[str] = None,
         icon_url: Optional[str] = None,
         proxy_icon_url: Optional[str] = None,
-    ) -> None:
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Sets the embed's author
 
@@ -498,12 +518,15 @@ class Embed(DictSerializerMixin):
         self.author = EmbedAuthor(
             name=name, url=url, icon_url=icon_url, proxy_icon_url=proxy_icon_url
         )
+        return self
 
     def set_footer(
         self, text: str, icon_url: Optional[str] = None, proxy_icon_url: Optional[str] = None
-    ) -> None:
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Sets the embed's footer
 
@@ -513,6 +536,7 @@ class Embed(DictSerializerMixin):
         """
 
         self.footer = EmbedFooter(text=text, icon_url=icon_url, proxy_icon_url=proxy_icon_url)
+        return self
 
     def set_image(
         self,
@@ -520,9 +544,11 @@ class Embed(DictSerializerMixin):
         proxy_url: Optional[str] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
-    ) -> None:
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Sets the embed's image
 
@@ -533,6 +559,7 @@ class Embed(DictSerializerMixin):
         """
 
         self.image = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+        return self
 
     def set_video(
         self,
@@ -540,9 +567,11 @@ class Embed(DictSerializerMixin):
         proxy_url: Optional[str] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
-    ) -> None:
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Sets the embed's video
 
@@ -553,6 +582,7 @@ class Embed(DictSerializerMixin):
         """
 
         self.video = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+        return self
 
     def set_thumbnail(
         self,
@@ -560,9 +590,11 @@ class Embed(DictSerializerMixin):
         proxy_url: Optional[str] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
-    ) -> None:
+    ) -> "Embed":
         """
         .. versionadded:: 4.2.0
+        .. versionchanged:: 4.4.0
+            returns the embed instead of `None`
 
         Sets the embed's thumbnail
 
@@ -573,6 +605,7 @@ class Embed(DictSerializerMixin):
         """
 
         self.thumbnail = EmbedImageStruct(url=url, proxy_url=proxy_url, height=height, width=width)
+        return self
 
 
 @define()
@@ -766,6 +799,9 @@ class Message(ClientSerializerMixin, IDMixin):
     position: Optional[int] = field(default=None, repr=False)
 
     def __attrs_post_init__(self):
+        if self.referenced_message is not None:
+            self.referenced_message = Message(**self.referenced_message, _client=self._client)
+
         if self.member and self.guild_id:
             self.member._extras["guild_id"] = self.guild_id
 
@@ -789,9 +825,6 @@ class Message(ClientSerializerMixin, IDMixin):
         Returns when the message was created.
         """
         return self.id.timestamp
-
-        if self.referenced_message is not None:
-            self.referenced_message = Message(**self.referenced_message, _client=self._client)
 
     async def get_channel(self) -> Channel:
         """

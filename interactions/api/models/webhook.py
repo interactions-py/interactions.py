@@ -1,9 +1,9 @@
 # versionadded is specified in docs gen file
 
 from datetime import datetime
-from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, Union
 
+from ...client.enums import IntEnum
 from ...utils.attrs_utils import ClientSerializerMixin, define, field
 from ...utils.missing import MISSING
 from ..error import LibraryException

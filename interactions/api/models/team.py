@@ -1,8 +1,7 @@
 from datetime import datetime
-from enum import IntEnum
 from typing import Any, Dict, List, Optional, Union
 
-from ...client.enums import Locale
+from ...client.enums import IntEnum, Locale
 from ...utils.attrs_utils import (
     ClientSerializerMixin,
     DictSerializerMixin,
@@ -164,6 +163,13 @@ class ApplicationRoleConnectionMetadata(DictSerializerMixin):
     .. versionadded:: 4.4.0
 
     A class object representing role connection metadata for the application/bot/client.
+
+    :ivar ApplicationRoleConnectionMetadataType type: The type of metadata value.
+    :ivar str key: The dictionary key for the metadata field.
+    :ivar str name: The name of the metadata field.
+    :ivar Optional[Dict[Union[str, Locale], str]] name_localizations: The translations of the name field.
+    :ivar str description: The description of the metadata field.
+    :ivar Optional[Dict[Union[str, Locale], str]] description_localizations: The translations of the description field.
     """
 
     type: ApplicationRoleConnectionMetadataType = field(
