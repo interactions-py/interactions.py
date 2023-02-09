@@ -133,6 +133,8 @@ from .models import (
     FlatUIColors,
     FlatUIColours,
     get_components_ids,
+    global_autocomplete,
+    GlobalAutoComplete,
     Greedy,
     Guild,
     guild_only,
@@ -327,6 +329,7 @@ from .models import (
 )
 from .api import events
 from . import ext
+from .client import const
 
 __all__ = (
     "__api_version__",
@@ -401,6 +404,7 @@ __all__ = (
     "ComponentCommand",
     "ComponentContext",
     "ComponentType",
+    "const",
     "context_menu",
     "CONTEXT_MENU_NAME_LENGTH",
     "ContextMenu",
@@ -442,7 +446,9 @@ __all__ = (
     "FlatUIColours",
     "get_components_ids",
     "get_logger",
+    "global_autocomplete",
     "GLOBAL_SCOPE",
+    "GlobalAutoComplete",
     "GlobalScope",
     "Greedy",
     "Guild",

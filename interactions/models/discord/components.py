@@ -353,7 +353,7 @@ class StringSelectOption(BaseComponent):
         label: str,
         value: str,
         description: str | None = None,
-        emoji: "PartialEmoji | None" = None,
+        emoji: "PartialEmoji | None | str" = None,
         default: bool = False,
     ) -> None:
         self.label: str = label

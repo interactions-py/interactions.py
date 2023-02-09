@@ -29,7 +29,7 @@ from interactions.models.discord.message import (
     MessageReference,
     process_message_payload,
 )
-from interactions.models.discord.snowflake import Snowflake, Snowflake_Type, to_snowflake
+from interactions.models.discord.snowflake import Snowflake, Snowflake_Type, to_snowflake, to_optional_snowflake
 from interactions.models.discord.embed import Embed
 from interactions.models.internal.application_commands import (
     OptionType,
@@ -187,7 +187,9 @@ class BaseContext(metaclass=abc.ABCMeta):
     @property
     def channel(self) -> "interactions.TYPE_MESSAGEABLE_CHANNEL":
         """The channel this context was invoked in."""
-        return self.client.cache.get_channel(self.channel_id)
+        if self.guild_id:
+            return self.client.cache.get_channel(self.channel_id)
+        return self.client.cache.get_dm_channel(self.author_id)
 
     @property
     def message(self) -> typing.Optional["interactions.Message"]:
@@ -263,7 +265,7 @@ class BaseInteractionContext(BaseContext):
         instance.id = Snowflake(payload["id"])
         instance.app_permissions = Permissions(payload.get("app_permissions", 0))
         instance.locale = payload["locale"]
-        instance.guild_locale = payload["guild_locale"]
+        instance.guild_locale = payload.get("guild_locale", instance.locale)
         instance._context_type = payload.get("type", 0)
         instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
 
@@ -280,9 +282,9 @@ class BaseInteractionContext(BaseContext):
             message = client.cache.place_message_data(message_data)
             instance.message_id = message.id
 
-        instance.guild_id = Snowflake(payload.get("guild_id"))
+        instance.guild_id = to_optional_snowflake(payload.get("guild_id"))
 
-        if payload["type"] == InteractionType.APPLICATION_COMMAND:
+        if payload["type"] in (InteractionType.APPLICATION_COMMAND, InteractionType.AUTOCOMPLETE):
             instance.command_id = Snowflake(payload["data"]["id"])
             instance._command_name = payload["data"]["name"]
 
@@ -332,9 +334,58 @@ class BaseInteractionContext(BaseContext):
         return option
 
     def process_options(self, data: discord_typings.InteractionCallbackData) -> None:
-        """Process the options of the interaction."""
-        self.args = []
-        self.kwargs = {}
+        if data["type"] not in (InteractionType.APPLICATION_COMMAND, InteractionType.AUTOCOMPLETE):
+            self.args = []
+            self.kwargs = {}
+            return
+
+        def gather_options(_options: list[dict[str, typing.Any]]) -> dict[str, typing.Any]:
+            """Recursively gather options from an option list."""
+            kwargs = {}
+            for option in _options:
+                if hook_result := self.option_processing_hook(option):
+                    kwargs[option["name"]] = hook_result
+
+                if option["type"] in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP):
+                    self._command_name = f"{self._command_name} {option['name']}"
+                    return gather_options(option["options"])
+
+                value = option.get("value")
+
+                # resolve data using the cache
+                match option["type"]:
+                    case OptionType.USER:
+                        if self.guild_id:
+                            value = (
+                                self.client.cache.get_member(self.guild_id, value)
+                                or self.client.cache.get_user(value)
+                                or value
+                            )
+                        else:
+                            value = self.client.cache.get_user(value) or value
+                    case OptionType.CHANNEL:
+                        value = self.client.cache.get_channel(value)
+                    case OptionType.ROLE:
+                        value = self.client.cache.get_role(value) or value
+                    case OptionType.MENTIONABLE:
+                        snow = Snowflake(value)
+                        if user := (
+                            self.client.cache.get_member(self.guild_id, snow) or self.client.cache.get_user(snow)
+                        ):
+                            value = user
+                        elif channel := self.client.cache.get_channel(snow):
+                            value = channel
+                        elif role := self.client.cache.get_role(snow):
+                            value = role
+
+                kwargs[option["name"]] = value
+            return kwargs
+
+        if options := data["data"].get("options"):
+            self.kwargs = gather_options(options)  # type: ignore
+        else:
+            self.kwargs = {}
+        self.args = list(self.kwargs.values())
 
 
 class InteractionContext(BaseInteractionContext, SendMixin):
@@ -531,60 +582,6 @@ class SlashContext(InteractionContext, ModalMixin):
 
         return instance
 
-    def process_options(self, data: discord_typings.InteractionCallbackData) -> None:
-        if not data["type"] == InteractionType.APPLICATION_COMMAND:
-            self.args = []
-            self.kwargs = {}
-            return
-
-        def gather_options(_options: list[dict[str, typing.Any]]) -> dict[str, typing.Any]:
-            """Recursively gather options from an option list."""
-            kwargs = {}
-            for option in _options:
-                if hook_result := self.option_processing_hook(option):
-                    kwargs[option["name"]] = hook_result
-
-                if option["type"] in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP):
-                    self._command_name = f"{self._command_name} {option['name']}"
-                    return gather_options(option["options"])
-
-                value = option.get("value")
-
-                # resolve data using the cache
-                match option["type"]:
-                    case OptionType.USER:
-                        if self.guild_id:
-                            value = (
-                                self.client.cache.get_member(self.guild_id, value)
-                                or self.client.cache.get_user(value)
-                                or value
-                            )
-                        else:
-                            value = self.client.cache.get_user(value) or value
-                    case OptionType.CHANNEL:
-                        value = self.client.cache.get_channel(value)
-                    case OptionType.ROLE:
-                        value = self.client.cache.get_role(value) or value
-                    case OptionType.MENTIONABLE:
-                        snow = Snowflake(value)
-                        if user := (
-                            self.client.cache.get_member(self.guild_id, snow) or self.client.cache.get_user(snow)
-                        ):
-                            value = user
-                        elif channel := self.client.cache.get_channel(snow):
-                            value = channel
-                        elif role := self.client.cache.get_role(snow):
-                            value = role
-
-                kwargs[option["name"]] = value
-            return kwargs
-
-        if options := data["data"].get("options"):
-            self.kwargs = gather_options(options)  # type: ignore
-        else:
-            self.kwargs = {}
-        self.args = list(self.kwargs.values())
-
 
 class ContextMenuContext(InteractionContext, ModalMixin):
     target_id: Snowflake
@@ -685,7 +682,9 @@ class ComponentContext(InteractionContext):
             raise RuntimeError("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackType.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackType.DEFERRED_UPDATE_MESSAGE
+            "type": CallbackType.DEFERRED_UPDATE_MESSAGE
+            if edit_origin
+            else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
         }
         if ephemeral:
             if edit_origin:
@@ -770,10 +769,10 @@ class ComponentContext(InteractionContext):
 
 
 class ModalContext(InteractionContext):
-    custom_id: str
-    """The custom ID of the modal."""
     responses: dict[str, str]
     """The responses of the modal. The key is the `custom_id` of the component."""
+    custom_id: str
+    """The developer defined custom ID of this modal"""
 
     @classmethod
     def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
@@ -781,28 +780,27 @@ class ModalContext(InteractionContext):
         instance.responses = {
             comp["components"][0]["custom_id"]: comp["components"][0]["value"] for comp in payload["data"]["components"]
         }
+        instance.kwargs = instance.responses
         instance.custom_id = payload["data"]["custom_id"]
         return instance
 
 
 class AutocompleteContext(BaseInteractionContext):
-    focused_option: SlashCommandOption  # todo: option parsing
+    focussed_option: SlashCommandOption  # todo: option parsing
     """The option the user is currently filling in."""
 
     @classmethod
     def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
-        instance = super().from_dict(client, payload)
-        instance.focused_option = payload["data"]["focused_option"]
-        return instance
+        return super().from_dict(client, payload)
 
     @property
     def input_text(self) -> str:
         """The text the user has already filled in."""
-        return self.kwargs.get(self.focused_option.name, "")
+        return self.kwargs.get(str(self.focussed_option.name), "")
 
     def option_processing_hook(self, option: dict) -> None:
-        if option.get("focussed", False):
-            self.focused_option = SlashCommandOption.from_dict(option)
+        if option.get("focused", False):
+            self.focussed_option = SlashCommandOption.from_dict(option)
         return None
 
     async def send(self, choices: typing.Iterable[str | int | float | dict[str, int | float | str]]) -> None:
@@ -821,11 +819,11 @@ class AutocompleteContext(BaseInteractionContext):
         Args:
             choices: 25 choices the user can pick
         """
-        if self.focused_option.type == OptionType.STRING:
+        if self.focussed_option.type == OptionType.STRING:
             type_cast = str
-        elif self.focused_option.type == OptionType.INTEGER:
+        elif self.focussed_option.type == OptionType.INTEGER:
             type_cast = int
-        elif self.focused_option.type == OptionType.NUMBER:
+        elif self.focussed_option.type == OptionType.NUMBER:
             type_cast = float
         else:
             type_cast = None
@@ -840,3 +838,6 @@ class AutocompleteContext(BaseInteractionContext):
                 value = choice
 
             processed_choices.append({"name": name, "value": type_cast(value) if type_cast else value})
+
+        payload = {"type": CallbackType.AUTOCOMPLETE_RESULT, "data": {"choices": processed_choices}}
+        await self.client.http.post_initial_response(payload, self.id, self.token)

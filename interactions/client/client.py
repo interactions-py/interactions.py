@@ -26,6 +26,7 @@ from typing import (
 
 import interactions.api.events as events
 import interactions.client.const as constants
+from interactions.models.internal.callback import CallbackObject
 from interactions.api.events import BaseEvent, RawGatewayEvent, processors
 from interactions.api.events.internal import CallbackAdded
 from interactions.api.gateway.gateway import GatewayClient
@@ -78,7 +79,6 @@ from interactions.models import (
     VoiceRegion,
 )
 from interactions.models import Wait
-from interactions.models.discord.channel import BaseChannel
 from interactions.models.discord.color import BrandColors
 from interactions.models.discord.components import get_components_ids, BaseComponent
 from interactions.models.discord.embed import Embed
@@ -87,12 +87,11 @@ from interactions.models.discord.enums import (
     Intents,
     InteractionType,
     Status,
-    ChannelType,
 )
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import Snowflake, to_snowflake_list
 from interactions.models.internal.active_voice_state import ActiveVoiceState
-from interactions.models.internal.application_commands import ContextMenu, ModalCommand
+from interactions.models.internal.application_commands import ContextMenu, ModalCommand, GlobalAutoComplete
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.context import (
@@ -380,6 +379,7 @@ class Client(
         """A dictionary of registered application commands in a tree"""
         self._component_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self._modal_callbacks: Dict[str, Callable[..., Coroutine]] = {}
+        self._global_autocompletes: Dict[str, GlobalAutoComplete] = {}
         self.processors: Dict[str, Callable[..., Coroutine]] = {}
         self.__modules = {}
         self.ext: Dict[str, Extension] = {}
@@ -1258,6 +1258,15 @@ class Client(
             self._modal_callbacks[listener] = command
             continue
 
+    def add_global_autocomplete(self, callback: GlobalAutoComplete) -> None:
+        """
+        Add a global autocomplete to the client.
+
+        Args:
+            callback: The autocomplete to add
+        """
+        self._global_autocompletes[callback.option_name] = callback
+
     def add_command(self, func: Callable) -> None:
         """
         Add a command to the client.
@@ -1273,6 +1282,8 @@ class Client(
             self.add_interaction(func)
         elif isinstance(func, Listener):
             self.add_listener(func)
+        elif isinstance(func, GlobalAutoComplete):
+            self.add_global_autocomplete(func)
         elif not isinstance(func, BaseCommand):
             raise TypeError("Invalid command type")
 
@@ -1304,12 +1315,10 @@ class Client(
             self.logger.debug(f"{added} callbacks have been loaded from {location}.")
 
         main_commands = [
-            obj for _, obj in inspect.getmembers(sys.modules["__main__"]) if isinstance(obj, (BaseCommand, Listener))
+            obj for _, obj in inspect.getmembers(sys.modules["__main__"]) if isinstance(obj, CallbackObject)
         ]
         client_commands = [
-            obj.copy_with_binding(self)
-            for _, obj in inspect.getmembers(self)
-            if isinstance(obj, (BaseCommand, Listener))
+            obj.copy_with_binding(self) for _, obj in inspect.getmembers(self) if isinstance(obj, CallbackObject)
         ]
         process(main_commands, "__main__")
         process(client_commands, self.__class__.__name__)
@@ -1551,9 +1560,13 @@ class Client(
         if not cls.channel:
             # fallback channel if not provided
             try:
-                cls.channel = await self.cache.fetch_channel(data["channel_id"])
+                if cls.guild_id:
+                    channel = await self.cache.fetch_channel(data["channel_id"])
+                else:
+                    channel = await self.cache.fetch_dm_channel(cls.author_id)
+                cls.channel_id = channel.id
             except Forbidden:
-                cls.channel = BaseChannel.from_dict({"id": data["channel_id"], "type": ChannelType.GUILD_TEXT}, self)
+                self.logger.debug(f"Failed to fetch channel data for {data['channel_id']}")
         return cls
 
     async def _run_slash_command(self, command: SlashCommand, ctx: "InteractionContext") -> Any:
@@ -1590,9 +1603,16 @@ class Client(
                     auto_defer = self.auto_defer
 
                 if auto_opt := getattr(ctx, "focussed_option", None):
+                    if autocomplete := ctx.command.autocomplete_callbacks.get(str(auto_opt.name)):
+                        callback = autocomplete
+                    elif autocomplete := self._global_autocompletes.get(str(auto_opt.name)):
+                        callback = autocomplete
+                    else:
+                        raise ValueError(f"Autocomplete callback for {str(auto_opt.name)} not found")
+
                     await self.__dispatch_interaction(
                         ctx=ctx,
-                        callback=ctx.command.autocomplete_callbacks[auto_opt](ctx, **ctx.kwargs),
+                        callback=callback(ctx),
                         callback_kwargs=ctx.kwargs,
                         error_callback=events.AutocompleteError,
                         completion_callback=events.AutocompleteCompletion,
