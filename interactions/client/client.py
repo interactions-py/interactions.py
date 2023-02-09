@@ -26,6 +26,7 @@ from typing import (
 
 import interactions.api.events as events
 import interactions.client.const as constants
+from interactions.models.internal.callback import CallbackObject
 from interactions.api.events import BaseEvent, RawGatewayEvent, processors
 from interactions.api.events.internal import CallbackAdded
 from interactions.api.gateway.gateway import GatewayClient
@@ -90,7 +91,7 @@ from interactions.models.discord.enums import (
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import Snowflake, to_snowflake_list
 from interactions.models.internal.active_voice_state import ActiveVoiceState
-from interactions.models.internal.application_commands import ContextMenu, ModalCommand
+from interactions.models.internal.application_commands import ContextMenu, ModalCommand, GlobalAutoComplete
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.context import (
@@ -378,6 +379,7 @@ class Client(
         """A dictionary of registered application commands in a tree"""
         self._component_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self._modal_callbacks: Dict[str, Callable[..., Coroutine]] = {}
+        self._global_autocompletes: Dict[str, GlobalAutoComplete] = {}
         self.processors: Dict[str, Callable[..., Coroutine]] = {}
         self.__modules = {}
         self.ext: Dict[str, Extension] = {}
@@ -1259,6 +1261,15 @@ class Client(
             self._modal_callbacks[listener] = command
             continue
 
+    def add_global_autocomplete(self, callback: GlobalAutoComplete) -> None:
+        """
+        Add a global autocomplete to the client.
+
+        Args:
+            callback: The autocomplete to add
+        """
+        self._global_autocompletes[callback.option_name] = callback
+
     def add_command(self, func: Callable) -> None:
         """
         Add a command to the client.
@@ -1274,6 +1285,8 @@ class Client(
             self.add_interaction(func)
         elif isinstance(func, Listener):
             self.add_listener(func)
+        elif isinstance(func, GlobalAutoComplete):
+            self.add_global_autocomplete(func)
         elif not isinstance(func, BaseCommand):
             raise TypeError("Invalid command type")
 
@@ -1305,12 +1318,10 @@ class Client(
             self.logger.debug(f"{added} callbacks have been loaded from {location}.")
 
         main_commands = [
-            obj for _, obj in inspect.getmembers(sys.modules["__main__"]) if isinstance(obj, (BaseCommand, Listener))
+            obj for _, obj in inspect.getmembers(sys.modules["__main__"]) if isinstance(obj, CallbackObject)
         ]
         client_commands = [
-            obj.copy_with_binding(self)
-            for _, obj in inspect.getmembers(self)
-            if isinstance(obj, (BaseCommand, Listener))
+            obj.copy_with_binding(self) for _, obj in inspect.getmembers(self) if isinstance(obj, CallbackObject)
         ]
         process(main_commands, "__main__")
         process(client_commands, self.__class__.__name__)

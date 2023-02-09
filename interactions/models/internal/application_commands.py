@@ -40,6 +40,7 @@ from interactions.models.discord.role import Role
 from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 from interactions.models.discord.user import BaseUser
 from interactions.models.internal.auto_defer import AutoDefer
+from interactions.models.internal.callback import CallbackObject
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.localisation import LocalisedField
 from interactions.models.internal.protocols import Converter
@@ -50,29 +51,31 @@ if TYPE_CHECKING:
     from interactions import Client
 
 __all__ = (
-    "OptionType",
+    "application_commands_to_dict",
+    "auto_defer",
     "CallbackType",
-    "InteractionCommand",
+    "component_callback",
+    "ComponentCommand",
+    "context_menu",
     "ContextMenu",
+    "global_autocomplete",
+    "GlobalAutoComplete",
+    "InteractionCommand",
+    "LocalisedDesc",
+    "LocalisedName",
+    "LocalizedDesc",
+    "LocalizedName",
+    "ModalCommand",
+    "OptionType",
+    "slash_command",
+    "slash_default_member_permission",
+    "slash_option",
+    "SlashCommand",
     "SlashCommandChoice",
     "SlashCommandOption",
     "SlashCommandParameter",
-    "SlashCommand",
-    "ComponentCommand",
-    "ModalCommand",
-    "slash_command",
     "subcommand",
-    "context_menu",
-    "component_callback",
-    "slash_option",
-    "slash_default_member_permission",
-    "auto_defer",
-    "application_commands_to_dict",
     "sync_needed",
-    "LocalisedName",
-    "LocalizedName",
-    "LocalizedDesc",
-    "LocalisedDesc",
 )
 
 
@@ -808,9 +811,34 @@ def _unpack_helper(iterable: typing.Iterable[str]) -> list[str]:
     return unpack
 
 
+class GlobalAutoComplete(CallbackObject):
+    def __init__(self, option_name: str, callback: Callable) -> None:
+        self.callback = callback
+        self.option_name = option_name
+
+
 ##############
 # Decorators #
 ##############
+
+
+def global_autocomplete(option_name: str) -> Callable[[AsyncCallable], GlobalAutoComplete]:
+    """
+    Decorator for global autocomplete functions
+
+    Args:
+        option_name: The name of the option to register the autocomplete function for
+
+    Returns:
+        The decorator
+    """
+
+    def decorator(func: Callable) -> GlobalAutoComplete:
+        if not asyncio.iscoroutinefunction(func):
+            raise TypeError("Autocomplete functions must be coroutines")
+        return GlobalAutoComplete(option_name, func)
+
+    return decorator
 
 
 def slash_command(
