@@ -6,16 +6,17 @@ from attrs.validators import instance_of
 from attrs.validators import optional as v_optional
 
 from interactions.client.const import (
-    EMBED_MAX_NAME_LENGTH,
-    EMBED_MAX_FIELDS,
-    EMBED_MAX_DESC_LENGTH,
-    EMBED_TOTAL_MAX,
     EMBED_FIELD_VALUE_LENGTH,
+    EMBED_MAX_DESC_LENGTH,
+    EMBED_MAX_FIELDS,
+    EMBED_MAX_NAME_LENGTH,
+    EMBED_TOTAL_MAX,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_converters import optional as c_optional, list_converter
+from interactions.client.utils.attr_converters import list_converter
+from interactions.client.utils.attr_converters import optional as c_optional
 from interactions.client.utils.attr_converters import timestamp_converter
-from interactions.client.utils.serializer import no_export_meta, export_converter
+from interactions.client.utils.serializer import export_converter, no_export_meta
 from interactions.models.discord.color import Color, process_color
 from interactions.models.discord.enums import EmbedType
 from interactions.models.discord.timestamp import Timestamp
@@ -340,6 +341,17 @@ class Embed(DictSerializationMixin):
 
         """
         self.thumbnail = EmbedAttachment(url=url)
+        return self
+
+    def set_video(self, url: str) -> "Embed":
+        """
+        Set the video of the embed.
+
+        Args:
+            url: the url of the video to use
+
+        """
+        self.video = EmbedAttachment(url=url)
         return self
 
     def set_image(self, url: str) -> "Embed":
