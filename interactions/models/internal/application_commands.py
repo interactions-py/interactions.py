@@ -7,6 +7,7 @@ import functools
 from enum import IntEnum
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Callable,
     Coroutine,
     Dict,
@@ -486,12 +487,12 @@ class SlashCommandParameter:
     converter: typing.Optional[typing.Callable] = attrs.field(default=None)
 
 
-def _get_option_from_annotated(annotated: typing.Annotated) -> SlashCommandOption | None:
+def _get_option_from_annotated(annotated: Annotated) -> SlashCommandOption | None:
     args = typing.get_args(annotated)
     return next((a for a in args if isinstance(a, SlashCommandOption)), None)
 
 
-def _get_converter_from_annotated(annotated: typing.Annotated) -> Converter | None:
+def _get_converter_from_annotated(annotated: Annotated) -> Converter | None:
     args = typing.get_args(annotated)
     return next((a for a in args if isinstance(a, Converter)), None)
 
@@ -631,7 +632,7 @@ class SlashCommand(InteractionCommand):
 
                 if isinstance(anno, Converter):
                     converter = anno
-                elif typing.get_origin(anno) == typing.Annotated:
+                elif typing.get_origin(anno) == Annotated:
                     if option := _get_option_from_annotated(anno):
                         # also annotation method
                         self._add_option_from_anno_method(param.name, option)
