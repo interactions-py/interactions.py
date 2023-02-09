@@ -1605,7 +1605,7 @@ class Client(
 
                     await self.__dispatch_interaction(
                         ctx=ctx,
-                        callback=callback(ctx, **ctx.kwargs),
+                        callback=callback(ctx),
                         callback_kwargs=ctx.kwargs,
                         error_callback=events.AutocompleteError,
                         completion_callback=events.AutocompleteCompletion,
