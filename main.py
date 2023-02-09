@@ -2,8 +2,11 @@ import logging
 import os
 import uuid
 
+from thefuzz import process
+
 import interactions
-from interactions import Client, listen, slash_command, BrandColours
+from interactions import Client, listen, slash_command, BrandColours, FlatUIColours, MaterialColours
+from interactions.models.internal.application_commands import global_autocomplete, slash_option
 
 logging.basicConfig()
 logging.getLogger("interactions").setLevel(logging.DEBUG)
@@ -102,6 +105,44 @@ async def multi_image_embed_test(ctx: interactions.SlashContext):
     embed = interactions.Embed("Standard embed")
     embed.set_image(images[0])
     await ctx.send(embeds=embed)
+
+
+def get_colour(colour: str):
+    if colour in interactions.MaterialColors.__members__:
+        return interactions.MaterialColors[colour]
+    elif colour in interactions.BrandColors.__members__:
+        return interactions.BrandColors[colour]
+    elif colour in interactions.FlatUIColours.__members__:
+        return interactions.FlatUIColours[colour]
+    else:
+        return interactions.BrandColors.BLURPLE
+
+
+@slash_command("test")
+@slash_option("colour", "The colour to use", autocomplete=True, opt_type=interactions.OptionType.STRING, required=True)
+@slash_option("text", "some text", autocomplete=True, opt_type=interactions.OptionType.STRING, required=True)
+async def test(ctx: interactions.SlashContext, colour: str, text: str):
+    embed = interactions.Embed(f"{text} {colour.title()}", color=get_colour(colour))
+    await ctx.send(embeds=embed)
+
+
+@global_autocomplete("colour")
+async def colour_autocomplete(ctx: interactions.AutocompleteContext):
+    colours = list((BrandColours.__members__ | FlatUIColours.__members__ | MaterialColours.__members__).keys())
+
+    if not ctx.input_text:
+        colours = colours[:25]
+    else:
+        results = process.extract(ctx.input_text, colours, limit=25)
+        colour_match = sorted([result for result in results if result[1] > 50], key=lambda x: x[1], reverse=True)
+        colours = [colour[0] for colour in colour_match]
+
+    await ctx.send([{"name": colour.title(), "value": colour} for colour in colours])
+
+
+@test.autocomplete("text")
+async def text_autocomplete(ctx: interactions.AutocompleteContext):
+    await ctx.send([{"name": c, "value": c} for c in ["colour", "color", "shade", "hue"]])
 
 
 bot.start(os.environ["TOKEN"])
