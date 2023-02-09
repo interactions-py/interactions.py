@@ -5,6 +5,7 @@ from typing import Awaitable, Dict, List, TYPE_CHECKING, Callable, Coroutine, Op
 
 import interactions.models.internal as models
 import interactions.api.events as events
+from interactions.models.internal.callback import CallbackObject
 from interactions.client.const import MISSING
 from interactions.client.utils.misc_utils import wrap_partial
 from interactions.models.internal.tasks import Task
@@ -94,7 +95,7 @@ class Extension:
         instance._listeners = []
 
         callables: list[tuple[str, typing.Callable]] = inspect.getmembers(
-            instance, predicate=lambda x: isinstance(x, (models.BaseCommand, models.Listener, Task))
+            instance, predicate=lambda x: isinstance(x, (CallbackObject, Task))
         )
 
         for _name, val in callables:
@@ -112,6 +113,10 @@ class Extension:
                 val = wrap_partial(val, instance)
                 bot.add_listener(val)  # type: ignore
                 instance._listeners.append(val)
+            elif isinstance(val, models.GlobalAutoComplete):
+                val.extension = instance
+                val = wrap_partial(val, instance)
+                bot.add_global_autocomplete(val)
         bot.dispatch(events.ExtensionCommandParse(extension=instance, callables=callables))
 
         instance.extension_name = inspect.getmodule(instance).__name__
