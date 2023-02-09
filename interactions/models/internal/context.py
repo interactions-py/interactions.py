@@ -767,6 +767,8 @@ class ComponentContext(InteractionContext):
 class ModalContext(InteractionContext):
     responses: dict[str, str]
     """The responses of the modal. The key is the `custom_id` of the component."""
+    custom_id: str
+    """The developer defined custom ID of this modal"""
 
     @classmethod
     def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
@@ -774,6 +776,8 @@ class ModalContext(InteractionContext):
         instance.responses = {
             comp["components"][0]["custom_id"]: comp["components"][0]["value"] for comp in payload["data"]["components"]
         }
+        instance.kwargs = instance.responses
+        instance.custom_id = payload["data"]["custom_id"]
         return instance
 
 
