@@ -155,7 +155,7 @@ from .snowflake import (
     to_snowflake_list,
 )
 from .stage_instance import StageInstance
-from .sticker import Sticker, StickerFormatTypes, StickerItem, StickerPack, StickerTypes
+from .sticker import Sticker, StickerFormatType, StickerItem, StickerPack, StickerTypes
 from .team import Team, TeamMember
 from .thread import ThreadList, ThreadMember, ThreadTag
 from .timestamp import Timestamp, TimestampStyles
@@ -305,7 +305,7 @@ __all__ = (
     "StagePrivacyLevel",
     "Status",
     "Sticker",
-    "StickerFormatTypes",
+    "StickerFormatType",
     "StickerItem",
     "StickerPack",
     "StickerTypes",
