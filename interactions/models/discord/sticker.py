@@ -32,6 +32,7 @@ class StickerFormatTypes(IntEnum):
     PNG = 1
     APNG = 2
     LOTTIE = 3
+    GIF = 4
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
