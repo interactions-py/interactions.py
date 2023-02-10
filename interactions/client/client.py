@@ -101,6 +101,7 @@ from interactions.models.internal.context import (
     ModalContext,
     ComponentContext,
     AutocompleteContext,
+    ContextMenuContext,
 )
 from interactions.models.internal.listener import Listener
 from interactions.models.internal.tasks import Task
@@ -257,7 +258,9 @@ class Client(
         activity: Union[Activity, str] = None,
         auto_defer: Absent[Union[AutoDefer, bool]] = MISSING,
         autocomplete_context: Type[BaseContext] = AutocompleteContext,
+        basic_logging: bool = False,
         component_context: Type[BaseContext] = ComponentContext,
+        context_menu_context: Type[BaseContext] = ContextMenuContext,
         debug_scope: Absent["Snowflake_Type"] = MISSING,
         delete_unused_application_cmds: bool = False,
         disable_dm_commands: bool = False,
@@ -268,19 +271,18 @@ class Client(
         intents: Union[int, Intents] = Intents.DEFAULT,
         interaction_context: Type[InteractionContext] = InteractionContext,
         logger: logging.Logger = MISSING,
-        owner_ids: Iterable["Snowflake_Type"] = (),
+        logging_level: int = logging.INFO,
         modal_context: Type[BaseContext] = ModalContext,
+        owner_ids: Iterable["Snowflake_Type"] = (),
         send_command_tracebacks: bool = True,
         shard_id: int = 0,
         show_ratelimit_tracebacks: bool = False,
         slash_context: Type[BaseContext] = SlashContext,
         status: Status = Status.ONLINE,
+        sync_ext: bool = True,
         sync_interactions: bool = True,
         token: str | None = None,
-        sync_ext: bool = True,
         total_shards: int = 1,
-        basic_logging: bool = False,
-        logging_level: int = logging.INFO,
         **kwargs,
     ) -> None:
         if logger is MISSING:
@@ -332,6 +334,8 @@ class Client(
         """The object to instantiate for Modal Context"""
         self.slash_context: Type[BaseContext] = slash_context
         """The object to instantiate for Slash Context"""
+        self.context_menu_context: Type[BaseContext] = context_menu_context
+        """The object to instantiate for Context Menu Context"""
 
         self.token: str | None = token
 
@@ -1553,7 +1557,10 @@ class Client(
             case InteractionType.MODAL_RESPONSE:
                 cls = self.modal_context.from_dict(self, data)
             case InteractionType.APPLICATION_COMMAND:
-                cls = self.slash_context.from_dict(self, data)
+                if data["data"].get("target_id"):
+                    cls = self.context_menu_context.from_dict(self, data)
+                else:
+                    cls = self.slash_context.from_dict(self, data)
             case _:
                 self.logger.warning(f"Unknown interaction type [{data['type']}] - please update or report this.")
                 cls = self.interaction_context.from_dict(self, data)

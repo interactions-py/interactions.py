@@ -10,6 +10,7 @@ from interactions.client.const import get_logger
 from interactions.models.discord.components import BaseComponent
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.sticker import Sticker
+from interactions.models.discord.user import Member, User
 
 from interactions.models.internal.command import BaseCommand
 from interactions.client.mixins.modal import ModalMixin
@@ -21,6 +22,7 @@ from interactions.models.discord.enums import (
     MessageFlags,
     InteractionType,
     ComponentType,
+    CommandType,
 )
 from interactions.models.discord.message import (
     AllowedMentions,
@@ -584,6 +586,8 @@ class ContextMenuContext(InteractionContext, ModalMixin):
     """The id of the target of the context menu."""
     editing_origin: bool
     """Whether you have deferred the interaction and are editing the original response."""
+    target_type: None | CommandType
+    """The type of the target of the context menu."""
 
     def __init__(self, client: "interactions.Client") -> None:
         super().__init__(client)
@@ -592,7 +596,8 @@ class ContextMenuContext(InteractionContext, ModalMixin):
     @classmethod
     def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
         instance = super().from_dict(client, payload)
-        instance.target_id = payload["target_id"]
+        instance.target_id = Snowflake(payload["data"]["target_id"])
+        instance.target_type = CommandType(payload["data"]["type"])
         return instance
 
     async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
@@ -618,6 +623,16 @@ class ContextMenuContext(InteractionContext, ModalMixin):
         self.deferred = True
         self.ephemeral = ephemeral
         self.editing_origin = edit_origin
+
+    @property
+    def target(self) -> None | Message | User | Member:
+        """
+        The target of the context menu.
+
+        Returns:
+            The target of the context menu.
+        """
+        return self.resolved.get(self.target_id)
 
 
 class ComponentContext(InteractionContext):
