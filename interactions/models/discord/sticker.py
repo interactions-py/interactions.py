@@ -1,4 +1,3 @@
-from enum import IntEnum
 from typing import TYPE_CHECKING, List, Optional, Union
 
 import attrs
@@ -8,31 +7,14 @@ from interactions.client.utils.attr_converters import optional
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.discord.snowflake import to_snowflake
 from .base import DiscordObject
+from interactions.models.discord.enums import StickerTypes, StickerFormatType
 
 if TYPE_CHECKING:
     from interactions.models.discord.guild import Guild
     from interactions.models.discord.user import User
     from interactions.models.discord.snowflake import Snowflake_Type
 
-__all__ = ("StickerTypes", "StickerFormatType", "StickerItem", "Sticker", "StickerPack")
-
-
-class StickerTypes(IntEnum):
-    """Types of sticker."""
-
-    STANDARD = 1
-    """An official sticker in a pack, part of Nitro or in a removed purchasable pack."""
-    GUILD = 2
-    """A sticker uploaded to a Boosted guild for the guild's members."""
-
-
-class StickerFormatType(IntEnum):
-    """File formats for stickers."""
-
-    PNG = 1
-    APNG = 2
-    LOTTIE = 3
-    GIF = 4
+__all__ = ("StickerItem", "Sticker", "StickerPack")
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)

@@ -104,6 +104,8 @@ from .enums import (
     ScheduledEventType,
     StagePrivacyLevel,
     Status,
+    StickerFormatType,
+    StickerTypes,
     SystemChannelFlags,
     TeamMembershipState,
     UserFlags,
@@ -155,7 +157,7 @@ from .snowflake import (
     to_snowflake_list,
 )
 from .stage_instance import StageInstance
-from .sticker import Sticker, StickerFormatType, StickerItem, StickerPack, StickerTypes
+from .sticker import Sticker, StickerItem, StickerPack
 from .team import Team, TeamMember
 from .thread import ThreadList, ThreadMember, ThreadTag
 from .timestamp import Timestamp, TimestampStyles

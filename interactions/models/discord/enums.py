@@ -45,6 +45,8 @@ __all__ = (
     "ScheduledEventStatus",
     "AuditLogEventType",
     "InteractionPermissionTypes",
+    "StickerTypes",
+    "StickerFormatType",
 )
 
 
@@ -946,3 +948,21 @@ class MemberFlags(DiscordIntFlag):
     COMPLETED_ONBOARDING = 1 << 1
     BYPASSES_VERIFICATION = 1 << 2
     STARTED_ONBOARDING = 1 << 3
+
+
+class StickerTypes(CursedIntEnum):
+    """Types of sticker."""
+
+    STANDARD = 1
+    """An official sticker in a pack, part of Nitro or in a removed purchasable pack."""
+    GUILD = 2
+    """A sticker uploaded to a Boosted guild for the guild's members."""
+
+
+class StickerFormatType(CursedIntEnum):
+    """File formats for stickers."""
+
+    PNG = 1
+    APNG = 2
+    LOTTIE = 3
+    GIF = 4
