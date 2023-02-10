@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from interactions.models.discord.user import User
     from interactions.models.discord.snowflake import Snowflake_Type
 
-__all__ = ("StickerTypes", "StickerFormatTypes", "StickerItem", "Sticker", "StickerPack")
+__all__ = ("StickerTypes", "StickerFormatType", "StickerItem", "Sticker", "StickerPack")
 
 
 class StickerTypes(IntEnum):
@@ -26,7 +26,7 @@ class StickerTypes(IntEnum):
     """A sticker uploaded to a Boosted guild for the guild's members."""
 
 
-class StickerFormatTypes(IntEnum):
+class StickerFormatType(IntEnum):
     """File formats for stickers."""
 
     PNG = 1
@@ -39,7 +39,7 @@ class StickerFormatTypes(IntEnum):
 class StickerItem(DiscordObject):
     name: str = attrs.field(repr=True)
     """Name of the sticker."""
-    format_type: StickerFormatTypes = attrs.field(repr=True, converter=StickerFormatTypes)
+    format_type: StickerFormatType = attrs.field(repr=True, converter=StickerFormatType)
     """Type of sticker image format."""
 
 
