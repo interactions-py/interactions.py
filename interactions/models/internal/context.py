@@ -6,7 +6,7 @@ from typing_extensions import Self
 
 import discord_typings
 from aiohttp import FormData
-from interactions.client.const import get_logger
+from interactions.client.const import get_logger, MISSING
 from interactions.models.discord.components import BaseComponent
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.sticker import Sticker
@@ -165,6 +165,10 @@ class BaseContext(metaclass=abc.ABCMeta):
 
     def __init__(self, client: "interactions.Client") -> None:
         self.client = client
+        self.author_id = MISSING
+        self.channel_id = MISSING
+        self.message_id = MISSING
+        self.guild_id = MISSING
 
     @property
     def guild(self) -> typing.Optional["interactions.Guild"]:
