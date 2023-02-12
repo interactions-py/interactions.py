@@ -89,7 +89,8 @@ class Resolved:
             or bool(self.attachments)
         )
 
-    def get(self, snowflake: Snowflake, default: typing.Any = None) -> typing.Any:
+    def get(self, snowflake: Snowflake | str, default: typing.Any = None) -> typing.Any:
+        snowflake = Snowflake(snowflake)
         """Returns the value of the given snowflake."""
         if channel := self.channels.get(snowflake):
             return channel
@@ -353,31 +354,8 @@ class BaseInteractionContext(BaseContext):
 
                 value = option.get("value")
 
-                # resolve data using the cache
-                match option["type"]:
-                    case OptionType.USER:
-                        if self.guild_id:
-                            value = (
-                                self.client.cache.get_member(self.guild_id, value)
-                                or self.client.cache.get_user(value)
-                                or value
-                            )
-                        else:
-                            value = self.client.cache.get_user(value) or value
-                    case OptionType.CHANNEL:
-                        value = self.client.cache.get_channel(value)
-                    case OptionType.ROLE:
-                        value = self.client.cache.get_role(value) or value
-                    case OptionType.MENTIONABLE:
-                        snow = Snowflake(value)
-                        if user := (
-                            self.client.cache.get_member(self.guild_id, snow) or self.client.cache.get_user(snow)
-                        ):
-                            value = user
-                        elif channel := self.client.cache.get_channel(snow):
-                            value = channel
-                        elif role := self.client.cache.get_role(snow):
-                            value = role
+                if option["type"] in OptionType.resolvable_types():
+                    value = self.resolved.get(value, value)
 
                 kwargs[option["name"]] = value
             return kwargs

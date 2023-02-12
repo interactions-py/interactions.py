@@ -135,6 +135,21 @@ class OptionType(IntEnum):
     ATTACHMENT = 11
 
     @classmethod
+    def resolvable_types(cls) -> tuple["OptionType", ...]:
+        """A tuple of all resolvable types."""
+        return cls.USER, cls.CHANNEL, cls.ROLE, cls.MENTIONABLE, cls.ATTACHMENT
+
+    @classmethod
+    def static_types(cls) -> tuple["OptionType", ...]:
+        """A tuple of all static types."""
+        return cls.STRING, cls.INTEGER, cls.BOOLEAN, cls.NUMBER
+
+    @classmethod
+    def command_types(cls) -> tuple["OptionType", ...]:
+        """A tuple of all command types."""
+        return cls.SUB_COMMAND, cls.SUB_COMMAND_GROUP
+
+    @classmethod
     def from_type(cls, t: type) -> "OptionType | None":
         """
         Convert data types to their corresponding OptionType.
