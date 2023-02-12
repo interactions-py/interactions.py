@@ -1201,6 +1201,9 @@ class Client(
         if command.callback is None:
             return False
 
+        if isinstance(command, SlashCommand):
+            command._parse_parameters()
+
         base, group, sub, *_ = command.resolved_name.split(" ") + [None, None]
 
         for scope in command.scopes:
