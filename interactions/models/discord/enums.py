@@ -419,6 +419,8 @@ class MessageFlags(DiscordIntFlag):  # type: ignore
     """This message failed to mention some roles and add their members to the thread"""
     SHOULD_SHOW_LINK_NOT_DISCORD_WARNING = 1 << 10
     """This message contains a abusive website link, pops up a warning when clicked"""
+    SILENT = 1 << 12
+    """This message should not trigger push or desktop notifications"""
 
     # Special members
     NONE = 0

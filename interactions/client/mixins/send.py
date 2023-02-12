@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
 import interactions.models as models
+from interactions.models.discord.enums import MessageFlags
 
 if TYPE_CHECKING:
     from interactions.client import Client
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
     from interactions.models.discord.message import AllowedMentions, Message, MessageReference
     from interactions.models.discord.sticker import Sticker
     from interactions.models.discord.snowflake import Snowflake_Type
-    from interactions.models.discord.enums import MessageFlags
+
 
 __all__ = ("SendMixin",)
 
@@ -42,6 +43,7 @@ class SendMixin:
         file: Optional["UPLOADABLE_TYPE"] = None,
         tts: bool = False,
         suppress_embeds: bool = False,
+        silent: bool = False,
         flags: Optional[Union[int, "MessageFlags"]] = None,
         delete_after: Optional[float] = None,
         **kwargs: Any,
@@ -61,6 +63,7 @@ class SendMixin:
             file: Files to send, the path, bytes or File() instance, defaults to None. You may have up to 10 files.
             tts: Should this message use Text To Speech.
             suppress_embeds: Should embeds be suppressed on this send
+            silent: Should this message be sent without triggering a notification.
             flags: Message flags to apply.
             delete_after: Delete message after this many seconds.
 
@@ -68,10 +71,16 @@ class SendMixin:
             New message object that was sent.
 
         """
+        if not flags:
+            flags = MessageFlags(0)
         if suppress_embeds:
             if isinstance(flags, int):
                 flags = MessageFlags(flags)
             flags = flags | MessageFlags.SUPPRESS_EMBEDS
+        if silent:
+            if isinstance(flags, int):
+                flags = MessageFlags(flags)
+            flags = flags | MessageFlags.SILENT
 
         message_payload = models.discord.message.process_message_payload(
             content=content,
