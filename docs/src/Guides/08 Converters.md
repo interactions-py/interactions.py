@@ -15,7 +15,7 @@ class DatabaseEntry():
     score: int
 
     @classmethod  # you can also use staticmethod
-    async def convert(cls, ctx: Context, value: str) -> DatabaseEntry:
+    async def convert(cls, ctx: BaseContext, value: str) -> DatabaseEntry:
         """This is where the magic happens"""
         return cls(hypothetical_database.lookup(ctx.guild.id, value))
 
@@ -44,7 +44,7 @@ You may also use the `Converter` class that `interactions.py` has as well.
 
 ```python
 class UpperConverter(Converter):
-    async def convert(ctx: PrefixedContext, argument: str):
+    async def convert(ctx: BaseContext, argument: str):
         return argument.upper()
 
 # Slash Command:
@@ -64,23 +64,9 @@ async def upper(ctx: PrefixedContext, to_upper: UpperConverter):
     await ctx.reply(to_upper)
 ```
 
-## Built-in Converters
+## Discord Model Converters
 
-### Context-based Arguments
-
-The library provides `CMD_ARGS`, `CMD_AUTHOR`, `CMD_BODY`, and `CMD_CHANNEL` to get the arguments, the author, the body, and the channel of an instance of a command based on its context. While you can do these yourself in the command itself, having this as an argument may be useful to you, especially for cases where you only have one argument that takes in the rest of the message:
-
-```python
-# this example is only viable for prefixed commands
-# the other CMD_* can be used with slash commands, however
-@prefixed_command()
-async def say(ctx: PrefixedContext, content: CMD_BODY):
-    await ctx.reply(content)
-```
-
-### Discord Model Converters
-
-There are also `Converter`s that represent some Discord models that you can subclass from. These are largely useful for prefixed commands, but you may find a use for them elsewhere.
+There are `Converter`s that represent some Discord models that you can subclass from. These are largely useful for prefixed commands, but you may find a use for them elsewhere.
 
 A table of objects and their respective converter is as follows:
 
@@ -109,3 +95,33 @@ A table of objects and their respective converter is as follows:
 | `Role`                                 | `RoleConverter`               |
 | `PartialEmoji`                         | `PartialEmojiConverter`       |
 | `CustomEmoji`                          | `CustomEmojiConverter`        |
+
+
+## `typing.Annotated`
+
+Using `typing.Annotated` can allow you to have more proper typehints when using converters:
+
+```python
+class UpperConverter(Converter):
+    async def convert(ctx: BaseContext, argument: str):
+        return argument.upper()
+
+# Slash Command:
+@slash_command(name="upper", description="Sends back the input in all caps.")
+@slash_option(
+    name="to_upper",
+    description="The thing to make all caps.",
+    required=True,
+    opt_type=OptionType.STRING
+)
+async def upper(ctx: InteractionContext, to_upper: Annotated[str, UpperConverter]):
+    await ctx.send(to_upper)
+
+# Prefixed Command:
+@prefixed_command()
+async def upper(ctx: PrefixedContext, to_upper: Annotated[str, UpperConverter]):
+    await ctx.reply(to_upper)
+```
+
+For slash commands, `interactions.py` will find the first argument in `Annotated` (besides for the first argument) that are like the converters in this guide and use that.
+For prefixed commands, `interactions.py` will always use the second parameter in `Annotated` as the actual converter/parameter to process.
