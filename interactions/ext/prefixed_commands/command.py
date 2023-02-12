@@ -346,13 +346,6 @@ class PrefixedCommand(BaseCommand):
         ),
         default=True,
     )
-    hierarchical_checking: bool = attrs.field(
-        metadata=docs(
-            "If `True` and if the base of a subcommand, every subcommand underneath it will run this command's checks"
-            " and cooldowns before its own. Otherwise, only the subcommand's checks are checked."
-        ),
-        default=True,
-    )
     help: Optional[str] = attrs.field(repr=False, metadata=docs("The long help text for the command."), default=None)
     brief: Optional[str] = attrs.field(repr=False, metadata=docs("The short help text for the command."), default=None)
     parent: Optional["PrefixedCommand"] = attrs.field(
@@ -638,7 +631,7 @@ class PrefixedCommand(BaseCommand):
         enabled: bool = True,
         hidden: bool = False,
         ignore_extra: bool = True,
-        hierarchical_checking: bool = True,
+        inherit_checks: bool = True,
     ) -> Callable[..., Self]:
         """
         A decorator to declare a subcommand for a prefixed command.
@@ -654,8 +647,7 @@ class PrefixedCommand(BaseCommand):
             hidden: If `True`, the default help command (when it is added) does not show this in the help output.
             ignore_extra: If `True`, ignores extraneous strings passed to a command if all its requirements are met \
                 (e.g. ?foo a b c when only expecting a and b). Otherwise, an error is raised.
-            hierarchical_checking: If `True` and if the base of a subcommand, every subcommand underneath it will \
-                run this command's checks before its own. Otherwise, only the subcommand's checks are checked.
+            inherit_checks: If `True`, the subcommand will inherit its checks from the parent command.
         """
 
         def wrapper(func: Callable) -> Self:
@@ -670,7 +662,7 @@ class PrefixedCommand(BaseCommand):
                 enabled=enabled,
                 hidden=hidden,
                 ignore_extra=ignore_extra,
-                hierarchical_checking=hierarchical_checking,
+                checks=self.checks if inherit_checks else [],
             )
             self.add_command(cmd)
             return cmd
@@ -776,7 +768,6 @@ def prefixed_command(
     enabled: bool = True,
     hidden: bool = False,
     ignore_extra: bool = True,
-    hierarchical_checking: bool = True,
 ) -> Callable[..., PrefixedCommand]:
     """
     A decorator to declare a coroutine as a prefixed command.
@@ -792,8 +783,6 @@ def prefixed_command(
         hidden: If `True`, the default help command (when it is added) does not show this in the help output.
         ignore_extra: If `True`, ignores extraneous strings passed to a command if all its requirements are \
             met (e.g. ?foo a b c when only expecting a and b). Otherwise, an error is raised.
-        hierarchical_checking: If `True` and if the base of a subcommand, every subcommand underneath it will \
-            run this command's checks before its own. Otherwise, only the subcommand's checks are checked.
     """
 
     def wrapper(func: Callable) -> PrefixedCommand:
@@ -807,7 +796,6 @@ def prefixed_command(
             enabled=enabled,
             hidden=hidden,
             ignore_extra=ignore_extra,
-            hierarchical_checking=hierarchical_checking,
         )
 
     return wrapper
