@@ -634,6 +634,7 @@ class ComponentContext(InteractionContext):
         instance = super().from_dict(client, payload)
         instance.values = payload["data"].get("values", [])
         instance.custom_id = payload["data"]["custom_id"]
+        instance._command_id = instance.custom_id
         instance.component_type = payload["data"]["component_type"]
 
         searches = {
