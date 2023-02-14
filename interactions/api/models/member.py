@@ -497,7 +497,7 @@ class Member(ClientSerializerMixin, IDMixin):
         :param Optional[List[int]] roles: A list of all role ids the member has
         :param Optional[bool] mute: whether the user is muted in voice channels
         :param Optional[bool] deaf: whether the user is deafened in voice channels
-        :param Optional[Union[Channel, int, Snowflake, None]] channel_id: id of channel to move user to (if they are connected to voice) None to Disconnect
+        :param Optional[Union[Channel, int, Snowflake]] channel_id: id of channel to move user to (if they are connected to voice)
         :param Optional[datetime.isoformat] communication_disabled_until: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
         :param Optional[str] reason: The reason of the modifying
         :return: The modified member object

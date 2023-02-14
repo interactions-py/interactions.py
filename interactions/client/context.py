@@ -199,15 +199,16 @@ class _Context(ClientSerializerMixin):
                 application_id=int(self.id),
                 data={"type": self.callback.value, "data": {"flags": is_ephemeral}},
             )
+
             with suppress(LibraryException):
                 res = await self._client.get_original_interaction_response(
                     self.token, str(self.application_id)
                 )
-                _message = Message(**res, _client=self._client)
+                self.message = Message(**res, _client=self._client)
 
             self.responded = True
 
-            return _message
+            return self.message
 
     async def send(
         self,
