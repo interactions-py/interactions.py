@@ -200,12 +200,6 @@ class _Context(ClientSerializerMixin):
                 data={"type": self.callback.value, "data": {"flags": is_ephemeral}},
             )
 
-            with suppress(LibraryException):
-                res = await self._client.get_original_interaction_response(
-                    self.token, str(self.application_id)
-                )
-                self.message = Message(**res, _client=self._client)
-
             self.responded = True
 
             return self.message
