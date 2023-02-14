@@ -480,7 +480,7 @@ class Member(ClientSerializerMixin, IDMixin):
         roles: Optional[List[int]] = MISSING,
         mute: Optional[bool] = MISSING,
         deaf: Optional[bool] = MISSING,
-        channel_id: Optional[Union[Channel, int, Snowflake]] = MISSING,
+        channel_id: Optional[Union[Channel, int, Snowflake, None]] = MISSING,
         communication_disabled_until: Optional[datetime.isoformat] = MISSING,
         reason: Optional[str] = None,
     ) -> "Member":
@@ -497,7 +497,7 @@ class Member(ClientSerializerMixin, IDMixin):
         :param Optional[List[int]] roles: A list of all role ids the member has
         :param Optional[bool] mute: whether the user is muted in voice channels
         :param Optional[bool] deaf: whether the user is deafened in voice channels
-        :param Optional[Union[Channel, int, Snowflake]] channel_id: id of channel to move user to (if they are connected to voice)
+        :param Optional[Union[Channel, int, Snowflake, None]] channel_id: id of channel to move user to (if they are connected to voice) None to Disconnect
         :param Optional[datetime.isoformat] communication_disabled_until: when the user's timeout will expire and the user will be able to communicate in the guild again (up to 28 days in the future)
         :param Optional[str] reason: The reason of the modifying
         :return: The modified member object
@@ -525,7 +525,9 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if channel_id is not MISSING:
             payload["channel_id"] = (
-                int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
+                int(channel_id.id)
+                if isinstance(channel_id, Channel)
+                else (int(channel_id) if channel_id is not None else None)
             )
 
         if mute is not MISSING:
