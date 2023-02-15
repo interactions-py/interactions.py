@@ -375,11 +375,13 @@ class StringSelectOption(BaseComponent):
 
     @classmethod
     def from_dict(cls, data: discord_typings.SelectMenuOptionData) -> "StringSelectOption":
+        emoji = process_emoji(data.get("emoji"))
+        emoji = PartialEmoji.from_dict(emoji) if emoji else None
         return cls(
             label=data["label"],
             value=data["value"],
             description=data.get("description"),
-            emoji=process_emoji(data.get("emoji")),
+            emoji=emoji,
             default=data.get("default", False),
         )
 
