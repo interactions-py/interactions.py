@@ -1,28 +1,48 @@
+from .base import DiscordObject
+from aiohttp import FormData
 from datetime import datetime
-from typing import Iterable, List, Optional, Union, Set
+from typing import type_check_only
+import attrs
 
+from interactions.client import Client
 from interactions.client.const import Absent
 from interactions.client.mixins.send import SendMixin
 from interactions.models.discord.activity import Activity
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.channel import DM, TYPE_GUILD_CHANNEL
 from interactions.models.discord.color import Color
-from interactions.models.discord.enums import Permissions, PremiumType, Status, UserFlags
+from interactions.models.discord.enums import MemberFlags, Permissions, PremiumType, Status, UserFlags
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.guild import Guild
 from interactions.models.discord.role import Role
 from interactions.models.discord.snowflake import Snowflake_Type
 from interactions.models.discord.timestamp import Timestamp
 from interactions.models.discord.voice_state import VoiceState
-from .base import DiscordObject
+from typing import Any, Dict, Iterable, List, Optional, Set, Union
 
 class _SendDMMixin(SendMixin):
     id: Snowflake_Type
+    async def _send_http_request(
+        self, message_payload: Union[dict, "FormData"], files: Union[list["UPLOADABLE_TYPE"], None] = ...
+    ) -> dict: ...
 
-class BaseUser(DiscordObject, _SendDMMixin):
+# note: what we're trying to achieve here is making isinstance checks as accurate as possible when typehinting
+# Member, while "having" the attributes of User (because of __getattr__), is not actually a subclass of either
+# BaseUser or User - it's its own seperate class
+# we still want to typehint Member with all of the User attributes though, so what we do is create fake
+# mixins that actually don't exist, and make BaseUser and User inherit from that
+# then, we can make Member inheir the fake user mixin, and now we have a Member class with User attributes
+# and that understands isinstance(member, User) is false
+
+@type_check_only
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)  # properly typehints added attributes by attrs
+class FakeBaseUserMixin(DiscordObject, _SendDMMixin):
     username: str
     discriminator: int
     avatar: Asset
+    def __str__(self) -> str: ...
+    @classmethod
+    def _process_dict(cls, data: Dict[str, Any], client: Client) -> Dict[str, Any]: ...
     @property
     def tag(self) -> str: ...
     @property
@@ -36,7 +56,12 @@ class BaseUser(DiscordObject, _SendDMMixin):
     @property
     def mutual_guilds(self) -> List["Guild"]: ...
 
-class User(BaseUser):
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class BaseUser(FakeBaseUserMixin): ...
+
+@type_check_only
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class FakeUserMixin(FakeBaseUserMixin):
     bot: bool
     system: bool
     public_flags: UserFlags
@@ -45,9 +70,15 @@ class User(BaseUser):
     accent_color: Optional["Color"]
     activities: list[Activity]
     status: Absent[Status]
+    @classmethod
+    def _process_dict(cls, data: Dict[str, Any], client: Client) -> Dict[str, Any]: ...
     @property
     def member_instances(self) -> List["Member"]: ...
 
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class User(FakeUserMixin, BaseUser): ...
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class NaffUser(User):
     verified: bool
     mfa_enabled: bool
@@ -55,26 +86,33 @@ class NaffUser(User):
     locale: Optional[str]
     bio: Optional[str]
     flags: UserFlags
-    _guild_ids: Set[Snowflake_Type]
+    _guild_ids: Set["Snowflake_Type"]
+    def _add_guilds(self, guild_ids: Set["Snowflake_Type"]) -> None: ...
     @property
     def guilds(self) -> List["Guild"]: ...
-    async def edit(self, username: Absent[str] = ..., avatar: Absent[UPLOADABLE_TYPE] = ...) -> None: ...
+    async def edit(self, *, username: Absent[str] = ..., avatar: Absent[UPLOADABLE_TYPE] = ...) -> None: ...
 
-class Member(User):  # for typehinting purposes, we can lie
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class Member(FakeUserMixin):
     bot: bool
     nick: Optional[str]
     deaf: bool
     mute: bool
+    flags: MemberFlags
     joined_at: Timestamp
     premium_since: Optional["Timestamp"]
     pending: Optional[bool]
     guild_avatar: Asset
-    communication_disabled_until: Optional[Timestamp]
+    communication_disabled_until: Optional["Timestamp"]
     _guild_id: Snowflake_Type
-    _role_ids: List[Snowflake_Type]
+    _role_ids: List["Snowflake_Type"]
+    _user_ref: frozenset
+    @classmethod
+    def _process_dict(cls, data: Dict[str, Any], client: Client) -> Dict[str, Any]: ...
     def update_from_dict(self, data) -> None: ...
     @property
     def user(self) -> User: ...
+    def __str__(self) -> str: ...
     @property
     def nickname(self) -> str: ...
     @nickname.setter
@@ -113,12 +151,14 @@ class Member(User):  # for typehinting purposes, we can lie
         self,
         *,
         nickname: Absent[str] = ...,
-        roles: Absent[Iterable[Snowflake_Type]] = ...,
+        roles: Absent[Iterable["Snowflake_Type"]] = ...,
         mute: Absent[bool] = ...,
         deaf: Absent[bool] = ...,
         channel_id: Absent["Snowflake_Type"] = ...,
         communication_disabled_until: Absent[Union["Timestamp", None]] = ...,
-        reason: Absent[str] = ...,
+        reason: Absent[str] = ...
     ) -> None: ...
     async def kick(self, reason: Absent[str] = ...) -> None: ...
-    async def ban(self, delete_message_days: int = ..., reason: Absent[str] = ...) -> None: ...
+    async def ban(
+        self, delete_message_days: Absent[int] = ..., delete_message_seconds: int = ..., reason: Absent[str] = ...
+    ) -> None: ...
