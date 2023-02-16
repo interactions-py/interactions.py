@@ -555,17 +555,13 @@ class CommandContext(_Context):
         msg = None
 
         if self.deferred or self.responded:
-            try:
-                res = await self._client.edit_interaction_response(
-                    data=payload,
-                    files=files,
-                    token=self.token,
-                    application_id=str(self.application_id),
-                )
-            except LibraryException as e:
-                raise e from e
-            else:
-                self.message = msg = Message(**res, _client=self._client)
+            res = await self._client.edit_interaction_response(
+                data=payload,
+                files=files,
+                token=self.token,
+                application_id=str(self.application_id),
+            )
+            self.message = msg = Message(**res, _client=self._client)
         else:
             self.callback = InteractionCallbackType.UPDATE_MESSAGE
             await self._client.create_interaction_response(
