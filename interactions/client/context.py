@@ -563,11 +563,7 @@ class CommandContext(_Context):
                     application_id=str(self.application_id),
                 )
             except LibraryException as e:
-                if e.code in {10015, 10018}:
-                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
-                else:
-                    # if its not ephemeral or some other thing.
-                    raise e from e
+                raise e from e
             else:
                 self.message = msg = Message(**res, _client=self._client)
         else:
