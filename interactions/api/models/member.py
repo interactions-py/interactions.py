@@ -480,7 +480,7 @@ class Member(ClientSerializerMixin, IDMixin):
         roles: Optional[List[int]] = MISSING,
         mute: Optional[bool] = MISSING,
         deaf: Optional[bool] = MISSING,
-        channel_id: Optional[Union[Channel, int, Snowflake, None]] = MISSING,
+        channel_id: Optional[Union[Channel, int, Snowflake]] = MISSING,
         communication_disabled_until: Optional[datetime.isoformat] = MISSING,
         reason: Optional[str] = None,
     ) -> "Member":
