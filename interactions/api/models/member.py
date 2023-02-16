@@ -525,7 +525,9 @@ class Member(ClientSerializerMixin, IDMixin):
 
         if channel_id is not MISSING:
             payload["channel_id"] = (
-                int(channel_id.id) if isinstance(channel_id, Channel) else int(channel_id)
+                int(channel_id.id)
+                if isinstance(channel_id, Channel)
+                else (int(channel_id) if channel_id is not None else None)
             )
 
         if mute is not MISSING:
