@@ -554,15 +554,18 @@ class CommandContext(_Context):
         payload, files = await super().edit(content, **kwargs)
         msg = None
 
-        if self.deferred:
+        if self.deferred or self.responded:
             if (
                 hasattr(self.message, "id")
                 and self.message.id is not None
                 and self.message.flags != 64
             ):
                 try:
-                    res = await self._client.edit_message(
-                        int(self.channel_id), int(self.message.id), payload=payload, files=files
+                    res = await self._client.edit_interaction_response(
+                        data=payload,
+                        files=files,
+                        token=self.token,
+                        application_id=str(self.application_id),
                     )
                 except LibraryException as e:
                     if e.code in {10015, 10018}:
