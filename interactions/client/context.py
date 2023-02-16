@@ -555,45 +555,21 @@ class CommandContext(_Context):
         msg = None
 
         if self.deferred or self.responded:
-            if (
-                hasattr(self.message, "id")
-                and self.message.id is not None
-                and self.message.flags != 64
-            ):
-                try:
-                    res = await self._client.edit_interaction_response(
-                        data=payload,
-                        files=files,
-                        token=self.token,
-                        application_id=str(self.application_id),
-                    )
-                except LibraryException as e:
-                    if e.code in {10015, 10018}:
-                        log.warning(f"You can't edit hidden messages." f"({e.message}).")
-                    else:
-                        # if its not ephemeral or some other thing.
-                        raise e from e
+            try:
+                res = await self._client.edit_interaction_response(
+                    data=payload,
+                    files=files,
+                    token=self.token,
+                    application_id=str(self.application_id),
+                )
+            except LibraryException as e:
+                if e.code in {10015, 10018}:
+                    log.warning(f"You can't edit hidden messages." f"({e.message}).")
                 else:
-                    self.message = msg = Message(**res, _client=self._client)
+                    # if its not ephemeral or some other thing.
+                    raise e from e
             else:
-                try:
-                    res = await self._client.edit_interaction_response(
-                        token=self.token,
-                        application_id=str(self.application_id),
-                        data=payload,
-                        files=files,
-                        message_id=self.message.id
-                        if self.message and self.message.flags != 64
-                        else "@original",
-                    )
-                except LibraryException as e:
-                    if e.code in {10015, 10018}:
-                        log.warning(f"You can't edit hidden messages." f"({e.message}).")
-                    else:
-                        # if its not ephemeral or some other thing.
-                        raise e from e
-                else:
-                    self.message = msg = Message(**res, _client=self._client)
+                self.message = msg = Message(**res, _client=self._client)
         else:
             self.callback = InteractionCallbackType.UPDATE_MESSAGE
             await self._client.create_interaction_response(
