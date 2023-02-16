@@ -680,6 +680,7 @@ __all__ = (
 # Jimmy-Blue       -- Contributor
 # Kigstn           -- Contributor
 # leestarb         -- Contributor
+# mAxYoLo01        -- Contributor
 # Nanrech          -- Contributor
 # silasary         -- Contributor
 # Toricane         -- Contributor
