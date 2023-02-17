@@ -208,6 +208,7 @@ from .models import (
     MessageType,
     MFALevel,
     Modal,
+    modal_callback,
     ModalCommand,
     ModalContext,
     MODEL_TO_CONVERTER,
@@ -527,6 +528,7 @@ __all__ = (
     "Missing",
     "MISSING",
     "Modal",
+    "modal_callback",
     "ModalCommand",
     "ModalContext",
     "MODEL_TO_CONVERTER",
@@ -678,6 +680,7 @@ __all__ = (
 # Jimmy-Blue       -- Contributor
 # Kigstn           -- Contributor
 # leestarb         -- Contributor
+# mAxYoLo01        -- Contributor
 # Nanrech          -- Contributor
 # silasary         -- Contributor
 # Toricane         -- Contributor

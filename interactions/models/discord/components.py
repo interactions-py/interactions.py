@@ -5,14 +5,10 @@ from typing import Any, Dict, Iterator, List, Optional, Union
 
 import discord_typings
 
-from interactions.client.const import (
-    ACTION_ROW_MAX_ITEMS,
-    MISSING,
-)
+from interactions.client.const import ACTION_ROW_MAX_ITEMS, MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.models.discord.emoji import PartialEmoji
-from interactions.models.discord.emoji import process_emoji
-from interactions.models.discord.enums import ButtonStyle, ComponentType, ChannelType
+from interactions.models.discord.emoji import PartialEmoji, process_emoji
+from interactions.models.discord.enums import ButtonStyle, ChannelType, ComponentType
 
 __all__ = (
     "BaseComponent",
@@ -245,10 +241,12 @@ class Button(InteractiveComponent):
 
     @classmethod
     def from_dict(cls, data: discord_typings.ButtonComponentData) -> "Button":
+        emoji = process_emoji(data.get("emoji"))
+        emoji = PartialEmoji.from_dict(emoji) if emoji else None
         return cls(
             style=ButtonStyle(data["style"]),
             label=data.get("label"),
-            emoji=process_emoji(data.get("emoji")),
+            emoji=emoji,
             custom_id=data.get("custom_id"),
             url=data.get("url"),
             disabled=data.get("disabled", False),

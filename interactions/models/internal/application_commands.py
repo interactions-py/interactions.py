@@ -66,6 +66,7 @@ __all__ = (
     "LocalisedName",
     "LocalizedDesc",
     "LocalizedName",
+    "modal_callback",
     "ModalCommand",
     "OptionType",
     "slash_command",
