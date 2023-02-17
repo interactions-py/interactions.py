@@ -621,7 +621,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
         return self.resolved.get(self.target_id)
 
 
-class ComponentContext(InteractionContext):
+class ComponentContext(InteractionContext, ModalMixin):
     values: list[str]
     """The values of the SelectMenu component, if any."""
     custom_id: str
