@@ -12,7 +12,7 @@ bot = Client(intents=Intents.DEFAULT)
 bot.start("Put your token here")
 ```
 
-For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Discord/enums/#naff.models.discord.enums.Intents).
+For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Discord/enums/#internal.models.discord.enums.Intents).
 
 ## Hey Listen!!!
 
