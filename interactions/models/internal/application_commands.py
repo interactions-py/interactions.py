@@ -725,7 +725,7 @@ class SlashCommand(InteractionCommand):
 
     def subcommand(
         self,
-        sub_cmd_name: LocalisedName | str,
+        sub_cmd_name: Absent[LocalisedName | str] = MISSING,
         group_name: LocalisedName | str = None,
         sub_cmd_description: Absent[LocalisedDesc | str] = MISSING,
         group_description: Absent[LocalisedDesc | str] = MISSING,
@@ -734,13 +734,15 @@ class SlashCommand(InteractionCommand):
         inherit_checks: bool = True,
     ) -> Callable[..., "SlashCommand"]:
         def wrapper(call: Callable[..., Coroutine]) -> "SlashCommand":
-            nonlocal sub_cmd_description
+            nonlocal sub_cmd_name, sub_cmd_description
 
             if not asyncio.iscoroutinefunction(call):
                 raise TypeError("Subcommand must be coroutine")
 
             if sub_cmd_description is MISSING:
                 sub_cmd_description = call.__doc__ or "No Description Set"
+            if sub_cmd_name is MISSING:
+                sub_cmd_name = call.__name__
 
             return SlashCommand(
                 name=self.name,
@@ -863,7 +865,7 @@ def global_autocomplete(option_name: str) -> Callable[[AsyncCallable], GlobalAut
 
 
 def slash_command(
-    name: str | LocalisedName,
+    name: Absent[str | LocalisedName] = MISSING,
     *,
     description: Absent[str | LocalisedDesc] = MISSING,
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
@@ -885,7 +887,7 @@ def slash_command(
         one of the future ui updates.
 
     Args:
-        name: 1-32 character name of the command
+        name: 1-32 character name of the command, defaults to the name of the coroutine.
         description: 1-100 character description of the command
         scopes: The scope this command exists within
         options: The parameters for the command, max 25
@@ -913,12 +915,16 @@ def slash_command(
             else:
                 perm = func.default_member_permissions
 
+        _name = name
+        if _name is MISSING:
+            _name = func.__name__
+
         _description = description
         if _description is MISSING:
             _description = func.__doc__ or "No Description Set"
 
         cmd = SlashCommand(
-            name=name,
+            name=_name,
             group_name=group_name,
             group_description=group_description,
             sub_cmd_name=sub_cmd_name,
@@ -941,7 +947,7 @@ def subcommand(
     base: str | LocalisedName,
     *,
     subcommand_group: Optional[str | LocalisedName] = None,
-    name: Optional[str | LocalisedName] = None,
+    name: Absent[str | LocalisedName] = MISSING,
     description: Absent[str | LocalisedDesc] = MISSING,
     base_description: Optional[str | LocalisedDesc] = None,
     base_desc: Optional[str | LocalisedDesc] = None,
@@ -980,6 +986,10 @@ def subcommand(
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
+        _name = name
+        if _name is MISSING:
+            _name = func.__name__
+
         _description = description
         if _description is MISSING:
             _description = func.__doc__ or "No Description Set"
@@ -989,7 +999,7 @@ def subcommand(
             description=(base_description or base_desc) or "No Description Set",
             group_name=subcommand_group,
             group_description=(subcommand_group_description or sub_group_desc) or "No Description Set",
-            sub_cmd_name=name,
+            sub_cmd_name=_name,
             sub_cmd_description=_description,
             default_member_permissions=base_default_member_permissions,
             dm_permission=base_dm_permission,
@@ -1004,7 +1014,8 @@ def subcommand(
 
 
 def context_menu(
-    name: str | LocalisedName,
+    name: Absent[str | LocalisedName] = MISSING,
+    *,
     context_type: "CommandType",
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
     default_member_permissions: Optional["Permissions"] = None,
@@ -1014,7 +1025,7 @@ def context_menu(
     A decorator to declare a coroutine as a Context Menu.
 
     Args:
-        name: 1-32 character name of the context menu
+        name: 1-32 character name of the context menu, defaults to the name of the coroutine.
         context_type: The type of context menu
         scopes: The scope this command exists within
         default_member_permissions: What permissions members need to have by default to use this command.
@@ -1036,8 +1047,12 @@ def context_menu(
             else:
                 perm = func.default_member_permissions
 
+        _name = name
+        if _name is MISSING:
+            _name = func.__name__
+
         cmd = ContextMenu(
-            name=name,
+            name=_name,
             type=context_type,
             scopes=scopes or [GLOBAL_SCOPE],
             default_member_permissions=perm,
@@ -1047,6 +1062,64 @@ def context_menu(
         return cmd
 
     return wrapper
+
+
+def user_context_menu(
+    name: Absent[str | LocalisedName] = MISSING,
+    *,
+    scopes: Absent[List["Snowflake_Type"]] = MISSING,
+    default_member_permissions: Optional["Permissions"] = None,
+    dm_permission: bool = True,
+) -> Callable[[AsyncCallable], ContextMenu]:
+    """
+    A decorator to declare a coroutine as a User Context Menu.
+
+    Args:
+        name: 1-32 character name of the context menu, defaults to the name of the coroutine.
+        scopes: The scope this command exists within
+        default_member_permissions: What permissions members need to have by default to use this command.
+        dm_permission: Should this command be available in DMs.
+
+    Returns:
+        ContextMenu object
+
+    """
+    return context_menu(
+        name,
+        context_type=CommandType.USER,
+        scopes=scopes,
+        default_member_permissions=default_member_permissions,
+        dm_permission=dm_permission
+    )
+
+
+def message_context_menu(
+    name: Absent[str | LocalisedName] = MISSING,
+    *,
+    scopes: Absent[List["Snowflake_Type"]] = MISSING,
+    default_member_permissions: Optional["Permissions"] = None,
+    dm_permission: bool = True,
+) -> Callable[[AsyncCallable], ContextMenu]:
+    """
+    A decorator to declare a coroutine as a Message Context Menu.
+
+    Args:
+        name: 1-32 character name of the context menu, defaults to the name of the coroutine.
+        scopes: The scope this command exists within
+        default_member_permissions: What permissions members need to have by default to use this command.
+        dm_permission: Should this command be available in DMs.
+
+    Returns:
+        ContextMenu object
+
+    """
+    return context_menu(
+        name,
+        context_type=CommandType.USER,
+        scopes=scopes,
+        default_member_permissions=default_member_permissions,
+        dm_permission=dm_permission
+    )
 
 
 def component_callback(*custom_id: str) -> Callable[[AsyncCallable], ComponentCommand]:
