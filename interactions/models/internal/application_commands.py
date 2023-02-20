@@ -58,6 +58,8 @@ __all__ = (
     "component_callback",
     "ComponentCommand",
     "context_menu",
+    "user_context_menu",
+    "message_context_menu",
     "ContextMenu",
     "global_autocomplete",
     "GlobalAutoComplete",
