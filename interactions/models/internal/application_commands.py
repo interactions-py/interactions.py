@@ -1115,7 +1115,7 @@ def message_context_menu(
     """
     return context_menu(
         name,
-        context_type=CommandType.USER,
+        context_type=CommandType.MESSAGE,
         scopes=scopes,
         default_member_permissions=default_member_permissions,
         dm_permission=dm_permission
