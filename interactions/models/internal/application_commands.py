@@ -1091,7 +1091,7 @@ def user_context_menu(
         context_type=CommandType.USER,
         scopes=scopes,
         default_member_permissions=default_member_permissions,
-        dm_permission=dm_permission
+        dm_permission=dm_permission,
     )
 
 
@@ -1120,7 +1120,7 @@ def message_context_menu(
         context_type=CommandType.MESSAGE,
         scopes=scopes,
         default_member_permissions=default_member_permissions,
-        dm_permission=dm_permission
+        dm_permission=dm_permission,
     )
 
 
