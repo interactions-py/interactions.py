@@ -21,6 +21,7 @@ __all__ = (
     "get_event_name",
     "get_object_name",
     "maybe_coroutine",
+    "nulled_boolean_get",
 )
 
 mention_reg = re.compile(r"@(everyone|here|[!&]?[0-9]{17,20})")
@@ -245,3 +246,20 @@ def disable_components(*components: "BaseComponent") -> list["BaseComponent"]:
         else:
             component.disabled = True
     return list(components)
+
+
+def nulled_boolean_get(data: dict[str, Any], key: str) -> bool:
+    """
+    Gets a boolean value from a dictionary, but treats None as True.
+
+    Args:
+        data: The dictionary to get the value from
+        key: The key to get the value from
+
+    Returns:
+        The boolean value of the key
+    """
+    # discord tags are weird, when they are None they are True, when they are True they are True and when they are False they are False
+    if key in data:
+        return True if data[key] is None else bool(data[key])
+    return False

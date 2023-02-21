@@ -4,6 +4,7 @@ from typing import Any, TYPE_CHECKING
 import attrs
 
 from interactions.client.const import MISSING, T, Missing
+from interactions.client.utils import nulled_boolean_get
 from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.serializer import dict_filter
 from interactions.models.discord.asset import Asset
@@ -55,6 +56,7 @@ class Role(DiscordObject):
     )
     _bot_id: "Snowflake_Type | None" = attrs.field(repr=False, default=None)
     _integration_id: "Snowflake_Type | None" = attrs.field(repr=False, default=None)  # todo integration object?
+    _guild_connections: bool = attrs.field(repr=False, default=False)
 
     def __lt__(self: "Role", other: "Role") -> bool:
         if not isinstance(self, Role) or not isinstance(other, Role):
@@ -85,13 +87,9 @@ class Role(DiscordObject):
         if icon_hash := data.get("icon"):
             data["icon"] = Asset.from_path_hash(client, f"role-icons/{data['id']}/{{}}", icon_hash)
 
-        if "premium_subscriber" in data:
-            if data["premium_subscriber"] is None:
-                data["premium_subscriber"] = True
-            else:
-                data["premium_subscriber"] = bool(data["premium_subscriber"])
-        else:
-            data["premium_subscriber"] = False
+        data["premium_subscriber"] = nulled_boolean_get(data, "premium_subscriber")
+        data["guild_connections"] = nulled_boolean_get(data, "guild_connections")
+        data["available_for_purchase"] = nulled_boolean_get(data, "available_for_purchase")
 
         return data
 
@@ -133,6 +131,11 @@ class Role(DiscordObject):
     def bot_managed(self) -> bool:
         """Is this role owned/managed by a bot."""
         return self._bot_id is not None
+
+    @property
+    def is_linked_role(self) -> bool:
+        """Is this role a linked role."""
+        return self._guild_connections
 
     @property
     def mention(self) -> str:
