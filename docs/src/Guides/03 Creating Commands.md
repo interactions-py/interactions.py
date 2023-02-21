@@ -231,21 +231,21 @@ Then you need to register the autocomplete callback, aka the function Discord ca
 In there, you have three seconds to return whatever choices you want to the user. In this example we will simply return their input with "a", "b" or "c" appended:
 ```python
 @my_command.autocomplete("string_option")
-async def autocomplete(self, ctx: AutocompleteContext, string_option: str):
+async def autocomplete(self, ctx: AutocompleteContext):
     # make sure this is done within three seconds
     await ctx.send(
         choices=[
             {
-                "name": f"{string_option}a",
-                "value": f"{string_option}a",
+                "name": f"{ctx.input_text}a",
+                "value": f"{ctx.input_text}a",
             },
             {
-                "name": f"{string_option}b",
-                "value": f"{string_option}b",
+                "name": f"{ctx.input_text}b",
+                "value": f"{ctx.input_text}b",
             },
             {
-                "name": f"{string_option}c",
-                "value": f"{string_option}c",
+                "name": f"{ctx.input_text}c",
+                "value": f"{ctx.input_text}c",
             },
         ]
     )
