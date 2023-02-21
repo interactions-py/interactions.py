@@ -7,25 +7,25 @@ These guides are meant to help you get started with the library and offer a poin
 
     ---
 
-    So you want to make a bot starting from naffing. This guide aims to get you started as fast as possible.
+    Ready to get your Python on and create a Discord bot? This guide's got you covered with installation options and a basic bot code example.
 
 -   [__:material-hammer-screwdriver: Creating Your Bot__](02 Creating Your Bot.md)
 
     ---
 
-    How to make a bot on the Discord Developer Dashboard.
+    Want to create your own bot but don't know where to start? This guide has you covered from bot-tom to top!
 
 -   [__:material-slash-forward-box: Slash Commands__](03 Creating Commands.md)
 
     ---
 
-    So you want to make a slash command (or interaction, as they are officially called), but don't know how to get started? Then this is the right place for you.
+    Slash commands are a cut above the rest - this guide will show you how to create your very own slash commands.
 
 -   [__:material-menu-open: Context Menus__](04 Context Menus.md)
 
     ---
 
-    Interact with users in a more natural way. Just use the second button on your mouse.
+    Create menus that are so good, they'll have your users right-clicking for more.
 
 -   [__:material-button-cursor: Components__](05 Components.md)
 
@@ -37,7 +37,7 @@ These guides are meant to help you get started with the library and offer a poin
 
     ---
 
-    As everyone knows from surfing the web, popups are really great. Everyone loves them and they make for a great UX. Luckily for you, you have the option to regale your users love for them by using modals.
+    Ready to pop-up your user interface game? This guide will show you how to create modals.
 
 -   [__:material-account-convert: Converters__](08 Converters.md)
 
@@ -110,7 +110,7 @@ These guides are meant to help you get started with the library and offer a poin
 
     ---
 
-    How do I migrate from 1.x to 2.x?
+    How do I migrate from i.py v4.4 to v5?
 
 
 </div>

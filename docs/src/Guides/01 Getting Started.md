@@ -1,6 +1,6 @@
 # Introduction
 
-Hi! So you want to make a bot starting from naffing. This guide aims to get you started as fast as possible, for more advanced use-cases check out the other guides.
+Ready to get your Python on and create a Discord bot? This guide's got you covered with installation options and a basic bot code example.
 
 ### Requirements
 
@@ -70,12 +70,12 @@ There are two different ways to install this library and create your bot.
 
     === ":material-linux: Linux"
         ```shell
-        python3 -m pip install naff --upgrade
+        python3 -m pip install discord-py-interactions --upgrade
         ```
 
     === ":material-microsoft-windows: Windows"
         ```shell
-        py -3 -m pip install naff --upgrade
+        py -3 -m pip install discord-py-interactions --upgrade
         ```
 
     ### Basic bot

@@ -9,37 +9,71 @@ hide:
 
 We hope this documentation is helpful for you, but don't just ++ctrl+c++ and ++ctrl+v++.
 
-___
-Ever since December 2019, this open-source project has become the culmination of dedication and research towards figuring out the best way to bring interactions from Discord to you: we are an easy, simple, scalable and modular library for Discord interactions.
+A highly extensible, easy to use, and feature complete framework for Discord.
 
-- Tired of using numerous module dependencies for slash commands and buttons?
-- Looking for a compatible library that implements all interactions?
-- Itching to get your hands on slash commands, but in a simple manner?
+interactions.py is the culmination of years of experience with Discord's APIs and bot development. This framework has been built from the ground up with community feedback and suggestions in mind. Our framework provides a modern and intuitive set of language bindings for easy interaction with Discord.
 
-Look no more! The goal of this library is to make all three of these questions go from possibilities to trivial matters.
+## Key Features
+interactions.py offers a wide range of features for building Python-powered Discord bots and web applications alike:
 
-### What can we do?
-Our library---inside and out, offers numerous benefits and presents itself as a worthy module in your bot's dependencies:
+- ✅ 100% coverage of the Discord API
 
-The base features of our library, built with our API include:
+- ✅ Dynamic cache with TTL support
 
-- **Dynamic object data generation**: all event data dispatched from the Gateway is dynamically transformed and generated into two-way serializable JSON objects.
-- **Sane rate limiting**: our HTTP client implements pre-emptive rate limit avoidance, so your bot is guaranteed to never hit HTTP ``429``.
-- **On-demand cache**: every HTTP request and Gateway event made is cached when needed, so you never have to save information yourself.
-- **Simplified data models**: every object presented is accessible as either a raw dictionary/``application/json`` or list of recursive attributes.
+- ✅ Modern and Pythonic API for easy interaction with Discord
 
-Some more unique features that are exclusive to our interactions include:
+- ✅ Proper rate-limit handling
 
-- **Event-triggered callbacks**: whether a component, application command or interaction response, you'll never need to worry about bridging responses.
-- **Dual-way decorator logic**: a decorator can act as both a constructor for an interaction, as well as a callback.
-- **API-strict naming**: no more confusion with the naming approach of many libraries; we follow the naming style of interactions from the officially curated Discord Developers documentation.
-- **Extensive framework structure**: build your own tools and technologies for our library to develop and integrate community creations.
+- ✅ Feature parity with most other Discord API wrappers
 
-### What do we not offer?
-While we certainly offer a lot of benefits, we unfortunately have our own downsides:
-!!! note
-    This list is subject to change as time goes on:
-        some of these items may be added to the core of the library in the future.
+- ✅ Fully automated command synchronisation
 
-- No native cooldown decorator/method.
-- Lack of automatic sharding and voice clients.
+In addition to core functionality, interactions.py provides a range of optional extensions, allowing you to further customize your bot and add new features with ease.
+
+## Extensibility
+
+So the base library doesn't do what you want? No problem! With builtin extensions, you are able to extend the functionality of the library. And if none of those pique your interest, there are a myriad of other extension libraries available.
+
+Just type `bot.load("extension")`
+
+---
+
+### Prefixed Commands
+
+Prefixed commands, message commands, or legacy commands.
+Whatever you want to call them, by default the `interactions.py` library will not handle these. But rest assured this extension will get you going
+
+- ✅ Automatic command registration
+
+- ✅ Annotation support
+
+### Debug Ext
+
+A fully featured debug and utilities suite to help you get your bots made
+
+### Jurigged
+
+A hot reloading extension allowing you to automagically update your bot without reboots
+
+### Sentry
+
+Integrates Sentry.io error tracking into your bot with a single line
+
+---
+
+## Where do I start?
+
+Getting started with interactions.py is easy! Simply install it via `pip` and start building your Discord application in Python:
+
+`pip install -U discord-py-interactions`
+```python
+import interactions
+
+bot = interactions.Client()
+
+@interactions.listen()
+async def on_start():
+    print("Bot is ready!")
+
+bot.start("token")
+```

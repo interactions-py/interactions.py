@@ -1,7 +1,7 @@
 # Migration From discord.py
 
 1. interactions.py requires python 3.10 (as compared to dpy's 3.5), you may need to upgrade python.
-     - If you see `ERROR: Could not find a version that satisfies the requirement naff (from versions: none)` when trying to `pip install NAFF`, this is your problem.
+     - If you see `ERROR: Could not find a version that satisfies the requirement discord-py-interactions (from versions: none)` when trying to `pip install discord-py-interactions`, this is your problem.
 
 2. Classes/Models
      - Your client is `interactions.Client`.

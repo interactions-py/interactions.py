@@ -189,3 +189,12 @@ div.doc-contents:not(.first) {
 .md-typeset .grid.cards > :is(ul, ol) > li, .md-typeset .grid > .card{
     background-color: var(--md-card-color);
 }
+
+/* squishes the logo and header together */
+.md-ellipsis{
+    margin-left: 0;
+}
+.md-header__button.md-logo{
+    margin-right: 0;
+    filter: brightness(0) invert(1); /* makes the logo white */
+}
