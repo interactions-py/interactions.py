@@ -472,22 +472,3 @@ There also is `on_command` which you can overwrite too. That fires on every inte
 If your bot is complex enough, you might find yourself wanting to use custom models in your commands.
 
 To do this, you'll want to use a string option, and define a converter. Information on how to use converters can be found [on the converter page](/Guides/08 Converters).
-
-## I Want To Make A Prefixed Command Too
-
-You're in luck! You can use a hybrid command, which is a slash command that also gets converted to an equivalent prefixed command under the hood.
-
-To use it, simply replace `@slash_command` with `@hybrid_command`, and `InteractionContext` with `HybridContext`, like so:
-
-```python
-@hybrid_command(name="my_command", description="My hybrid command!")
-async def my_command_function(ctx: HybridContext):
-    await ctx.send("Hello World")
-```
-
-Suggesting you are using the default mention settings for your bot, you should be able to run this command by `@BotPing my_command`.
-
-As you can see, the only difference between hybrid commands and slash commands, from a developer perspective, is that they use `HybridContext`, which attempts
-to seamlessly allow using the same context for slash and prefixed commands. You can always get the underlying context via `inner_context`, though.
-
-There are only two limitations with them: they only support one attachment option, and they do not support autocomplete.
