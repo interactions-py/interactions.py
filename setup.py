@@ -12,6 +12,7 @@ extras_require = {
     "speedup": ["aiodns", "orjson", "Brotli"],
     "sentry": ["sentry-sdk"],
     "jurigged": ["jurigged"],
+    "console": ["aioconsole>=0.6.0"]
 }
 extras_require["all"] = list(itertools.chain.from_iterable(extras_require.values()))
 extras_require["docs"] = extras_require["all"] + [
