@@ -5,6 +5,8 @@ import aiomonitor as aiomonitor
 import interactions
 from interactions import Extension
 
+__all__ = ("Console",)
+
 
 class Console(Extension):
     """
@@ -21,13 +23,14 @@ class Console(Extension):
         **kwargs: The locals to make available in the console, by default this includes `client`, `bot` and `interactions`
 
     """
-    def __init__(self, client: interactions.Client, port: int = 501, console_port: int = 502, **kwargs):
+
+    def __init__(self, client: interactions.Client, port: int = 501, console_port: int = 502, **kwargs) -> None:
         self.client.astart = self.async_start_bot
         self.port = port  # 501 was chosen as windows throws a massive fit if you try to use the default port
         self.console_port = console_port
         self.locals = kwargs
 
-    async def async_start_bot(self, token: str | None = None):
+    async def async_start_bot(self, token: str | None = None) -> None:
         """Starts the bot with the console active"""
         old_start = interactions.Client.astart
 
@@ -37,7 +40,9 @@ class Console(Extension):
             "interactions": interactions,
         }
 
-        with aiomonitor.start_monitor(loop=asyncio.get_event_loop(), port=self.port, console_port=self.console_port, locals=_locals) as monitor:
+        with aiomonitor.start_monitor(
+            loop=asyncio.get_event_loop(), port=self.port, console_port=self.console_port, locals=_locals
+        ) as monitor:
             self.client.logger.info(f"Started aiomonitor on {monitor._host}:{monitor._port}")  # noqa
 
             await old_start(self.client, token)
