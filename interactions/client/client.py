@@ -1530,26 +1530,27 @@ class Client(
             command_id = Snowflake(cmd_data["id"])
             command_name = cmd_data["name"]
 
-            if command := self.interactions_by_scope[scope].get(command_name):
+            if any(
+                option["type"] in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP)
+                for option in cmd_data.get("options", [])
+            ):
+                for option in cmd_data.get("options", []):
+                    if option["type"] in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP):
+                        command_name = f"{command_name} {option['name']}"
+                        if option["type"] == OptionType.SUB_COMMAND_GROUP:
+                            for _sc in option.get("options", []):
+                                command_name = f"{command_name} {_sc['name']}"
+                                if command := self.interactions_by_scope[scope].get(command_name):
+                                    command.cmd_id[scope] = command_id
+                                    self._interaction_lookup[command.resolved_name] = command
+                        elif command := self.interactions_by_scope[scope].get(command_name):
+                            command.cmd_id[scope] = command_id
+                            self._interaction_lookup[command.resolved_name] = command
+                            continue
+            elif command := self.interactions_by_scope[scope].get(command_name):
                 command.cmd_id[scope] = command_id
                 self._interaction_lookup[command.resolved_name] = command
                 continue
-            else:
-                for subcommand in cmd_data.get("options", []):
-                    if subcommand["type"] in (
-                        OptionType.SUB_COMMAND,
-                        OptionType.SUB_COMMAND_GROUP,
-                    ):
-                        subcommand_name = f"{command_name} {subcommand['name']}"
-                        if subcommand["type"] == OptionType.SUB_COMMAND_GROUP:
-                            for _sc in subcommand.get("options", []):
-                                subcommand_name = f"{subcommand_name} {_sc['name']}"
-                                if command := self.interactions_by_scope[scope].get(subcommand_name):
-                                    command.cmd_id[scope] = command_id
-                                    self._interaction_lookup[command.resolved_name] = command
-                        elif command := self.interactions_by_scope[scope].get(subcommand_name):
-                            command.cmd_id[scope] = command_id
-                            self._interaction_lookup[command.resolved_name] = command
 
     async def get_context(self, data: dict) -> InteractionContext:
         match data["type"]:
