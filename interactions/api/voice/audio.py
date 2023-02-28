@@ -1,4 +1,5 @@
 import audioop
+import shutil
 import subprocess  # noqa: S404
 import threading
 import time
@@ -12,6 +13,10 @@ __all__ = (
     "Audio",
     "AudioVolume",
 )
+
+from interactions.client.const import get_logger
+from interactions.api.voice.opus import Encoder
+from interactions.client.utils import FastJson
 
 
 class AudioBuffer:
@@ -62,6 +67,8 @@ class BaseAudio(ABC):
     """Does this audio data need encoding with opus?"""
     bitrate: Optional[int]
     """Optionally specify a specific bitrate to encode this audio data with"""
+    encoder: Optional[Encoder]
+    """The encoder to use for this audio data"""
 
     def __del__(self) -> None:
         self.cleanup()
@@ -135,10 +142,40 @@ class Audio(BaseAudio):
                 return False
         return True
 
-    def _create_process(self, *, block: bool = True) -> None:
+    def _create_process(self, *, block: bool = True, probe: bool = True) -> None:
         before = (
             self.ffmpeg_before_args if isinstance(self.ffmpeg_before_args, list) else self.ffmpeg_before_args.split()
         )
+
+        config = {
+            "sample_rate": 48000,
+            "bitrate": None,
+        }
+
+        if shutil.which("ffprobe") is not None and probe:
+            ffprobe_cmd = [
+                "ffprobe",
+                "-loglevel",
+                "quiet",
+                "-print_format",
+                "json",
+                "-show_streams",
+                "-select_streams",
+                "a:0",
+                self.source,
+            ]
+            raw_output = subprocess.check_output(ffprobe_cmd, stderr=subprocess.DEVNULL)
+            output = FastJson.loads(raw_output)
+
+            config["sample_rate"] = int(output["streams"][0]["sample_rate"])
+            config["bitrate"] = int(output["streams"][0]["bit_rate"])
+
+            get_logger().debug(f"Detected audio data for {self.source} - {config}")
+
+            if getattr(self, "bitrate", None) is None and self.encoder:
+                self.bitrate = int(config["bitrate"] / 1024)
+                self.encoder.set_bitrate(self.bitrate)
+
         after = self.ffmpeg_args if isinstance(self.ffmpeg_args, list) else self.ffmpeg_args.split()
         cmd = [
             "ffmpeg",
@@ -147,7 +184,7 @@ class Audio(BaseAudio):
             "-f",
             "s16le",
             "-ar",
-            "48000",
+            str(config["sample_rate"]),
             "-ac",
             "2",
             "-loglevel",
