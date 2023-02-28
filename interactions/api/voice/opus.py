@@ -4,6 +4,7 @@ import ctypes.util
 import os
 import sys
 from enum import IntEnum
+from pathlib import Path
 from typing import Any
 
 import attr
@@ -130,10 +131,16 @@ class Encoder:
     def __init__(self) -> None:
         if sys.platform == "win32":
             architecture = "x64" if sys.maxsize > 32**2 else "x86"
-            directory = os.path.dirname(os.path.abspath(__file__))
-            name = os.path.join(directory, "../../bin", f"opus-{architecture}.dll")
+            directory = Path(__file__).parent.parent.parent
+            name = directory / f"bin/opus-{architecture}.dll"
+            if not name.exists():
+                raise RuntimeError("Could not find opus library.")
+            name = str(name)
         else:
             name = ctypes.util.find_library("opus")
+
+        if name is None:
+            raise RuntimeError("Could not find opus library.")
 
         self.lib_opus = ctypes.cdll.LoadLibrary(name)
 
