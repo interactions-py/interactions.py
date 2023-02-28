@@ -94,6 +94,7 @@ class Player(threading.Thread):
             # noinspection PyProtectedMember
             self.current_audio.volume = self.state._volume
 
+        self.current_audio.encoder = self._encoder
         self._encoder.set_bitrate(getattr(self.current_audio, "bitrate", self.state.channel.bitrate))
 
         self._stopped.clear()
