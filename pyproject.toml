@@ -16,14 +16,34 @@ tomli = "^2.0.1"
 emoji = "^2.1.0"
 
 # Optional dependencies
-orjson  = {version = "^3.6.8", optional = true}
-jurigged = {version = "^0.5.3", optional = true}
-aioconsole = {version = "^0.6.0", optional = true}
+aiodns = { version = "*", optional = true }
+orjson = { version = "*", optional = true }
+Brotli = { version = "*", optional = true }
+faust-cchardet = { version = "*", optional = true }
+uvloop = { version = "*", optional = true, platform = "!win32" }
+mkdocs-autorefs = { version = "*", optional = true }
+mkdocs-awesome-pages-plugin = { version = "*", optional = true }
+mkdocs-material = { version = "*", optional = true }
+mkdocstrings-python = { version = "*", optional = true }
+mkdocs-minify-plugin = { version = "*", optional = true }
+mkdocs-git-committers-plugin-2 = { version = "*", optional = true }
+mkdocs-git-revision-date-localized-plugin = { version = "*", optional = true }
+pytest = { version = "*", optional = true }
+pytest-recording = { version = "*", optional = true }
+pytest-asyncio = { version = "*", optional = true }
+pytest-cov = { version = "*", optional = true }
+python-dotenv = { version = "*", optional = true }
+typeguard = { version = "*", optional = true }
+pre-commit = { version = "*", optional = true }
 
 [tool.poetry.extras]
-orjson = ["orjson"]
+voice = ["PyNaCl>=1.5.0,<1.6"]
+speedup = ["aiodns", "orjson", "Brotli", "faust-cchardet", "uvloop"]
+sentry = ["sentry-sdk"]
 jurigged = ["jurigged"]
-aioconsole = ["aioconsole"]
+console = ["aioconsole>=0.6.0"]
+docs = ["mkdocs-autorefs", "mkdocs-awesome-pages-plugin", "mkdocs-material", "mkdocstrings-python", "mkdocs-minify-plugin", "mkdocs-git-committers-plugin-2", "mkdocs-git-revision-date-localized-plugin"]
+tests = ["pytest", "pytest-recording", "pytest-asyncio", "pytest-cov", "python-dotenv", "typeguard"]
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.3.0"

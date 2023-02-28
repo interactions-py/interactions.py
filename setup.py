@@ -9,7 +9,7 @@ with open("pyproject.toml", "rb") as f:
 
 extras_require = {
     "voice": ["PyNaCl>=1.5.0,<1.6"],
-    "speedup": ["aiodns", "orjson", "Brotli"],
+    "speedup": ["aiodns", "orjson", "Brotli", "faust-cchardet", "uvloop; sys_platform != 'win32'"],
     "sentry": ["sentry-sdk"],
     "jurigged": ["jurigged"],
     "console": ["aioconsole>=0.6.0"],
@@ -32,6 +32,7 @@ extras_require["tests"] = [
     "python-dotenv",
     "typeguard",
 ]
+extras_require["dev"] = extras_require["tests"] + extras_require["docs"] + ["pre-commit"]
 
 setup(
     name="interactions",
