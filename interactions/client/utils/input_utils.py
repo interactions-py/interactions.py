@@ -3,7 +3,6 @@ from enum import IntFlag
 from typing import Any, Dict, Union, Optional
 
 import aiohttp  # type: ignore
-import msgspec.json
 
 from interactions.client.const import get_logger
 import importlib.util
@@ -29,8 +28,8 @@ elif importlib.util.find_spec("msgspec"):
             return int(obj)
         raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
-    json.dumps = msgspec.json.Encoder(enc_hook=enc_hook).encode
-    json.loads = msgspec.json.Decoder().decode
+    json.dumps = json.Encoder(enc_hook=enc_hook).encode
+    json.loads = json.Decoder().decode
 
     json_mode = "msgspec"
 else:
