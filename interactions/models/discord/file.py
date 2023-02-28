@@ -45,6 +45,12 @@ class File:
         else:
             return open(str(self.file), "rb")
 
+    def __enter__(self) -> "File":
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        if isinstance(self.file, (IOBase, BinaryIO)):
+            self.file.close()
 
 UPLOADABLE_TYPE = Union[File, IOBase, BinaryIO, Path, str]
 
