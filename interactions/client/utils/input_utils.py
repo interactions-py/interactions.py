@@ -1,21 +1,42 @@
 import re
+from enum import IntFlag
 from typing import Any, Dict, Union, Optional
 
 import aiohttp  # type: ignore
+import msgspec.json
 
 from interactions.client.const import get_logger
+import importlib.util
 
 __all__ = ("FastJson", "response_decode", "get_args", "get_first_word")
 
-try:
+json_mode = "builtin"
+
+if importlib.util.find_spec("orjson"):
     import orjson as json
 
-    orjson = True
-except ImportError:
-    get_logger().warning("orjson not installed, built-in json library will be used")
-    import json as json
+    json_mode = "orjson"
+elif importlib.util.find_spec("ujson"):
+    import ujson as json
 
-    orjson = False
+    json_mode = "ujson"
+elif importlib.util.find_spec("msgspec"):
+    import msgspec.json as json
+
+    def enc_hook(obj: Any) -> int:
+        # msgspec doesnt support IntFlags
+        if isinstance(obj, IntFlag):
+            return int(obj)
+        raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+
+    json.dumps = msgspec.json.Encoder(enc_hook=enc_hook).encode
+    json.loads = msgspec.json.Decoder().decode
+
+    json_mode = "msgspec"
+else:
+    import json
+
+get_logger().debug(f"Using {json_mode} for JSON encoding and decoding.")
 
 
 _quotes = {
@@ -46,12 +67,12 @@ white_space = re.compile(r"\s+")
 
 
 class FastJson:
-    """Provides a fast way to encode and decode JSON data, using the orjson library if available, otherwise falls back to built-in json library."""
+    """Provides a fast way to encode and decode JSON data, using the fastest available library on the system."""
 
     @staticmethod
     def dumps(*args, **kwargs) -> str:
         data = json.dumps(*args, **kwargs)
-        if orjson:
+        if json_mode in ("orjson", "msgspec"):
             data = data.decode("utf-8")
         return data
 
