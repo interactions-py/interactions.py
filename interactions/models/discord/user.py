@@ -203,7 +203,7 @@ class NaffUser(User):
     @property
     def guilds(self) -> List["Guild"]:
         """The guilds the user is in."""
-        return [self._client.cache.get_guild(g_id) for g_id in self._guild_ids]
+        return list(filter(None, (self._client.cache.get_guild(guild_id) for guild_id in self._guild_ids)))
 
     async def edit(self, *, username: Absent[str] = MISSING, avatar: Absent[UPLOADABLE_TYPE] = MISSING) -> None:
         """
