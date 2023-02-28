@@ -22,6 +22,7 @@ from typing import (
     Sequence,
     Type,
     Union,
+    Awaitable,
 )
 
 import interactions.api.events as events
@@ -935,6 +936,17 @@ class Client(
         await self.http.close()
         await self._connection_state.stop()
 
+    async def _process_waits(self, event: events.BaseEvent) -> None:
+        if _waits := self.waits.get(event.resolved_name, []):
+            index_to_remove = []
+            for i, _wait in enumerate(_waits):
+                result = await _wait(event)
+                if result:
+                    index_to_remove.append(i)
+
+            for idx in sorted(index_to_remove, reverse=True):
+                _waits.pop(idx)
+
     def dispatch(self, event: events.BaseEvent, *args, **kwargs) -> None:
         """
         Dispatch an event.
@@ -954,15 +966,7 @@ class Client(
                         f"An error occurred attempting during {event.resolved_name} event processing"
                     ) from e
 
-        if _waits := self.waits.get(event.resolved_name, []):
-            index_to_remove = []
-            for i, _wait in enumerate(_waits):
-                result = _wait(event)
-                if result:
-                    index_to_remove.append(i)
-
-            for idx in sorted(index_to_remove, reverse=True):
-                _waits.pop(idx)
+        asyncio.create_task(self._process_waits(event))
 
         if "event" in self.listeners:
             # special meta event listener
@@ -976,7 +980,7 @@ class Client(
     def wait_for(
         self,
         event: Union[str, "BaseEvent"],
-        checks: Absent[Optional[Callable[..., bool]]] = MISSING,
+        checks: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] = MISSING,
         timeout: Optional[float] = None,
     ) -> Any:
         """
@@ -989,7 +993,6 @@ class Client(
 
         Returns:
             The event object.
-
         """
         event = get_event_name(event)
 
