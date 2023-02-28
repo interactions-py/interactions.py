@@ -416,6 +416,18 @@ class Client(
         super().__init__()
         self._sanity_check()
 
+    async def __aenter__(self) -> "Client":
+        if not self.token:
+            raise ValueError(
+                "Token not found - to use the bot in a context manager, you must pass the token in the Client constructor."
+            )
+        await self.login(self.token)
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        if not self.is_closed:
+            await self.stop()
+
     @property
     def is_closed(self) -> bool:
         """Returns True if the bot has closed."""
