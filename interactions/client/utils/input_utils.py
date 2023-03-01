@@ -128,6 +128,7 @@ def get_first_word(text: str) -> Optional[str]:
 def unpack_helper(iterable: typing.Iterable) -> list[Any]:
     """
     Unpacks all types of iterable into a list. Primarily to flatten generators.
+
     Args:
         iterable: The iterable to unpack
     Returns:

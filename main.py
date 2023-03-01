@@ -58,6 +58,7 @@ async def components(ctx):
         components=[interactions.Button(label="test", style=interactions.ButtonStyles.PRIMARY)],
     )
 
+
 @slash_command("record", description="Record audio in your voice channel")
 @slash_option("duration", "The duration of the recording", opt_type=interactions.OptionType.NUMBER, required=True)
 async def record(ctx: interactions.SlashContext, duration: int):
@@ -71,7 +72,9 @@ async def record(ctx: interactions.SlashContext, duration: int):
     await asyncio.sleep(duration)
     voice_state.stop_recording()
 
-    await ctx.send("Here is your recording", files=[File(f,  file_name=f"{user_id}.mp3") for user_id, f in recorder.output.items()])
+    await ctx.send(
+        "Here is your recording", files=[File(f, file_name=f"{user_id}.mp3") for user_id, f in recorder.output.items()]
+    )
 
 
 @slash_command("modal")

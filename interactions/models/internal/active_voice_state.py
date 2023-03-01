@@ -237,6 +237,7 @@ class ActiveVoiceState(VoiceState):
     def start_recording(self, encoding: Optional[str] = None, squash: Optional[bool] = None) -> Recorder:
         """
         Start recording the voice channel.
+
         If no recorder exists, one will be created.
         Args:
             encoding: What format the audio should be encoded to.
@@ -255,6 +256,7 @@ class ActiveVoiceState(VoiceState):
     def stop_recording(self) -> dict[int, BytesIO]:
         """
         Stop the recording.
+
         Returns:
             dict[snowflake, BytesIO]: The recorded audio
         """

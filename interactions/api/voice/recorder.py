@@ -59,6 +59,7 @@ class Recorder(threading.Thread):
     def decrypt(self, header: bytes, data: bytes) -> bytes:
         """
         An alias to call the decryption methods.
+
         Args:
             header: The payload header
             data: The payload data
@@ -74,6 +75,7 @@ class Recorder(threading.Thread):
     def get_user(self, ssrc: str) -> Snowflake_Type:
         """
         Get the corresponding user from a ssrc.
+
         Args:
             ssrc: The source to retrieve the user from
         Returns:
@@ -90,6 +92,7 @@ class Recorder(threading.Thread):
     def filter(self, *user_id: Snowflake_Type) -> None:
         """
         Filter the users that are being recorded.
+
         Args:
             *user_id: The user_id(s) to record
         """
@@ -99,6 +102,7 @@ class Recorder(threading.Thread):
 
     def start_recording(self, *user_id: Snowflake_Type) -> None:
         """Start recording audio from the current channel.
+
         Args:
             *user_id: The user_id(s) to record, if not specified everyone will be recorded.
         """
@@ -129,6 +133,7 @@ class Recorder(threading.Thread):
     def process_data(self, raw_audio: RawInputAudio) -> None:
         """
         Processes incoming audio data and writes it to the corresponding buffer.
+
         Args:
             raw_audio: The raw audio that has been received
         """
@@ -142,7 +147,9 @@ class Recorder(threading.Thread):
             if last_timestamp := self.audio.last_timestamps.get(raw_audio.user_id, None):
                 diff = time.perf_counter() - last_timestamp
                 silence = int(diff * self.get_decoder(raw_audio.ssrc).sample_rate)
-                log.debug(f"{self.state.channel.id}::{raw_audio.user_id} - User rejoined, adding {silence} silence frames ({diff} seconds)")
+                log.debug(
+                    f"{self.state.channel.id}::{raw_audio.user_id} - User rejoined, adding {silence} silence frames ({diff} seconds)"
+                )
             else:
                 silence = 0
 

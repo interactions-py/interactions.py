@@ -203,7 +203,9 @@ class VoiceGateway(WebsocketClient):
             case OP.SPEAKING:
                 self.user_ssrc_map[data["ssrc"]] = {"user_id": int(data["user_id"]), "speaking": data["speaking"]}
             case OP.CLIENT_DISCONNECT:
-                self.logger.debug(f"User {data['user_id']} has disconnected from voice, ssrc ({self.user_ssrc_map.pop(data['user_id'], MISSING)}) invalidated")
+                self.logger.debug(
+                    f"User {data['user_id']} has disconnected from voice, ssrc ({self.user_ssrc_map.pop(data['user_id'], MISSING)}) invalidated"
+                )
 
             case _:
                 return self.logger.debug(f"Unhandled OPCODE: {op} = {data = }")

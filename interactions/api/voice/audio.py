@@ -5,13 +5,16 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union, Optional, TYPE_CHECKING
 
 __all__ = ("AudioBuffer", "BaseAudio", "Audio", "AudioVolume", "RawInputAudio")
 
 from interactions.client.const import get_logger
 from interactions.api.voice.opus import Encoder
 from interactions.client.utils import FastJson
+
+if TYPE_CHECKING:
+    from interactions.api.voice.recorder import Recorder
 
 
 class RawInputAudio:
@@ -199,7 +202,7 @@ class Audio(BaseAudio):
                 "a:0",
                 self.source,
             ]
-            raw_output = subprocess.check_output(ffprobe_cmd, stderr=subprocess.DEVNULL)
+            raw_output = subprocess.check_output(ffprobe_cmd, stderr=subprocess.DEVNULL)  # noqa S603
             output = FastJson.loads(raw_output)
 
             config["sample_rate"] = int(output["streams"][0]["sample_rate"])

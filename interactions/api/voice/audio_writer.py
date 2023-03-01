@@ -3,11 +3,9 @@ import logging
 import subprocess  # noqa: S404
 import threading
 import time
-import wave
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from interactions.api.voice.opus import OpusConfig
 from interactions.client.const import logger_name
 
 if TYPE_CHECKING:
@@ -27,7 +25,7 @@ class AudioWriter:
         "wav",
     )
 
-    def __init__(self, recorder: "Recorder", channel_id: int, squash: bool=False) -> None:
+    def __init__(self, recorder: "Recorder", channel_id: int, squash: bool = False) -> None:
         self._recorder = recorder
         self.channel_id = channel_id
         self.files: dict[int, io.BytesIO] = defaultdict(io.BytesIO)
@@ -46,6 +44,7 @@ class AudioWriter:
     def write(self, data, user_id: int) -> None:
         """
         Write the incoming bytestream to the appropriate user's BytesIO
+
         Args:
             data: The data to be written
             user_id: The ID of the user
@@ -76,6 +75,7 @@ class AudioWriter:
     def encode_audio(self, encoding: str) -> None:
         """
         Encode the recorded data into the desired format.
+
         Args:
             encoding: The format to encode to.
         Raises:
@@ -96,6 +96,7 @@ class AudioWriter:
     def __ffmpeg_encode(self, user_id: int, encoding: str) -> None:
         """
         An internal method to encode audio using ffmpeg.
+
         Args:
             user_id: The ID of the user's stream to encode.
             encoding: The encoding to use.
@@ -115,6 +116,7 @@ class AudioWriter:
     def _encode_mp3(self, user_id: int) -> None:
         """
         Encode a user's audio to mp3.
+
         Args:
             user_id: The ID of the user's stream to encode.
         """
@@ -124,6 +126,7 @@ class AudioWriter:
     def _encode_ogg(self, user_id: int) -> None:
         """
         Encode a user's audio to ogg.
+
         Args:
             user_id: The ID of the user's stream to encode.
         """
@@ -133,6 +136,7 @@ class AudioWriter:
     def _encode_mka(self, user_id: int) -> None:
         """
         Encode a user's audio to mka.
+
         Args:
             user_id: The ID of the user's stream to encode.
         """
@@ -142,6 +146,7 @@ class AudioWriter:
     def _encode_wav(self, user_id: int) -> None:
         """
         Encode a user's audio to wav.
+
         Args:
             user_id: The ID of the user's stream to encode.
         """
@@ -162,6 +167,7 @@ class AudioWriter:
     def _encode_pcm(self, user_id: int) -> None:
         """
         Encode a user's audio to pcm.
+
         Args:
             user_id: The ID of the user's stream to encode.
         """
