@@ -8,6 +8,7 @@ from threading import Event
 
 from aiohttp import WSMsgType
 
+from interactions.client.const import MISSING
 from interactions.api.gateway.websocket import WebsocketClient
 from interactions.api.voice.encryption import Encryption
 from interactions.client.errors import VoiceWebSocketClosed
@@ -54,11 +55,13 @@ class VoiceGateway(WebsocketClient):
         self.ws_url = f"wss://{voice_server['endpoint']}?v=4"
         self.session_id = voice_state["session_id"]
         self.token = voice_server["token"]
+        self.secret: str | None = None
         self.guild_id = voice_server["guild_id"]
 
         self.sock_sequence = 0
         self.timestamp = 0
         self.ready = Event()
+        self.user_ssrc_map = {}
         self.cond = None
 
     async def wait_until_ready(self) -> None:
@@ -190,11 +193,17 @@ class VoiceGateway(WebsocketClient):
 
             case OP.SESSION_DESCRIPTION:
                 self.logger.info(f"Voice connection established; using {data['mode']}")
-                self.encryptor = Encryption(data["secret_key"])
+                self.selected_mode = data["mode"]
+                self.secret = data["secret_key"]
+                self.encryptor = Encryption(self.secret)
                 self.ready.set()
                 if self.cond:
                     with self.cond:
                         self.cond.notify()
+            case OP.SPEAKING:
+                self.user_ssrc_map[data["ssrc"]] = {"user_id": int(data["user_id"]), "speaking": data["speaking"]}
+            case OP.CLIENT_DISCONNECT:
+                self.logger.debug(f"User {data['user_id']} has disconnected from voice, ssrc ({self.user_ssrc_map.pop(data['user_id'], MISSING)}) invalidated")
 
             case _:
                 return self.logger.debug(f"Unhandled OPCODE: {op} = {data = }")
@@ -252,7 +261,7 @@ class VoiceGateway(WebsocketClient):
         self.logger.debug("IP Discovery in progress...")
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.setblocking(False)
+        self.socket.setblocking(True)
 
         packet = bytearray(70)
         struct.pack_into(">H", packet, 0, 1)  # 1 = Send

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import uuid
@@ -5,7 +6,7 @@ import uuid
 from thefuzz import process
 
 import interactions
-from interactions import Client, listen, slash_command, BrandColours, FlatUIColours, MaterialColours
+from interactions import Client, listen, slash_command, BrandColours, FlatUIColours, MaterialColours, File
 from interactions.models.internal.application_commands import global_autocomplete, slash_option
 
 logging.basicConfig()
@@ -56,6 +57,21 @@ async def components(ctx):
         "Buttons",
         components=[interactions.Button(label="test", style=interactions.ButtonStyles.PRIMARY)],
     )
+
+@slash_command("record", description="Record audio in your voice channel")
+@slash_option("duration", "The duration of the recording", opt_type=interactions.OptionType.NUMBER, required=True)
+async def record(ctx: interactions.SlashContext, duration: int):
+    if ctx.author.voice.channel is None:
+        return await ctx.send("You must be in a voice channel to use this command.")
+    voice_channel = ctx.author.voice.channel
+    voice_state = await voice_channel.connect()
+
+    recorder = voice_state.start_recording()
+    await ctx.send(f"Recording for {duration} seconds")
+    await asyncio.sleep(duration)
+    voice_state.stop_recording()
+
+    await ctx.send("Here is your recording", files=[File(f,  file_name=f"{user_id}.mp3") for user_id, f in recorder.output.items()])
 
 
 @slash_command("modal")

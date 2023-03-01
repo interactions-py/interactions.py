@@ -7,16 +7,51 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Union, Optional
 
-__all__ = (
-    "AudioBuffer",
-    "BaseAudio",
-    "Audio",
-    "AudioVolume",
-)
+__all__ = ("AudioBuffer", "BaseAudio", "Audio", "AudioVolume", "RawInputAudio")
 
 from interactions.client.const import get_logger
 from interactions.api.voice.opus import Encoder
 from interactions.client.utils import FastJson
+
+
+class RawInputAudio:
+    pcm: bytes
+    """The decoded audio"""
+    sequence: int
+    """The audio sequence"""
+    timestamp: int
+    """The current timestamp for this audio"""
+    ssrc: int
+    """The source of this audio"""
+    _recoder: "Recorder"
+    """A reference to the audio recorder managing this object"""
+
+    def __init__(self, recorder: "Recorder", data: bytes) -> None:
+        self.pcm: bytes = b""
+        self._recorder = recorder
+
+        self.ingest(data)
+
+    def ingest(self, data: bytes) -> bytes | None:
+        data = bytearray(data)
+        header = data[:12]
+
+        decrypted: bytes = self._recorder.decrypt(header, data[12:])
+        self.ssrc = int.from_bytes(header[8:12], byteorder="big")
+        self.sequence = int.from_bytes(header[2:4], byteorder="big")
+        self.timestamp = int.from_bytes(header[4:8], byteorder="big")
+
+        if not self._recorder.recording_whitelist or self.user_id in self._recorder.recording_whitelist:
+            # noinspection PyProtectedMember
+            self.pcm = self._recorder.get_decoder(self.ssrc).decode(decrypted)
+            return self.pcm
+
+    @property
+    def user_id(self) -> Optional[int]:
+        """The ID of the user who made this audio."""
+        while not self._recorder.state.ws.user_ssrc_map.get(self.ssrc):
+            time.sleep(0.05)
+        return self._recorder.state.ws.user_ssrc_map.get(self.ssrc)["user_id"]
 
 
 class AudioBuffer:

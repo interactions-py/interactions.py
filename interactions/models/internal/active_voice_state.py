@@ -1,10 +1,12 @@
 import asyncio
+from io import BytesIO
 from typing import Optional, TYPE_CHECKING
 
 import attrs
 from discord_typings import VoiceStateData
 
 from interactions.api.voice.player import Player
+from interactions.api.voice.recorder import Recorder
 from interactions.api.voice.voice_gateway import VoiceGateway
 from interactions.client.const import MISSING
 from interactions.client.errors import VoiceAlreadyConnected, VoiceConnectionTimeout
@@ -25,6 +27,8 @@ class ActiveVoiceState(VoiceState):
     """The websocket for this voice state"""
     player: Optional[Player] = attrs.field(repr=False, default=None)
     """The playback task that broadcasts audio data to discord"""
+    recorder: Optional[Recorder] = attrs.field(default=None)
+    """A recorder task to capture audio from discord"""
     _volume: float = attrs.field(repr=False, default=0.5)
 
     # standard voice states expect this data, this voice state lacks it initially; so we make them optional
@@ -223,6 +227,49 @@ class ActiveVoiceState(VoiceState):
             audio: The audio object to play
         """
         asyncio.create_task(self.play(audio))
+
+    def create_recorder(self) -> Recorder:
+        """Create a recorder instance."""
+        if not self.recorder:
+            self.recorder = Recorder(self, asyncio.get_running_loop())
+        return self.recorder
+
+    def start_recording(self, encoding: Optional[str] = None, squash: Optional[bool] = None) -> Recorder:
+        """
+        Start recording the voice channel.
+        If no recorder exists, one will be created.
+        Args:
+            encoding: What format the audio should be encoded to.
+        """
+        if not self.recorder:
+            self.recorder = Recorder(self, asyncio.get_running_loop())
+
+        if encoding is not None:
+            self.recorder.encoding = encoding
+        if squash is not None:
+            self.recorder.squash_output = squash
+
+        self.recorder.start_recording()
+        return self.recorder
+
+    def stop_recording(self) -> dict[int, BytesIO]:
+        """
+        Stop the recording.
+        Returns:
+            dict[snowflake, BytesIO]: The recorded audio
+        """
+        if not self.recorder or not self.recorder.recording:
+            raise RuntimeError("No recorder is running!")
+        self.recorder.stop_recording()
+
+        self.recorder.audio.finished.wait()
+        return self.recordings
+
+    @property
+    def recordings(self) -> dict[int, BytesIO]:
+        if not self.recorder:
+            return {}
+        return self.recorder.output
 
     async def _voice_server_update(self, data) -> None:
         """

@@ -1,18 +1,17 @@
 import array
 import ctypes
 import ctypes.util
-import os
 import sys
+from ctypes import CDLL
 from enum import IntEnum
 from pathlib import Path
 from typing import Any
 
 import attr
 
-from interactions.client.const import MISSING
+__all__ = ["Encoder", "Decoder"]
 
-__all__ = ("Encoder",)
-
+from interactions.client.const import MISSING, get_logger
 
 c_int_ptr = ctypes.POINTER(ctypes.c_int)
 c_int16_ptr = ctypes.POINTER(ctypes.c_int16)
@@ -25,12 +24,23 @@ class EncoderStructure(ctypes.Structure):
     ...
 
 
+class DecoderStructure(ctypes.Structure):
+    ...
+
+
 EncoderStructurePointer = ctypes.POINTER(EncoderStructure)
+DecoderStructurePointer = ctypes.POINTER(DecoderStructure)
+
+
+class OpusError(Exception):
+    def __init__(self, code: int) -> None:
+        msg = lib_opus.opus_strerror(code).decode("utf-8")
+        super().__init__(msg)
 
 
 def error_lt(result, func, args) -> int:
     if result < 0:
-        raise ValueError(f"Error code: {result}")
+        raise OpusError(result)
     return result
 
 
@@ -38,7 +48,7 @@ def error_ne(result, func, args) -> int:
     # noinspection PyProtectedMember
     ret = args[-1]._obj
     if ret.value != 0:
-        raise ValueError(f"Error code: {ret.value}")
+        raise OpusError(ret.value)
     return result
 
 
@@ -124,11 +134,51 @@ exported_functions: dict[str, FuncData] = {
     ),
     "opus_encoder_ctl": FuncData(None, ctypes.c_int32, error_lt),
     "opus_encoder_destroy": FuncData([EncoderStructurePointer], None, None),
+    "opus_decoder_get_size": FuncData([ctypes.c_int], ctypes.c_int, None),
+    "opus_decoder_create": FuncData([ctypes.c_int, ctypes.c_int, c_int_ptr], DecoderStructurePointer, error_ne),
+    "opus_decode": FuncData(
+        [
+            DecoderStructurePointer,
+            ctypes.c_char_p,
+            ctypes.c_int32,
+            c_int16_ptr,
+            ctypes.c_int,
+            ctypes.c_int,
+        ],
+        ctypes.c_int,
+        error_lt,
+    ),
+    "opus_decode_float": FuncData(
+        [
+            DecoderStructurePointer,
+            c_int16_ptr,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int32,
+        ],
+        ctypes.c_int,
+        error_lt,
+    ),
+    "opus_decoder_ctl": FuncData(None, ctypes.c_int32, error_lt),
+    "opus_decoder_destroy": FuncData([DecoderStructurePointer], None, None),
+    "opus_packet_get_bandwidth": FuncData([ctypes.c_char_p], ctypes.c_int, error_lt),
+    "opus_packet_get_nb_channels": FuncData([ctypes.c_char_p], ctypes.c_int, error_lt),
+    "opus_decoder_get_nb_samples": FuncData(
+        [DecoderStructurePointer, ctypes.c_char_p, ctypes.c_int32], ctypes.c_int, error_lt
+    ),
+    "opus_packet_get_nb_frames": FuncData(
+        [ctypes.c_char_p, ctypes.c_int],
+        ctypes.c_int,
+        error_lt,
+    ),
+    "opus_packet_get_samples_per_frame": FuncData([ctypes.c_char_p, ctypes.c_int], ctypes.c_int, error_lt),
 }
 
 
-class Encoder:
-    def __init__(self) -> None:
+def load_opus() -> CDLL:
+    global lib_opus
+
+    if not lib_opus:
         if sys.platform == "win32":
             architecture = "x64" if sys.maxsize > 32**2 else "x86"
             directory = Path(__file__).parent.parent.parent
@@ -142,10 +192,10 @@ class Encoder:
         if name is None:
             raise RuntimeError("Could not find opus library.")
 
-        self.lib_opus = ctypes.cdll.LoadLibrary(name)
+        _lib_opus = ctypes.cdll.LoadLibrary(name)
 
         for func_name, opt in exported_functions.items():
-            func = getattr(self.lib_opus, func_name)
+            func = getattr(_lib_opus, func_name)
 
             func.restype = opt.res_type
 
@@ -155,24 +205,22 @@ class Encoder:
             if opt.err_check:
                 func.errcheck = opt.err_check
 
+        lib_opus = _lib_opus
+    return lib_opus
+
+
+class OpusConfig:
+    """Shared default config for decoder and encoder."""
+
+    def __init__(self) -> None:
+        self.lib_opus = load_opus()
+
         self.sample_rate: int = 48000  # bps
         self.channels: int = 2
         self.frame_length: int = 20  # ms
         self.sample_size: int = 4
         self.expected_packet_loss: float = 0
         self.bitrate: int = 64
-
-        self.encoder = self.create_state()
-        self.set_bitrate(self.bitrate)
-        self.set_fec(True)
-        self.set_expected_pack_loss(self.expected_packet_loss)
-        self.set_bandwidth("FULL")
-        self.set_signal_type("AUTO")
-
-    def __del__(self) -> None:
-        if hasattr(self, "encoder"):
-            self.lib_opus.opus_encoder_destroy(self.encoder)
-            self.encoder = None
 
     @property
     def samples_per_frame(self) -> int:
@@ -185,6 +233,23 @@ class Encoder:
     @property
     def frame_size(self) -> int:
         return self.samples_per_frame * self.channels * 2
+
+
+class Encoder(OpusConfig):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.encoder = self.create_state()
+        self.set_bitrate(self.bitrate)
+        self.set_fec(True)
+        self.set_expected_pack_loss(self.expected_packet_loss)
+        self.set_bandwidth("FULL")
+        self.set_signal_type("AUTO")
+
+    def __del__(self) -> None:
+        if hasattr(self, "encoder"):
+            self.lib_opus.opus_encoder_destroy(self.encoder)
+            self.encoder = None
 
     def create_state(self) -> EncoderStructurePointer:
         """Create an opus encoder state."""
@@ -229,3 +294,60 @@ class Encoder:
         data = (ctypes.c_char * max_data_bytes)()
         resp = self.lib_opus.opus_encode(self.encoder, pcm, self.samples_per_frame, data, max_data_bytes)
         return array.array("b", data[:resp]).tobytes()
+
+
+class Decoder(OpusConfig):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.decoder = self.create_state()
+
+    def __del__(self) -> None:
+        if hasattr(self, "decoder"):
+            self.lib_opus.opus_decoder_destroy(self.decoder)
+            self.decoder = None
+
+    def create_state(self) -> DecoderStructurePointer:
+        """Create an opus decoder state."""
+        ret = ctypes.c_int()
+        return self.lib_opus.opus_decoder_create(self.sample_rate, self.channels, ctypes.byref(ret))
+
+    def get_packet_frame_count(self, data: bytes) -> int:
+        """Get the number of frames in an encoded packet."""
+        return self.lib_opus.opus_packet_get_nb_frames(data, len(data))
+
+    def get_packet_channel_count(self, data: bytes) -> int:
+        """Get the number of channels in an encoded packet."""
+        return self.lib_opus.opus_packet_get_nb_channels(data)
+
+    def get_packet_sample_rate(self, data: bytes) -> int:
+        """Get the sample rate of an encoded packet."""
+        return self.lib_opus.opus_packet_get_samples_per_frame(data, self.sample_rate)
+
+    def decode(self, data: bytes, fec: bool = False) -> bytes:
+        """
+        Decode an opus payload from discord.
+
+        Args:
+            data: The data to decode
+            fec: Enable forward error correction
+
+        Returns:
+            The decoded bytes
+        """
+        try:
+            if data:
+                frames = self.get_packet_frame_count(data)
+                channels = self.get_packet_channel_count(data)
+                f_size = frames * self.get_packet_sample_rate(data)
+            else:
+                f_size = self.samples_per_frame
+                channels = self.channels
+
+            pcm = (ctypes.c_int16 * (f_size * channels * 2))()
+            pcm_pointer = ctypes.cast(pcm, c_int16_ptr)
+
+            result = self.lib_opus.opus_decode(self.decoder, data, len(data) if data else 0, pcm_pointer, f_size, fec)
+            return array.array("h", pcm[: result * channels]).tobytes()
+        except OpusError as e:
+            get_logger().exception("Error decoding opus data frame", exc_info=e)

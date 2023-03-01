@@ -1,4 +1,6 @@
+import inspect
 import re
+import typing
 from enum import IntFlag
 from typing import Any, Dict, Union, Optional
 
@@ -7,7 +9,7 @@ import aiohttp  # type: ignore
 from interactions.client.const import get_logger
 import importlib.util
 
-__all__ = ("FastJson", "response_decode", "get_args", "get_first_word")
+__all__ = ("FastJson", "response_decode", "get_args", "get_first_word", "unpack_helper")
 
 json_mode = "builtin"
 
@@ -121,3 +123,20 @@ def get_first_word(text: str) -> Optional[str]:
 
     """
     return split[0] if (split := text.split(maxsplit=1)) else None
+
+
+def unpack_helper(iterable: typing.Iterable) -> list[Any]:
+    """
+    Unpacks all types of iterable into a list. Primarily to flatten generators.
+    Args:
+        iterable: The iterable to unpack
+    Returns:
+        A flattened list
+    """
+    unpack = []
+    for c in iterable:
+        if inspect.isgenerator(c):
+            unpack += list(c)
+        else:
+            unpack.append(c)
+    return unpack
