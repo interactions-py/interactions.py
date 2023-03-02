@@ -254,16 +254,16 @@ class VoiceGateway(WebsocketClient):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setblocking(False)
 
-        packet = bytearray(70)
+        packet = bytearray(74)
         struct.pack_into(">H", packet, 0, 1)  # 1 = Send
         struct.pack_into(">H", packet, 2, 70)  # 70 = Length
         struct.pack_into(">I", packet, 4, self.ssrc)
 
         self.socket.sendto(packet, (self.voice_ip, self.voice_port))
-        resp = await self.loop.sock_recv(self.socket, 70)
+        resp = await self.loop.sock_recv(self.socket, 74)
         self.logger.debug(f"Voice Initial Response Received: {resp}")
 
-        ip_start = 4
+        ip_start = 8
         ip_end = resp.index(0, ip_start)
         self.me_ip = resp[ip_start:ip_end].decode("ascii")
 
