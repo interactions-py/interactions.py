@@ -9,6 +9,7 @@ from interactions.api.voice.voice_gateway import VoiceGateway
 from interactions.client.const import MISSING
 from interactions.client.errors import VoiceAlreadyConnected, VoiceConnectionTimeout
 from interactions.client.utils import optional
+from interactions.models.discord.enums import Intents
 from interactions.models.discord.snowflake import Snowflake_Type, to_snowflake
 from interactions.models.discord.voice_state import VoiceState
 
@@ -140,6 +141,9 @@ class ActiveVoiceState(VoiceState):
         if self.connected:
             raise VoiceAlreadyConnected
 
+        if Intents.GUILD_VOICE_STATES not in self._client.intents:
+            raise RuntimeError("Cannot connect to voice without the GUILD_VOICE_STATES intent.")
+
         tasks = [
             asyncio.create_task(
                 self._client.wait_for("raw_voice_state_update", self._guild_predicate, timeout=timeout)
@@ -154,7 +158,7 @@ class ActiveVoiceState(VoiceState):
         self.logger.debug("Waiting for voice connection data...")
 
         try:
-            self._voice_state, self._voice_server = await asyncio.gather(*tasks, return_exceptions=True)  # noqa
+            self._voice_state, self._voice_server = await asyncio.gather(*tasks)  # noqa
         except asyncio.TimeoutError:
             raise VoiceConnectionTimeout from None
 
