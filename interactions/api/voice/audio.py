@@ -1,6 +1,5 @@
 import audioop
 import shutil
-import struct
 import subprocess  # noqa: S404
 import threading
 import time
@@ -47,10 +46,10 @@ class RawInputAudio:
 
         if not self._recorder.recording_whitelist or self.user_id in self._recorder.recording_whitelist:
             # noinspection PyProtectedMember
-            if decrypted[0] == 0xbe and decrypted[1] == 0xde:
+            if decrypted[0] == 0xBE and decrypted[1] == 0xDE:
                 # rtp header extension, remove it
                 header_ext_length = int.from_bytes(decrypted[2:4], byteorder="big")
-                decrypted = decrypted[4 + 4 * header_ext_length:]
+                decrypted = decrypted[4 + 4 * header_ext_length :]
             self.pcm = self._recorder.get_decoder(self.ssrc).decode(decrypted)
             return self.pcm
 

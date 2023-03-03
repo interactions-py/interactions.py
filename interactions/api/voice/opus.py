@@ -331,8 +331,9 @@ class Decoder(OpusConfig):
 
     def get_last_packet_duration(self) -> int:
         """Get the duration of the last decoded packet."""
-        return self.lib_opus.opus_decoder_ctl(self.decoder, DecoderCTL.CTL_GET_LAST_PACKET_DURATION, ctypes.byref(ctypes.c_int32()))
-
+        return self.lib_opus.opus_decoder_ctl(
+            self.decoder, DecoderCTL.CTL_GET_LAST_PACKET_DURATION, ctypes.byref(ctypes.c_int32())
+        )
 
     def decode(self, data: bytes, fec: bool = False) -> bytes:
         """

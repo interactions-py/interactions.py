@@ -150,6 +150,7 @@ class Recorder(threading.Thread):
                     self.process_data(raw_audio)
                 except Exception as ex:
                     log.error("Error while recording: %s", ex)
+
     def process_data(self, raw_audio: RawInputAudio) -> None:
         """
         Processes incoming audio data and writes it to the corresponding buffer.
