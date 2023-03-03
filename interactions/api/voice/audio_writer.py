@@ -101,7 +101,8 @@ class AudioWriter:
             user_id: The ID of the user's stream to encode.
             encoding: The encoding to use.
         """
-        args = f"ffmpeg -f s16le -ar 48000 -ac 2 -loglevel quiet -i - -f {encoding} pipe:1".split()
+        decoder = self._recorder.get_decoder(self._recorder.get_ssrc(user_id))
+        args = f"ffmpeg -f s16le -ar {decoder.sample_rate} -ac {decoder.channels} -loglevel quiet -i - -f {encoding} pipe:1".split()
         process = subprocess.Popen(  # noqa: S603
             args,
             stdout=subprocess.PIPE,

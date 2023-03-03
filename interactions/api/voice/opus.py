@@ -1,6 +1,7 @@
 import array
 import ctypes
 import ctypes.util
+import struct
 import sys
 from ctypes import CDLL
 from enum import IntEnum
@@ -151,10 +152,11 @@ exported_functions: dict[str, FuncData] = {
     "opus_decode_float": FuncData(
         [
             DecoderStructurePointer,
-            c_int16_ptr,
-            ctypes.c_int,
             ctypes.c_char_p,
             ctypes.c_int32,
+            c_float_ptr,
+            ctypes.c_int,
+            ctypes.c_int,
         ],
         ctypes.c_int,
         error_lt,
@@ -218,7 +220,6 @@ class OpusConfig:
         self.sample_rate: int = 48000  # bps
         self.channels: int = 2
         self.frame_length: int = 20  # ms
-        self.sample_size: int = 4
         self.expected_packet_loss: float = 0
         self.bitrate: int = 64
 
@@ -231,8 +232,12 @@ class OpusConfig:
         return self.frame_length / 1000
 
     @property
+    def sample_size(self) -> int:
+        return struct.calcsize("h") * self.channels
+
+    @property
     def frame_size(self) -> int:
-        return self.samples_per_frame * self.channels * 2
+        return self.samples_per_frame * self.sample_size
 
 
 class Encoder(OpusConfig):
@@ -324,6 +329,11 @@ class Decoder(OpusConfig):
         """Get the sample rate of an encoded packet."""
         return self.lib_opus.opus_packet_get_samples_per_frame(data, self.sample_rate)
 
+    def get_last_packet_duration(self) -> int:
+        """Get the duration of the last decoded packet."""
+        return self.lib_opus.opus_decoder_ctl(self.decoder, DecoderCTL.CTL_GET_LAST_PACKET_DURATION, ctypes.byref(ctypes.c_int32()))
+
+
     def decode(self, data: bytes, fec: bool = False) -> bytes:
         """
         Decode an opus payload from discord.
@@ -338,10 +348,11 @@ class Decoder(OpusConfig):
         try:
             if data:
                 frames = self.get_packet_frame_count(data)
-                channels = self.get_packet_channel_count(data)
-                f_size = frames * self.get_packet_sample_rate(data)
+                channels = self.channels
+                self.get_packet_sample_rate(data)
+                f_size = frames * self.sample_rate
             else:
-                f_size = self.samples_per_frame
+                f_size = self.get_last_packet_duration() or self.sample_rate
                 channels = self.channels
 
             pcm = (ctypes.c_int16 * (f_size * channels * 2))()
@@ -351,3 +362,4 @@ class Decoder(OpusConfig):
             return array.array("h", pcm[: result * channels]).tobytes()
         except OpusError as e:
             get_logger().exception("Error decoding opus data frame", exc_info=e)
+            return b""

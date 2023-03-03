@@ -8,9 +8,9 @@ from threading import Event
 
 from aiohttp import WSMsgType
 
-from interactions.client.const import MISSING
 from interactions.api.gateway.websocket import WebsocketClient
 from interactions.api.voice.encryption import Encryption
+from interactions.client.const import MISSING
 from interactions.client.errors import VoiceWebSocketClosed
 from interactions.client.utils.input_utils import FastJson
 
@@ -263,7 +263,7 @@ class VoiceGateway(WebsocketClient):
         self.logger.debug("IP Discovery in progress...")
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.setblocking(True)
+        self.socket.setblocking(False)
 
         packet = bytearray(74)
         struct.pack_into(">H", packet, 0, 1)  # 1 = Send

@@ -8,6 +8,7 @@ from asyncio import AbstractEventLoop
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
+import select
 
 from interactions.api.voice.audio import RawInputAudio
 from interactions.api.voice.audio_writer import AudioWriter
@@ -83,6 +84,17 @@ class Recorder(threading.Thread):
         """
         return self.state.ws.user_ssrc_map.get(ssrc)["user_id"]
 
+    def get_ssrc(self, user_id: Snowflake_Type) -> str:
+        """
+        Get the corresponding ssrc from a user.
+
+        Args:
+            user_id: The user to retrieve the ssrc from
+        Returns:
+            A string representing the ssrc
+        """
+        return next((ssrc for ssrc, user in self.state.ws.user_ssrc_map.items() if user["user_id"] == user_id), None)
+
     def __enter__(self) -> "Recorder":
         return self
 
@@ -122,14 +134,22 @@ class Recorder(threading.Thread):
         """The recording loop itself."""
         with self.audio:
             while self.recording:
+                ready, _, err = select.select([self.state.ws.socket], [], [self.state.ws.socket], 0.01)
+                if not ready:
+                    if err:
+                        log.error("Error while recording: %s", err)
+                    continue
+
                 data = self.state.ws.socket.recv(4096)
 
                 if 200 <= data[1] <= 204:
                     continue
 
-                raw_audio = RawInputAudio(self, data)
-                self.process_data(raw_audio)
-
+                try:
+                    raw_audio = RawInputAudio(self, data)
+                    self.process_data(raw_audio)
+                except Exception as ex:
+                    log.error("Error while recording: %s", ex)
     def process_data(self, raw_audio: RawInputAudio) -> None:
         """
         Processes incoming audio data and writes it to the corresponding buffer.
