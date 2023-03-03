@@ -139,15 +139,22 @@ class ActiveVoiceState(VoiceState):
         """
         if self.connected:
             raise VoiceAlreadyConnected
+
+        tasks = [
+            asyncio.create_task(
+                self._client.wait_for("raw_voice_state_update", self._guild_predicate, timeout=timeout)
+            ),
+            asyncio.create_task(
+                self._client.wait_for("raw_voice_server_update", self._guild_predicate, timeout=timeout)
+            ),
+        ]
+
         await self.gateway.voice_state_update(self._guild_id, self._channel_id, self.self_mute, self.self_deaf)
 
         self.logger.debug("Waiting for voice connection data...")
 
         try:
-            self._voice_state, self._voice_server = await asyncio.gather(
-                self._client.wait_for("raw_voice_state_update", self._guild_predicate, timeout=timeout),
-                self._client.wait_for("raw_voice_server_update", self._guild_predicate, timeout=timeout),
-            )
+            self._voice_state, self._voice_server = await asyncio.gather(*tasks, return_exceptions=True)  # noqa
         except asyncio.TimeoutError:
             raise VoiceConnectionTimeout from None
 
