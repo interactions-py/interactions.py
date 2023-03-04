@@ -113,14 +113,13 @@ class AudioWriter:
 
         self._recording_complete.set()
 
-        if self.output_dir:
-            # we have an output directory, so we need to wait for the buffers to be empty
+        if self.output_dir and self.buffer_task.is_alive():
             self.done_recording.wait()
         self.done_recording.set()
 
         for file in self.files.values():
             file.seek(0)
-        self._recording_complete.set()
+
 
     def encode_audio(self, encoding: str) -> None:
         """
@@ -132,8 +131,7 @@ class AudioWriter:
             ValueError: If a non-supported encoding is requested.
         """
         self._recording_complete.wait()
-        if self.output_dir:
-            # we have an output directory, so we need to wait for the buffers to be empty
+        if self.output_dir and self.buffer_task.is_alive():
             self.done_recording.wait()
         self.done_recording.set()
 

@@ -89,7 +89,7 @@ class Recorder(threading.Thread):
         self.recording = False
 
         def wait() -> None:
-            self.audio.done_recording.wait()
+            self.audio.cleanup()
             self.audio.encode_audio(self.encoding)
 
         await asyncio.to_thread(wait)
