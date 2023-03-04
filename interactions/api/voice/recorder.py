@@ -48,8 +48,8 @@ class Recorder(threading.Thread):
         self.recording = False
         self.used = False
 
+        self.start_time = 0
         self.user_timestamps = {}
-
         self.recording_whitelist: list[Snowflake_Type] = []
 
         if not shutil.which("ffmpeg"):
@@ -83,6 +83,7 @@ class Recorder(threading.Thread):
         self.recording = True
         self.audio = AudioWriter(self, self.state.channel.id)
         self.start()
+        self.start_time = time.monotonic()
 
     async def stop_recording(self) -> None:
         """Stop recording audio from the current channel."""
@@ -145,6 +146,10 @@ class Recorder(threading.Thread):
             Output file can be a BytesIO or a string (if output_dir is specified)
         """
         return self.audio.files if self.audio.finished.is_set() else {}
+
+    @property
+    def elapsed_time(self) -> float:
+        return time.monotonic() - self.start_time
 
     def filter(self, *user_id: Snowflake_Type) -> None:
         """
