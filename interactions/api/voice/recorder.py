@@ -164,15 +164,26 @@ class Recorder(threading.Thread):
 
     def run(self) -> None:
         """The recording loop itself."""
+        sock = self.state.ws.socket
+
+        # purge any data that is already in the socket
+        readable, _, _ = select.select([sock], [], [], 0)
+        log.debug("Purging socket buffer")
+        while readable:
+            if not sock.recv(4096):
+                break
+            readable, _, _ = select.select([sock], [], [], 0)
+        log.debug("Socket buffer purged, starting recording")
+
         with self.audio:
             while self.recording:
-                ready, _, err = select.select([self.state.ws.socket], [], [self.state.ws.socket], 0.01)
+                ready, _, err = select.select([sock], [], [sock], 0.01)
                 if not ready:
                     if err:
                         log.error("Error while recording: %s", err)
                     continue
 
-                data = self.state.ws.socket.recv(4096)
+                data = sock.recv(4096)
 
                 if 200 <= data[1] <= 204:
                     continue
