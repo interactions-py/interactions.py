@@ -86,7 +86,7 @@ class BaseUser(DiscordObject, _SendDMMixin):
     @property
     def avatar_url(self) -> str:
         """The users avatar url."""
-        return self.avatar.url
+        return self.display_avatar.url
 
     async def fetch_dm(self) -> "DM":
         """Fetch the DM channel associated with this user."""
