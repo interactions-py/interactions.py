@@ -978,7 +978,11 @@ class Client(
                         f"An error occurred attempting during {event.resolved_name} event processing"
                     ) from e
 
-        asyncio.create_task(self._process_waits(event))
+        try:
+            asyncio.create_task(self._process_waits(event))
+        except RuntimeError:
+            # dispatch attempt before event loop is running
+            self.async_startup_tasks.append(self._process_waits(event))
 
         if "event" in self.listeners:
             # special meta event listener
