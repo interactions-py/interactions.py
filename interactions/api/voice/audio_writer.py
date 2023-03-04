@@ -120,7 +120,6 @@ class AudioWriter:
         for file in self.files.values():
             file.seek(0)
 
-
     def encode_audio(self, encoding: str) -> None:
         """
         Encode the recorded data into the desired format.
