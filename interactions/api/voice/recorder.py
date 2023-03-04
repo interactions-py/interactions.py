@@ -8,7 +8,7 @@ import threading
 import time
 from asyncio import AbstractEventLoop
 from collections import defaultdict
-from typing import TYPE_CHECKING, BinaryIO
+from typing import TYPE_CHECKING
 
 import select
 

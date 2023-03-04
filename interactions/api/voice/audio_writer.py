@@ -1,6 +1,5 @@
 import io
 import os
-import shutil
 import subprocess  # noqa: S404
 import threading
 import time
