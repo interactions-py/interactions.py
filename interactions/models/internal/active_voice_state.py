@@ -257,6 +257,11 @@ class ActiveVoiceState(VoiceState):
         if not self.recorder:
             self.recorder = Recorder(self, asyncio.get_running_loop())
 
+        if self.recorder.used:
+            if self.recorder.recording:
+                raise RuntimeError("Another recording is still in progress, please stop it first.")
+            self.recorder = Recorder(self, asyncio.get_running_loop())
+
         if encoding is not None:
             self.recorder.encoding = encoding
 

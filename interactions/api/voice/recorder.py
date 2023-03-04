@@ -46,6 +46,7 @@ class Recorder(threading.Thread):
         self.audio: AudioWriter | None = None
         self.encoding = "mp3"
         self.recording = False
+        self.used = False
 
         self.user_timestamps = {}
 
@@ -69,6 +70,10 @@ class Recorder(threading.Thread):
             *user_id: The user_id(s) to record, if not specified everyone will be recorded.
             output_dir: The directory to save the audio to (overrides the constructor output_dir if specified)
         """
+        if self.used:
+            raise RuntimeError("Cannot reuse a recorder.")
+        self.used = True
+
         if user_id:
             self.recording_whitelist = to_snowflake_list(unpack_helper(user_id))
 
