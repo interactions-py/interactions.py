@@ -8,7 +8,7 @@ from discord_typings import VoiceStateData
 from interactions.api.voice.player import Player
 from interactions.api.voice.recorder import Recorder
 from interactions.api.voice.voice_gateway import VoiceGateway
-from interactions.client.const import MISSING
+from interactions.client.const import MISSING, Missing
 from interactions.client.errors import VoiceAlreadyConnected, VoiceConnectionTimeout
 from interactions.client.utils import optional
 from interactions.models.discord.enums import Intents
@@ -245,26 +245,25 @@ class ActiveVoiceState(VoiceState):
             self.recorder = Recorder(self, asyncio.get_running_loop())
         return self.recorder
 
-    def start_recording(self, encoding: Optional[str] = None, squash: Optional[bool] = None) -> Recorder:
+    async def start_recording(self, encoding: Optional[str] = None, *, output_dir: str | Missing = Missing) -> Recorder:
         """
         Start recording the voice channel.
 
         If no recorder exists, one will be created.
         Args:
             encoding: What format the audio should be encoded to.
+            output_dir: The directory to save the audio to
         """
         if not self.recorder:
             self.recorder = Recorder(self, asyncio.get_running_loop())
 
         if encoding is not None:
             self.recorder.encoding = encoding
-        if squash is not None:
-            self.recorder.squash_output = squash
 
-        self.recorder.start_recording()
+        await self.recorder.start_recording(output_dir=output_dir)
         return self.recorder
 
-    def stop_recording(self) -> dict[int, BytesIO]:
+    async def stop_recording(self) -> dict[int, BytesIO]:
         """
         Stop the recording.
 
@@ -273,7 +272,7 @@ class ActiveVoiceState(VoiceState):
         """
         if not self.recorder or not self.recorder.recording:
             raise RuntimeError("No recorder is running!")
-        self.recorder.stop_recording()
+        await self.recorder.stop_recording()
 
         self.recorder.audio.finished.wait()
         return self.recordings

@@ -1,23 +1,27 @@
 import io
-import logging
+import os
+import shutil
 import subprocess  # noqa: S404
 import threading
 import time
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from contextlib import suppress
+from typing import TYPE_CHECKING, BinaryIO
 
-from interactions.client.const import logger_name
+from interactions.api.voice.audio import AudioBuffer
+from interactions.client.const import get_logger
 
 if TYPE_CHECKING:
     from interactions.api.voice.recorder import Recorder
 
 __all__ = ("AudioWriter",)
 
-log = logging.getLogger(logger_name)
+log = get_logger()
 
 
 class AudioWriter:
     SUPPORTED_ENCODINGS = (
+        "flac",
         "mka",
         "mp3",
         "ogg",
@@ -28,11 +32,20 @@ class AudioWriter:
     def __init__(self, recorder: "Recorder", channel_id: int, squash: bool = False) -> None:
         self._recorder = recorder
         self.channel_id = channel_id
-        self.files: dict[int, io.BytesIO] = defaultdict(io.BytesIO)
+
+        self.output_dir = recorder.output_dir
+        self.buffers: dict[int, AudioBuffer] = defaultdict(AudioBuffer)
+        self.files: dict[int, io.BytesIO | BinaryIO | str] = defaultdict(io.BytesIO)
+
+        self.buffer_task: threading.Thread = (
+            threading.Thread(target=self._buffer_writer, daemon=True) if self.output_dir else None
+        )
+
         self.user_initial_timestamps: dict[int, float] = {}
         self.last_timestamps: dict[int, float] = {}
 
-        self.done_recording = threading.Event()
+        self._recording_complete = threading.Event()  # set when no more audio is being written
+        self.done_recording = threading.Event()  # set when the recording is done, and all buffers are empty
         self.finished = threading.Event()
 
     def __enter__(self) -> "AudioWriter":
@@ -51,26 +64,65 @@ class AudioWriter:
         Raises:
             RuntimeError: If audio is written after the Writer has stopped recording
         """
-        if self.done_recording.is_set():
+        if self._recording_complete.is_set():
             raise RuntimeError("Attempted to write audio data after Writer is no longer recording.")
 
-        if user_id not in self.files:
-            if user_id is None:
-                raise RuntimeError("Attempted to write audio without a known user_id")
+        if user_id is None:
+            raise RuntimeError("Attempted to write audio without a known user_id")
+
+        if user_id not in self.user_initial_timestamps:
             self.user_initial_timestamps[user_id] = time.perf_counter()
+
         self.last_timestamps[user_id] = time.perf_counter()
 
-        file = self.files[user_id]
-        file.write(data)
+        if self.output_dir:
+            # if we have an output directory, we want to write to a file
+            if user_id not in self.files:
+                self.files[user_id] = open(f"{self.output_dir}/{self.channel_id}_{user_id}.pcm", "wb+")
+                self.files[user_id].truncate(0)
+            if not self.buffer_task.is_alive():
+                log.debug("Starting buffer writer thread")
+                self.buffer_task.start()
+            self.buffers[user_id].extend(data)
+        else:
+            # we want to write to memory
+            self.files[user_id].write(data)
+
+    def _buffer_writer(self) -> None:
+        """Write the buffered data to the file."""
+
+        while not self._recording_complete.is_set() or all(len(buffer) != 0 for buffer in self.buffers.copy().values()):
+            for user_id, buffer in self.buffers.items():
+                if len(buffer) == 0:
+                    continue
+                if user_id not in self.files:
+                    log.debug(f"File for {user_id} is not open, skipping")
+                    continue
+                self.files[user_id].write(buffer.read_max(1024))
+            if all(len(buffer) == 0 for buffer in self.buffers.copy().values()):
+                time.sleep(0.05)
+
+        log.debug("Buffer writer thread finished")
+        for file in self.files.values():
+            file.flush()
+            file.seek(0)
+        self.done_recording.set()
 
     def cleanup(self) -> None:
         """Cleanup after recording, ready for encoding."""
-        if self.done_recording.is_set():
+        if self._recording_complete.is_set():
             return
+
+        self._recording_complete.set()
+
+        if self.output_dir:
+            # we have an output directory, so we need to wait for the buffers to be empty
+            self.done_recording.wait()
+        self.done_recording.set()
 
         for file in self.files.values():
             file.seek(0)
-        self.done_recording.set()
+        self._recording_complete.set()
 
     def encode_audio(self, encoding: str) -> None:
         """
@@ -81,7 +133,11 @@ class AudioWriter:
         Raises:
             ValueError: If a non-supported encoding is requested.
         """
-        self.done_recording.wait()
+        self._recording_complete.wait()
+        if self.output_dir:
+            # we have an output directory, so we need to wait for the buffers to be empty
+            self.done_recording.wait()
+        self.done_recording.set()
 
         if encoding.lower() not in self.SUPPORTED_ENCODINGS:
             raise ValueError(
@@ -110,8 +166,16 @@ class AudioWriter:
         )
 
         output = process.communicate(self.files[user_id].read())[0]
-        output = io.BytesIO(output)
-        output.seek(0)
+        if self.output_dir:
+            with open(f"{self.output_dir}/{self.channel_id}_{user_id}.{encoding}", "wb+") as f:
+                f.write(output)
+            with suppress(FileNotFoundError, PermissionError):
+                self.files[user_id].close()
+                os.remove(f"{self.output_dir}/{self.channel_id}_{user_id}.pcm")
+            output = f"{self.output_dir}/{self.channel_id}_{user_id}.{encoding}"
+        else:
+            output = io.BytesIO(output)
+            output.seek(0)
         self.files[user_id] = output
 
     def _encode_mp3(self, user_id: int) -> None:
@@ -164,6 +228,16 @@ class AudioWriter:
 
         out.seek(0)
         self.files[user_id] = out
+
+    def _encode_flac(self, user_id: int) -> None:
+        """
+        Encode a user's audio to FLAC.
+
+        Args:
+            user_id: The ID of the user's stream to encode.
+        """
+        log.debug(f"Encoding audio stream for {user_id} as flac")
+        self.__ffmpeg_encode(user_id, "flac")
 
     def _encode_pcm(self, user_id: int) -> None:
         """

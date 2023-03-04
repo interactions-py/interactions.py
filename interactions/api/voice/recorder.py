@@ -1,12 +1,14 @@
+import asyncio
 import io
 import logging
+import os
 import shutil
 import struct
 import threading
 import time
 from asyncio import AbstractEventLoop
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, BinaryIO
 
 import select
 
@@ -14,7 +16,7 @@ from interactions.api.voice.audio import RawInputAudio
 from interactions.api.voice.audio_writer import AudioWriter
 from interactions.api.voice.encryption import Decryption
 from interactions.api.voice.opus import Decoder
-from interactions.client.const import logger_name
+from interactions.client.const import logger_name, Missing
 from interactions.client.utils.input_utils import unpack_helper
 from interactions.models.discord.snowflake import Snowflake_Type, to_snowflake_list
 
@@ -27,7 +29,7 @@ log = logging.getLogger(logger_name)
 
 
 class Recorder(threading.Thread):
-    def __init__(self, v_state, loop) -> None:
+    def __init__(self, v_state, loop, *, output_dir: str = None) -> None:
         super().__init__()
         self.daemon = True
 
@@ -36,7 +38,12 @@ class Recorder(threading.Thread):
         self.decrypter: Decryption = Decryption(self.state.ws.secret)
         self._decoders: dict[str, Decoder] = defaultdict(Decoder)
 
-        self.audio = AudioWriter(self, self.state.channel.id)
+        # check if output_dir is a folder not a file
+        if output_dir and not os.path.isdir(output_dir):
+            raise ValueError("output_dir must be a directory")
+
+        self.output_dir = output_dir
+        self.audio: AudioWriter | None = None
         self.encoding = "mp3"
         self.recording = False
 
@@ -49,13 +56,38 @@ class Recorder(threading.Thread):
                 "Unable to start recorder. FFmpeg was not found. Please add it to your project directory or PATH. (https://ffmpeg.org/)"
             )
 
-    @property
-    def output(self) -> dict[int, io.BytesIO]:
-        """The encoded audio this"""
-        if self.audio.finished.is_set():
-            return self.audio.files
-        else:
-            return {}
+    async def __aenter__(self) -> "Recorder":
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        await self.stop_recording()
+
+    async def start_recording(self, *user_id: Snowflake_Type, output_dir: str | Missing = Missing) -> None:
+        """Start recording audio from the current channel.
+
+        Args:
+            *user_id: The user_id(s) to record, if not specified everyone will be recorded.
+            output_dir: The directory to save the audio to (overrides the constructor output_dir if specified)
+        """
+        if user_id:
+            self.recording_whitelist = to_snowflake_list(unpack_helper(user_id))
+
+        if output_dir is not Missing:
+            self.output_dir = output_dir
+
+        self.recording = True
+        self.audio = AudioWriter(self, self.state.channel.id)
+        self.start()
+
+    async def stop_recording(self) -> None:
+        """Stop recording audio from the current channel."""
+        self.recording = False
+
+        def wait():
+            self.audio.done_recording.wait()
+            self.audio.encode_audio(self.encoding)
+
+        await asyncio.to_thread(wait)
 
     def decrypt(self, header: bytes, data: bytes) -> bytes:
         """
@@ -98,8 +130,16 @@ class Recorder(threading.Thread):
     def __enter__(self) -> "Recorder":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self.recording = False
+    @property
+    def output(self) -> dict[int, io.BytesIO | str]:
+        """
+        The output of the recorder.
+
+        Returns:
+            A dictionary of the user_id and the output file.
+            Output file can be a BytesIO or a string (if output_dir is specified)
+        """
+        return self.audio.files if self.audio.finished.is_set() else {}
 
     def filter(self, *user_id: Snowflake_Type) -> None:
         """
@@ -111,24 +151,6 @@ class Recorder(threading.Thread):
         if not user_id:
             self.recording_whitelist = []
         self.recording_whitelist = to_snowflake_list(unpack_helper(user_id))
-
-    def start_recording(self, *user_id: Snowflake_Type) -> None:
-        """Start recording audio from the current channel.
-
-        Args:
-            *user_id: The user_id(s) to record, if not specified everyone will be recorded.
-        """
-        if user_id:
-            self.recording_whitelist = to_snowflake_list(unpack_helper(user_id))
-
-        self.recording = True
-        self.start()
-
-    def stop_recording(self) -> None:
-        """Stop recording audio from the current channel."""
-        self.recording = False
-        self.audio.done_recording.wait()
-        self.audio.encode_audio(self.encoding)
 
     def run(self) -> None:
         """The recording loop itself."""

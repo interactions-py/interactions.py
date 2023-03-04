@@ -80,24 +80,53 @@ class AudioBuffer:
         with self._lock:
             self._buffer.extend(data)
 
-    def read(self, total_bytes: int) -> bytearray:
+    def read(self, total_bytes: int, *, pad: bool = True) -> bytearray:
         """
         Read `total_bytes` bytes of audio from the buffer.
 
         Args:
             total_bytes: Amount of bytes to read.
+            pad: Whether to pad incomplete frames with 0's.
 
         Returns:
             Desired amount of bytes
+
+        Raises:
+            ValueError: If `pad` is False and the buffer does not contain enough data.
         """
         with self._lock:
             view = memoryview(self._buffer)
             self._buffer = bytearray(view[total_bytes:])
             data = bytearray(view[:total_bytes])
             if 0 < len(data) < total_bytes:
-                # pad incomplete frames with 0's
-                data.extend(b"\0" * (total_bytes - len(data)))
+                if pad:
+                    # pad incomplete frames with 0's
+                    data.extend(b"\0" * (total_bytes - len(data)))
+                else:
+                    raise ValueError(
+                        f"Buffer does not contain enough data to fulfill request {len(data)} < {total_bytes}"
+                    )
             return data
+
+    def read_max(self, total_bytes: int) -> bytearray:
+        """
+        Read up to `total_bytes` bytes of audio from the buffer.
+
+        Args:
+            total_bytes: Maximum amount of bytes to read.
+
+        Returns:
+            Desired amount of bytes
+
+        Raises:
+            EOFError: If the buffer is empty.
+        """
+        with self._lock:
+            if len(self._buffer) == 0:
+                raise EOFError("Buffer is empty")
+            view = memoryview(self._buffer)
+            self._buffer = bytearray(view[total_bytes:])
+            return bytearray(view[:total_bytes])
 
 
 class BaseAudio(ABC):
