@@ -453,7 +453,7 @@ class Client:
                 ):
                     raise RuntimeError("Client not authorised for the GUILD_MEMBERS intent.")
                 if (
-                    self._intents.GUILD_MESSAGES in self._intents
+                    self._intents.GUILD_MESSAGE_CONTENT in self._intents
                     and self.me.flags.GATEWAY_MESSAGE_CONTENT not in self.me.flags
                     and self.me.flags.GATEWAY_MESSAGE_CONTENT_LIMITED not in self.me.flags
                 ):
