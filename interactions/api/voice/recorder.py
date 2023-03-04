@@ -88,7 +88,7 @@ class Recorder(threading.Thread):
         """Stop recording audio from the current channel."""
         self.recording = False
 
-        def wait():
+        def wait() -> None:
             self.audio.done_recording.wait()
             self.audio.encode_audio(self.encoding)
 

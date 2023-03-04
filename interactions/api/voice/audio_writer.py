@@ -89,7 +89,6 @@ class AudioWriter:
 
     def _buffer_writer(self) -> None:
         """Write the buffered data to the file."""
-
         while not self._recording_complete.is_set() or all(len(buffer) != 0 for buffer in self.buffers.copy().values()):
             for user_id, buffer in self.buffers.items():
                 if len(buffer) == 0:
