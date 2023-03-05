@@ -207,10 +207,12 @@ class Recorder(threading.Thread):
         if self.recording_whitelist and raw_audio.user_id not in self.recording_whitelist:
             return
 
+        decoder = self.get_decoder(raw_audio.ssrc)
+
         if raw_audio.ssrc not in self.user_timestamps:
             if last_timestamp := self.audio.last_timestamps.get(raw_audio.user_id, None):
-                diff = time.perf_counter() - last_timestamp
-                silence = int(diff * self.get_decoder(raw_audio.ssrc).sample_rate)
+                diff = raw_audio.timestamp - last_timestamp
+                silence = int(diff * decoder.sample_rate)
                 log.debug(
                     f"{self.state.channel.id}::{raw_audio.user_id} - User rejoined, adding {silence} silence frames ({diff} seconds)"
                 )
@@ -219,9 +221,11 @@ class Recorder(threading.Thread):
 
             self.user_timestamps.update({raw_audio.ssrc: raw_audio.timestamp})
         else:
-            silence = raw_audio.timestamp - self.user_timestamps[raw_audio.ssrc] - 960
+            silence = raw_audio.timestamp - self.user_timestamps[raw_audio.ssrc]
+            if silence < 0.1:
+                silence = 0
             self.user_timestamps[raw_audio.ssrc] = raw_audio.timestamp
 
-        data = struct.pack("<h", 0) * silence * 2 + raw_audio.pcm
+        raw_audio.pcm = struct.pack("<h", 0) * int(silence*decoder.sample_rate) * 2 + raw_audio.decoded
 
-        self.audio.write(data, raw_audio.user_id)
+        self.audio.write(raw_audio, raw_audio.user_id)

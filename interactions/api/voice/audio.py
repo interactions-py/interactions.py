@@ -18,20 +18,29 @@ if TYPE_CHECKING:
 
 
 class RawInputAudio:
-    pcm: bytes
+    decoded: bytes
     """The decoded audio"""
+    pcm: bytes
+    """The raw PCM audio"""
     sequence: int
     """The audio sequence"""
-    timestamp: int
+    audio_timestamp: int
     """The current timestamp for this audio"""
+    timestamp_ns: float
+    """The time this audio was received, in nanoseconds"""
+    timestamp: float
+    """The time this audio was received, in seconds"""
     ssrc: int
     """The source of this audio"""
     _recoder: "Recorder"
     """A reference to the audio recorder managing this object"""
 
     def __init__(self, recorder: "Recorder", data: bytes) -> None:
-        self.pcm: bytes = b""
+        self.decoded: bytes = b""
         self._recorder = recorder
+        self.timestamp_ns = time.monotonic_ns()
+        self.timestamp = self.timestamp_ns / 1e9
+        self.pcm = b""
 
         self.ingest(data)
 
@@ -42,7 +51,7 @@ class RawInputAudio:
         decrypted: bytes = self._recorder.decrypt(header, data[12:])
         self.ssrc = int.from_bytes(header[8:12], byteorder="big")
         self.sequence = int.from_bytes(header[2:4], byteorder="big")
-        self.timestamp = int.from_bytes(header[4:8], byteorder="big")
+        self.audio_timestamp = int.from_bytes(header[4:8], byteorder="big")
 
         if not self._recorder.recording_whitelist or self.user_id in self._recorder.recording_whitelist:
             # noinspection PyProtectedMember
@@ -50,8 +59,8 @@ class RawInputAudio:
                 # rtp header extension, remove it
                 header_ext_length = int.from_bytes(decrypted[2:4], byteorder="big")
                 decrypted = decrypted[4 + 4 * header_ext_length :]
-            self.pcm = self._recorder.get_decoder(self.ssrc).decode(decrypted)
-            return self.pcm
+            self.decoded = self._recorder.get_decoder(self.ssrc).decode(decrypted)
+            return self.decoded
 
     @property
     def user_id(self) -> Optional[int]:

@@ -7,7 +7,7 @@ from collections import defaultdict
 from contextlib import suppress
 from typing import TYPE_CHECKING, BinaryIO
 
-from interactions.api.voice.audio import AudioBuffer
+from interactions.api.voice.audio import AudioBuffer, RawInputAudio
 from interactions.client.const import get_logger
 
 if TYPE_CHECKING:
@@ -53,12 +53,12 @@ class AudioWriter:
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.cleanup()
 
-    def write(self, data, user_id: int) -> None:
+    def write(self, audio: RawInputAudio, user_id: int) -> None:
         """
         Write the incoming bytestream to the appropriate user's BytesIO
 
         Args:
-            data: The data to be written
+            audio: The incoming audio data
             user_id: The ID of the user
         Raises:
             RuntimeError: If audio is written after the Writer has stopped recording
@@ -70,9 +70,9 @@ class AudioWriter:
             raise RuntimeError("Attempted to write audio without a known user_id")
 
         if user_id not in self.user_initial_timestamps:
-            self.user_initial_timestamps[user_id] = time.perf_counter()
+            self.user_initial_timestamps[user_id] = audio.timestamp
 
-        self.last_timestamps[user_id] = time.perf_counter()
+        self.last_timestamps[user_id] = audio.timestamp
 
         if self.output_dir:
             # if we have an output directory, we want to write to a file
@@ -82,10 +82,10 @@ class AudioWriter:
             if not self.buffer_task.is_alive():
                 log.debug("Starting buffer writer thread")
                 self.buffer_task.start()
-            self.buffers[user_id].extend(data)
+            self.buffers[user_id].extend(audio.pcm)
         else:
             # we want to write to memory
-            self.files[user_id].write(data)
+            self.files[user_id].write(audio.pcm)
 
     def _buffer_writer(self) -> None:
         """Write the buffered data to the file."""
