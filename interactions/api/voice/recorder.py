@@ -226,6 +226,6 @@ class Recorder(threading.Thread):
                 silence = 0
             self.user_timestamps[raw_audio.ssrc] = raw_audio.timestamp
 
-        raw_audio.pcm = struct.pack("<h", 0) * int(silence*decoder.sample_rate) * 2 + raw_audio.decoded
+        raw_audio.pcm = struct.pack("<h", 0) * int(silence * decoder.sample_rate) * 2 + raw_audio.decoded
 
         self.audio.write(raw_audio, raw_audio.user_id)
