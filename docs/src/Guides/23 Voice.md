@@ -55,20 +55,39 @@ async def play_file(ctx: interactions.InteractionContext):
 
 Check out [Active Voice State](/interactions.py/API Reference/API Reference/models/Internal/active_voice_state/) for a list of available methods and attributes.
 
-## Okay, but what about Soundcloud?
+# Voice Recording
 
-interactions.py has an extension library called [`NAFFAudio`](https://github.com/NAFTeam/NAFF-Audio) which can help with that.
-It has an object called `YTAudio` which can be used to play audio from Soundcloud and other video platforms.
+So you've got a bot that can play music, but what about recording? Well, you're in luck! We've got you covered.
 
-```
-pip install naff_audio
-```
+Let's start with a simple example:
 
 ```python
-from naff_audio import YTAudio
+import asyncio
+import interactions
 
-audio = await YTAudio.from_url("https://soundcloud.com/rick-astley-official/never-gonna-give-you-up-4")
-await voice_state.play(audio)
+@interactions.slash_command("record", "record some audio")
+async def record(ctx: interactions.InteractionContext):
+    voice_state = await ctx.author.voice.channel.connect()
+
+    # Start recording
+    await voice_state.start_recording()
+    await asyncio.sleep(10)
+    await voice_state.stop_recording()
+    await ctx.send(files=[interactions.File(file, file_name="user_id.mp3") for user_id, file in voice_state.recorder.output.items()])
+```
+This code will connect to the author's voice channel, start recording, wait 10 seconds, stop recording, and send a file for each user that was recorded.
+
+But what if you didn't want to use `mp3` files? Well, you can change that too! Just pass the encoding you want to use to `start_recording`.
+
+```python
+await voice_state.start_recording(encoding="wav")
 ```
 
-`NAFFAudio` also contains other useful features for audio-bots. Check it out if that's your *jam*.
+For a list of available encodings, check out Recorder's [documentation](/interactions.py/API Reference/API_Communication/voice/recorder.md)
+
+Are you going to be recording for a long time? You are going to want to write the files to disk instead of keeping them in memory. You can do that too!
+
+```python
+await voice_state.start_recording(output_dir="folder_name")
+```
+This will write the files to the folder `folder_name` in the current working directory, please note that the library will not create the folder for you, nor will it delete the files when you're done.
