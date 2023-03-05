@@ -222,6 +222,14 @@ class AudioWriter:
             f.writeframes(self.files[user_id].read())
 
         out.seek(0)
+
+        if self.output_dir:
+            with open(f"{self.output_dir}/{self.channel_id}_{user_id}.wav", "wb+") as f:
+                f.write(out.read())
+            with suppress(FileNotFoundError, PermissionError):
+                self.files[user_id].close()
+                os.remove(f"{self.output_dir}/{self.channel_id}_{user_id}.pcm")
+            out = f"{self.output_dir}/{self.channel_id}_{user_id}.wav"
         self.files[user_id] = out
 
     def _encode_flac(self, user_id: int) -> None:
@@ -243,4 +251,9 @@ class AudioWriter:
         """
         # The audio is already in pcm format, this method is purely here to stop people asking for it.
         log.debug(f"Encoding audio stream for {user_id} as pcm")
+        path = f"{self.output_dir}/{self.files[user_id].name.split(os.sep)[-1]}"
+
+        self.files[user_id].close()
+        self.files[user_id] = path
+
         return
