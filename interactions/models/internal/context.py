@@ -711,7 +711,6 @@ class ComponentContext(InteractionContext, ModalMixin):
                 dict,
             ]
         ] = None,
-        attachments: typing.Optional[typing.Sequence[Attachment | dict]] = None,
         allowed_mentions: typing.Optional[typing.Union["AllowedMentions", dict]] = None,
         files: typing.Optional[typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]] = None,
         file: typing.Optional["UPLOADABLE_TYPE"] = None,
