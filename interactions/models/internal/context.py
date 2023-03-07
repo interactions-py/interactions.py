@@ -745,7 +745,7 @@ class ComponentContext(InteractionContext, ModalMixin):
 
         message_data = None
         if self.deferred:
-            if not self.defer_edit_origin:
+            if not self.editing_origin:
                 get_logger().warning(
                     "If you want to edit the original message, and need to defer, you must set the `edit_origin` kwarg to True!"
                 )
@@ -754,7 +754,7 @@ class ComponentContext(InteractionContext, ModalMixin):
                 message_payload, self.client.app.id, self.token
             )
             self.deferred = False
-            self.defer_edit_origin = False
+            self.editing_origin = False
         else:
             payload = {"type": CallbackType.UPDATE_MESSAGE, "data": message_payload}
             await self.client.http.post_initial_response(payload, str(self.id), self.token, files=files or file)
