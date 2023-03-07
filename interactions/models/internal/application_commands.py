@@ -769,7 +769,7 @@ class SlashCommand(InteractionCommand):
             if self._uses_arg:
                 return await self.call_with_binding(callback, ctx, *ctx.args)
             else:
-                return await self.call_with_binding(callback, ctx, **ctx.kwargs)
+                return await self.call_with_binding(callback, ctx)
 
         kwargs_copy = ctx.kwargs.copy()
 
