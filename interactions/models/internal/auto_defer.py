@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 from typing import TYPE_CHECKING
 
 import attrs
@@ -30,12 +31,10 @@ class AutoDefer:
                 loop = asyncio.get_event_loop()
                 loop.call_later(self.time_until_defer, loop.create_task, self.defer(ctx))
             else:
-                await ctx.defer(self.ephemeral)
+                await ctx.defer(ephemeral=self.ephemeral)
 
     async def defer(self, ctx: "InteractionContext") -> None:
         """Defer the command"""
         if not ctx.responded or not ctx.deferred:
-            try:
-                await ctx.defer(self.ephemeral)
-            except (AlreadyDeferred, NotFound, BadRequest, HTTPException):
-                pass
+            with contextlib.suppress(AlreadyDeferred, NotFound, BadRequest, HTTPException):
+                await ctx.defer(ephemeral=self.ephemeral)
