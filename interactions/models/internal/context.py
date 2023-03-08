@@ -628,6 +628,8 @@ class ComponentContext(InteractionContext, ModalMixin):
     """The custom_id of the component."""
     component_type: int
     """The type of the component."""
+    defer_edit_origin: bool
+    """Whether you have deferred the interaction and are editing the original response."""
 
     @classmethod
     def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
@@ -637,6 +639,7 @@ class ComponentContext(InteractionContext, ModalMixin):
         instance._command_id = instance.custom_id
         instance._command_name = instance.custom_id
         instance.component_type = payload["data"]["component_type"]
+        instance.defer_edit_origin = False
 
         searches = {
             "users": instance.component_type in (ComponentType.USER_SELECT, ComponentType.MENTIONABLE_SELECT),
