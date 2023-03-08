@@ -165,14 +165,14 @@ class VoiceGateway(WebsocketClient):
     async def dispatch_opcode(self, data, op) -> None:
         match op:
             case OP.HEARTBEAT_ACK:
-                self.latency.append(time.perf_counter() - self._last_heartbeat)
+                self._latency.append(time.perf_counter() - self._last_heartbeat)
 
-                if self._last_heartbeat != 0 and self.latency[-1] >= 15:
+                if self._last_heartbeat != 0 and self._latency[-1] >= 15:
                     self.logger.warning(
-                        f"High Latency! Voice heartbeat took {self.latency[-1]:.1f}s to be acknowledged!"
+                        f"High Latency! Voice heartbeat took {self._latency[-1]:.1f}s to be acknowledged!"
                     )
                 else:
-                    self.logger.debug(f"❤ Heartbeat acknowledged after {self.latency[-1]:.5f} seconds")
+                    self.logger.debug(f"❤ Heartbeat acknowledged after {self._latency[-1]:.5f} seconds")
 
                 return self._acknowledged.set()
 

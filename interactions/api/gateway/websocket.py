@@ -47,7 +47,7 @@ class WebsocketClient:
         self.rl_manager = WebsocketRateLimit()
 
         self.heartbeat_interval = None
-        self.latency = collections.deque(maxlen=10)
+        self._latency = collections.deque(maxlen=10)
 
         # This lock needs to be held to send something over the gateway, but is also held when
         # reconnecting. That way there's no race conditions between sending and reconnecting.
@@ -116,10 +116,15 @@ class WebsocketClient:
     @property
     def average_latency(self) -> float:
         """Get the average latency of the connection."""
-        if self.latency:
-            return sum(self.latency) / len(self.latency)
+        if self._latency:
+            return sum(self._latency) / len(self._latency)
         else:
             return float("inf")
+
+    @property
+    def latency(self) -> float:
+        """Get the latency of the connection."""
+        return self._latency[-1]
 
     @property
     def loop(self) -> asyncio.AbstractEventLoop:
