@@ -53,7 +53,7 @@ class ConnectionState:
     @property
     def latency(self) -> float:
         """Returns the latency of the websocket connection."""
-        return self.gateway.average_latency
+        return self.gateway.latency
 
     @property
     def average_latency(self) -> float:
