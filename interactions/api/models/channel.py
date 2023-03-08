@@ -1972,9 +1972,9 @@ class Channel(ClientSerializerMixin, IDMixin):
             else:
                 _tags.append(str(applied_tags))
         else:
-            applied_tags = []
+            _tags = []
 
-        _top_payload["applied_tags"] = applied_tags
+        _top_payload["applied_tags"] = _tags
 
         data = await self._client.create_thread_in_forum(int(self.id), **_top_payload)
 
