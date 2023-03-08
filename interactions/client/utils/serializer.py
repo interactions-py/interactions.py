@@ -170,6 +170,9 @@ def get_file_mimetype(file_data: bytes) -> str:
         The mimetype of the file.
 
     """
+    if isinstance(file_data, str):
+        return "text/plain"
+
     if file_data.startswith(b"{"):
         return "application/json"
     elif file_data.startswith((b"GIF87a", b"GIF89a")):
