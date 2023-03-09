@@ -115,7 +115,7 @@ class WebsocketClient:
 
     @property
     def average_latency(self) -> float:
-        """Get the average latency of the connection."""
+        """Get the average latency of the connection (seconds)."""
         if self._latency:
             return sum(self._latency) / len(self._latency)
         else:
@@ -123,7 +123,7 @@ class WebsocketClient:
 
     @property
     def latency(self) -> float:
-        """Get the latency of the connection."""
+        """Get the latency of the connection (seconds)"""
         return self._latency[-1] if self._latency else float("inf")
 
     @property
