@@ -52,6 +52,7 @@ class File:
         if isinstance(self.file, (IOBase, BinaryIO)):
             self.file.close()
 
+
 UPLOADABLE_TYPE = Union[File, IOBase, BinaryIO, Path, str]
 
 
