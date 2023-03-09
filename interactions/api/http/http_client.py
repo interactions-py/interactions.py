@@ -280,6 +280,7 @@ class HTTPClient(
                 form_data.add_field(
                     f"files[{index}]",
                     file_data,
+                    filename=file.split(os.sep)[-1],
                     content_type=get_file_mimetype(file_data),
                 )
         if attachments:

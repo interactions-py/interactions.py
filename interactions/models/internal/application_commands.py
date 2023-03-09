@@ -404,7 +404,7 @@ class SlashCommandOption(DictSerializationMixin):
     type: Union[OptionType, int] = attrs.field(
         repr=False,
     )
-    description: LocalisedDesc | str = attrs.field(
+    description: LocalisedDesc | str | str = attrs.field(
         repr=False, default="No Description Set", converter=LocalisedDesc.converter
     )
     required: bool = attrs.field(repr=False, default=True)
@@ -533,14 +533,14 @@ def _remove_optional(t: OptionType | type) -> Any:
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class SlashCommand(InteractionCommand):
     name: LocalisedName | str = attrs.field(repr=False, converter=LocalisedName.converter)
-    description: LocalisedDesc = attrs.field(
+    description: LocalisedDesc | str = attrs.field(
         repr=False, default="No Description Set", converter=LocalisedDesc.converter
     )
 
     group_name: LocalisedName | str = attrs.field(
         repr=False, default=None, metadata=no_export_meta, converter=LocalisedName.converter
     )
-    group_description: LocalisedDesc = attrs.field(
+    group_description: LocalisedDesc | str = attrs.field(
         repr=False,
         default="No Description Set",
         metadata=no_export_meta,
@@ -550,7 +550,7 @@ class SlashCommand(InteractionCommand):
     sub_cmd_name: LocalisedName | str = attrs.field(
         repr=False, default=None, metadata=no_export_meta, converter=LocalisedName.converter
     )
-    sub_cmd_description: LocalisedDesc = attrs.field(
+    sub_cmd_description: LocalisedDesc | str = attrs.field(
         repr=False,
         default="No Description Set",
         metadata=no_export_meta,
@@ -769,7 +769,7 @@ class SlashCommand(InteractionCommand):
             if self._uses_arg:
                 return await self.call_with_binding(callback, ctx, *ctx.args)
             else:
-                return await self.call_with_binding(callback, ctx, **ctx.kwargs)
+                return await self.call_with_binding(callback, ctx)
 
         kwargs_copy = ctx.kwargs.copy()
 

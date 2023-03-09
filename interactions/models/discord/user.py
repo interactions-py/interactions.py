@@ -83,6 +83,11 @@ class BaseUser(DiscordObject, _SendDMMixin):
         """The users displayed avatar, will return `guild_avatar` if one is set, otherwise will return user avatar."""
         return self.avatar
 
+    @property
+    def avatar_url(self) -> str:
+        """The users avatar url."""
+        return self.display_avatar.url
+
     async def fetch_dm(self) -> "DM":
         """Fetch the DM channel associated with this user."""
         return await self._client.cache.fetch_dm_channel(self.id)  # noqa

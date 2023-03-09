@@ -15,7 +15,7 @@ from interactions.models.discord.user import Member, User
 from interactions.models.internal.command import BaseCommand
 from interactions.client.mixins.modal import ModalMixin
 
-from interactions.client.errors import HTTPException
+from interactions.client.errors import HTTPException, AlreadyDeferred, AlreadyResponded
 from interactions.client.mixins.send import SendMixin
 from interactions.models.discord.enums import (
     Permissions,
@@ -633,6 +633,8 @@ class ComponentContext(InteractionContext, ModalMixin):
     """The custom_id of the component."""
     component_type: int
     """The type of the component."""
+    defer_edit_origin: bool
+    """Whether you have deferred the interaction and are editing the original response."""
 
     @classmethod
     def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
@@ -642,6 +644,7 @@ class ComponentContext(InteractionContext, ModalMixin):
         instance._command_id = instance.custom_id
         instance._command_name = instance.custom_id
         instance.component_type = payload["data"]["component_type"]
+        instance.defer_edit_origin = False
 
         searches = {
             "users": instance.component_type in (ComponentType.USER_SELECT, ComponentType.MENTIONABLE_SELECT),
@@ -682,8 +685,10 @@ class ComponentContext(InteractionContext, ModalMixin):
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
         """
-        if self.deferred or self.responded:
-            raise RuntimeError("Interaction has already been responded to.")
+        if self.deferred:
+            raise AlreadyDeferred("Interaction has already been responded to.")
+        if self.responded:
+            raise AlreadyResponded("Interaction has already been responded to.")
 
         payload = {
             "type": CallbackType.DEFERRED_UPDATE_MESSAGE
@@ -716,7 +721,6 @@ class ComponentContext(InteractionContext, ModalMixin):
                 dict,
             ]
         ] = None,
-        attachments: typing.Optional[typing.Sequence[Attachment | dict]] = None,
         allowed_mentions: typing.Optional[typing.Union["AllowedMentions", dict]] = None,
         files: typing.Optional[typing.Union["UPLOADABLE_TYPE", typing.Iterable["UPLOADABLE_TYPE"]]] = None,
         file: typing.Optional["UPLOADABLE_TYPE"] = None,
@@ -751,7 +755,7 @@ class ComponentContext(InteractionContext, ModalMixin):
 
         message_data = None
         if self.deferred:
-            if not self.defer_edit_origin:
+            if not self.editing_origin:
                 get_logger().warning(
                     "If you want to edit the original message, and need to defer, you must set the `edit_origin` kwarg to True!"
                 )
@@ -760,7 +764,7 @@ class ComponentContext(InteractionContext, ModalMixin):
                 message_payload, self.client.app.id, self.token
             )
             self.deferred = False
-            self.defer_edit_origin = False
+            self.editing_origin = False
         else:
             payload = {"type": CallbackType.UPDATE_MESSAGE, "data": message_payload}
             await self.client.http.post_initial_response(payload, str(self.id), self.token, files=files or file)

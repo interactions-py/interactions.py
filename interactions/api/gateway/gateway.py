@@ -132,14 +132,6 @@ class GatewayClient(WebsocketClient):
                 finally:
                     self.ws = None
 
-    @property
-    def average_latency(self) -> float:
-        """Get the average latency of the connection."""
-        if self.latency:
-            return sum(self.latency) / len(self.latency)
-        else:
-            return float("inf")
-
     async def run(self) -> None:
         """Start receiving events from the websocket."""
         while True:
@@ -184,14 +176,14 @@ class GatewayClient(WebsocketClient):
                 return await self.send_heartbeat()
 
             case OPCODE.HEARTBEAT_ACK:
-                self.latency.append(time.perf_counter() - self._last_heartbeat)
+                self._latency.append(time.perf_counter() - self._last_heartbeat)
 
-                if self._last_heartbeat != 0 and self.latency[-1] >= 15:
+                if self._last_heartbeat != 0 and self._latency[-1] >= 15:
                     self.logger.warning(
-                        f"High Latency! shard ID {self.shard[0]} heartbeat took {self.latency[-1]:.1f}s to be acknowledged!"
+                        f"High Latency! shard ID {self.shard[0]} heartbeat took {self._latency[-1]:.1f}s to be acknowledged!"
                     )
                 else:
-                    self.logger.debug(f"❤ Heartbeat acknowledged after {self.latency[-1]:.5f} seconds")
+                    self.logger.debug(f"❤ Heartbeat acknowledged after {self._latency[-1]:.5f} seconds")
 
                 return self._acknowledged.set()
 
