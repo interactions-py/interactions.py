@@ -1,7 +1,6 @@
 import array
 import ctypes
 import ctypes.util
-import os
 import sys
 from enum import IntEnum
 from pathlib import Path
