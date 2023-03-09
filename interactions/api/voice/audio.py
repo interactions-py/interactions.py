@@ -107,6 +107,8 @@ class Audio(BaseAudio):
     """How many seconds of audio should be buffered"""
     read_ahead_task: threading.Thread
     """A thread that reads ahead to create the buffer"""
+    probe: bool
+    """Should ffprobe be used to detect audio data?"""
     ffmpeg_args: str | list[str]
     """Args to pass to ffmpeg"""
     ffmpeg_before_args: str | list[str]
@@ -116,6 +118,7 @@ class Audio(BaseAudio):
         self.source = src
         self.needs_encode = True
         self.locked_stream = False
+        self.probe: False
         self.process: Optional[subprocess.Popen] = None
 
         self.buffer = AudioBuffer()
@@ -142,7 +145,7 @@ class Audio(BaseAudio):
                 return False
         return True
 
-    def _create_process(self, *, block: bool = True, probe: bool = True) -> None:
+    def _create_process(self, *, block: bool = True) -> None:
         before = (
             self.ffmpeg_before_args if isinstance(self.ffmpeg_before_args, list) else self.ffmpeg_before_args.split()
         )
@@ -152,7 +155,7 @@ class Audio(BaseAudio):
             "bitrate": None,
         }
 
-        if shutil.which("ffprobe") is not None and probe:
+        if shutil.which("ffprobe") is not None and self.probe:
             ffprobe_cmd = [
                 "ffprobe",
                 "-loglevel",
