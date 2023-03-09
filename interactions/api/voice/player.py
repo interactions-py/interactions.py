@@ -1,6 +1,7 @@
 import asyncio
 import contextlib
 import shutil
+import subprocess
 import threading
 from asyncio import AbstractEventLoop, run_coroutine_threadsafe
 from logging import Logger
@@ -40,6 +41,9 @@ class Player(threading.Thread):
             raise RuntimeError(
                 "Unable to start player. FFmpeg was not found. Please add it to your project directory or PATH. (https://ffmpeg.org/)"
             )
+        ffmpeg_version = subprocess.check_output(["ffmpeg", "-version"], stderr=subprocess.DEVNULL)
+        ffmpeg_version = ffmpeg_version.decode("utf-8").splitlines()[0].split(" ")[2]
+        self.logger.debug(f"Detected ffmpeg version: {ffmpeg_version}")
 
     def __enter__(self) -> "Player":
         self.state.ws.cond = self._cond
