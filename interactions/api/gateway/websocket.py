@@ -124,7 +124,7 @@ class WebsocketClient:
     @property
     def latency(self) -> float:
         """Get the latency of the connection."""
-        return self._latency[-1]
+        return self._latency[-1] if self._latency else float("inf")
 
     @property
     def loop(self) -> asyncio.AbstractEventLoop:
