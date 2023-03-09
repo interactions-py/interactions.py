@@ -42,6 +42,7 @@ __all__ = (
     "InteractionException",
     "InteractionMissingAccess",
     "AlreadyDeferred",
+    "AlreadyResponded",
     "ForeignWebhookException",
     "EventLocationNotProvided",
     "VoiceAlreadyConnected",
@@ -385,8 +386,12 @@ class InteractionMissingAccess(InteractionException):
         super().__init__(err_msg)
 
 
-class AlreadyDeferred(BotException):
+class AlreadyDeferred(InteractionException):
     """An interaction was already deferred, and you attempted to defer it again."""
+
+
+class AlreadyResponded(AlreadyDeferred):
+    """An interaction was already responded to, and you attempted to defer it"""
 
 
 class ForeignWebhookException(NaffException):

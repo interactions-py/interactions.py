@@ -15,7 +15,7 @@ from interactions.models.discord.user import Member, User
 from interactions.models.internal.command import BaseCommand
 from interactions.client.mixins.modal import ModalMixin
 
-from interactions.client.errors import HTTPException
+from interactions.client.errors import HTTPException, AlreadyDeferred, AlreadyResponded
 from interactions.client.mixins.send import SendMixin
 from interactions.models.discord.enums import (
     Permissions,
@@ -680,8 +680,10 @@ class ComponentContext(InteractionContext, ModalMixin):
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
         """
-        if self.deferred or self.responded:
-            raise RuntimeError("Interaction has already been responded to.")
+        if self.deferred:
+            raise AlreadyDeferred("Interaction has already been responded to.")
+        if self.responded:
+            raise AlreadyResponded("Interaction has already been responded to.")
 
         payload = {
             "type": CallbackType.DEFERRED_UPDATE_MESSAGE
