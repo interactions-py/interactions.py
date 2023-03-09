@@ -440,12 +440,12 @@ class Client(
 
     @property
     def latency(self) -> float:
-        """Returns the latency of the websocket connection."""
+        """Returns the latency of the websocket connection (seconds)."""
         return self._connection_state.latency
 
     @property
     def average_latency(self) -> float:
-        """Returns the average latency of the websocket connection."""
+        """Returns the average latency of the websocket connection (seconds)."""
         return self._connection_state.average_latency
 
     @property
