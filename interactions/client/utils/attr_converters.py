@@ -1,7 +1,7 @@
 import inspect
 import typing
 from datetime import datetime
-from typing import Callable, Union
+from typing import Callable, Union, Any
 
 from interactions.client.const import MISSING
 from interactions.models.discord.timestamp import Timestamp
@@ -32,7 +32,11 @@ def timestamp_converter(value: Union[datetime, int, float, str]) -> Timestamp:
 def list_converter(converter) -> Callable[[list], list]:
     """Converts a list of values to a list of converted values"""
 
-    def convert_action(value: list) -> list:
+    def convert_action(value: Union[list, Any]) -> list:
+        if not isinstance(value, list):
+            """If only one single item was passed (without a list), then we only convert that one item instead of throwing an exception."""
+            return [converter(value)]
+
         return [converter(element) for element in value]
 
     return convert_action
