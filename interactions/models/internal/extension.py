@@ -167,7 +167,7 @@ class Extension:
         self.bot.dispatch(events.ExtensionUnload(self))
         self.bot.logger.debug(f"{self.name} has been drop")
 
-    def add_ext_auto_defer(self, enabled: bool = False, ephemeral: bool = False, time_until_defer: float = 0.0) -> None:
+    def add_ext_auto_defer(self, enabled: bool = True, ephemeral: bool = False, time_until_defer: float = 0.0) -> None:
         """
         Add a auto defer for all commands in this extension.
 
