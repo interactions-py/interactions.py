@@ -167,16 +167,17 @@ class Extension:
         self.bot.dispatch(events.ExtensionUnload(self))
         self.bot.logger.debug(f"{self.name} has been drop")
 
-    def add_ext_auto_defer(self, ephemeral: bool = False, time_until_defer: float = 0.0) -> None:
+    def add_ext_auto_defer(self, enabled: bool = False, ephemeral: bool = False, time_until_defer: float = 0.0) -> None:
         """
         Add a auto defer for all commands in this extension.
 
         Args:
+            enabled: Should the command be deferred automatically
             ephemeral: Should the command be deferred as ephemeral
             time_until_defer: How long to wait before deferring automatically
 
         """
-        self.auto_defer = models.AutoDefer(enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer)
+        self.auto_defer = models.AutoDefer(enabled=enabled, ephemeral=ephemeral, time_until_defer=time_until_defer)
 
     def add_ext_check(self, coroutine: Callable[["BaseContext"], Awaitable[bool]]) -> None:
         """
