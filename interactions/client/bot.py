@@ -250,7 +250,7 @@ class Client:
 
         option_attrs: List[str] = [name for name in Option.__slots__ if not name.startswith("_")]
         choice_attrs: List[str] = [name for name in Choice.__slots__ if not name.startswith("_")]
-        log.info(f"Current attributes to compare: {', '.join(attrs)}.")
+        log.debug(f"Current attributes to compare: {', '.join(attrs)}.")
         clean: bool = True
 
         _command: dict = {}
