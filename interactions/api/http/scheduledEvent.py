@@ -86,17 +86,6 @@ class ScheduledEventRequest:
         :param payload: The dictionary containing the parameters and values to edit the associated event.
         :return: A dictionary containing the updated guild scheduled event object on success.
         """
-        valid_keys = (
-            "channel_id",
-            "name",
-            "privacy_level",
-            "scheduled_start_time",
-            "scheduled_end_time",
-            "entity_metadata",
-            "description",
-            "entity_type",
-        )
-        data = {k: v for k, v in payload.items() if k in valid_keys}
         return await self._req.request(
             Route(
                 "PATCH",
@@ -104,7 +93,7 @@ class ScheduledEventRequest:
                 guild_id=guild_id,
                 event_id=guild_scheduled_event_id,
             ),
-            json=data,
+            json=payload,
         )
 
     async def delete_scheduled_event(self, guild_id: int, guild_scheduled_event_id: int) -> None:
