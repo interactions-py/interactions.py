@@ -638,7 +638,7 @@ class GlobalCache:
             [self.delete_member(m.id, guild_id) for m in guild.members]
             [self.delete_role(r) for r in guild.roles]
             if self.enable_emoji_cache:  # todo: this is ungodly slow, find a better way to do this
-                for emoji in self.emoji_cache:
+                for emoji in self.emoji_cache.values():
                     if emoji._guild_id == guild_id:  # noqa
                         self.delete_emoji(emoji)
 
