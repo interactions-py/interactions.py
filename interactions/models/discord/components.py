@@ -209,14 +209,14 @@ class Button(InteractiveComponent):
     def __init__(
         self,
         *,
-        style: ButtonStyle,
+        style: ButtonStyle | int,
         label: str | None = None,
         emoji: "PartialEmoji | None | str" = None,
         custom_id: str = None,
         url: str | None = None,
         disabled: bool = False,
     ) -> None:
-        self.style: ButtonStyle = style
+        self.style: ButtonStyle = ButtonStyle(style)
         self.label: str | None = label
         self.emoji: "PartialEmoji | None" = emoji
         self.custom_id: str | None = custom_id
