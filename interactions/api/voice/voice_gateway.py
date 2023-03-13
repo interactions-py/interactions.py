@@ -216,7 +216,7 @@ class VoiceGateway(WebsocketClient):
                     self._kill_bee_gees.set()
                     self.close()
                     self.logger.debug("Terminating VoiceGateway due to disconnection")
-                    return
+                    return None
 
                 self._voice_server_update.clear()
 

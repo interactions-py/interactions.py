@@ -141,7 +141,7 @@ class MessageReference(DictSerializationMixin):
         """
         Creates a reference to a message.
 
-        parameters
+        Parameters
             message: The target message to reference.
             fail_if_not_exists: Whether to error if the referenced message doesn't exist instead of sending as a normal (non-reply) message
 

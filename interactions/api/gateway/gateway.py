@@ -215,7 +215,7 @@ class GatewayClient(WebsocketClient):
             case "RESUMED":
                 self.logger.info(f"Successfully resumed connection! Session_ID: {self.session_id}")
                 self.state.client.dispatch(events.Resume())
-                return
+                return None
 
             case "GUILD_MEMBERS_CHUNK":
                 asyncio.create_task(self._process_member_chunk(data.copy()))

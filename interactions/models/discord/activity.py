@@ -112,7 +112,7 @@ class Activity(DictSerializationMixin):
             The new activity object
 
         """
-        return cls(name=name, type=type, url=url)  # noqa
+        return cls(name=name, type=type, url=url)
 
     def to_dict(self) -> dict:
         return dict_filter_none({"name": self.name, "type": self.type, "url": self.url})

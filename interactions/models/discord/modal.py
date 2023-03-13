@@ -64,9 +64,9 @@ class InputText(DictSerializationMixin):
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> T:
         if data["style"] == TextStyles.SHORT:
-            cls = ShortText  # noqa
+            cls = ShortText
         elif data["style"] == TextStyles.PARAGRAPH:
-            cls = ParagraphText  # noqa
+            cls = ParagraphText
 
         return cls(
             label=data["label"],

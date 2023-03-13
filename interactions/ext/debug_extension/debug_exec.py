@@ -70,14 +70,14 @@ class DebugExec(Extension):
 
         to_compile = "async def func():\n%s" % textwrap.indent(body, "  ")
         try:
-            exec(to_compile, env)  # noqa: S102
+            exec(to_compile, env)
         except SyntaxError:
             return await ctx.send(f"```py\n{traceback.format_exc()}\n```")
 
         func = env["func"]
         try:
             with redirect_stdout(stdout):
-                ret = await func()  # noqa
+                ret = await func()
         except Exception:
             return await m_ctx.send(f"```py\n{stdout.getvalue()}{traceback.format_exc()}\n```")
         else:

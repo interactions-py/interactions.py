@@ -926,7 +926,7 @@ class Client(
             if has_uvloop:
                 self.logger.info("uvloop is installed, using it")
                 if sys.version_info >= (3, 11):
-                    with asyncio.Runner(loop_factory=uvloop.new_event_loop) as runner:  # noqa: F821
+                    with asyncio.Runner(loop_factory=uvloop.new_event_loop) as runner:
                         runner.run(self.astart(token))
                 else:
                     uvloop.install()
@@ -1178,7 +1178,7 @@ class Client(
 
             event_class_name = "".join([name.capitalize() for name in listener.event.split("_")])
             if event_class := globals().get(event_class_name):
-                if required_intents := _INTENT_EVENTS.get(event_class):  # noqa
+                if required_intents := _INTENT_EVENTS.get(event_class):
                     if all(required_intent not in self.intents for required_intent in required_intents):
                         self.logger.warning(
                             f"Event `{listener.event}` will not work since the required intent is not set -> Requires any of: `{required_intents}`"
@@ -1223,7 +1223,7 @@ class Client(
         if isinstance(command, SlashCommand):
             command._parse_parameters()
 
-        base, group, sub, *_ = command.resolved_name.split(" ") + [None, None]
+        base, group, sub, *_ = [*command.resolved_name.split(" "), None, None]
 
         for scope in command.scopes:
             if scope not in self.interactions_by_scope:
@@ -1233,7 +1233,7 @@ class Client(
                 raise ValueError(f"Duplicate Command! {scope}::{old_cmd.resolved_name}")
 
             # if self.enforce_interaction_perms:
-            #     command.checks.append(command._permission_enforcer)  # noqa : w0212
+            #     command.checks.append(command._permission_enforcer)
 
             self.interactions_by_scope[scope][command.resolved_name] = command
 
@@ -1836,7 +1836,7 @@ class Client(
             raise ExtensionNotFound(f"No extension called {name} is loaded")
 
         with contextlib.suppress(AttributeError):
-            teardown = getattr(module, "teardown")
+            teardown = module.teardown
             teardown(**unload_kwargs)
 
         for ext in self.get_extensions(name):
@@ -1900,7 +1900,7 @@ class Client(
                 self.logger.info(f"Reverted extension {name} to previous state")
             except Exception as ex:
                 sys.modules.pop(name, None)
-                raise ex from e  # noqa: R101
+                raise ex from e
 
     async def fetch_guild(self, guild_id: "Snowflake_Type") -> Optional[Guild]:
         """

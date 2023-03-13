@@ -216,7 +216,8 @@ def get_event_name(event: Union[str, "events.BaseEvent"]) -> str:
 
 
 def get_object_name(x: Any) -> str:
-    """Gets the name of virtually any object.
+    """
+    Gets the name of virtually any object.
 
     Args:
         x (Any): The object to get the name of.
@@ -242,7 +243,7 @@ def disable_components(*components: "BaseComponent") -> list["BaseComponent"]:
     """Disables all components in a list of components."""
     for component in components:
         if component.type == ComponentType.ACTION_ROW:
-            disable_components(*component.components)  # noqa
+            disable_components(*component.components)
         else:
             component.disabled = True
     return list(components)

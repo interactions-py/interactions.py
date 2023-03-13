@@ -158,7 +158,7 @@ class ActiveVoiceState(VoiceState):
         self.logger.debug("Waiting for voice connection data...")
 
         try:
-            self._voice_state, self._voice_server = await asyncio.gather(*tasks)  # noqa
+            self._voice_state, self._voice_server = await asyncio.gather(*tasks)
         except asyncio.TimeoutError:
             raise VoiceConnectionTimeout from None
 

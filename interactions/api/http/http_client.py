@@ -76,6 +76,7 @@ class GlobalLock:
         Sets the reset time to the current time + delta.
 
         To be called if a 429 is received.
+
         Args:
             delta: The time to wait before resetting the calls.
         """

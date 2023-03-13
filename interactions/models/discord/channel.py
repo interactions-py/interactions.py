@@ -436,7 +436,7 @@ class MessageableMixin(SendMixin):
         if not predicate:
 
             def predicate(m) -> bool:
-                return True  # noqa
+                return True
 
         to_delete = []
 

@@ -40,11 +40,11 @@ class GuildEvents(EventMixinTemplate):
 
         guild = self.cache.place_guild_data(event.data)
 
-        self._user._guild_ids.add(to_snowflake(event.data.get("id")))  # noqa : w0212
+        self._user._guild_ids.add(to_snowflake(event.data.get("id")))
 
         self._guild_event.set()
 
-        if self.fetch_members and not guild.chunked.is_set():  # noqa
+        if self.fetch_members and not guild.chunked.is_set():
             # delays events until chunking has completed
             await guild.chunk()
 

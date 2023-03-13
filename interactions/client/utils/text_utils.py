@@ -10,7 +10,8 @@ def mentions(
     *,
     tag_as_mention: bool = False,
 ) -> bool:
-    """Checks whether a query is present in a text.
+    """
+    Checks whether a query is present in a text.
 
     Args:
         text: The text to search in

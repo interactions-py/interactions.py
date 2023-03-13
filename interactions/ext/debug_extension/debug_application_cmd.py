@@ -117,7 +117,7 @@ class DebugAppCMD(Extension):
                         if perms:
                             cmd["permissions"] = perms.get("permissions")
                         return await send(cmd)
-        except Exception:  # noqa: S110
+        except Exception:
             pass
         return await ctx.send(f"Unable to locate any commands in {scope} with ID {cmd_id}!")
 
