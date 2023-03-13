@@ -40,7 +40,7 @@ setup(
     long_description=(Path(__file__).parent / "README.md").read_text(),
     long_description_content_type="text/markdown",
     author="LordOfPolls",
-    author_email="naff@lordofpolls.com",
+    author_email="dev@lordofpolls.com",
     url="https://github.com/interactions-py/interactions.py",
     version=pyproject["tool"]["poetry"]["version"],
     packages=find_packages(),
@@ -64,7 +64,7 @@ setup(
     ],
     project_urls={
         "Discord": "https://discord.gg/KkgMBVuEkx",
-        "Documentation": "https://naff-docs.readthedocs.io/en/latest/",
+        "Documentation": "https://naff-docs.readthedocs.io/en/latest/",  # TODO: replace
     },
     extras_require=extras_require,
 )

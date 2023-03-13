@@ -9,7 +9,7 @@ import attrs
 import interactions
 from interactions.api import events
 from interactions.client.const import Absent, MISSING, get_logger
-from interactions.client.errors import NaffException, WebSocketClosed
+from interactions.client.errors import LibraryException, WebSocketClosed
 from interactions.models.discord.activity import Activity
 from interactions.models.discord.enums import Intents, Status, ActivityType
 from .gateway import GatewayClient
@@ -116,11 +116,11 @@ class ConnectionState:
 
         except WebSocketClosed as ex:
             if ex.code == 4011:
-                raise NaffException("Your bot is too large, you must use shards") from None
+                raise LibraryException("Your bot is too large, you must use shards") from None
             if ex.code == 4013:
-                raise NaffException(f"Invalid Intents have been passed: {self.intents}") from None
+                raise LibraryException(f"Invalid Intents have been passed: {self.intents}") from None
             if ex.code == 4014:
-                raise NaffException(
+                raise LibraryException(
                     "You have requested privileged intents that have not been enabled or approved. Check the developer dashboard"
                 ) from None
             raise

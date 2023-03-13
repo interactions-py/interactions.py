@@ -63,7 +63,7 @@ from interactions.models import (
     GuildTemplate,
     Message,
     Extension,
-    NaffUser,
+    ClientUser,
     User,
     Member,
     Modal,
@@ -370,7 +370,7 @@ class Client(
         else:
             self._activity: Activity = activity
 
-        self._user: Absent[NaffUser] = MISSING
+        self._user: Absent[ClientUser] = MISSING
         self._app: Absent[Application] = MISSING
 
         # collections
@@ -459,7 +459,7 @@ class Client(
         return self._connection_state.gateway_started.is_set()
 
     @property
-    def user(self) -> NaffUser:
+    def user(self) -> ClientUser:
         """Returns the bot's user."""
         return self._user
 
@@ -636,7 +636,7 @@ class Client(
                 ctx=event.ctx,
             )
         )
-        with contextlib.suppress(errors.NaffException):
+        with contextlib.suppress(errors.LibraryException):
             if isinstance(event.error, errors.CommandOnCooldown):
                 await event.ctx.send(
                     embeds=Embed(
@@ -857,7 +857,7 @@ class Client(
         Login to discord via http.
 
         !!! note
-            You will need to run Naff.start_gateway() before you start receiving gateway events.
+            You will need to run Client.start_gateway() before you start receiving gateway events.
 
         Args:
             token str: Your bot's token
@@ -876,7 +876,7 @@ class Client(
 
         self.logger.debug("Attempting to login")
         me = await self.http.login(self.token)
-        self._user = NaffUser.from_dict(me, self)
+        self._user = ClientUser.from_dict(me, self)
         self.cache.place_user_data(me)
         self._app = Application.from_dict(await self.http.get_current_bot_information(), self)
         self._mention_reg = re.compile(rf"^(<@!?{self.user.id}*>\s)")
@@ -1118,7 +1118,7 @@ class Client(
 
     def listen(self, event_name: Absent[str] = MISSING) -> Callable[[AsyncCallable], Listener]:
         """
-        A decorator to be used in situations that Naff can't automatically hook your listeners. Ideally, the standard listen decorator should be used, not this.
+        A decorator to be used in situations that the library can't automatically hook your listeners. Ideally, the standard listen decorator should be used, not this.
 
         Args:
             event_name: The event name to use, if not the coroutine name

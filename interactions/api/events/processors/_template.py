@@ -4,7 +4,7 @@ import inspect
 from typing import TYPE_CHECKING, Callable, Coroutine
 
 from interactions.client.const import Absent, MISSING, AsyncCallable
-from interactions.models.discord.user import NaffUser
+from interactions.models.discord.user import ClientUser
 
 if TYPE_CHECKING:
     from interactions.client.smart_cache import GlobalCache
@@ -43,7 +43,7 @@ class EventMixinTemplate:
     dispatch: Callable[["BaseEvent"], None]
     _init_interactions: Callable[[], Coroutine]
     synchronise_interactions: Callable[[], Coroutine]
-    _user: NaffUser
+    _user: ClientUser
     _guild_event: asyncio.Event
 
     def __init__(self) -> None:

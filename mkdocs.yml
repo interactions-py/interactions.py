@@ -56,14 +56,11 @@ watch:
 extra:
   social:
     - icon: fontawesome/brands/discord
-      link: https://discord.gg/hpfNhH8BsY
+      link: https://discord.gg/interactions
       name: Discord Server
     - icon: fontawesome/brands/github
-      link: https://github.com/Discord-Snake-Pit/naff
+      link: https://github.com/interactions-py/interactions.py
       name: Github Repository
-    - icon: fontawesome/brands/trello
-      link: https://trello.com/b/LVjnmYKt/dev-board
-      name: Trello Board
   analytics:
     provider: google
     property: G-817ZC2FC56
@@ -100,10 +97,6 @@ plugins:
   - search
   - awesome-pages
   - autorefs
-  #  - git-committers:
-  #        repository: NAFTeam/NAFF
-  #        branch: docs-refresh
-  #        token: !ENV [GH_TOKEN]
   - git-revision-date-localized:
       fallback_to_build_date: true
   - mkdocstrings:

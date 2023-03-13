@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = (
-    "NaffException",
+    "LibraryException",
     "BotException",
     "GatewayNotFound",
     "LoginError",
@@ -50,15 +50,15 @@ __all__ = (
 )
 
 
-class NaffException(Exception):
-    """Base Exception of Naff."""
+class LibraryException(Exception):
+    """Base Exception of i.py."""
 
 
-class BotException(NaffException):
+class BotException(LibraryException):
     """An issue occurred in the client, likely user error."""
 
 
-class GatewayNotFound(NaffException):
+class GatewayNotFound(LibraryException):
     """An exception that is raised when the gateway for Discord could not be found."""
 
     def __init__(self) -> None:
@@ -69,7 +69,7 @@ class LoginError(BotException):
     """The bot failed to login, check your token."""
 
 
-class HTTPException(NaffException):
+class HTTPException(LibraryException):
     """
     A HTTP request resulted in an exception.
 
@@ -193,11 +193,11 @@ class RateLimited(HTTPException):
     """Discord is rate limiting this application."""
 
 
-class TooManyChanges(NaffException):
+class TooManyChanges(LibraryException):
     """You have changed something too frequently."""
 
 
-class WebSocketClosed(NaffException):
+class WebSocketClosed(LibraryException):
     """The websocket was closed."""
 
     code: int = 0
@@ -224,7 +224,7 @@ class WebSocketClosed(NaffException):
         super().__init__(f"The Websocket closed with code: {code} - {self.codes.get(code, 'Unknown Error')}")
 
 
-class VoiceWebSocketClosed(NaffException):
+class VoiceWebSocketClosed(LibraryException):
     """The voice websocket was closed."""
 
     code: int = 0
@@ -251,7 +251,7 @@ class VoiceWebSocketClosed(NaffException):
         super().__init__(f"The Websocket closed with code: {code} - {self.codes.get(code, 'Unknown Error')}")
 
 
-class WebSocketRestart(NaffException):
+class WebSocketRestart(LibraryException):
     """The websocket closed, and is safe to restart."""
 
     resume: bool = False
@@ -394,7 +394,7 @@ class AlreadyResponded(AlreadyDeferred):
     """An interaction was already responded to, and you attempted to defer it"""
 
 
-class ForeignWebhookException(NaffException):
+class ForeignWebhookException(LibraryException):
     """Raised when you attempt to send using a webhook you did not create."""
 
 
@@ -416,7 +416,7 @@ class VoiceNotConnected(BotException):
         super().__init__("Bot is not connected to any voice channels in given guild")
 
 
-class VoiceConnectionTimeout(NaffException):
+class VoiceConnectionTimeout(LibraryException):
     """Raised when the bot fails to connect to a voice channel."""
 
     def __init__(self) -> None:

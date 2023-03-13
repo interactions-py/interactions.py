@@ -79,7 +79,7 @@ class FakeUserMixin(FakeBaseUserMixin):
 class User(FakeUserMixin, BaseUser): ...
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class NaffUser(User):
+class ClientUser(User):
     verified: bool
     mfa_enabled: bool
     email: Optional[str]

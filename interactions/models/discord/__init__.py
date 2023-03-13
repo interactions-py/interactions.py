@@ -161,7 +161,7 @@ from .sticker import Sticker, StickerItem, StickerPack
 from .team import Team, TeamMember
 from .thread import ThreadList, ThreadMember, ThreadTag
 from .timestamp import Timestamp, TimestampStyles
-from .user import BaseUser, Member, NaffUser, User
+from .user import BaseUser, Member, User, ClientUser
 from .voice_state import VoiceRegion, VoiceState
 
 __all__ = (
@@ -268,7 +268,7 @@ __all__ = (
     "MessageType",
     "MFALevel",
     "Modal",
-    "NaffUser",
+    "ClientUser",
     "NSFWLevel",
     "open_file",
     "OverwriteType",

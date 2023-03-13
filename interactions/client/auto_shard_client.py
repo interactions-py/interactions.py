@@ -218,7 +218,7 @@ class AutoShardedClient(Client):
         Login to discord via http.
 
         !!! note
-            You will need to run Naff.start_gateway() before you start receiving gateway events.
+            You will need to run Client.start_gateway() before you start receiving gateway events.
 
         Args:
             token str: Your bot's token
