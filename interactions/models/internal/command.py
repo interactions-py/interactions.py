@@ -183,7 +183,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
         return await maybe_coroutine(converter, context, value)
 
     def param_config(self, annotation: Any, name: str) -> Tuple[Callable, Optional[dict]]:
-        # This thing is complicated. NAFF-annotations can either be annotated directly, or they can be annotated with Annotated[str, CMD_*]
+        # This thing is complicated. i.py-annotations can either be annotated directly, or they can be annotated with Annotated[str, CMD_*]
         # This helper function handles both cases, and returns a tuple of the converter and its config (if any)
         if annotation is None:
             return None
