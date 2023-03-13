@@ -416,7 +416,10 @@ class StringSelectMenu(BaseSelectMenu):
 
     def __init__(
         self,
-        *options: StringSelectOption | str | discord_typings.SelectMenuOptionData | list[StringSelectOption | str | discord_typings.SelectMenuOptionData],
+        *options: StringSelectOption
+        | str
+        | discord_typings.SelectMenuOptionData
+        | list[StringSelectOption | str | discord_typings.SelectMenuOptionData],
         placeholder: str | None = None,
         min_values: int = 1,
         max_values: int = 1,
