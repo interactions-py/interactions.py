@@ -770,7 +770,7 @@ class Message(BaseMessage):
 
         Args:
             emoji: Emoji to remove
-            member: Member to remove reaction of. Default's to NAFF bot user.
+            member: Member to remove reaction of. Default's to ClientUser.
 
         """
         emoji_str = process_emoji_req_format(emoji)

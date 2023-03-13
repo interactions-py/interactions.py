@@ -1929,7 +1929,7 @@ class Guild(BaseGuild):
         """
         Fetches the voice regions for the guild.
 
-        Unlike the `NAFF.fetch_voice_regions` method, this will returns VIP servers when the guild is VIP-enabled.
+        Unlike the `Client.fetch_voice_regions` method, this will returns VIP servers when the guild is VIP-enabled.
 
         Returns:
             A list of voice regions.

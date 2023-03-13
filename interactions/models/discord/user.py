@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from interactions.models.discord.channel import DM, TYPE_GUILD_CHANNEL
     from interactions.models.discord.voice_state import VoiceState
 
-__all__ = ("BaseUser", "User", "NaffUser", "Member")
+__all__ = ("BaseUser", "User", "ClientUser", "Member")
 
 
 class _SendDMMixin(SendMixin):
@@ -170,7 +170,7 @@ class User(BaseUser):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class NaffUser(User):
+class ClientUser(User):
     verified: bool = attrs.field(repr=True, metadata={"docs": "Whether the email on this account has been verified"})
     mfa_enabled: bool = attrs.field(
         repr=False,
