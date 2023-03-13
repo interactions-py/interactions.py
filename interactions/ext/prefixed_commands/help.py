@@ -120,6 +120,7 @@ class PrefixedHelpCommand:
 
         Args:
             ctx: The context to use to establish usability.
+
         Returns:
             dict[str, PrefixedCommand]: A list of commands fit the class attribute configuration.
         """
@@ -154,7 +155,7 @@ class PrefixedHelpCommand:
         """
         Replace mentions with a format that won't ping or look weird in code blocks.
 
-        args:
+        Args:
             The text to sanitise.
         """
         mappings = {
@@ -172,7 +173,7 @@ class PrefixedHelpCommand:
         """
         Generate a string based on a command, class attributes, and the context.
 
-        args:
+        Args:
             cmd: The command in question.
             ctx: The context for this command.
         """

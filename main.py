@@ -107,15 +107,14 @@ async def multi_image_embed_test(ctx: interactions.SlashContext):
     await ctx.send(embeds=embed)
 
 
-def get_colour(colour: str):
+def get_colour(colour: str) -> interactions.Colour:
     if colour in interactions.MaterialColors.__members__:
         return interactions.MaterialColors[colour]
-    elif colour in interactions.BrandColors.__members__:
+    if colour in interactions.BrandColors.__members__:
         return interactions.BrandColors[colour]
-    elif colour in interactions.FlatUIColours.__members__:
+    if colour in interactions.FlatUIColours.__members__:
         return interactions.FlatUIColours[colour]
-    else:
-        return interactions.BrandColors.BLURPLE
+    return interactions.BrandColors.BLURPLE
 
 
 @slash_command("test")

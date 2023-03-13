@@ -43,6 +43,6 @@ class Console(Extension):
         with aiomonitor.start_monitor(
             loop=asyncio.get_event_loop(), port=self.port, console_port=self.console_port, locals=_locals
         ) as monitor:
-            self.client.logger.info(f"Started aiomonitor on {monitor._host}:{monitor._port}")  # noqa
+            self.client.logger.info(f"Started aiomonitor on {monitor._host}:{monitor._port}")
 
             await old_start(self.client, token)

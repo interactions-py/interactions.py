@@ -228,7 +228,7 @@ class GlobalCache:
         self.place_user_guild(user_id, guild_id)
         if guild := self.guild_cache.get(guild_id):
             # todo: this is slow, find a faster way
-            guild._member_ids.add(user_id)  # noqa
+            guild._member_ids.add(user_id)
         return member
 
     def delete_member(self, guild_id: "Snowflake_Type", user_id: "Snowflake_Type") -> None:
@@ -639,7 +639,7 @@ class GlobalCache:
             [self.delete_role(r) for r in guild.roles]
             if self.enable_emoji_cache:  # todo: this is ungodly slow, find a better way to do this
                 for emoji in self.emoji_cache.values():
-                    if emoji._guild_id == guild_id:  # noqa
+                    if emoji._guild_id == guild_id:
                         self.delete_emoji(emoji)
 
     # endregion Guild cache

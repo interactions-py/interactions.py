@@ -22,9 +22,9 @@ def timestamp_converter(value: Union[datetime, int, float, str]) -> Timestamp:
     """
     if isinstance(value, str):
         return Timestamp.fromisoformat(value)
-    elif isinstance(value, (float, int)):
+    if isinstance(value, (float, int)):
         return Timestamp.fromtimestamp(float(value))
-    elif isinstance(value, datetime):
+    if isinstance(value, datetime):
         return Timestamp.fromdatetime(value)
     raise TypeError("Timestamp must be one of: datetime, int, float, ISO8601 str")
 

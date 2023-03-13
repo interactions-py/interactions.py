@@ -25,9 +25,7 @@ __all__ = ("Role",)
 def sentinel_converter(value: bool | T | None, sentinel: T = attrs.NOTHING) -> bool | T:
     if value is sentinel:
         return False
-    elif value is None:
-        return True
-    return value
+    return True if value is None else value
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

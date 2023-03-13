@@ -72,13 +72,16 @@ def event_loop() -> AbstractEventLoop:
 async def bot(github_commit) -> Client:
     bot = interactions.Client(activity="Testing someones code")
     await bot.login(TOKEN)
-    asyncio.create_task(bot.start_gateway())
+    gw = asyncio.create_task(bot.start_gateway())
 
     await bot._ready.wait()
     bot.suffix = github_commit
     log.info(f"Logged in as {bot.user} ({bot.user.id}) -- {bot.suffix}")
 
     yield bot
+    gw.cancel()
+    with suppress(asyncio.CancelledError):
+        await gw
 
 
 @pytest_asyncio.fixture(scope="module")
@@ -111,9 +114,9 @@ async def channel(bot, guild) -> GuildText:
 
 @pytest_asyncio.fixture(scope="module")
 async def github_commit() -> str:
-    import subprocess  # noqa: S404
+    import subprocess
 
-    return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode("ascii").strip()  # noqa: S603, S607
+    return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).decode("ascii").strip()
 
 
 def ensure_attributes(target_object) -> None:
