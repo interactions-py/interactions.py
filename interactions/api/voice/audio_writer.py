@@ -1,6 +1,6 @@
 import io
 import os
-import subprocess  # noqa: S404
+import subprocess
 import threading
 import time
 from collections import defaultdict
@@ -126,6 +126,7 @@ class AudioWriter:
 
         Args:
             encoding: The format to encode to.
+
         Raises:
             ValueError: If a non-supported encoding is requested.
         """
@@ -154,7 +155,7 @@ class AudioWriter:
         """
         decoder = self._recorder.get_decoder(self._recorder.get_ssrc(user_id))
         args = f"ffmpeg -f s16le -ar {decoder.sample_rate} -ac {decoder.channels} -loglevel quiet -i - -f {encoding} pipe:1".split()
-        process = subprocess.Popen(  # noqa: S603
+        process = subprocess.Popen(
             args,
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,

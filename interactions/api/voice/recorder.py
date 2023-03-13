@@ -64,7 +64,8 @@ class Recorder(threading.Thread):
         await self.stop_recording()
 
     async def start_recording(self, *user_id: Snowflake_Type, output_dir: str | Missing = Missing) -> None:
-        """Start recording audio from the current channel.
+        """
+        Start recording audio from the current channel.
 
         Args:
             *user_id: The user_id(s) to record, if not specified everyone will be recorded.

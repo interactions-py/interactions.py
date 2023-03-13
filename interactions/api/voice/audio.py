@@ -248,7 +248,7 @@ class Audio(BaseAudio):
                 "a:0",
                 self.source,
             ]
-            raw_output = subprocess.check_output(ffprobe_cmd, stderr=subprocess.DEVNULL)  # noqa S603
+            raw_output = subprocess.check_output(ffprobe_cmd, stderr=subprocess.DEVNULL)
             output = FastJson.loads(raw_output)
 
             config["sample_rate"] = int(output["streams"][0]["sample_rate"])

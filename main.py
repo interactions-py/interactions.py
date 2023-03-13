@@ -61,7 +61,7 @@ async def components(ctx):
 
 @slash_command("record", description="Record audio in your voice channel")
 @slash_option("duration", "The duration of the recording", opt_type=interactions.OptionType.NUMBER, required=True)
-async def record(ctx: interactions.SlashContext, duration: int):
+async def record(ctx: interactions.SlashContext, duration: int) -> None:
     if ctx.author.voice.channel is None:
         return await ctx.send("You must be in a voice channel to use this command.")
     voice_channel = ctx.author.voice.channel

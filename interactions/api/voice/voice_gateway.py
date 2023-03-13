@@ -270,7 +270,7 @@ class VoiceGateway(WebsocketClient):
         keep_alive = b"\xc9\x00\x00\x00\x00\x00\x00\x00\x00"
 
         self.logger.debug("Starting UDP Keep Alive")
-        while not self.socket._closed and not self.ws.closed:  # noqa
+        while not self.socket._closed and not self.ws.closed:
             try:
                 _, writable, _ = select.select([], [self.socket], [], 0)
                 while not writable:

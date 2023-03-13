@@ -250,6 +250,7 @@ class ActiveVoiceState(VoiceState):
         Start recording the voice channel.
 
         If no recorder exists, one will be created.
+
         Args:
             encoding: What format the audio should be encoded to.
             output_dir: The directory to save the audio to
