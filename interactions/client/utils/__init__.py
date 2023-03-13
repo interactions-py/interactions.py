@@ -1,7 +1,7 @@
 from .attr_utils import define, docs, field, str_validator
 from .cache import NullCache, TTLCache, TTLItem
 from .attr_converters import list_converter, optional, timestamp_converter
-from .input_utils import FastJson, get_args, get_first_word, response_decode
+from .input_utils import FastJson, get_args, get_first_word, response_decode, unpack_helper
 from .misc_utils import (
     escape_mentions,
     find,
@@ -79,6 +79,7 @@ __all__ = (
     "export_converter",
     "get_file_mimetype",
     "no_export_meta",
+    "unpack_helper",
     "to_dict",
     "to_image_data",
     "ansi_block",

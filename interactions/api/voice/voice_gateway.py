@@ -2,14 +2,17 @@ import asyncio
 import random
 import socket
 import struct
+import threading
 import time
 from enum import IntEnum
 from threading import Event
 
+import select
 from aiohttp import WSMsgType
 
 from interactions.api.gateway.websocket import WebsocketClient
 from interactions.api.voice.encryption import Encryption
+from interactions.client.const import MISSING
 from interactions.client.errors import VoiceWebSocketClosed
 from interactions.client.utils.input_utils import FastJson
 
@@ -54,12 +57,16 @@ class VoiceGateway(WebsocketClient):
         self.ws_url = f"wss://{voice_server['endpoint']}?v=4"
         self.session_id = voice_state["session_id"]
         self.token = voice_server["token"]
+        self.secret: str | None = None
         self.guild_id = voice_server["guild_id"]
 
         self.sock_sequence = 0
         self.timestamp = 0
         self.ready = Event()
+        self.user_ssrc_map = {}
         self.cond = None
+
+        self._udp_ka = threading.Thread(target=self._udp_keep_alive, daemon=True)
 
     async def wait_until_ready(self) -> None:
         await asyncio.to_thread(self.ready.wait)
@@ -190,11 +197,19 @@ class VoiceGateway(WebsocketClient):
 
             case OP.SESSION_DESCRIPTION:
                 self.logger.info(f"Voice connection established; using {data['mode']}")
-                self.encryptor = Encryption(data["secret_key"])
+                self.selected_mode = data["mode"]
+                self.secret = data["secret_key"]
+                self.encryptor = Encryption(self.secret)
                 self.ready.set()
                 if self.cond:
                     with self.cond:
                         self.cond.notify()
+            case OP.SPEAKING:
+                self.user_ssrc_map[data["ssrc"]] = {"user_id": int(data["user_id"]), "speaking": data["speaking"]}
+            case OP.CLIENT_DISCONNECT:
+                self.logger.debug(
+                    f"User {data['user_id']} has disconnected from voice, ssrc ({self.user_ssrc_map.pop(data['user_id'], MISSING)}) invalidated"
+                )
 
             case _:
                 return self.logger.debug(f"Unhandled OPCODE: {op} = {data = }")
@@ -247,6 +262,30 @@ class VoiceGateway(WebsocketClient):
         }
         await self.ws.send_json(payload)
 
+        if not self._udp_ka.is_alive():
+            self._udp_ka = threading.Thread(target=self._udp_keep_alive, daemon=True)
+            self._udp_ka.start()
+
+    def _udp_keep_alive(self) -> None:
+        keep_alive = b"\xc9\x00\x00\x00\x00\x00\x00\x00\x00"
+
+        self.logger.debug("Starting UDP Keep Alive")
+        while not self.socket._closed and not self.ws.closed:
+            try:
+                _, writable, _ = select.select([], [self.socket], [], 0)
+                while not writable:
+                    _, writable, _ = select.select([], [self.socket], [], 0)
+
+                # discord will never respond to this, but it helps maintain the hole punch
+                self.socket.sendto(keep_alive, (self.voice_ip, self.voice_port))
+                time.sleep(5)
+            except socket.error as e:
+                self.logger.warning(f"Ending Keep Alive due to {e}")
+                return
+            except Exception as e:
+                self.logger.debug("Keep Alive Error: ", exc_info=e)
+        self.logger.debug("Ending UDP Keep Alive")
+
     async def establish_voice_socket(self) -> None:
         """Establish the socket connection to discord"""
         self.logger.debug("IP Discovery in progress...")
@@ -271,6 +310,10 @@ class VoiceGateway(WebsocketClient):
         self.logger.debug(f"IP Discovered: {self.me_ip} #{self.me_port}")
 
         await self._select_protocol()
+
+        if not self._udp_ka.is_alive():
+            self._udp_ka = threading.Thread(target=self._udp_keep_alive, daemon=True)
+            self._udp_ka.start()
 
     def generate_packet(self, data: bytes) -> bytes:
         """Generate a packet to be sent to the voice socket."""
@@ -297,6 +340,12 @@ class VoiceGateway(WebsocketClient):
             data = encoder.encode(data)
         packet = self.generate_packet(data)
 
+        _, writable, _ = select.select([], [self.socket], [], 0)
+        while not writable:
+            _, writable, errored = select.select([], [self.socket], [], 0)
+            if errored:
+                self.logger.error(f"Socket errored: {errored}")
+            continue
         self.socket.sendto(packet, (self.voice_ip, self.voice_port))
         self.timestamp += encoder.samples_per_frame
 

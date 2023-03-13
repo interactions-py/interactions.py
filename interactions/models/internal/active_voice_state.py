@@ -1,12 +1,14 @@
 import asyncio
+from io import BytesIO
 from typing import Optional, TYPE_CHECKING
 
 import attrs
 from discord_typings import VoiceStateData
 
 from interactions.api.voice.player import Player
+from interactions.api.voice.recorder import Recorder
 from interactions.api.voice.voice_gateway import VoiceGateway
-from interactions.client.const import MISSING
+from interactions.client.const import MISSING, Missing
 from interactions.client.errors import VoiceAlreadyConnected, VoiceConnectionTimeout
 from interactions.client.utils import optional
 from interactions.models.discord.enums import Intents
@@ -26,6 +28,8 @@ class ActiveVoiceState(VoiceState):
     """The websocket for this voice state"""
     player: Optional[Player] = attrs.field(repr=False, default=None)
     """The playback task that broadcasts audio data to discord"""
+    recorder: Optional[Recorder] = attrs.field(default=None)
+    """A recorder task to capture audio from discord"""
     _volume: float = attrs.field(repr=False, default=0.5)
 
     # standard voice states expect this data, this voice state lacks it initially; so we make them optional
@@ -234,6 +238,56 @@ class ActiveVoiceState(VoiceState):
             audio: The audio object to play
         """
         _ = asyncio.create_task(self.play(audio))
+
+    def create_recorder(self) -> Recorder:
+        """Create a recorder instance."""
+        if not self.recorder:
+            self.recorder = Recorder(self, asyncio.get_running_loop())
+        return self.recorder
+
+    async def start_recording(self, encoding: Optional[str] = None, *, output_dir: str | Missing = Missing) -> Recorder:
+        """
+        Start recording the voice channel.
+
+        If no recorder exists, one will be created.
+
+        Args:
+            encoding: What format the audio should be encoded to.
+            output_dir: The directory to save the audio to
+        """
+        if not self.recorder:
+            self.recorder = Recorder(self, asyncio.get_running_loop())
+
+        if self.recorder.used:
+            if self.recorder.recording:
+                raise RuntimeError("Another recording is still in progress, please stop it first.")
+            self.recorder = Recorder(self, asyncio.get_running_loop())
+
+        if encoding is not None:
+            self.recorder.encoding = encoding
+
+        await self.recorder.start_recording(output_dir=output_dir)
+        return self.recorder
+
+    async def stop_recording(self) -> dict[int, BytesIO]:
+        """
+        Stop the recording.
+
+        Returns:
+            dict[snowflake, BytesIO]: The recorded audio
+        """
+        if not self.recorder or not self.recorder.recording:
+            raise RuntimeError("No recorder is running!")
+        await self.recorder.stop_recording()
+
+        self.recorder.audio.finished.wait()
+        return self.recordings
+
+    @property
+    def recordings(self) -> dict[int, BytesIO]:
+        if not self.recorder:
+            return {}
+        return self.recorder.output
 
     async def _voice_server_update(self, data) -> None:
         """

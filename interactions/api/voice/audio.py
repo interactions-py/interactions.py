@@ -5,18 +5,69 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union, Optional, TYPE_CHECKING
 
-__all__ = (
-    "AudioBuffer",
-    "BaseAudio",
-    "Audio",
-    "AudioVolume",
-)
+__all__ = ("AudioBuffer", "BaseAudio", "Audio", "AudioVolume", "RawInputAudio")
 
 from interactions.client.const import get_logger
 from interactions.api.voice.opus import Encoder
 from interactions.client.utils import FastJson
+
+if TYPE_CHECKING:
+    from interactions.api.voice.recorder import Recorder
+
+
+class RawInputAudio:
+    decoded: bytes
+    """The decoded audio"""
+    pcm: bytes
+    """The raw PCM audio"""
+    sequence: int
+    """The audio sequence"""
+    audio_timestamp: int
+    """The current timestamp for this audio"""
+    timestamp_ns: float
+    """The time this audio was received, in nanoseconds"""
+    timestamp: float
+    """The time this audio was received, in seconds"""
+    ssrc: int
+    """The source of this audio"""
+    _recoder: "Recorder"
+    """A reference to the audio recorder managing this object"""
+
+    def __init__(self, recorder: "Recorder", data: bytes) -> None:
+        self.decoded: bytes = b""
+        self._recorder = recorder
+        self.timestamp_ns = time.monotonic_ns()
+        self.timestamp = self.timestamp_ns / 1e9
+        self.pcm = b""
+
+        self.ingest(data)
+
+    def ingest(self, data: bytes) -> bytes | None:
+        data = bytearray(data)
+        header = data[:12]
+
+        decrypted: bytes = self._recorder.decrypt(header, data[12:])
+        self.ssrc = int.from_bytes(header[8:12], byteorder="big")
+        self.sequence = int.from_bytes(header[2:4], byteorder="big")
+        self.audio_timestamp = int.from_bytes(header[4:8], byteorder="big")
+
+        if not self._recorder.recording_whitelist or self.user_id in self._recorder.recording_whitelist:
+            # noinspection PyProtectedMember
+            if decrypted[0] == 0xBE and decrypted[1] == 0xDE:
+                # rtp header extension, remove it
+                header_ext_length = int.from_bytes(decrypted[2:4], byteorder="big")
+                decrypted = decrypted[4 + 4 * header_ext_length :]
+            self.decoded = self._recorder.get_decoder(self.ssrc).decode(decrypted)
+            return self.decoded
+
+    @property
+    def user_id(self) -> Optional[int]:
+        """The ID of the user who made this audio."""
+        while not self._recorder.state.ws.user_ssrc_map.get(self.ssrc):
+            time.sleep(0.05)
+        return self._recorder.state.ws.user_ssrc_map.get(self.ssrc)["user_id"]
 
 
 class AudioBuffer:
@@ -38,24 +89,53 @@ class AudioBuffer:
         with self._lock:
             self._buffer.extend(data)
 
-    def read(self, total_bytes: int) -> bytearray:
+    def read(self, total_bytes: int, *, pad: bool = True) -> bytearray:
         """
         Read `total_bytes` bytes of audio from the buffer.
 
         Args:
             total_bytes: Amount of bytes to read.
+            pad: Whether to pad incomplete frames with 0's.
 
         Returns:
             Desired amount of bytes
+
+        Raises:
+            ValueError: If `pad` is False and the buffer does not contain enough data.
         """
         with self._lock:
             view = memoryview(self._buffer)
             self._buffer = bytearray(view[total_bytes:])
             data = bytearray(view[:total_bytes])
             if 0 < len(data) < total_bytes:
-                # pad incomplete frames with 0's
-                data.extend(b"\0" * (total_bytes - len(data)))
+                if pad:
+                    # pad incomplete frames with 0's
+                    data.extend(b"\0" * (total_bytes - len(data)))
+                else:
+                    raise ValueError(
+                        f"Buffer does not contain enough data to fulfill request {len(data)} < {total_bytes}"
+                    )
             return data
+
+    def read_max(self, total_bytes: int) -> bytearray:
+        """
+        Read up to `total_bytes` bytes of audio from the buffer.
+
+        Args:
+            total_bytes: Maximum amount of bytes to read.
+
+        Returns:
+            Desired amount of bytes
+
+        Raises:
+            EOFError: If the buffer is empty.
+        """
+        with self._lock:
+            if len(self._buffer) == 0:
+                raise EOFError("Buffer is empty")
+            view = memoryview(self._buffer)
+            self._buffer = bytearray(view[total_bytes:])
+            return bytearray(view[:total_bytes])
 
 
 class BaseAudio(ABC):
