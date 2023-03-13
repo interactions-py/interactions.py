@@ -170,7 +170,6 @@ class GatewayClient(WebsocketClient):
 
     async def dispatch_opcode(self, data, op: OPCODE) -> None:
         match op:
-
             case OPCODE.HEARTBEAT:
                 self.logger.debug("Received heartbeat request from gateway")
                 return await self.send_heartbeat()
@@ -338,7 +337,6 @@ class GatewayClient(WebsocketClient):
         await self.send_json(payload)
 
     async def _process_member_chunk(self, chunk: dict) -> Task[None]:
-
         if guild := self.state.client.cache.get_guild(to_snowflake(chunk.get("guild_id"))):
             return asyncio.create_task(guild.process_member_chunk(chunk))
         raise ValueError(f"No guild exists for {chunk.get('guild_id')}")

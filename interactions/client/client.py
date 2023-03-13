@@ -1448,7 +1448,6 @@ class Client(
         local_cmds_json = application_commands_to_dict(self.interactions_by_scope, self)
 
         async def sync_scope(cmd_scope) -> None:
-
             sync_needed_flag = False  # a flag to force this scope to synchronise
             sync_payload = []  # the payload to be pushed to discord
 

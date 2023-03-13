@@ -742,7 +742,6 @@ class GuildRequests(CanRequest):
         system_channel_id: "Snowflake_Type | None" = None,
         system_channel_flags: int | None = None,
     ) -> discord_typings.GuildData:
-
         payload = {
             "name": name,
             "icon": icon,

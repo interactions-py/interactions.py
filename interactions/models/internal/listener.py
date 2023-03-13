@@ -11,7 +11,6 @@ __all__ = ("Listener", "listen")
 
 
 class Listener(CallbackObject):
-
     event: str
     """Name of the event to listen to."""
     callback: AsyncCallable

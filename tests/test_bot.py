@@ -189,7 +189,6 @@ async def test_messages(bot: Client, guild: Guild, channel: GuildText) -> None:
     thread = await msg.create_thread("Test Thread")
 
     try:
-
         _m = await thread.send("Test")
         ensure_attributes(_m)
 

@@ -39,7 +39,6 @@ def get_cache_state(bot: "Client") -> str:
     table = []
 
     for cache, val in caches.items():
-
         if isinstance(val, TTLCache):
             amount = [len(val), f"{val.hard_limit}({val.soft_limit})"]
             expire = f"{val.ttl}s"

@@ -12,6 +12,7 @@ import interactions
 # The client is also the main object that interacts with the API, what makes requests with Discord.
 client = interactions.Client()
 
+
 # With our client established, let's have the library inform us when the client is ready.
 # These are known as event listeners. An event listener can be established in one of two ways.
 # You can provide the name of the event, prefixed by an "on_", or by telling the event decorator what event it is.

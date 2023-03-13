@@ -14,7 +14,6 @@ __all__ = ("Processor", "EventMixinTemplate")
 
 
 class Processor:
-
     callback: AsyncCallable
     event_name: str
 

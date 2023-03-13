@@ -15,7 +15,6 @@ def bot() -> Client:
 
 
 def test_dm_channel(bot: Client) -> None:
-
     channel = bot.cache.place_channel_data(SAMPLE_DM_DATA())
     assert isinstance(channel, DM)
     assert channel.recipient.id == to_snowflake(SAMPLE_USER_DATA()["id"])
