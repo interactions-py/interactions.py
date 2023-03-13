@@ -1252,11 +1252,14 @@ def slash_default_member_permission(
     return wrapper
 
 
-def auto_defer(ephemeral: bool = False, time_until_defer: float = 0.0) -> Callable[[InterCommandT], InterCommandT]:
+def auto_defer(
+    enabled: bool = True, ephemeral: bool = False, time_until_defer: float = 0.0
+) -> Callable[[InterCommandT], InterCommandT]:
     """
     A decorator to add an auto defer to a application command.
 
     Args:
+        enabled: Should the command be deferred automatically
         ephemeral: Should the command be deferred as ephemeral
         time_until_defer: How long to wait before deferring automatically
 
@@ -1265,7 +1268,7 @@ def auto_defer(ephemeral: bool = False, time_until_defer: float = 0.0) -> Callab
     def wrapper(func: InterCommandT) -> InterCommandT:
         if hasattr(func, "cmd_id"):
             raise ValueError("auto_defer decorators must be positioned under a slash_command decorator")
-        func.auto_defer = AutoDefer(enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer)
+        func.auto_defer = AutoDefer(enabled=enabled, ephemeral=ephemeral, time_until_defer=time_until_defer)
         return func
 
     return wrapper
