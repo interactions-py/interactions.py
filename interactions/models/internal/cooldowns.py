@@ -36,18 +36,17 @@ class Buckets(IntEnum):
     async def get_key(self, context: "BaseContext") -> Any:
         if self is Buckets.USER:
             return context.author.id
-        elif self is Buckets.GUILD:
+        if self is Buckets.GUILD:
             return context.guild_id if context.guild else context.author.id
-        elif self is Buckets.CHANNEL:
+        if self is Buckets.CHANNEL:
             return context.channel.id
-        elif self is Buckets.MEMBER:
+        if self is Buckets.MEMBER:
             return (context.guild_id, context.author.id) if context.guild else context.author.id
-        elif self is Buckets.CATEGORY:
+        if self is Buckets.CATEGORY:
             return await context.channel.parent_id if context.channel.parent else context.channel.id
-        elif self is Buckets.ROLE:
-            return context.channel.id if not context.guild else context.author.top_role.id
-        else:
-            return context.author.id
+        if self is Buckets.ROLE:
+            return context.author.top_role.id if context.guild else context.channel.id
+        return context.author.id
 
     def __call__(self, context: "BaseContext") -> Any:
         return self.get_key(context)

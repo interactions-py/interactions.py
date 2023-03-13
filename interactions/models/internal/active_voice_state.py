@@ -120,7 +120,7 @@ class ActiveVoiceState(VoiceState):
         """Connect to the voice gateway for this voice state"""
         self.ws = VoiceGateway(self._client._connection_state, self._voice_state.data, self._voice_server.data)
 
-        asyncio.create_task(self._ws_connect())
+        _ = asyncio.create_task(self._ws_connect())
         await self.ws.wait_until_ready()
 
     def _guild_predicate(self, event) -> bool:
@@ -233,7 +233,7 @@ class ActiveVoiceState(VoiceState):
         Args:
             audio: The audio object to play
         """
-        asyncio.create_task(self.play(audio))
+        _ = asyncio.create_task(self.play(audio))
 
     async def _voice_server_update(self, data) -> None:
         """

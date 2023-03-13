@@ -133,9 +133,8 @@ class DebugExec(Extension):
         if len(cmd_result := f"```py\n{result}```") <= 2000:
             return await ctx.send(cmd_result)
 
-        else:
-            paginator = Paginator.create_from_string(self.bot, result, prefix="```py", suffix="```", page_size=4000)
-            return await paginator.send(ctx)
+        paginator = Paginator.create_from_string(self.bot, result, prefix="```py", suffix="```", page_size=4000)
+        return await paginator.send(ctx)
 
 
 def setup(bot) -> None:

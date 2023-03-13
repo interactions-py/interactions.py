@@ -541,7 +541,7 @@ class Client(
 
         if self.fetch_members and Intents.GUILD_MEMBERS not in self._connection_state.intents:
             raise BotException("Members Intent must be enabled in order to use fetch members")
-        elif self.fetch_members:
+        if self.fetch_members:
             self.logger.warning("fetch_members enabled; startup will be delayed")
 
         if len(self.processors) == 0:
@@ -979,7 +979,7 @@ class Client(
                     ) from e
 
         try:
-            asyncio.create_task(self._process_waits(event))
+            _ = asyncio.create_task(self._process_waits(event))
         except RuntimeError:
             # dispatch attempt before event loop is running
             self.async_startup_tasks.append(self._process_waits(event))
@@ -1048,7 +1048,7 @@ class Client(
                 return False
             if not author:
                 return True
-            elif author != to_snowflake(event.ctx.author):
+            if author != to_snowflake(event.ctx.author):
                 return False
             return True
 
@@ -1387,7 +1387,7 @@ class Client(
                     return MISSING
 
         results = await asyncio.gather(*[wrap(self.app.id, scope) for scope in bot_scopes])
-        results = dict(zip(bot_scopes, results))
+        results = dict(zip(bot_scopes, results, strict=False))
 
         for scope, remote_cmds in results.items():
             if remote_cmds == MISSING:
@@ -1408,8 +1408,7 @@ class Client(
                                 f"{'global' if scope == GLOBAL_SCOPE else scope}"
                             )
                         continue
-                    else:
-                        found.add(cmd_name)
+                    found.add(cmd_name)
                     self._interaction_lookup[cmd.resolved_name] = cmd
                     cmd.cmd_id[scope] = int(cmd_data["id"])
 
@@ -1720,7 +1719,7 @@ class Client(
                     await ctx.send(str(response))
 
             if self.post_run_callback:
-                asyncio.create_task(self.post_run_callback(ctx, **callback_kwargs))
+                _ = asyncio.create_task(self.post_run_callback(ctx, **callback_kwargs))
         except Exception as e:
             self.dispatch(error_callback(ctx=ctx, error=e))
         finally:
@@ -1793,7 +1792,7 @@ class Client(
                     asyncio.get_running_loop()
                 except RuntimeError:
                     return
-                asyncio.create_task(self.synchronise_interactions())
+                _ = asyncio.create_task(self.synchronise_interactions())
 
     def load_extension(
         self,
@@ -1850,7 +1849,7 @@ class Client(
                 asyncio.get_running_loop()
             except RuntimeError:
                 return
-            asyncio.create_task(self.synchronise_interactions())
+            _ = asyncio.create_task(self.synchronise_interactions())
 
     def reload_extension(
         self,

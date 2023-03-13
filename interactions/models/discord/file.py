@@ -42,8 +42,7 @@ class File:
         """
         if isinstance(self.file, (IOBase, BinaryIO)):
             return self.file
-        else:
-            return open(str(self.file), "rb")
+        return open(str(self.file), "rb")
 
     def __enter__(self) -> "File":
         return self

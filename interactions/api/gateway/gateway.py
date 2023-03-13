@@ -1,4 +1,4 @@
-"""This file outlines the interaction between interactions and Discord's Gateway API."""
+"""Outlines the interaction between interactions and Discord's Gateway API."""
 import asyncio
 import sys
 import time
@@ -160,7 +160,7 @@ class GatewayClient(WebsocketClient):
                 self.sequence = seq
 
             if op == OPCODE.DISPATCH:
-                asyncio.create_task(self.dispatch_event(data, seq, event))
+                _ = asyncio.create_task(self.dispatch_event(data, seq, event))
                 continue
 
             # This may try to reconnect the connection so it is best to wait
@@ -218,14 +218,16 @@ class GatewayClient(WebsocketClient):
                 return None
 
             case "GUILD_MEMBERS_CHUNK":
-                asyncio.create_task(self._process_member_chunk(data.copy()))
+                _ = asyncio.create_task(self._process_member_chunk(data.copy()))
 
             case _:
                 # the above events are "special", and are handled by the gateway itself, the rest can be dispatched
                 event_name = f"raw_{event.lower()}"
                 if processor := self.state.client.processors.get(event_name):
                     try:
-                        asyncio.create_task(processor(events.RawGatewayEvent(data.copy(), override_name=event_name)))
+                        _ = asyncio.create_task(
+                            processor(events.RawGatewayEvent(data.copy(), override_name=event_name))
+                        )
                     except Exception as ex:
                         self.logger.error(f"Failed to run event processor for {event_name}: {ex}")
                 else:

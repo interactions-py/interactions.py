@@ -117,9 +117,9 @@ class ConnectionState:
         except WebSocketClosed as ex:
             if ex.code == 4011:
                 raise NaffException("Your bot is too large, you must use shards") from None
-            elif ex.code == 4013:
+            if ex.code == 4013:
                 raise NaffException(f"Invalid Intents have been passed: {self.intents}") from None
-            elif ex.code == 4014:
+            if ex.code == 4014:
                 raise NaffException(
                     "You have requested privileged intents that have not been enabled or approved. Check the developer dashboard"
                 ) from None

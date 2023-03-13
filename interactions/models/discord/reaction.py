@@ -61,8 +61,7 @@ class ReactionUsers(AsyncIterator):
                 raise QueueEmpty
             self._more = len(users) == expected
             return [self.reaction._client.cache.place_user_data(u) for u in users]
-        else:
-            raise QueueEmpty
+        raise QueueEmpty
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

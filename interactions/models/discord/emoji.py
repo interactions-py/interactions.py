@@ -68,13 +68,12 @@ class PartialEmoji(SnowflakeObject, DictSerializationMixin):
             parsed = tuple(filter(None, parsed[0]))
             if len(parsed) == 3:
                 return cls(name=parsed[1], id=parsed[2], animated=True)
-            elif len(parsed) == 2:
+            if len(parsed) == 2:
                 return cls(name=parsed[0], id=parsed[1])
-            else:
-                _name = emoji.emojize(emoji_str, language=language)
-                _emoji_list = emoji.distinct_emoji_list(_name)
-                if _emoji_list:
-                    return cls(name=_emoji_list[0])
+            _name = emoji.emojize(emoji_str, language=language)
+            _emoji_list = emoji.distinct_emoji_list(_name)
+            if _emoji_list:
+                return cls(name=_emoji_list[0])
         else:
             # check if it's a unicode emoji
             _emoji_list = emoji.distinct_emoji_list(emoji_str)
@@ -110,8 +109,7 @@ class PartialEmoji(SnowflakeObject, DictSerializationMixin):
         """Format used for web request."""
         if self.id:
             return f"{self.name}:{self.id}"
-        else:
-            return self.name
+        return self.name
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

@@ -115,7 +115,7 @@ class VoiceGateway(WebsocketClient):
                     continue
                 raise VoiceWebSocketClosed(resp.data)
 
-            elif resp.type is WSMsgType.CLOSED:
+            if resp.type is WSMsgType.CLOSED:
                 if force:
                     raise RuntimeError("Discord unexpectedly closed the underlying socket during force receive!")
 

@@ -23,12 +23,11 @@ def mentions(
     """
     if isinstance(query, str):
         return query in text
-    elif isinstance(query, re.Pattern):
+    if isinstance(query, re.Pattern):
         return query.match(text) is not None
-    elif isinstance(query, models.BaseUser):
+    if isinstance(query, models.BaseUser):
         # mentions with <@!ID> aren't detected without the replacement
         return (query.mention in text.replace("@!", "@")) or (query.tag in text if tag_as_mention else False)
-    elif isinstance(query, (models.BaseChannel, models.Role)):
+    if isinstance(query, (models.BaseChannel, models.Role)):
         return query.mention in text
-    else:
-        return False
+    return False

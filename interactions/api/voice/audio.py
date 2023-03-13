@@ -199,9 +199,7 @@ class Audio(BaseAudio):
         cmd[1:1] = before
         cmd.extend(after)
 
-        self.process = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.DEVNULL
-        )
+        self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.DEVNULL)
         self.read_ahead_task.start()
 
         if block:

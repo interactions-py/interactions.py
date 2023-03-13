@@ -235,8 +235,7 @@ async def maybe_coroutine(func: Callable, *args, **kwargs) -> Any:
     """Allows running either a coroutine or a function."""
     if inspect.iscoroutinefunction(func):
         return await func(*args, **kwargs)
-    else:
-        return func(*args, **kwargs)
+    return func(*args, **kwargs)
 
 
 def disable_components(*components: "BaseComponent") -> list["BaseComponent"]:

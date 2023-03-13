@@ -368,7 +368,7 @@ class Paginator:
 
         if self.timeout_interval > 1:
             self._timeout_task = Timeout(self)
-            asyncio.create_task(self._timeout_task())
+            _ = asyncio.create_task(self._timeout_task())
 
         return self._message
 
@@ -386,7 +386,7 @@ class Paginator:
 
         if self.timeout_interval > 1:
             self._timeout_task = Timeout(self)
-            asyncio.create_task(self._timeout_task())
+            _ = asyncio.create_task(self._timeout_task())
 
         return self._message
 
