@@ -416,7 +416,7 @@ class StringSelectMenu(BaseSelectMenu):
 
     def __init__(
         self,
-        *options: StringSelectOption | str | discord_typings.SelectMenuOptionData,
+        *options: StringSelectOption | str | discord_typings.SelectMenuOptionData | list[StringSelectOption | str | discord_typings.SelectMenuOptionData],
         placeholder: str | None = None,
         min_values: int = 1,
         max_values: int = 1,
@@ -430,6 +430,10 @@ class StringSelectMenu(BaseSelectMenu):
             custom_id=custom_id,
             disabled=disabled,
         )
+        if isinstance(options, (list, tuple)) and len(options) == 1 and isinstance(options[0], (list, tuple)):
+            # user passed in a list of options, expand it out
+            options = options[0]
+
         self.options: list[StringSelectOption] = [StringSelectOption.converter(option) for option in options]
         self.type: ComponentType = ComponentType.STRING_SELECT
 
