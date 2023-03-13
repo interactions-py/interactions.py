@@ -384,8 +384,10 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
         """
-        if self.deferred or self.responded:
-            raise RuntimeError("Interaction has already been responded to.")
+        if self.deferred:
+            raise AlreadyDeferred("Interaction has already been responded to.")
+        if self.responded:
+            raise AlreadyResponded("Interaction has already been responded to.")
 
         payload = {"type": CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE}
         if ephemeral:
@@ -599,13 +601,15 @@ class ContextMenuContext(InteractionContext, ModalMixin):
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
         """
-        if self.deferred or self.responded:
-            raise RuntimeError("Interaction has already been responded to.")
+        if self.deferred:
+            raise AlreadyDeferred("Interaction has already been responded to.")
+        if self.responded:
+            raise AlreadyResponded("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-            if not edit_origin
-            else CallbackType.DEFERRED_UPDATE_MESSAGE
+            "type": CallbackType.DEFERRED_UPDATE_MESSAGE
+            if edit_origin
+            else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
         }
         if ephemeral:
             if edit_origin:
