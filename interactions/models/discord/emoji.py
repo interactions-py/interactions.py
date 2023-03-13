@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 __all__ = ("PartialEmoji", "CustomEmoji", "process_emoji_req_format", "process_emoji")
 
 emoji_regex = re.compile(r"<?(a)?:(\w*):(\d*)>?")
-unicode_emoji_reg = re.compile(r"[^\w\s,``“”…-—•◦‣-*⁏⁒~⁺⁻⁼⁽⁾ⁿ₊₋₌₍₎]")
+unicode_emoji_reg = re.compile(r"[^\w\s,’‘“”…–—•◦‣⁃⁎⁏⁒⁓⁺⁻⁼⁽⁾ⁿ₊₋₌₍₎]")  # noqa: RUF001
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
