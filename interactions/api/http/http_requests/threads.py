@@ -198,10 +198,9 @@ class ThreadRequests:
                 payload=payload,
                 reason=reason,
             )
-        else:
-            payload["type"] = thread_type or ChannelType.GUILD_PUBLIC_THREAD
-            payload["invitable"] = invitable
-            return await self.request(Route("POST", f"/channels/{channel_id}/threads"), payload=payload, reason=reason)
+        payload["type"] = thread_type or ChannelType.GUILD_PUBLIC_THREAD
+        payload["invitable"] = invitable
+        return await self.request(Route("POST", f"/channels/{channel_id}/threads"), payload=payload, reason=reason)
 
     async def create_forum_thread(
         self,

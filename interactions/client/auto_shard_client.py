@@ -60,8 +60,7 @@ class AutoShardedClient(Client):
         if len(self._connection_states):
             latencies = sum((g.latency for g in self._connection_states))
             return latencies / len(self._connection_states)
-        else:
-            return float("inf")
+        return float("inf")
 
     @property
     def latencies(self) -> dict[int, float]:

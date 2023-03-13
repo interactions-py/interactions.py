@@ -313,11 +313,11 @@ def process_color(color: Color | dict | COLOR_TYPES | None) -> int | None:
     """
     if not color:
         return None
-    elif isinstance(color, Color):
+    if isinstance(color, Color):
         return color.value
-    elif isinstance(color, dict):
+    if isinstance(color, dict):
         return color["value"]
-    elif isinstance(color, (tuple, list, str, int)):
+    if isinstance(color, (tuple, list, str, int)):
         return Color(color).value
 
     raise ValueError(f"Invalid color: {type(color)}")

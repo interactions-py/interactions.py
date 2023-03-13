@@ -81,17 +81,15 @@ def _to_dict_any(inst: T) -> dict | list | str | T:
     """
     if has(inst.__class__):
         return to_dict(inst)
-    elif isinstance(inst, dict):
+    if isinstance(inst, dict):
         return {key: _to_dict_any(value) for key, value in inst.items()}
-    elif isinstance(inst, (list, tuple, set, frozenset)):
+    if isinstance(inst, (list, tuple, set, frozenset)):
         return [_to_dict_any(item) for item in inst]
-    elif isinstance(inst, datetime):
+    if isinstance(inst, datetime):
         if inst.tzinfo:
             return inst.isoformat()
-        else:
-            return inst.replace(tzinfo=timezone.utc).isoformat()
-    else:
-        return inst
+        return inst.replace(tzinfo=timezone.utc).isoformat()
+    return inst
 
 
 def dict_filter_none(data: dict) -> dict:
@@ -175,13 +173,12 @@ def get_file_mimetype(file_data: bytes) -> str:
 
     if file_data.startswith(b"{"):
         return "application/json"
-    elif file_data.startswith((b"GIF87a", b"GIF89a")):
+    if file_data.startswith((b"GIF87a", b"GIF89a")):
         return "image/gif"
-    elif file_data.startswith(b"\x89PNG\x0D\x0A\x1A\x0A"):
+    if file_data.startswith(b"\x89PNG\x0D\x0A\x1A\x0A"):
         return "image/png"
-    elif file_data.startswith(b"\xff\xd8\xff"):
+    if file_data.startswith(b"\xff\xd8\xff"):
         return "image/jpeg"
-    elif file_data[0:4] == b"RIFF" and file_data[8:12] == b"WEBP":
+    if file_data[0:4] == b"RIFF" and file_data[8:12] == b"WEBP":
         return "image/webp"
-    else:
-        return "application/octet-stream"
+    return "application/octet-stream"

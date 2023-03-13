@@ -216,7 +216,8 @@ def get_event_name(event: Union[str, "events.BaseEvent"]) -> str:
 
 
 def get_object_name(x: Any) -> str:
-    """Gets the name of virtually any object.
+    """
+    Gets the name of virtually any object.
 
     Args:
         x (Any): The object to get the name of.
@@ -234,15 +235,14 @@ async def maybe_coroutine(func: Callable, *args, **kwargs) -> Any:
     """Allows running either a coroutine or a function."""
     if inspect.iscoroutinefunction(func):
         return await func(*args, **kwargs)
-    else:
-        return func(*args, **kwargs)
+    return func(*args, **kwargs)
 
 
 def disable_components(*components: "BaseComponent") -> list["BaseComponent"]:
     """Disables all components in a list of components."""
     for component in components:
         if component.type == ComponentType.ACTION_ROW:
-            disable_components(*component.components)  # noqa
+            disable_components(*component.components)
         else:
             component.disabled = True
     return list(components)

@@ -308,7 +308,7 @@ class InteractionCommand(BaseCommand):
         """
         if not self.dm_permission and ctx.guild is None:
             return False
-        elif self.dm_permission and ctx.guild is None:
+        if self.dm_permission and ctx.guild is None:
             # remaining checks are impossible if this is a DM and DMs are enabled
             return True
 
@@ -768,8 +768,7 @@ class SlashCommand(InteractionCommand):
         if not self.parameters:
             if self._uses_arg:
                 return await self.call_with_binding(callback, ctx, *ctx.args)
-            else:
-                return await self.call_with_binding(callback, ctx)
+            return await self.call_with_binding(callback, ctx)
 
         kwargs_copy = ctx.kwargs.copy()
 

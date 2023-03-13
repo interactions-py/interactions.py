@@ -171,7 +171,8 @@ class Paginator:
 
     @classmethod
     def create_from_embeds(cls, client: "Client", *embeds: Embed, timeout: int = 0) -> "Paginator":
-        """Create a paginator system from a list of embeds.
+        """
+        Create a paginator system from a list of embeds.
 
         Args:
             client: A reference to the client
@@ -367,7 +368,7 @@ class Paginator:
 
         if self.timeout_interval > 1:
             self._timeout_task = Timeout(self)
-            asyncio.create_task(self._timeout_task())
+            _ = asyncio.create_task(self._timeout_task())
 
         return self._message
 
@@ -385,7 +386,7 @@ class Paginator:
 
         if self.timeout_interval > 1:
             self._timeout_task = Timeout(self)
-            asyncio.create_task(self._timeout_task())
+            _ = asyncio.create_task(self._timeout_task())
 
         return self._message
 

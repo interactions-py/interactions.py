@@ -30,7 +30,7 @@ class DebugExts(Extension):
     async def reload_error(self, error: Exception, ctx: PrefixedContext, *args) -> None:
         if isinstance(error, CommandCheckFailure):
             return await ctx.send("You do not have permission to execute this command")
-        elif isinstance(error, ExtensionLoadException):
+        if isinstance(error, ExtensionLoadException):
             return await ctx.send(str(error))
         raise
 

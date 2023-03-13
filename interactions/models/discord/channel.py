@@ -197,10 +197,9 @@ class PermissionOverwrite(SnowflakeObject, DictSerializationMixin):
         """
         if isinstance(target_type, models.Role):
             return cls(type=OverwriteType.ROLE, id=target_type.id)
-        elif isinstance(target_type, (models.Member, models.User)):
+        if isinstance(target_type, (models.Member, models.User)):
             return cls(type=OverwriteType.MEMBER, id=target_type.id)
-        else:
-            raise TypeError("target_type must be a Role, Member or User")
+        raise TypeError("target_type must be a Role, Member or User")
 
     def add_allows(self, *perms: "Permissions") -> None:
         """
@@ -436,7 +435,7 @@ class MessageableMixin(SendMixin):
         if not predicate:
 
             def predicate(m) -> bool:
-                return True  # noqa
+                return True
 
         to_delete = []
 
@@ -512,15 +511,15 @@ class InvitableMixin:
         if target_type:
             if target_type == InviteTargetType.STREAM and not target_user:
                 raise ValueError("Stream target must include target user id.")
-            elif target_type == InviteTargetType.EMBEDDED_APPLICATION and not target_application:
+            if target_type == InviteTargetType.EMBEDDED_APPLICATION and not target_application:
                 raise ValueError("Embedded Application target must include target application id.")
 
         if target_user and target_application:
             raise ValueError("Invite target must be either User or Embedded Application, not both.")
-        elif target_user:
+        if target_user:
             target_user = to_snowflake(target_user)
             target_type = InviteTargetType.STREAM
-        elif target_application:
+        if target_application:
             target_application = to_snowflake(target_application)
             target_type = InviteTargetType.EMBEDDED_APPLICATION
 
@@ -577,10 +576,10 @@ class ThreadableMixin:
         if self.type == ChannelType.GUILD_NEWS and not message:
             raise ValueError("News channel must include message to create thread from.")
 
-        elif message and (thread_type or invitable):
+        if message and (thread_type or invitable):
             raise ValueError("Message cannot be used with thread_type or invitable.")
 
-        elif thread_type != ChannelType.GUILD_PRIVATE_THREAD and invitable:
+        if thread_type != ChannelType.GUILD_PRIVATE_THREAD and invitable:
             raise ValueError("Invitable only applies to private threads.")
 
         thread_data = await self._client.http.create_thread(
@@ -1065,13 +1064,11 @@ class GuildChannel(BaseChannel):
 
             return permissions
 
-        else:
-            instance = to_snowflake(instance)
-            guild = self.guild
-            if instance := guild.get_member(instance) or guild.get_role(instance):
-                return self.permissions_for(instance)
-            else:
-                raise ValueError("Unable to find any member or role by given instance ID")
+        instance = to_snowflake(instance)
+        guild = self.guild
+        if instance := guild.get_member(instance) or guild.get_role(instance):
+            return self.permissions_for(instance)
+        raise ValueError("Unable to find any member or role by given instance ID")
 
     async def add_permission(
         self,
@@ -2297,8 +2294,7 @@ class VoiceChannel(GuildChannel):  # May not be needed, can be directly just Gui
         """
         if self.voice_state:
             return await self.voice_state.disconnect()
-        else:
-            raise VoiceNotConnected
+        raise VoiceNotConnected
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

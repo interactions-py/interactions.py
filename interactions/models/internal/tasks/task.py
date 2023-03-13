@@ -93,7 +93,7 @@ class Task:
     def _fire(self, fire_time: datetime) -> None:
         """Called when the task is being fired."""
         self.trigger.last_call_time = fire_time
-        asyncio.create_task(self())
+        _ = asyncio.create_task(self())
         self.iteration += 1
 
     async def _task_loop(self) -> None:

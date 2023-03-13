@@ -115,7 +115,7 @@ def _make_data_line(
     if isinstance(aligns, str):
         aligns = [aligns for _ in column_widths]
 
-    line = (f"{str(value): {align}{width}}" for width, align, value in zip(column_widths, aligns, line))
+    line = (f"{str(value): {align}{width}}" for width, align, value in zip(column_widths, aligns, line, strict=False))
     return f"{left_char}{f'{middle_char}'.join(line)}{right_char}"
 
 
@@ -135,13 +135,13 @@ def adjust_subcolumn(
     aligns: Union[list[str], str] = "<",
 ) -> None:
     """Converts column composed of list of subcolumns into aligned str representation."""
-    column = list(zip(*rows))[column_index]
-    subcolumn_widths = _get_column_widths(zip(*column))
+    column = list(zip(*rows, strict=False))[column_index]
+    subcolumn_widths = _get_column_widths(zip(*column, strict=False))
     if isinstance(aligns, str):
         aligns = [aligns for _ in subcolumn_widths]
 
     column = [_make_data_line(subcolumn_widths, row, "", separator, "", aligns) for row in column]
-    for row, new_item in zip(rows, column):
+    for row, new_item in zip(rows, column, strict=False):
         row[column_index] = new_item
 
 
@@ -154,7 +154,7 @@ def make_table(rows: list[list[Any]], labels: Optional[list[Any]] = None, center
     :param centered: If the items should be aligned to the center, else they are left aligned.
     :return: A table representing the rows passed in.
     """
-    columns = zip(*rows) if labels is None else zip(*rows, labels)
+    columns = zip(*rows, strict=False) if labels is None else zip(*rows, labels, strict=False)
     column_widths = _get_column_widths(columns)
     align = "^" if centered else "<"
     align = [align for _ in column_widths]

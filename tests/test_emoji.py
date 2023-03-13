@@ -109,21 +109,21 @@ def test_false_positives() -> None:
         assert PartialEmoji.from_str(_e) is None
 
     unicode_general_punctuation = [
-        "’",
-        "‘",
+        "’",  # noqa: RUF001
+        "‘",  # noqa: RUF001
         "“",
         "”",
         "…",
-        "–",
+        "–",  # noqa: RUF001
         "—",
         "•",
         "◦",
         "‣",
-        "⁃",
-        "⁎",
+        "⁃",  # noqa: RUF001
+        "⁎",  # noqa: RUF001
         "⁏",
         "⁒",
-        "⁓",
+        "⁓",  # noqa: RUF001
         "⁺",
         "⁻",
         "⁼",
