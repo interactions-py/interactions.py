@@ -541,7 +541,7 @@ class Client(
 
         if self.fetch_members and Intents.GUILD_MEMBERS not in self._connection_state.intents:
             raise BotException("Members Intent must be enabled in order to use fetch members")
-        elif self.fetch_members:
+        if self.fetch_members:
             self.logger.warning("fetch_members enabled; startup will be delayed")
 
         if len(self.processors) == 0:
@@ -926,7 +926,7 @@ class Client(
             if has_uvloop:
                 self.logger.info("uvloop is installed, using it")
                 if sys.version_info >= (3, 11):
-                    with asyncio.Runner(loop_factory=uvloop.new_event_loop) as runner:  # noqa: F821
+                    with asyncio.Runner(loop_factory=uvloop.new_event_loop) as runner:
                         runner.run(self.astart(token))
                 else:
                     uvloop.install()
@@ -979,7 +979,7 @@ class Client(
                     ) from e
 
         try:
-            asyncio.create_task(self._process_waits(event))
+            _ = asyncio.create_task(self._process_waits(event))
         except RuntimeError:
             # dispatch attempt before event loop is running
             self.async_startup_tasks.append(self._process_waits(event))
@@ -1048,7 +1048,7 @@ class Client(
                 return False
             if not author:
                 return True
-            elif author != to_snowflake(event.ctx.author):
+            if author != to_snowflake(event.ctx.author):
                 return False
             return True
 
@@ -1178,7 +1178,7 @@ class Client(
 
             event_class_name = "".join([name.capitalize() for name in listener.event.split("_")])
             if event_class := globals().get(event_class_name):
-                if required_intents := _INTENT_EVENTS.get(event_class):  # noqa
+                if required_intents := _INTENT_EVENTS.get(event_class):
                     if all(required_intent not in self.intents for required_intent in required_intents):
                         self.logger.warning(
                             f"Event `{listener.event}` will not work since the required intent is not set -> Requires any of: `{required_intents}`"
@@ -1223,7 +1223,7 @@ class Client(
         if isinstance(command, SlashCommand):
             command._parse_parameters()
 
-        base, group, sub, *_ = command.resolved_name.split(" ") + [None, None]
+        base, group, sub, *_ = [*command.resolved_name.split(" "), None, None]
 
         for scope in command.scopes:
             if scope not in self.interactions_by_scope:
@@ -1233,7 +1233,7 @@ class Client(
                 raise ValueError(f"Duplicate Command! {scope}::{old_cmd.resolved_name}")
 
             # if self.enforce_interaction_perms:
-            #     command.checks.append(command._permission_enforcer)  # noqa : w0212
+            #     command.checks.append(command._permission_enforcer)
 
             self.interactions_by_scope[scope][command.resolved_name] = command
 
@@ -1387,7 +1387,7 @@ class Client(
                     return MISSING
 
         results = await asyncio.gather(*[wrap(self.app.id, scope) for scope in bot_scopes])
-        results = dict(zip(bot_scopes, results))
+        results = dict(zip(bot_scopes, results, strict=False))
 
         for scope, remote_cmds in results.items():
             if remote_cmds == MISSING:
@@ -1408,8 +1408,7 @@ class Client(
                                 f"{'global' if scope == GLOBAL_SCOPE else scope}"
                             )
                         continue
-                    else:
-                        found.add(cmd_name)
+                    found.add(cmd_name)
                     self._interaction_lookup[cmd.resolved_name] = cmd
                     cmd.cmd_id[scope] = int(cmd_data["id"])
 
@@ -1720,7 +1719,7 @@ class Client(
                     await ctx.send(str(response))
 
             if self.post_run_callback:
-                asyncio.create_task(self.post_run_callback(ctx, **callback_kwargs))
+                _ = asyncio.create_task(self.post_run_callback(ctx, **callback_kwargs))
         except Exception as e:
             self.dispatch(error_callback(ctx=ctx, error=e))
         finally:
@@ -1793,7 +1792,7 @@ class Client(
                     asyncio.get_running_loop()
                 except RuntimeError:
                     return
-                asyncio.create_task(self.synchronise_interactions())
+                _ = asyncio.create_task(self.synchronise_interactions())
 
     def load_extension(
         self,
@@ -1836,7 +1835,7 @@ class Client(
             raise ExtensionNotFound(f"No extension called {name} is loaded")
 
         with contextlib.suppress(AttributeError):
-            teardown = getattr(module, "teardown")
+            teardown = module.teardown
             teardown(**unload_kwargs)
 
         for ext in self.get_extensions(name):
@@ -1850,7 +1849,7 @@ class Client(
                 asyncio.get_running_loop()
             except RuntimeError:
                 return
-            asyncio.create_task(self.synchronise_interactions())
+            _ = asyncio.create_task(self.synchronise_interactions())
 
     def reload_extension(
         self,
@@ -1900,7 +1899,7 @@ class Client(
                 self.logger.info(f"Reverted extension {name} to previous state")
             except Exception as ex:
                 sys.modules.pop(name, None)
-                raise ex from e  # noqa: R101
+                raise ex from e
 
     async def fetch_guild(self, guild_id: "Snowflake_Type") -> Optional[Guild]:
         """

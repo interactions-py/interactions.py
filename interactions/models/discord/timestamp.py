@@ -138,8 +138,7 @@ class Timestamp(datetime):
         """
         if not style:
             return f"<t:{self.timestamp():.0f}>"
-        else:
-            return f"<t:{self.timestamp():.0f}:{style}>"
+        return f"<t:{self.timestamp():.0f}:{style}>"
 
     def __str__(self) -> str:
         return self.format()

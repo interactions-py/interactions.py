@@ -308,7 +308,7 @@ class InteractionCommand(BaseCommand):
         """
         if not self.dm_permission and ctx.guild is None:
             return False
-        elif self.dm_permission and ctx.guild is None:
+        if self.dm_permission and ctx.guild is None:
             # remaining checks are impossible if this is a DM and DMs are enabled
             return True
 
@@ -768,8 +768,7 @@ class SlashCommand(InteractionCommand):
         if not self.parameters:
             if self._uses_arg:
                 return await self.call_with_binding(callback, ctx, *ctx.args)
-            else:
-                return await self.call_with_binding(callback, ctx)
+            return await self.call_with_binding(callback, ctx)
 
         kwargs_copy = ctx.kwargs.copy()
 
@@ -1252,11 +1251,14 @@ def slash_default_member_permission(
     return wrapper
 
 
-def auto_defer(ephemeral: bool = False, time_until_defer: float = 0.0) -> Callable[[InterCommandT], InterCommandT]:
+def auto_defer(
+    enabled: bool = True, ephemeral: bool = False, time_until_defer: float = 0.0
+) -> Callable[[InterCommandT], InterCommandT]:
     """
     A decorator to add an auto defer to a application command.
 
     Args:
+        enabled: Should the command be deferred automatically
         ephemeral: Should the command be deferred as ephemeral
         time_until_defer: How long to wait before deferring automatically
 
@@ -1265,7 +1267,7 @@ def auto_defer(ephemeral: bool = False, time_until_defer: float = 0.0) -> Callab
     def wrapper(func: InterCommandT) -> InterCommandT:
         if hasattr(func, "cmd_id"):
             raise ValueError("auto_defer decorators must be positioned under a slash_command decorator")
-        func.auto_defer = AutoDefer(enabled=True, ephemeral=ephemeral, time_until_defer=time_until_defer)
+        func.auto_defer = AutoDefer(enabled=enabled, ephemeral=ephemeral, time_until_defer=time_until_defer)
         return func
 
     return wrapper

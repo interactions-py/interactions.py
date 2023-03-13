@@ -30,7 +30,8 @@ __all__ = ("AutoModerationAction", "AutoModRule")
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class BaseAction(DictSerializationMixin):
-    """A base implementation of a moderation action
+    """
+    A base implementation of a moderation action
 
     Attributes:
         type: The type of action that was taken
@@ -55,7 +56,8 @@ class BaseAction(DictSerializationMixin):
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class BaseTrigger(DictSerializationMixin):
-    """A base implementation of an auto-mod trigger
+    """
+    A base implementation of an auto-mod trigger
 
     Attributes:
         type: The type of event this trigger is for

@@ -76,6 +76,7 @@ class GlobalLock:
         Sets the reset time to the current time + delta.
 
         To be called if a 429 is received.
+
         Args:
             delta: The time to wait before resetting the calls.
         """
@@ -373,7 +374,7 @@ class HTTPClient(
                                 )
                                 await lock.defer_unlock()  # lock this route and wait for unlock
                             continue
-                        elif lock.remaining == 0:
+                        if lock.remaining == 0:
                             # Last call available in the bucket, lock until reset
                             self.log_ratelimit(
                                 self.logger.debug,
@@ -407,12 +408,11 @@ class HTTPClient(
 
         if response.status == 403:
             raise Forbidden(response, response_data=result, route=route)
-        elif response.status == 404:
+        if response.status == 404:
             raise NotFound(response, response_data=result, route=route)
-        elif response.status >= 500:
+        if response.status >= 500:
             raise DiscordError(response, response_data=result, route=route)
-        else:
-            raise HTTPException(response, response_data=result, route=route)
+        raise HTTPException(response, response_data=result, route=route)
 
     def log_ratelimit(self, log_func: Callable, message: str) -> None:
         """

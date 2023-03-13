@@ -95,3 +95,81 @@ log_cli = "1"
 # log_cli_level = "DEBUG"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
 log_cli_date_format="%Y-%m-%d %H:%M:%S"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+ignore-init-module-imports = true
+task-tags = ["TODO", "FIXME", "XXX", "HACK", "REVIEW", "NOTE"]
+show-source = false  # set to true if you want to see the source of the error/warning
+select = ["E", "F", "B", "Q", "RUF", "D", "ANN", "RET", "C"]
+ignore = [
+    "Q0", "E501",
+    # These default to arguing with Black.  We might configure some of them eventually
+    "ANN1",
+    # These insist that we have Type Annotations for self and cls.
+    "D105", "D107",
+    # Missing Docstrings in magic method and __init__
+    "D401",
+    # First line should be in imperative mood; try rephrasing
+    "D400", "D415",
+    # First line should end with a period
+    "D106",
+    # Missing docstring in public nested class.  This doesn't work well with Metadata classes.
+    "D417",
+    # Missing argument in the docstring
+    "D406",
+    # Section name should end with a newline
+    "D407",
+    # Missing dashed underline after section
+    "D212",
+    # Multi-line docstring summary should start at the first line
+    "D404",
+    # First word of the docstring should not be This
+    "D203",
+    # 1 blank line required before class docstring
+
+    # Everything below this line is something we care about, but don't currently meet
+    "ANN001",
+    # Missing type annotation for function argument 'token'
+    "ANN002",
+    # Missing type annotation for *args
+    "ANN003",
+    # Missing type annotation for **kwargs
+    "ANN401",
+    # Dynamically typed expressions (typing.Any) are disallowed
+#    "B009",
+    # Do not call getattr with a constant attribute value, it is not any safer than normal property access.
+    "B010",
+    # Do not call setattr with a constant attribute value, it is not any safer than normal property access.
+    "D100",
+    # Missing docstring in public module
+    "D101",
+    # ... class
+    "D102",
+    # ... method
+    "D103",
+    # ... function
+    "D104",
+    # ... package
+
+    # Plugins we don't currently include: flake8-return
+    "RET503",
+    # missing explicit return at the  end of function ableto return non-None value.
+    "RET504",
+    # unecessary variable assignement before return statement.
+]
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.ruff.flake8-annotations]
+mypy-init-return = true
+suppress-dummy-args = true
+suppress-none-returning = true
+
+[tool.ruff.flake8-errmsg]
+max-string-length = 20
+
+[tool.ruff.mccabe]
+max-complexity = 5

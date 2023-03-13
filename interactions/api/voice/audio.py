@@ -1,6 +1,6 @@
 import audioop
 import shutil
-import subprocess  # noqa: S404
+import subprocess
 import threading
 import time
 from abc import ABC, abstractmethod
@@ -168,7 +168,7 @@ class BaseAudio(ABC):
         """
         Reads frame_size ms of audio from source.
 
-        returns:
+        Returns:
             bytes of audio
         """
         ...
@@ -279,9 +279,7 @@ class Audio(BaseAudio):
         cmd[1:1] = before
         cmd.extend(after)
 
-        self.process = subprocess.Popen(  # noqa: S603
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.DEVNULL
-        )
+        self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.DEVNULL)
         self.read_ahead_task.start()
 
         if block:
@@ -326,7 +324,7 @@ class Audio(BaseAudio):
         """
         Reads frame_size bytes of audio from the buffer.
 
-        returns:
+        Returns:
             bytes of audio
         """
         if not self.process:
@@ -373,7 +371,7 @@ class AudioVolume(Audio):
         """
         Reads frame_size ms of audio from source.
 
-        returns:
+        Returns:
             bytes of audio
         """
         data = super().read(frame_size)

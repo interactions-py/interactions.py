@@ -141,7 +141,7 @@ class MessageReference(DictSerializationMixin):
         """
         Creates a reference to a message.
 
-        parameters
+        Parameters
             message: The target message to reference.
             fail_if_not_exists: Whether to error if the referenced message doesn't exist instead of sending as a normal (non-reply) message
 
@@ -610,27 +610,26 @@ class Message(BaseMessage):
                 file=file,
                 tts=tts,
             )
-        else:
             if self.flags == MessageFlags.EPHEMERAL:
                 raise EphemeralEditException
-            message_payload = process_message_payload(
-                content=content,
-                embeds=embeds or embed,
-                components=components,
-                allowed_mentions=allowed_mentions,
-                attachments=attachments,
-                tts=tts,
-                flags=flags,
-            )
-            if file:
-                if files:
-                    files = [file, *files]
-                else:
-                    files = [file]
+        message_payload = process_message_payload(
+            content=content,
+            embeds=embeds or embed,
+            components=components,
+            allowed_mentions=allowed_mentions,
+            attachments=attachments,
+            tts=tts,
+            flags=flags,
+        )
+        if file:
+            if files:
+                files = [file, *files]
+            else:
+                files = [file]
 
-            message_data = await self._client.http.edit_message(message_payload, self._channel_id, self.id, files=files)
-            if message_data:
-                return self._client.cache.place_message_data(message_data)
+        message_data = await self._client.http.edit_message(message_payload, self._channel_id, self.id, files=files)
+        if message_data:
+            return self._client.cache.place_message_data(message_data)
 
     async def delete(self, delay: int = 0, *, context: "InteractionContext | None" = None) -> None:
         """
@@ -654,7 +653,7 @@ class Message(BaseMessage):
                 await self._client.http.delete_message(self._channel_id, self.id)
 
         if delay:
-            asyncio.create_task(_delete())
+            _ = asyncio.create_task(_delete())
         else:
             return await _delete()
 
@@ -771,7 +770,7 @@ class Message(BaseMessage):
 
         Args:
             emoji: Emoji to remove
-            member: Member to remove reaction of. Default's to NAFF bot user.
+            member: Member to remove reaction of. Default's to ClientUser.
 
         """
         emoji_str = process_emoji_req_format(emoji)

@@ -98,5 +98,5 @@ class SendMixin:
         if message_data:
             message = self.client.cache.place_message_data(message_data)
             if delete_after:
-                await message.delete(delay=delete_after)  # noqa
+                await message.delete(delay=delete_after)
             return message

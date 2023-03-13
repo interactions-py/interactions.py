@@ -118,8 +118,7 @@ class WebsocketClient:
         """Get the average latency of the connection (seconds)."""
         if self._latency:
             return sum(self._latency) / len(self._latency)
-        else:
-            return float("inf")
+        return float("inf")
 
     @property
     def latency(self) -> float:
@@ -197,7 +196,7 @@ class WebsocketClient:
                 await self.reconnect(code=resp.data, resume=resp.data != 1000)
                 continue
 
-            elif resp.type is WSMsgType.CLOSED:
+            if resp.type is WSMsgType.CLOSED:
                 if force:
                     raise RuntimeError("Discord unexpectedly closed the underlying socket during force receive!")
 

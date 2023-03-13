@@ -187,10 +187,9 @@ def _convert_to_bool(argument: str) -> bool:
     lowered = argument.lower()
     if lowered in {"yes", "y", "true", "t", "1", "enable", "on"}:
         return True
-    elif lowered in {"no", "n", "false", "f", "0", "disable", "off"}:
+    if lowered in {"no", "n", "false", "f", "0", "disable", "off"}:
         return False
-    else:
-        raise BadArgument(f"{argument} is not a recognised boolean option.")
+    raise BadArgument(f"{argument} is not a recognised boolean option.")
 
 
 def _get_from_anno_type(anno: Annotated) -> Any:
@@ -211,12 +210,12 @@ def _get_converter(anno: type, name: str) -> Callable[["PrefixedContext", str], 
 
     if isinstance(anno, Converter):
         return BaseCommand._get_converter_function(anno, name)
-    elif converter := MODEL_TO_CONVERTER.get(anno, None):
+    if converter := MODEL_TO_CONVERTER.get(anno, None):
         return BaseCommand._get_converter_function(converter, name)
-    elif typing.get_origin(anno) is Literal:
+    if typing.get_origin(anno) is Literal:
         literals = typing.get_args(anno)
         return _LiteralConverter(literals).convert
-    elif inspect.isroutine(anno):
+    if inspect.isroutine(anno):
         num_params = len(inspect.signature(anno).parameters.values())
         match num_params:
             case 2:
@@ -682,80 +681,77 @@ class PrefixedCommand(BaseCommand):
             if ctx.args and not self.ignore_extra:
                 raise BadArgument(f"Too many arguments passed to {self.name}.")
             return await self.call_with_binding(callback, ctx)
-        else:
-            # this is slightly costly, but probably worth it
-            new_args: list[Any] = []
-            kwargs: dict[str, Any] = {}
-            args = _PrefixedArgsIterator(tuple(ctx.args))
-            param_index = 0
+        # this is slightly costly, but probably worth it
+        new_args: list[Any] = []
+        kwargs: dict[str, Any] = {}
+        args = _PrefixedArgsIterator(tuple(ctx.args))
+        param_index = 0
 
-            for arg in args:
-                while param_index < len(self.parameters):
-                    param = self.parameters[param_index]
+        for arg in args:
+            while param_index < len(self.parameters):
+                param = self.parameters[param_index]
 
-                    if param.consume_rest:
-                        arg = args.consume_rest()
+                if param.consume_rest:
+                    arg = args.consume_rest()
 
-                    if param.variable:
-                        args_to_convert = args.get_rest_of_args()
-                        new_arg = [await _convert(param, ctx, arg) for arg in args_to_convert]
-                        new_arg = tuple(arg[0] for arg in new_arg)
-                        new_args.extend(new_arg)
-                        param_index += 1
-                        break
+                if param.variable:
+                    args_to_convert = args.get_rest_of_args()
+                    new_arg = [await _convert(param, ctx, arg) for arg in args_to_convert]
+                    new_arg = tuple(arg[0] for arg in new_arg)
+                    new_args.extend(new_arg)
+                    param_index += 1
+                    break
 
-                    if param.greedy:
-                        greedy_args, broke_off = await _greedy_convert(param, ctx, args)
+                if param.greedy:
+                    greedy_args, broke_off = await _greedy_convert(param, ctx, args)
 
-                        new_args.append(greedy_args)
-                        param_index += 1
-                        if broke_off:
-                            args.back()
+                    new_args.append(greedy_args)
+                    param_index += 1
+                    if broke_off:
+                        args.back()
 
-                        if param.default:
-                            continue
-                        else:
-                            break
+                    if param.default:
+                        continue
+                    break
 
-                    converted, used_default = await _convert(param, ctx, arg)
-                    if param.kind in {
-                        inspect.Parameter.POSITIONAL_ONLY,
-                        inspect.Parameter.VAR_POSITIONAL,
-                    }:
+                converted, used_default = await _convert(param, ctx, arg)
+                if param.kind in {
+                    inspect.Parameter.POSITIONAL_ONLY,
+                    inspect.Parameter.VAR_POSITIONAL,
+                }:
+                    new_args.append(converted)
+                else:
+                    kwargs[param.name] = converted
+                param_index += 1
+
+                if not used_default:
+                    break
+
+        if param_index < len(self.parameters):
+            for param in self.parameters[param_index:]:
+                if param.no_argument:
+                    converted, _ = await _convert(param, ctx, None)  # type: ignore
+                    if not param.consume_rest:
                         new_args.append(converted)
                     else:
                         kwargs[param.name] = converted
-                    param_index += 1
-
-                    if not used_default:
                         break
+                    continue
 
-            if param_index < len(self.parameters):
-                for param in self.parameters[param_index:]:
-                    if param.no_argument:
-                        converted, _ = await _convert(param, ctx, None)  # type: ignore
-                        if not param.consume_rest:
-                            new_args.append(converted)
-                        else:
-                            kwargs[param.name] = converted
-                            break
-                        continue
+                if not param.optional:
+                    raise BadArgument(f"{param.name} is a required argument that is missing.")
+                if param.kind in {
+                    inspect.Parameter.POSITIONAL_ONLY,
+                    inspect.Parameter.VAR_POSITIONAL,
+                }:
+                    new_args.append(param.default)
+                else:
+                    kwargs[param.name] = param.default
+                    break
+        elif not self.ignore_extra and not args.finished:
+            raise BadArgument(f"Too many arguments passed to {self.name}.")
 
-                    if not param.optional:
-                        raise BadArgument(f"{param.name} is a required argument that is missing.")
-                    else:
-                        if param.kind in {
-                            inspect.Parameter.POSITIONAL_ONLY,
-                            inspect.Parameter.VAR_POSITIONAL,
-                        }:
-                            new_args.append(param.default)
-                        else:
-                            kwargs[param.name] = param.default
-                            break
-            elif not self.ignore_extra and not args.finished:
-                raise BadArgument(f"Too many arguments passed to {self.name}.")
-
-            return await self.call_with_binding(callback, ctx, *new_args, **kwargs)
+        return await self.call_with_binding(callback, ctx, *new_args, **kwargs)
 
 
 def prefixed_command(

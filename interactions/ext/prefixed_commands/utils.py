@@ -28,6 +28,7 @@ def when_mentioned_or(
 
     Args:
         prefixes: Prefixes to include alongside mentions.
+
     Returns:
         A list of the bot's mentions plus whatever prefixes are provided.
     """

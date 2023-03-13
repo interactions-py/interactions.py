@@ -57,11 +57,11 @@ class Asset:
         """
         Get the url of this asset.
 
-        args:
+        Args:
             extension: The extension to override the assets default with
             size: The size of asset to return
 
-        returns:
+        Returns:
             A url for this asset with the given parameters
         """
         if not extension:

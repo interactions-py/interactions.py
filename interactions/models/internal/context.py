@@ -305,7 +305,7 @@ class BaseInteractionContext(BaseContext):
 
     @property
     def command(self) -> InteractionCommand:
-        return self.client._interaction_lookup[self._command_name]  # noqa W0212
+        return self.client._interaction_lookup[self._command_name]
 
     @property
     def expires_at(self) -> typing.Optional[datetime.datetime]:
@@ -603,7 +603,9 @@ class ContextMenuContext(InteractionContext, ModalMixin):
             raise RuntimeError("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackType.DEFERRED_UPDATE_MESSAGE if not edit_origin else CallbackType.DEFERRED_UPDATE_MESSAGE
+            "type": CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            if not edit_origin
+            else CallbackType.DEFERRED_UPDATE_MESSAGE
         }
         if ephemeral:
             if edit_origin:
@@ -738,6 +740,7 @@ class ComponentContext(InteractionContext, ModalMixin):
             files: Files to send, the path, bytes or File() instance, defaults to None. You may have up to 10 files.
             file: Files to send, the path, bytes or File() instance, defaults to None. You may have up to 10 files.
             tts: Should this message use Text To Speech.
+
         Returns:
             The message after it was edited.
         """
@@ -809,7 +812,7 @@ class AutocompleteContext(BaseInteractionContext):
     def option_processing_hook(self, option: dict) -> None:
         if option.get("focused", False):
             self.focussed_option = SlashCommandOption.from_dict(option)
-        return None
+        return
 
     async def send(self, choices: typing.Iterable[str | int | float | dict[str, int | float | str]]) -> None:
         """

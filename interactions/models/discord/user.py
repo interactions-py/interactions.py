@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from interactions.models.discord.channel import DM, TYPE_GUILD_CHANNEL
     from interactions.models.discord.voice_state import VoiceState
 
-__all__ = ("BaseUser", "User", "NaffUser", "Member")
+__all__ = ("BaseUser", "User", "ClientUser", "Member")
 
 
 class _SendDMMixin(SendMixin):
@@ -90,11 +90,11 @@ class BaseUser(DiscordObject, _SendDMMixin):
 
     async def fetch_dm(self) -> "DM":
         """Fetch the DM channel associated with this user."""
-        return await self._client.cache.fetch_dm_channel(self.id)  # noqa
+        return await self._client.cache.fetch_dm_channel(self.id)
 
     def get_dm(self) -> Optional["DM"]:
         """Get the DM channel associated with this user."""
-        return self._client.cache.get_dm_channel(self.id)  # noqa
+        return self._client.cache.get_dm_channel(self.id)
 
     @property
     def mutual_guilds(self) -> List["Guild"]:
@@ -170,7 +170,7 @@ class User(BaseUser):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class NaffUser(User):
+class ClientUser(User):
     verified: bool = attrs.field(repr=True, metadata={"docs": "Whether the email on this account has been verified"})
     mfa_enabled: bool = attrs.field(
         repr=False,
@@ -348,8 +348,7 @@ class Member(DiscordObject, _SendDMMixin):
 
         if name in self.__class__._user_ref:
             return getattr(self.user, name)
-        else:
-            raise AttributeError(f"Neither `User` or `Member` have attribute {name}")
+        raise AttributeError(f"Neither `User` or `Member` have attribute {name}")
 
     @property
     def nickname(self) -> str:

@@ -89,7 +89,7 @@ class _LiteralConverter(Converter):
             try:
                 if (converted := converter(argument)) == arg:
                     return converted
-            except Exception:  # noqa
+            except Exception:
                 continue
 
         literals_list = [str(a) for a in self.values.keys()]
