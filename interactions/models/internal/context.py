@@ -788,6 +788,8 @@ class ModalContext(InteractionContext):
     """The responses of the modal. The key is the `custom_id` of the component."""
     custom_id: str
     """The developer defined custom ID of this modal"""
+    edit_origin: bool
+    """Whether to edit the original message instead of sending a new one."""
 
     @classmethod
     def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
@@ -797,7 +799,41 @@ class ModalContext(InteractionContext):
         }
         instance.kwargs = instance.responses
         instance.custom_id = payload["data"]["custom_id"]
+        instance.edit_origin = False
         return instance
+
+    async def edit(self, message: "Snowflake_Type", **kwargs) -> "interactions.Message":
+        if not self.deferred and not self.responded:
+            await self.defer(edit_origin=True)
+        return await super().edit(message, **kwargs)
+
+    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
+        """
+        Defer the interaction.
+
+        Args:
+            ephemeral: Whether the interaction response should be ephemeral.
+            edit_origin: Whether to edit the original message instead of sending a followup.
+        """
+        if self.deferred:
+            raise AlreadyDeferred("Interaction has already been responded to.")
+        if self.responded:
+            raise AlreadyResponded("Interaction has already been responded to.")
+
+        payload = {
+            "type": CallbackType.DEFERRED_UPDATE_MESSAGE
+            if edit_origin
+            else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        }
+        if ephemeral:
+            payload["data"] = {"flags": MessageFlags.EPHEMERAL}
+
+        if edit_origin:
+            self.edit_origin = True
+
+        await self.client.http.post_initial_response(payload, self.id, self.token)
+        self.deferred = True
+        self.ephemeral = ephemeral
 
 
 class AutocompleteContext(BaseInteractionContext):
