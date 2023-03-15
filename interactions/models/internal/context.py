@@ -768,7 +768,7 @@ class ComponentContext(InteractionContext, ModalMixin):
                 )
 
             message_data = await self.client.http.edit_interaction_message(
-                message_payload, self.client.app.id, self.token
+                message_payload, self.client.app.id, self.token, files=files or file
             )
             self.deferred = False
             self.editing_origin = False
