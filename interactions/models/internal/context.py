@@ -554,7 +554,10 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         )
 
         if file:
-            files = (file, *files) if files else (file,)
+            if files:
+                files = [file, *files]
+            else:
+                files = [file]
         message_data = await self.client.http.edit_interaction_message(
             payload=message_payload,
             application_id=self.client.app.id,
