@@ -136,7 +136,7 @@ These have the downside that, for example, they won't work anymore after restart
 
 Otherwise, you are looking for a persistent callback. For that, you want to define `custom_id` in your component creation.
 
-When responding to a component you need to satisfy discord either by responding to the context with `ctx.send()` or by editing the component with `ctx.edit_origin()`. You get access to the context with `component.context`.
+When responding to a component you need to satisfy discord either by responding to the context with `ctx.send()` or by editing the component with `ctx.edit_origin()`. You get access to the context with `component.ctx`.
 
 === ":one: `bot.wait_for_component()`"
     As with discord.py, this supports checks and timeouts.
@@ -154,7 +154,7 @@ When responding to a component you need to satisfy discord either by responding 
 
     # define the check
     def check(component: Button) -> bool:
-        return component.context.author.startswith("a")
+        return component.ctx.author.startswith("a")
 
     try:
         # you need to pass the component you want to listen for here
@@ -168,7 +168,7 @@ When responding to a component you need to satisfy discord either by responding 
         await message.edit(components=components)
 
     else:
-        await used_component.context.send("Your name starts with 'a'")
+        await used_component.ctx.send("Your name starts with 'a'")
     ```
 
     You can also use this to check for a normal message instead of a component interaction.
@@ -191,7 +191,7 @@ When responding to a component you need to satisfy discord either by responding 
 
     @listen()
     async def on_component(event: Component):
-        ctx = event.context
+        ctx = event.ctx
 
         match ctx.custom_id:
             case "my_button_id":

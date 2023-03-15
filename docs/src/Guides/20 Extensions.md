@@ -56,7 +56,7 @@ Below is an example of a bot, one with extensions, one without.
 
         @listen()
         async def on_component(event: Component):
-            ctx = event.context
+            ctx = event.ctx
             await ctx.edit_origin("test")
 
 
@@ -130,7 +130,7 @@ Below is an example of a bot, one with extensions, one without.
 
         @listen()
         async def on_component(event: Component):
-            ctx = event.context
+            ctx = event.ctx
             await ctx.edit_origin("test")
 
 

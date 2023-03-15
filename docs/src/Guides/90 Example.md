@@ -37,7 +37,7 @@ async def on_message_create(event):
 
 @listen()
 async def on_component(event: Component):
-    ctx = event.context
+    ctx = event.ctx
     await ctx.edit_origin("test")
 
 
