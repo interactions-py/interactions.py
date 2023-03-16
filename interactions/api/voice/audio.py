@@ -198,7 +198,6 @@ class Audio(BaseAudio):
         self.source = src
         self.needs_encode = True
         self.locked_stream = False
-        self.probe: False
         self.process: Optional[subprocess.Popen] = None
 
         self.buffer = AudioBuffer()
@@ -208,7 +207,7 @@ class Audio(BaseAudio):
 
         self.ffmpeg_before_args = ""
         self.ffmpeg_args = ""
-        self.probe = True
+        self.probe: bool = True
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}: {self.source}>"
