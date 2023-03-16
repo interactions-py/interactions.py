@@ -73,33 +73,24 @@ class ActiveVoiceState(VoiceState):
     @property
     def paused(self) -> bool:
         """Is the player currently paused"""
-        if self.player:
-            return self.player.paused
-        return False
+        return self.player.paused if self.player else False
 
     @property
     def playing(self) -> bool:
         """Are we currently playing something?"""
         # noinspection PyProtectedMember
-        if not self.player or not self.current_audio or self.player.stopped or not self.player._resume.is_set():
-            # if any of the above are truthy, we aren't playing
-            return False
-        return True
+        return bool(self.player and self.current_audio and not self.player.stopped and self.player._resume.is_set())
 
     @property
     def stopped(self) -> bool:
         """Is the player stopped?"""
-        if self.player:
-            return self.player.stopped
-        return True
+        return self.player.stopped if self.player else True
 
     @property
     def connected(self) -> bool:
         """Is this voice state currently connected?"""
         # noinspection PyProtectedMember
-        if self.ws is None:
-            return False
-        return self.ws._closed.is_set()
+        return False if self.ws is None else self.ws._closed.is_set()
 
     @property
     def gateway(self) -> "GatewayClient":
@@ -285,9 +276,7 @@ class ActiveVoiceState(VoiceState):
 
     @property
     def recordings(self) -> dict[int, BytesIO]:
-        if not self.recorder:
-            return {}
-        return self.recorder.output
+        return self.recorder.output if self.recorder else {}
 
     async def _voice_server_update(self, data) -> None:
         """

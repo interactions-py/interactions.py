@@ -56,10 +56,7 @@ class Task:
     @property
     def next_run(self) -> datetime | None:
         """Get the next datetime this task will run."""
-        if not self.running:
-            return None
-
-        return self.trigger.next_fire()
+        return self.trigger.next_fire() if self.running else None
 
     @property
     def delta_until_run(self) -> timedelta | None:

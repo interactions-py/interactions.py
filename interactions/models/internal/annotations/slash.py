@@ -48,7 +48,7 @@ def slash_str_option(
         max_length: The maximum length of text a user can input.
 
     """
-    option = SlashCommandOption(
+    return SlashCommandOption(
         name="placeholder",
         description=description,
         required=required,
@@ -58,7 +58,6 @@ def slash_str_option(
         min_length=min_length,
         type=models.OptionType.STRING,
     )
-    return option  # type: ignore
 
 
 def slash_float_option(
@@ -81,7 +80,7 @@ def slash_float_option(
         max_value: The maximum number allowed
 
     """
-    option = SlashCommandOption(
+    return SlashCommandOption(
         name="placeholder",
         description=description,
         required=required,
@@ -91,7 +90,6 @@ def slash_float_option(
         min_value=min_value,
         type=models.OptionType.NUMBER,
     )
-    return option  # type: ignore
 
 
 def slash_int_option(
@@ -114,7 +112,7 @@ def slash_int_option(
         max_value: The maximum number allowed
 
     """
-    option = SlashCommandOption(
+    return SlashCommandOption(
         name="placeholder",
         description=description,
         required=required,
@@ -124,7 +122,6 @@ def slash_int_option(
         min_value=min_value,
         type=models.OptionType.INTEGER,
     )
-    return option  # type: ignore
 
 
 def slash_bool_option(
@@ -139,13 +136,12 @@ def slash_bool_option(
         required: Is this option required?
 
     """
-    option = SlashCommandOption(
+    return SlashCommandOption(
         name="placeholder",
         description=description,
         required=required,
         type=models.OptionType.BOOLEAN,
     )
-    return option  # type: ignore
 
 
 def slash_user_option(
@@ -162,14 +158,13 @@ def slash_user_option(
         autocomplete: Use autocomplete for this option
 
     """
-    option = SlashCommandOption(
+    return SlashCommandOption(
         name="placeholder",
         description=description,
         required=required,
         autocomplete=autocomplete,
         type=models.OptionType.USER,
     )
-    return option  # type: ignore
 
 
 def slash_channel_option(
@@ -190,7 +185,7 @@ def slash_channel_option(
         channel_types: The types of channel allowed by this option
 
     """
-    option = SlashCommandOption(
+    return SlashCommandOption(
         name="placeholder",
         description=description,
         required=required,
@@ -199,7 +194,6 @@ def slash_channel_option(
         channel_types=channel_types,
         type=models.OptionType.CHANNEL,
     )
-    return option  # type: ignore
 
 
 def slash_role_option(
@@ -218,7 +212,7 @@ def slash_role_option(
         choices: The choices allowed by this command
 
     """
-    option = SlashCommandOption(
+    return SlashCommandOption(
         name="placeholder",
         description=description,
         required=required,
@@ -226,7 +220,6 @@ def slash_role_option(
         choices=choices or [],
         type=models.OptionType.ROLE,
     )
-    return option  # type: ignore
 
 
 def slash_mentionable_option(
@@ -245,7 +238,7 @@ def slash_mentionable_option(
         choices: The choices allowed by this command
 
     """
-    option = SlashCommandOption(
+    return SlashCommandOption(
         name="placeholder",
         description=description,
         required=required,
@@ -253,7 +246,6 @@ def slash_mentionable_option(
         choices=choices or [],
         type=models.OptionType.MENTIONABLE,
     )
-    return option  # type: ignore
 
 
 def slash_attachment_option(
@@ -268,11 +260,9 @@ def slash_attachment_option(
         required: Is this option required?
 
     """
-    option = SlashCommandOption(
+    return SlashCommandOption(
         name="placeholder",
         description=description,
         required=required,
         type=models.OptionType.ATTACHMENT,
     )
-
-    return option  # type: ignore

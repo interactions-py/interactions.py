@@ -575,7 +575,7 @@ class ChannelRequests(CanRequest):
         payload: PAYLOAD_TYPE = {
             "name": name,
             "emoji_id": int(emoji_id) if emoji_id else None,
-            "emoji_name": emoji_name if emoji_name else None,
+            "emoji_name": emoji_name or None,
         }
         payload = dict_filter_none(payload)
 

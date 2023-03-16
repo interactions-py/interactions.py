@@ -63,21 +63,17 @@ class PartialEmoji(SnowflakeObject, DictSerializationMixin):
             ValueError: if the string cannot be parsed
 
         """
-        parsed = emoji_regex.findall(emoji_str)
-        if parsed:
+        if parsed := emoji_regex.findall(emoji_str):
             parsed = tuple(filter(None, parsed[0]))
             if len(parsed) == 3:
                 return cls(name=parsed[1], id=parsed[2], animated=True)
             if len(parsed) == 2:
                 return cls(name=parsed[0], id=parsed[1])
             _name = emoji.emojize(emoji_str, language=language)
-            _emoji_list = emoji.distinct_emoji_list(_name)
-            if _emoji_list:
+            if _emoji_list := emoji.distinct_emoji_list(_name):
                 return cls(name=_emoji_list[0])
         else:
-            # check if it's a unicode emoji
-            _emoji_list = emoji.distinct_emoji_list(emoji_str)
-            if _emoji_list:
+            if _emoji_list := emoji.distinct_emoji_list(emoji_str):
                 return cls(name=_emoji_list[0])
 
             # the emoji lib handles *most* emoji, however there are certain ones that it misses
@@ -86,9 +82,8 @@ class PartialEmoji(SnowflakeObject, DictSerializationMixin):
                 match = matches.group()
 
                 # the regex will match certain special characters, so this acts as a final failsafe
-                if match not in string.printable:
-                    if unicodedata.category(match) == "So":
-                        return cls(name=match)
+                if match not in string.printable and unicodedata.category(match) == "So":
+                    return cls(name=match)
         return None
 
     def __str__(self) -> str:
@@ -100,16 +95,12 @@ class PartialEmoji(SnowflakeObject, DictSerializationMixin):
     def __eq__(self, other) -> bool:
         if not isinstance(other, PartialEmoji):
             return False
-        if self.id:
-            return self.id == other.id
-        return self.name == other.name
+        return self.id == other.id if self.id else self.name == other.name
 
     @property
     def req_format(self) -> str:
         """Format used for web request."""
-        if self.id:
-            return f"{self.name}:{self.id}"
-        return self.name
+        return f"{self.name}:{self.id}" if self.id else self.name
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

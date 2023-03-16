@@ -220,10 +220,7 @@ class Audio(BaseAudio):
     @property
     def audio_complete(self) -> bool:
         """Uses the state of the subprocess to determine if more audio is coming"""
-        if self.process:
-            if self.process.poll() is None:
-                return False
-        return True
+        return not self.process or self.process.poll() is not None
 
     def _create_process(self, *, block: bool = True) -> None:
         before = (

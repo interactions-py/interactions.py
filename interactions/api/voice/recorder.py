@@ -170,9 +170,7 @@ class Recorder(threading.Thread):
         # purge any data that is already in the socket
         readable, _, _ = select.select([sock], [], [], 0)
         log.debug("Purging socket buffer")
-        while readable:
-            if not sock.recv(4096):
-                break
+        while readable and sock.recv(4096):
             readable, _, _ = select.select([sock], [], [], 0)
         log.debug("Socket buffer purged, starting recording")
 

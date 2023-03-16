@@ -553,9 +553,7 @@ class GlobalCache:
         """
         user_id = to_optional_snowflake(user_id)
         channel_id = self.dm_channels.get(user_id)
-        if channel_id is None:
-            return None
-        return self.get_channel(channel_id)
+        return None if channel_id is None else self.get_channel(channel_id)
 
     def delete_channel(self, channel_id: "Snowflake_Type") -> None:
         """

@@ -127,9 +127,7 @@ class Webhook(DiscordObject, SendMixin):
 
         data = await client.http.create_webhook(channel, name, avatar)
 
-        new_cls = cls.from_dict(data, client)
-
-        return new_cls
+        return cls.from_dict(data, client)
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
@@ -225,7 +223,7 @@ class Webhook(DiscordObject, SendMixin):
         if not self.token:
             raise ForeignWebhookException("You cannot send messages with a webhook without a token!")
 
-        if not content and not (embeds or embed) and not (files or file) and not stickers:
+        if not content and not embeds and not embed and not files and not file and not stickers:
             raise EmptyMessageException("You cannot send a message without any content, embeds, files, or stickers")
 
         if suppress_embeds:

@@ -6,8 +6,18 @@ import uuid
 from thefuzz import process
 
 import interactions
-from interactions import Client, listen, slash_command, BrandColours, FlatUIColours, MaterialColours, File
-from interactions.models.internal.application_commands import global_autocomplete, slash_option
+from interactions import (
+    Client,
+    listen,
+    slash_command,
+    BrandColours,
+    slash_option,
+    File,
+    global_autocomplete,
+    FlatUIColours,
+    MaterialColours,
+    ButtonStyle,
+)
 
 logging.basicConfig()
 logging.getLogger("interactions").setLevel(logging.DEBUG)
@@ -30,7 +40,7 @@ async def ping(ctx):
     action_rows = [
         interactions.ActionRow(
             interactions.Button(
-                style=interactions.ButtonStyles.DANGER,
+                style=interactions.ButtonStyle.DANGER,
                 label="Danger Button",
             )
         )
@@ -55,7 +65,7 @@ async def components(ctx):
     await ctx.send("Select menus", components=selects)
     await ctx.send(
         "Buttons",
-        components=[interactions.Button(label="test", style=interactions.ButtonStyles.PRIMARY)],
+        components=[interactions.Button(label="test", style=ButtonStyle.PRIMARY)],
     )
 
 
@@ -67,10 +77,10 @@ async def record(ctx: interactions.SlashContext, duration: int) -> None:
     voice_channel = ctx.author.voice.channel
     voice_state = await voice_channel.connect()
 
-    recorder = voice_state.start_recording()
+    recorder = await voice_state.start_recording()
     await ctx.send(f"Recording for {duration} seconds")
     await asyncio.sleep(duration)
-    voice_state.stop_recording()
+    await voice_state.stop_recording()
 
     await ctx.send(
         "Here is your recording", files=[File(f, file_name=f"{user_id}.mp3") for user_id, f in recorder.output.items()]

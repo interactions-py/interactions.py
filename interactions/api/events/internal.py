@@ -236,9 +236,7 @@ class ExtensionLoad(BaseEvent):
     @property
     def metadata(self) -> "Type[Extension.Metadata] | None":
         """The metadata of the extension, if it has any."""
-        if self.extension.Metadata:
-            return self.extension.Metadata
-        return None
+        return self.extension.Metadata or None
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

@@ -97,7 +97,7 @@ class Asset:
         url = self._url + extension
 
         if size:
-            if not ((size != 0) and (size & (size - 1) == 0)):  # if not power of 2
+            if size == 0 or size & (size - 1) != 0:  # if not power of 2
                 raise ValueError("Size should be a power of 2")
             if not 16 <= size <= 4096:
                 raise ValueError("Size should be between 16 and 4096")

@@ -79,7 +79,6 @@ class Jurigged(Extension):
         elif isinstance(event, (Exception, SyntaxError)):
             self.bot.logger.exception("Jurigged encountered an error", exc_info=True)
         else:
-            event_str = "{action} {dotpath}:{lineno}{extra}"
             action = None
             lineno = event.defn.stashed.lineno
             dotpath = event.defn.dotpath()
@@ -90,9 +89,7 @@ class Jurigged(Extension):
                 extra = f" | {event.defn.text}"
 
             if isinstance(event, AddOperation):
-                action = "Add"
-                if isinstance(event.defn, LineDefinition):
-                    action = "Run"
+                action = "Run" if isinstance(event.defn, LineDefinition) else "Add"
             elif isinstance(event, UpdateOperation):
                 action = "Update"
             elif isinstance(event, DeleteOperation):
@@ -100,6 +97,7 @@ class Jurigged(Extension):
             if not action:
                 self.bot.logger.debug(event)
             else:
+                event_str = "{action} {dotpath}:{lineno}{extra}"
                 self.bot.logger.debug(event_str.format(action=action, dotpath=dotpath, lineno=lineno, extra=extra))
 
     def jurigged_prerun(self, _path: str, cf: CodeFile) -> None:
@@ -122,86 +120,87 @@ class Jurigged(Extension):
             _path: Path to file
             cf: File information
         """
-        if self.bot.get_ext(cf.module_name):
-            self.bot.logger.debug(f"Checking {cf.module_name}")
-            commands = get_all_commands(cf.module)
+        if not self.bot.get_ext(cf.module_name):
+            return
+        self.bot.logger.debug(f"Checking {cf.module_name}")
+        commands = get_all_commands(cf.module)
 
-            self.bot.logger.debug("Checking for changes")
-            for module, cmds in commands.items():
-                # Check if a module was removed
-                if module not in commands:
-                    self.bot.logger.debug(f"Module {module} removed")
-                    self.bot.unload_extension(module)
+        self.bot.logger.debug("Checking for changes")
+        for module, cmds in commands.items():
+            # Check if a module was removed
+            if module not in commands:
+                self.bot.logger.debug(f"Module {module} removed")
+                self.bot.unload_extension(module)
 
-                # Check if a module is new
-                elif module not in self.command_cache:
-                    self.bot.logger.debug(f"Module {module} added")
+            # Check if a module is new
+            elif module not in self.command_cache:
+                self.bot.logger.debug(f"Module {module} added")
+                try:
+                    self.bot.load_extension(module)
+                except ExtensionLoadException:
+                    self.bot.logger.warning(f"Failed to load new module {module}")
+
+            # Check if a module has more/less commands
+            elif len(self.command_cache[module]) != len(cmds):
+                self.bot.logger.debug("Number of commands changed, reloading")
+                try:
+                    self.bot.reload_extension(module)
+                except ExtensionNotFound:
                     try:
                         self.bot.load_extension(module)
                     except ExtensionLoadException:
-                        self.bot.logger.warning(f"Failed to load new module {module}")
-
-                # Check if a module has more/less commands
-                elif len(self.command_cache[module]) != len(cmds):
-                    self.bot.logger.debug("Number of commands changed, reloading")
-                    try:
-                        self.bot.reload_extension(module)
-                    except ExtensionNotFound:
-                        try:
-                            self.bot.load_extension(module)
-                        except ExtensionLoadException:
-                            self.bot.logger.warning(f"Failed to update module {module}")
-                    except ExtensionLoadException:
                         self.bot.logger.warning(f"Failed to update module {module}")
+                except ExtensionLoadException:
+                    self.bot.logger.warning(f"Failed to update module {module}")
 
-                # Check each command for differences
-                else:
-                    for cmd in cmds:
-                        old_cmd = find(
-                            lambda x, cmd=cmd: x.resolved_name == cmd.resolved_name,
-                            self.command_cache[module],
-                        )
+            # Check each command for differences
+            else:
+                for cmd in cmds:
+                    old_cmd = find(
+                        lambda x, cmd=cmd: x.resolved_name == cmd.resolved_name,
+                        self.command_cache[module],
+                    )
 
-                        # Extract useful info
-                        old_args = old_cmd.options
-                        old_arg_names = []
-                        new_arg_names = []
-                        if old_args:
-                            old_arg_names = [x.name.default for x in old_args]
-                        new_args = cmd.options
-                        if new_args:
-                            new_arg_names = [x.name.default for x in new_args]
+                    # Extract useful info
+                    old_args = old_cmd.options
+                    old_arg_names = []
+                    new_arg_names = []
+                    if old_args:
+                        old_arg_names = [x.name.default for x in old_args]
+                    new_args = cmd.options
+                    if new_args:
+                        new_arg_names = [x.name.default for x in new_args]
 
-                        # No changes
-                        if not old_args and not new_args:
-                            continue
+                    # No changes
+                    if not old_args and not new_args:
+                        continue
 
-                        # Check if number of args has changed
-                        if len(old_arg_names) != len(new_arg_names):
-                            self.bot.logger.debug("Number of arguments changed, reloading")
-                            try:
-                                self.bot.reload_extension(module)
-                            except Exception:
-                                self.bot.logger.exception(f"Failed to update module {module}", exc_info=True)
+                    # Check if number of args has changed
+                    if len(old_arg_names) != len(new_arg_names):
+                        self.bot.logger.debug("Number of arguments changed, reloading")
+                        try:
+                            self.bot.reload_extension(module)
+                        except Exception:
+                            self.bot.logger.exception(f"Failed to update module {module}", exc_info=True)
 
-                        # Check if arg names have changed
-                        elif len(set(old_arg_names) - set(new_arg_names)) > 0:
-                            self.bot.logger.debug("Argument names changed, reloading")
-                            try:
-                                self.bot.reload_extension(module)
-                            except Exception:
-                                self.bot.logger.exception(f"Failed to update module {module}", exc_info=True)
+                    # Check if arg names have changed
+                    elif len(set(old_arg_names) - set(new_arg_names)) > 0:
+                        self.bot.logger.debug("Argument names changed, reloading")
+                        try:
+                            self.bot.reload_extension(module)
+                        except Exception:
+                            self.bot.logger.exception(f"Failed to update module {module}", exc_info=True)
 
-                        # Check if arg types have changed
-                        elif any(new_args[idx].type != x.type for idx, x in enumerate(old_args)):
-                            self.bot.logger.debug("Argument types changed, reloading")
-                            try:
-                                self.bot.reload_extension(module)
-                            except Exception:
-                                self.bot.logger.exception(f"Failed to update module {module}", exc_info=True)
-                        else:
-                            self.bot.logger.debug("No changes detected")
-            self.command_cache.clear()
+                    # Check if arg types have changed
+                    elif any(new_args[idx].type != x.type for idx, x in enumerate(old_args)):
+                        self.bot.logger.debug("Argument types changed, reloading")
+                        try:
+                            self.bot.reload_extension(module)
+                        except Exception:
+                            self.bot.logger.exception(f"Failed to update module {module}", exc_info=True)
+                    else:
+                        self.bot.logger.debug("No changes detected")
+        self.command_cache.clear()
 
 
 def setup(bot) -> None:

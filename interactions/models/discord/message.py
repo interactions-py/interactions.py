@@ -17,7 +17,7 @@ import attrs
 
 import interactions.models as models
 from interactions.client.const import GUILD_WELCOME_MESSAGES, MISSING, Absent
-from interactions.client.errors import EphemeralEditException, ThreadOutsideOfGuild
+from interactions.client.errors import ThreadOutsideOfGuild
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.attr_converters import timestamp_converter
@@ -445,7 +445,7 @@ class Message(BaseMessage):
                         "name": channel.name,
                     }
                     mention_channels.append(ChannelMention.from_dict(channel_data, client))
-        if len(mention_channels) > 0:
+        if mention_channels:
             data["mention_channels"] = mention_channels
 
         if "attachments" in data:
@@ -455,14 +455,13 @@ class Message(BaseMessage):
             data["embeds"] = models.Embed.from_list(data.get("embeds"))
 
         if "reactions" in data:
-            reactions = []
-            for reaction_data in data["reactions"]:
-                reactions.append(
-                    models.Reaction.from_dict(
-                        reaction_data | {"message_id": data["id"], "channel_id": data["channel_id"]},
-                        client,
-                    )
+            reactions = [
+                models.Reaction.from_dict(
+                    reaction_data | {"message_id": data["id"], "channel_id": data["channel_id"]},
+                    client,
                 )
+                for reaction_data in data["reactions"]
+            ]
             data["reactions"] = reactions
 
         # TODO: Convert to application object
@@ -480,9 +479,9 @@ class Message(BaseMessage):
             data["thread_channel_id"] = client.cache.place_channel_data(thread_data).id
 
         if "components" in data:
-            components = []
-            for component_data in data["components"]:
-                components.append(models.BaseComponent.from_dict_factory(component_data))
+            components = [
+                models.BaseComponent.from_dict_factory(component_data) for component_data in data["components"]
+            ]
             data["components"] = components
 
         if "sticker_items" in data:
@@ -610,8 +609,6 @@ class Message(BaseMessage):
                 file=file,
                 tts=tts,
             )
-            if self.flags == MessageFlags.EPHEMERAL:
-                raise EphemeralEditException
         message_payload = process_message_payload(
             content=content,
             embeds=embeds or embed,
@@ -622,11 +619,7 @@ class Message(BaseMessage):
             flags=flags,
         )
         if file:
-            if files:
-                files = [file, *files]
-            else:
-                files = [file]
-
+            files = [file, *files] if files else [file]
         message_data = await self._client.http.edit_message(message_payload, self._channel_id, self.id, files=files)
         if message_data:
             return self._client.cache.place_message_data(message_data)

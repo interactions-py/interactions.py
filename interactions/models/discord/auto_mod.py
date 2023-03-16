@@ -97,9 +97,7 @@ class BaseTrigger(DictSerializationMixin):
 
 
 def _keyword_converter(filter: str | list[str]) -> list[str]:
-    if isinstance(filter, list):
-        return filter
-    return [filter]
+    return filter if isinstance(filter, list) else [filter]
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

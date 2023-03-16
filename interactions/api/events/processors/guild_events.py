@@ -33,11 +33,7 @@ class GuildEvents(EventMixinTemplate):
             event: raw guild create event
 
         """
-        new_guild: bool = True
-        if self.cache.get_guild(event.data["id"]):
-            # guild already cached, most likely an unavailable guild coming back online
-            new_guild = False
-
+        new_guild = not self.cache.get_guild(event.data["id"])
         guild = self.cache.place_guild_data(event.data)
 
         self._user._guild_ids.add(to_snowflake(event.data.get("id")))

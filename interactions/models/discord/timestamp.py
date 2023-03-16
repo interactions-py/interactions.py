@@ -37,9 +37,7 @@ class Timestamp(datetime):
         """Construct a timezone-aware UTC datetime from a datetime object."""
         timestamp = cls.fromtimestamp(dt.timestamp(), tz=dt.tzinfo)
 
-        if timestamp.tzinfo is None:  # assume naive datetimes are based on local timezone
-            return timestamp.astimezone()
-        return timestamp
+        return timestamp.astimezone() if timestamp.tzinfo is None else timestamp
 
     @classmethod
     def utcfromtimestamp(cls, t: float) -> "Timestamp":
@@ -50,9 +48,7 @@ class Timestamp(datetime):
     def fromisoformat(cls, date_string: str) -> "Timestamp":
         timestamp = super().fromisoformat(date_string)
 
-        if timestamp.tzinfo is None:  # assume naive datetimes are based on local timezone
-            return timestamp.astimezone()
-        return timestamp
+        return timestamp.astimezone() if timestamp.tzinfo is None else timestamp
 
     @classmethod
     def fromisocalendar(cls, year: int, week: int, day: int) -> "Timestamp":
@@ -66,9 +62,7 @@ class Timestamp(datetime):
             # May be in milliseconds instead of seconds
             timestamp = super().fromtimestamp(t / 1000, tz=tz)
 
-        if timestamp.tzinfo is None:  # assume naive datetimes are based on local timezone
-            return timestamp.astimezone()
-        return timestamp
+        return timestamp.astimezone() if timestamp.tzinfo is None else timestamp
 
     @classmethod
     def fromordinal(cls, n: int) -> "Timestamp":
@@ -136,9 +130,7 @@ class Timestamp(datetime):
             The formatted timestamp.
 
         """
-        if not style:
-            return f"<t:{self.timestamp():.0f}>"
-        return f"<t:{self.timestamp():.0f}:{style}>"
+        return f"<t:{self.timestamp():.0f}:{style}>" if style else f"<t:{self.timestamp():.0f}>"
 
     def __str__(self) -> str:
         return self.format()

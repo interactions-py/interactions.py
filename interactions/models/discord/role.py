@@ -71,16 +71,11 @@ class Role(DiscordObject):
         if self.position < other.position:
             return True
 
-        if self.position == other.position:
-            # if two roles have the same position, which can happen thanks to discord, then
-            # we can thankfully use their ids to determine which one is lower
-            return self.id < other.id
-
-        return False
+        return self.id < other.id if self.position == other.position else False
 
     @classmethod
     def _process_dict(cls, data: dict[str, Any], client: "Client") -> dict[str, Any]:
-        data.update(data.pop("tags", {}))
+        data |= data.pop("tags", {})
 
         if icon_hash := data.get("icon"):
             data["icon"] = Asset.from_path_hash(client, f"role-icons/{data['id']}/{{}}", icon_hash)

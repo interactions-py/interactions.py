@@ -240,10 +240,8 @@ async def test_messages(bot: Client, guild: Guild, channel: GuildText) -> None:
         await _m.delete()
 
     finally:
-        try:
+        with suppress(interactions.errors.NotFound):
             await thread.delete()
-        except interactions.errors.NotFound:
-            pass
 
 
 @pytest.mark.asyncio
@@ -251,18 +249,17 @@ async def test_roles(bot: Client, guild: Guild) -> None:
     roles: list[Role] = []
 
     try:
-        try:
-            roles.append(await guild.create_role("_test_role3"))
-            roles.append(await guild.create_role("_test_role1", icon="💥"))
-            roles.append(await guild.create_role("_test_role2", icon=r"tests/LordOfPolls.png"))
-
+        with suppress(interactions.errors.Forbidden):
+            roles.extend(
+                (
+                    await guild.create_role("_test_role3"),
+                    await guild.create_role("_test_role1", icon="💥"),
+                    await guild.create_role("_test_role2", icon=r"tests/LordOfPolls.png"),
+                )
+            )
             assert roles[0].icon is None
             assert isinstance(roles[1].icon, PartialEmoji)
             assert isinstance(roles[2].icon, Asset)
-        except interactions.errors.Forbidden:
-            # this was run in a server without boosts
-            pass
-
         await guild.me.add_role(roles[0])
         await guild.me.remove_role(roles[0])
 
@@ -399,10 +396,8 @@ async def test_embeds(bot: Client, channel: GuildText) -> None:
 
         await thread.delete()
     finally:
-        try:
+        with suppress(interactions.errors.NotFound):
             await thread.delete()
-        except interactions.errors.NotFound:
-            pass
 
 
 @pytest.mark.asyncio
@@ -433,10 +428,8 @@ async def test_components(bot: Client, channel: GuildText) -> None:
         Modal("Test Modal", [ParagraphText(label="test", value="test value, press send")])
 
     finally:
-        try:
+        with suppress(interactions.errors.NotFound):
             await thread.delete()
-        except interactions.errors.NotFound:
-            pass
 
 
 @pytest.mark.asyncio

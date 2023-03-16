@@ -15,7 +15,7 @@ class AsyncIterator(_AsyncIterator, ABC):
         self._queue: asyncio.Queue = asyncio.Queue()
         """The queue of items in the iterator"""
 
-        self._limit: int = limit if limit else MISSING
+        self._limit: int = limit or MISSING
         """the limit of items to retrieve"""
 
         self.last: Absent[Any] = MISSING
@@ -27,9 +27,7 @@ class AsyncIterator(_AsyncIterator, ABC):
     @property
     def _continue(self) -> bool:
         """Whether iteration should continue. Returns False if the limit has been reached."""
-        if not self._limit:
-            return True
-        return not len(self._retrieved_objects) >= self._limit
+        return len(self._retrieved_objects) < self._limit if self._limit else True
 
     @property
     def get_limit(self) -> int:

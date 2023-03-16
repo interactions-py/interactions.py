@@ -65,7 +65,7 @@ class LocalisedField:
             if attr.name != self.default_locale:
                 if code := attr.metadata.get("locale-code"):
                     data.append((code, attr.name))
-        return {code: name for code, name in data}
+        return dict(data)
 
     @property
     def default(self) -> str:

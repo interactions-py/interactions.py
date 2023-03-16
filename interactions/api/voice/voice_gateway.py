@@ -92,9 +92,7 @@ class VoiceGateway(WebsocketClient):
 
             op = msg.get("op")
             data = msg.get("d")
-            seq = msg.get("s")
-
-            if seq:
+            if seq := msg.get("s"):
                 self.sequence = seq
 
             # This may try to reconnect the connection so it is best to wait

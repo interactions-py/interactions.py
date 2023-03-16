@@ -41,9 +41,7 @@ def has_any_role(*roles: Snowflake_Type | Role) -> TYPE_CHECK_FUNCTION:
             return False
 
         author: Member = ctx.author  # pyright: ignore [reportGeneralTypeIssues]
-        if any(author.has_role(to_snowflake(r)) for r in roles):
-            return True
-        return False
+        return any((author.has_role(to_snowflake(r)) for r in roles))
 
     return check
 

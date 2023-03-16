@@ -31,11 +31,7 @@ class AutoShardedClient(Client):
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        if "total_shards" not in kwargs:
-            self.auto_sharding = True
-        else:
-            self.auto_sharding = False
-
+        self.auto_sharding = "total_shards" not in kwargs
         super().__init__(*args, **kwargs)
 
         self._connection_state = None

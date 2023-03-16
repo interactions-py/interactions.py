@@ -41,16 +41,13 @@ class DebugAppCMD(Extension):
         await ctx.defer()
         e = debug_embed("Application-Commands Cache")
 
-        cmds = 0
-        for v in self.bot.interactions.values():
-            cmds += len(v.keys())
-
+        cmds = sum(len(v.keys()) for v in self.bot.interactions.values())
         e.add_field("Local application cmds (incld. Subcommands)", str(cmds))
         e.add_field("Component callbacks", str(len(self.bot._component_callbacks)))
         e.add_field("Prefixed commands", str(len(self.bot.prefixed_commands)))
         e.add_field(
             "Tracked Scopes",
-            str(len(Counter(scope for scope in self.bot._interaction_scopes.values()).keys())),
+            str(len(Counter(iter(self.bot._interaction_scopes.values())).keys())),
         )
 
         await ctx.send(embeds=[e])

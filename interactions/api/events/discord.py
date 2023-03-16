@@ -534,9 +534,7 @@ class MessageReactionAdd(BaseEvent):
     @property
     def reaction_count(self) -> int:
         """Times the emoji in the event has been used to react"""
-        if self.reaction is None:
-            return 0
-        return self.reaction.count
+        return 0 if self.reaction is None else self.reaction.count
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)

@@ -410,19 +410,13 @@ class Guild(BaseGuild):
     @property
     def premium_subscriber_role(self) -> Optional["models.Role"]:
         """The role given to boosters of this server, if set."""
-        for role in self.roles:
-            if role.premium_subscriber:
-                return role
-        return None
+        return next((role for role in self.roles if role.premium_subscriber), None)
 
     @property
     def my_role(self) -> Optional["models.Role"]:
         """The role associated with this client, if set."""
         m_r_id = self._client.user.id
-        for role in self.roles:
-            if role._bot_id == m_r_id:
-                return role
-        return None
+        return next((role for role in self.roles if role._bot_id == m_r_id), None)
 
     @property
     def permissions(self) -> Permissions:
@@ -624,11 +618,7 @@ class Guild(BaseGuild):
                 del presence["user"]
                 chunk["members"][member_index]["user"] = chunk["members"][member_index]["user"] | presence
 
-        if not self._chunk_cache:
-            self._chunk_cache: List = chunk.get("members")
-        else:
-            self._chunk_cache = self._chunk_cache + chunk.get("members")
-
+        self._chunk_cache = self._chunk_cache + chunk.get("members") if self._chunk_cache else chunk.get("members")
         if chunk.get("chunk_index") != chunk.get("chunk_count") - 1:
             return self.logger.debug(f"Cached chunk of {len(chunk.get('members'))} members for {self.id}")
         members = self._chunk_cache
@@ -883,9 +873,7 @@ class Guild(BaseGuild):
         """
         emoji_id = to_snowflake(emoji_id)
         emoji = self._client.cache.get_emoji(emoji_id)
-        if emoji and emoji._guild_id == self.id:
-            return emoji
-        return None
+        return emoji if emoji and emoji._guild_id == self.id else None
 
     async def create_channel(
         self,

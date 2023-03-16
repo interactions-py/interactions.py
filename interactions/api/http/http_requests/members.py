@@ -138,7 +138,7 @@ class MemberRequests(CanRequest):
             reason: An optional reason for the audit log
 
         """
-        payload: PAYLOAD_TYPE = {"nick": nickname if not isinstance(nickname, Missing) else None}
+        payload: PAYLOAD_TYPE = {"nick": None if isinstance(nickname, Missing) else nickname}
         await self.request(
             Route("PATCH", f"/guilds/{int(guild_id)}/members/@me"),
             payload=payload,

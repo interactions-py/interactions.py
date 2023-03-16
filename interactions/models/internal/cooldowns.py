@@ -178,9 +178,7 @@ class CooldownSystem:
         """
         self.determine_cooldown()
 
-        if self._tokens == 0:
-            return True
-        return False
+        return self._tokens == 0
 
     def acquire_token(self) -> bool:
         """
@@ -209,9 +207,7 @@ class CooldownSystem:
 
         """
         self.determine_cooldown()
-        if self._tokens != 0:
-            return 0
-        return self.interval - (time.time() - self.opened)
+        return 0 if self._tokens != 0 else self.interval - (time.time() - self.opened)
 
     def determine_cooldown(self) -> None:
         """Determines the state of the cooldown system."""
@@ -271,8 +267,7 @@ class MaxConcurrency:
 
         if not self.wait and semaphore.locked():
             return False
-        acquired = await semaphore.acquire()
-        return acquired
+        return await semaphore.acquire()
 
     async def release(self, context: "BaseContext") -> None:
         """

@@ -86,7 +86,7 @@ class Extension:
         instance.interaction_tree = {}
         instance.auto_defer = MISSING
 
-        instance.description = kwargs.get("Description", None)
+        instance.description = kwargs.get("Description")
         if not instance.description:
             instance.description = inspect.cleandoc(cls.__doc__) if cls.__doc__ else None
 

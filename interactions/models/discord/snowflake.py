@@ -54,9 +54,7 @@ def to_optional_snowflake(
 ) -> "Optional[Snowflake]":
     if snowflake is MISSING:
         return MISSING
-    if snowflake is None:
-        return None
-    return to_snowflake(snowflake)
+    return None if snowflake is None else to_snowflake(snowflake)
 
 
 def to_snowflake_list(snowflakes: List[Snowflake_Type]) -> "list[Snowflake]":

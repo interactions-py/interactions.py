@@ -70,8 +70,7 @@ class DebugExtension(DebugExec, DebugAppCMD, DebugExts, Extension):
 
         e.add_field("Start Time", f"{uptime.format(TimestampStyles.RelativeTime)}")
 
-        privileged_intents = [i.name for i in self.bot.intents if i in Intents.PRIVILEGED]
-        if privileged_intents:
+        if privileged_intents := [i.name for i in self.bot.intents if i in Intents.PRIVILEGED]:
             e.add_field("Privileged Intents", " | ".join(privileged_intents))
 
         e.add_field("Loaded Exts", ", ".join(self.bot.ext))

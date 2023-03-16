@@ -55,9 +55,7 @@ def optional(converter: typing.Callable) -> typing.Any:
     """
 
     def optional_converter(val) -> typing.Any:
-        if val is None or val is MISSING:
-            return val
-        return converter(val)
+        return val if val is None or val is MISSING else converter(val)
 
     sig = None
     try:

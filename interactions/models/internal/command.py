@@ -220,13 +220,11 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
                     if not await _c(context):
                         raise CommandCheckFailure(self, _c, context)
 
-            if self.max_concurrency is not MISSING:
-                if not await self.max_concurrency.acquire(context):
-                    raise MaxConcurrencyReached(self, self.max_concurrency)
+            if self.max_concurrency is not MISSING and not await self.max_concurrency.acquire(context):
+                raise MaxConcurrencyReached(self, self.max_concurrency)
 
-            if self.cooldown is not MISSING:
-                if not await self.cooldown.acquire_token(context):
-                    raise CommandOnCooldown(self, await self.cooldown.get_cooldown(context))
+            if self.cooldown is not MISSING and not await self.cooldown.acquire_token(context):
+                raise CommandOnCooldown(self, await self.cooldown.get_cooldown(context))
 
             return True
 

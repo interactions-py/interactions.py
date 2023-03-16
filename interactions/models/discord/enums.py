@@ -56,8 +56,7 @@ class AntiFlag:
 
     def __get__(self, instance, cls) -> int:
         negative = ~cls(self.anti)
-        positive = cls(reduce(or_, negative))
-        return positive
+        return cls(reduce(or_, negative))
 
 
 def _distinct(source) -> Tuple:

@@ -554,10 +554,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         )
 
         if file:
-            if files:
-                files = [file, *files]
-            else:
-                files = [file]
+            files = [file, *files] if files else [file]
         message_data = await self.client.http.edit_interaction_message(
             payload=message_payload,
             application_id=self.client.app.id,
@@ -572,9 +569,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
 class SlashContext(InteractionContext, ModalMixin):
     @classmethod
     def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
-        instance = super().from_dict(client, payload)
-
-        return instance
+        return super().from_dict(client, payload)
 
 
 class ContextMenuContext(InteractionContext, ModalMixin):

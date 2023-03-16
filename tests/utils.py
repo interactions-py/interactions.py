@@ -25,18 +25,4 @@ def generate_dummy_context(
     # channel = SAMPLE_CHANNEL_DATA(channel_id=channel_id, guild_id=guild_id)
     message = SAMPLE_MESSAGE_DATA(user_id=user_id, channel_id=channel_id, message_id=message_id, guild_id=guild_id)
 
-    # ctx = InteractionContext.from_dict(client, {
-    #     "user": author,
-    #     "channel_id": channel["id"],
-    #     "guild_id": guild_id,
-    #     "message": message,
-    #     "token": "FAKE_TOKEN",
-    #     "id": random.randint(111111111111111111, 999999999999999999),
-    #     "locale": SAMPLE_LOCALE(),
-    #     "guild_locale": SAMPLE_LOCALE(),
-    #     "type": InteractionType.PING,
-    #     "data": {}
-    # })
-    ctx = PrefixedContext.from_message(client, Message.from_dict(message, client))
-    # ctx.author = User.from_dict(author, client)
-    return ctx
+    return PrefixedContext.from_message(client, Message.from_dict(message, client))

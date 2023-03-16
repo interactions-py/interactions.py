@@ -79,9 +79,7 @@ def strf_delta(time_delta: datetime.timedelta, show_seconds: bool = True) -> str
         return f"{days_fmt} and {hours_fmt}"
     if hours >= 1:
         return f"{hours_fmt} and {minutes_fmt}"
-    if show_seconds:
-        return f"{minutes_fmt} and {seconds_fmt}"
-    return f"{minutes_fmt}"
+    return f"{minutes_fmt} and {seconds_fmt}" if show_seconds else f"{minutes_fmt}"
 
 
 def _make_solid_line(
@@ -166,7 +164,6 @@ def make_table(rows: list[list[Any]], labels: Optional[list[Any]] = None, center
     if labels is not None:
         lines.append(_make_data_line(column_widths, labels, data_left, data_middle, data_right, align))
         lines.append(_make_solid_line(column_widths, "├", "┼", "┤"))
-    for row in rows:
-        lines.append(_make_data_line(column_widths, row, data_left, data_middle, data_right, align))
+    lines.extend(_make_data_line(column_widths, row, data_left, data_middle, data_right, align) for row in rows)
     lines.append(_make_solid_line(column_widths, "╰", "┴", "╯"))
     return "\n".join(lines)

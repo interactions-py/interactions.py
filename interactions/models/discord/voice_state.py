@@ -60,22 +60,18 @@ class VoiceState(ClientObject):
         """The channel the user is connected to."""
         channel: "TYPE_VOICE_CHANNEL" = self._client.cache.get_channel(self._channel_id)
 
-        if channel:
-            # make sure the member is showing up as a part of the channel
-            # this is relevant for VoiceStateUpdate.before
+        if channel and self._member_id not in channel._voice_member_ids:
+            # the list of voice members need to be deepcopied, otherwise the cached obj will be updated
             # noinspection PyProtectedMember
-            if self._member_id not in channel._voice_member_ids:
-                # the list of voice members need to be deepcopied, otherwise the cached obj will be updated
-                # noinspection PyProtectedMember
-                voice_member_ids = copy.deepcopy(channel._voice_member_ids)
+            voice_member_ids = copy.deepcopy(channel._voice_member_ids)
 
-                # create a copy of the obj
-                channel = copy.copy(channel)
-                channel._voice_member_ids = voice_member_ids
+            # create a copy of the obj
+            channel = copy.copy(channel)
+            channel._voice_member_ids = voice_member_ids
 
-                # add the member to that list
-                # noinspection PyProtectedMember
-                channel._voice_member_ids.append(self._member_id)
+            # add the member to that list
+            # noinspection PyProtectedMember
+            channel._voice_member_ids.append(self._member_id)
 
         return channel
 

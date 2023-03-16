@@ -179,6 +179,6 @@ def get_file_mimetype(file_data: bytes) -> str:
         return "image/png"
     if file_data.startswith(b"\xff\xd8\xff"):
         return "image/jpeg"
-    if file_data[0:4] == b"RIFF" and file_data[8:12] == b"WEBP":
+    if file_data[:4] == b"RIFF" and file_data[8:12] == b"WEBP":
         return "image/webp"
     return "application/octet-stream"

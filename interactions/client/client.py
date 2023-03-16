@@ -560,9 +560,12 @@ class Client(
     def _queue_task(self, coro: Listener, event: BaseEvent, *args, **kwargs) -> asyncio.Task:
         async def _async_wrap(_coro: Listener, _event: BaseEvent, *_args, **_kwargs) -> None:
             try:
-                if not isinstance(_event, (events.Error, events.RawGatewayEvent)):
-                    if coro.delay_until_ready and not self.is_ready:
-                        await self.wait_until_ready()
+                if (
+                    not isinstance(_event, (events.Error, events.RawGatewayEvent))
+                    and coro.delay_until_ready
+                    and not self.is_ready
+                ):
+                    await self.wait_until_ready()
 
                 if len(_event.__attrs_attrs__) == 2 and coro.event != "event":
                     # override_name & bot & logging
@@ -1046,11 +1049,7 @@ class Client(
         def predicate(event) -> bool:
             if modal.custom_id != event.ctx.custom_id:
                 return False
-            if not author:
-                return True
-            if author != to_snowflake(event.ctx.author):
-                return False
-            return True
+            return author == to_snowflake(event.ctx.author) if author else True
 
         resp = await self.wait_for("modal_completion", predicate, timeout)
         return resp.ctx
@@ -1085,7 +1084,7 @@ class Client(
             asyncio.TimeoutError: if timed out
 
         """
-        if not (messages or components):
+        if not messages and not components:
             raise ValueError("You must specify messages or components (or both)")
 
         message_ids = (
@@ -1105,9 +1104,7 @@ class Client(
             )
             wanted_component = not custom_ids or ctx.custom_id in custom_ids
             if wanted_message and wanted_component:
-                if check is None or check(event):
-                    return True
-                return False
+                return bool(check is None or check(event))
             return False
 
         return await self.wait_for("component", checks=_check, timeout=timeout)
@@ -1242,7 +1239,7 @@ class Client(
 
             if group is None or isinstance(command, ContextMenu):
                 self.interaction_tree[scope][command.resolved_name] = command
-            elif group is not None:
+            else:
                 if not (current := self.interaction_tree[scope].get(base)) or isinstance(current, SlashCommand):
                     self.interaction_tree[scope][base] = {}
                 if sub is None:
@@ -1754,9 +1751,7 @@ class Client(
         Returns:
             A extension, if found
         """
-        if ext := self.get_extensions(name):
-            return ext[0]
-        return None
+        return ext[0] if (ext := self.get_extensions(name)) else None
 
     def __load_module(self, module, module_name, **load_kwargs) -> None:
         """Internal method that handles loading a module."""

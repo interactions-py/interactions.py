@@ -407,33 +407,32 @@ class Paginator:
         await self._message.edit(**self.to_dict())
 
     async def _on_button(self, ctx: ComponentContext, *args, **kwargs) -> Optional[Message]:
-        if ctx.author.id == self.author_id:
-            if self._timeout_task:
-                self._timeout_task.ping.set()
-            match ctx.custom_id.split("|")[1]:
-                case "first":
-                    self.page_index = 0
-                case "last":
-                    self.page_index = len(self.pages) - 1
-                case "next":
-                    if (self.page_index + 1) < len(self.pages):
-                        self.page_index += 1
-                case "back":
-                    if (self.page_index - 1) >= 0:
-                        self.page_index -= 1
-                case "select":
-                    self.page_index = int(ctx.values[0])
-                case "callback":
-                    if self.callback:
-                        return await self.callback(ctx)
+        if ctx.author.id != self.author_id:
+            return (
+                await ctx.send(self.wrong_user_message, ephemeral=True)
+                if self.wrong_user_message
+                else await ctx.defer(edit_origin=True)
+            )
+        if self._timeout_task:
+            self._timeout_task.ping.set()
+        match ctx.custom_id.split("|")[1]:
+            case "first":
+                self.page_index = 0
+            case "last":
+                self.page_index = len(self.pages) - 1
+            case "next":
+                if (self.page_index + 1) < len(self.pages):
+                    self.page_index += 1
+            case "back":
+                if self.page_index >= 1:
+                    self.page_index -= 1
+            case "select":
+                self.page_index = int(ctx.values[0])
+            case "callback":
+                if self.callback:
+                    return await self.callback(ctx)
 
-            await ctx.edit_origin(**self.to_dict())
-        else:
-            if self.wrong_user_message:
-                return await ctx.send(self.wrong_user_message, ephemeral=True)
-            else:
-                # silently ignore
-                return await ctx.defer(edit_origin=True)
+        await ctx.edit_origin(**self.to_dict())
         return None
 
 

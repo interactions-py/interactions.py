@@ -30,15 +30,14 @@ def bot(owner: UserData) -> Client:
 
 @pytest.fixture()
 def guild(bot: Client) -> Guild:
-    guild = bot.cache.place_guild_data(SAMPLE_GUILD_DATA(guild_id=1234123412341234))
-    return guild
+    return bot.cache.place_guild_data(SAMPLE_GUILD_DATA(guild_id=1234123412341234))
 
 
 @pytest.mark.asyncio
 async def test_checks(bot: Client, guild: Guild) -> None:
     user_id = 121216789012345678
     assert bot.owner is not None
-    assert user_id is not bot.owner.id
+    assert user_id != bot.owner.id
 
     is_owner = interactions.is_owner()
     assert await is_owner(generate_dummy_context(user_id=bot.owner.id, client=bot)) is True

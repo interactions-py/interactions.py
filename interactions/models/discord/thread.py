@@ -103,9 +103,7 @@ class ThreadList(ClientObject):
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
-        threads = []
-        for thread_data in data["threads"]:
-            threads.append(client.cache.place_channel_data(thread_data))
+        threads = [client.cache.place_channel_data(thread_data) for thread_data in data["threads"]]
         data["threads"] = threads
 
         data["members"] = ThreadMember.from_list(data["members"], client)

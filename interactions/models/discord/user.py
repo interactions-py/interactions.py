@@ -442,11 +442,7 @@ class Member(DiscordObject, _SendDMMixin):
         # Get the user's permissions
         guild_permissions = self.guild_permissions
 
-        # Check all permissions separately
-        for permission in permissions:
-            if permission not in guild_permissions:
-                return False
-        return True
+        return all(permission in guild_permissions for permission in permissions)
 
     def channel_permissions(self, channel: "TYPE_GUILD_CHANNEL") -> Permissions:
         """

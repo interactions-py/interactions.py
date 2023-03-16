@@ -292,9 +292,7 @@ class InteractionCommand(BaseCommand):
     async def _permission_enforcer(self, ctx: "BaseContext") -> bool:
         """A check that enforces Discord permissions."""
         # I wish this wasn't needed, but unfortunately Discord permissions cant be trusted to actually prevent usage
-        if self.dm_permission is False:
-            return ctx.guild is not None
-        return True
+        return ctx.guild is not None if self.dm_permission is False else True
 
     def is_enabled(self, ctx: "BaseContext") -> bool:
         """
@@ -1407,27 +1405,27 @@ def _compare_commands(local_cmd: dict, remote_cmd: dict) -> bool:
 
 
 def _compare_options(local_opt_list: dict, remote_opt_list: dict) -> bool:
-    options_lookup: dict[str, tuple[str, any]] = {
-        "name": ("name", ""),
-        "description": ("description", ""),
-        "required": ("required", False),
-        "autocomplete": ("autocomplete", False),
-        "name_localized": ("name_localizations", None),
-        "description_localized": ("description_localizations", None),
-        "channel_types": ("channel_types", None),
-        "choices": ("choices", []),
-        "max_value": ("max_value", None),
-        "min_value": ("min_value", None),
-        "max_length": ("max_length", None),
-        "min_length": ("min_length", None),
-    }
-    post_process: Dict[str, Callable] = {
-        "choices": lambda l10n: [d | {"name_localizations": {}} if len(d) == 2 else d for d in l10n],
-    }
-
     if local_opt_list != remote_opt_list:
+        post_process: Dict[str, Callable] = {
+            "choices": lambda l10n: [d | {"name_localizations": {}} if len(d) == 2 else d for d in l10n],
+        }
+
         if len(local_opt_list) != len(remote_opt_list):
             return False
+        options_lookup: dict[str, tuple[str, any]] = {
+            "name": ("name", ""),
+            "description": ("description", ""),
+            "required": ("required", False),
+            "autocomplete": ("autocomplete", False),
+            "name_localized": ("name_localizations", None),
+            "description_localized": ("description_localizations", None),
+            "channel_types": ("channel_types", None),
+            "choices": ("choices", []),
+            "max_value": ("max_value", None),
+            "min_value": ("min_value", None),
+            "max_length": ("max_length", None),
+            "min_length": ("min_length", None),
+        }
         for i in range(len(local_opt_list)):
             local_option = local_opt_list[i]
             remote_option = remote_opt_list[i]
