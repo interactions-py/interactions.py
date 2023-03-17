@@ -220,6 +220,8 @@ class Guild(BaseGuild):
         repr=False, factory=dict, metadata=no_export_meta
     )
     """A cache of all command permissions for this guild"""
+    premium_progress_bar_enabled: bool = attrs.field(repr=False, default=False)
+    """True if the guild has the boost progress bar enabled"""
 
     _owner_id: Snowflake_Type = attrs.field(repr=False, converter=to_snowflake)
     _channel_ids: Set[Snowflake_Type] = attrs.field(repr=False, factory=set)
