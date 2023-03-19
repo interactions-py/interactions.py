@@ -18,14 +18,14 @@ You **cannot** respond to a modal with a modal.
 Use `ctx.send_modal()` to send a modal.
 
 ```python
+from interactions import slash_command, SlashContext, Modal, ShortText, ParagraphText
+
 @slash_command(name="my_modal_command", description="Playing with Modals")
-async def my_command_function(ctx: InteractionContext):
+async def my_command_function(ctx: SlashContext):
     my_modal = Modal(
+        ShortText(label="Short Input Text", custom_id="short_text"),
+        ParagraphText(label="Long Input Text", custom_id="long_text"),
         title="My Modal",
-        components=[
-            ShortText(label="Short Input Text", custom_id="short_text"),
-            ParagraphText(label="Long Input Text", custom_id="long_text"),
-        ],
     )
     await ctx.send_modal(modal=my_modal)
     ...
@@ -43,6 +43,8 @@ As with `bot.wait_for_component()`, `bot.wait_for_modal()` supports timeouts. Ch
 
 ```python
 ...
+from interactions import ModalContext
+
 modal_ctx: ModalContext = await ctx.bot.wait_for_modal(my_modal)
 await modal_ctx.send(f"""You input {modal_ctx.responses["short_text"]} and {modal_ctx.responses["long_text"]}""")
 ```
@@ -57,12 +59,13 @@ As previously mentioned, you really want to set your own `custom_id` otherwise y
 Modal components are customisable in their appearance. You can set a placeholder, pre-fill them, restrict what users can input, or make them optional.
 
 ```python
+from interactions import slash_command, Modal, ShortText, SlashContext
+
+
 @slash_command(name="my_modal_command", description="Playing with Modals")
-async def my_command_function(ctx: InteractionContext):
-        my_modal = Modal(
-        title="My Modal",
-        components=[
-            ShortText(
+async def my_command_function(ctx: SlashContext):
+    my_modal = Modal(
+        ShortText(
                 label="Short Input Text",
                 custom_id="short_text",
                 value="Pre-filled text",
@@ -75,10 +78,12 @@ async def my_command_function(ctx: InteractionContext):
                 placeholder="Please be concise",
                 max_length=10,
             ),
-        ],
+        title="My Modal",
     )
+
+
     await ctx.send_modal(modal=my_modal)
-    ...
+...
 ```
 
 This example leads to the following modal:
