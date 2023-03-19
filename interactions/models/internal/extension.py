@@ -124,7 +124,7 @@ class Extension:
 
         if hasattr(instance, "async_start"):
             if inspect.iscoroutinefunction(instance.async_start):
-                bot.async_startup_tasks.append(instance.async_start())
+                bot.async_startup_tasks.append((instance.async_start, (), {}))
             else:
                 raise TypeError("async_start is a reserved method and must be a coroutine")
 

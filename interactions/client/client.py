@@ -393,7 +393,7 @@ class Client(
         self.waits: Dict[str, List] = {}
         self.owner_ids: set[Snowflake_Type] = set(owner_ids)
 
-        self.async_startup_tasks: list[Coroutine] = []
+        self.async_startup_tasks: list[tuple[Coroutine, Iterable[Any], dict[str:Any]]] = []
         """A list of coroutines to run during startup"""
 
         # callbacks
@@ -581,12 +581,14 @@ class Client(
                 else:
                     self.dispatch(events.Error(source=repr(event), error=e))
 
-        wrapped = _async_wrap(coro, event, *args, **kwargs)
         try:
-            return asyncio.create_task(wrapped, name=f"interactions:: {event.resolved_name}")
+            asyncio.get_running_loop()
+            return asyncio.create_task(
+                _async_wrap(coro, event, *args, **kwargs), name=f"interactions:: {event.resolved_name}"
+            )
         except RuntimeError:
             self.logger.debug("Event loop is closed; queuing task for execution on startup")
-            self.async_startup_tasks.append(wrapped)
+            self.async_startup_tasks.append((_async_wrap, (coro, event, *args), kwargs))
 
     @staticmethod
     def default_error_handler(source: str, error: BaseException) -> None:
@@ -901,7 +903,12 @@ class Client(
         # run any pending startup tasks
         if self.async_startup_tasks:
             try:
-                await asyncio.gather(*self.async_startup_tasks)
+                await asyncio.gather(
+                    *[
+                        task[0](*task[1] if len(task) > 1 else [], **task[2] if len(task) == 3 else {})
+                        for task in self.async_startup_tasks
+                    ]
+                )
             except Exception as e:
                 self.dispatch(events.Error(source="async-extension-loader", error=e))
         try:
@@ -982,10 +989,11 @@ class Client(
                     ) from e
 
         try:
+            asyncio.get_running_loop()
             _ = asyncio.create_task(self._process_waits(event))
         except RuntimeError:
             # dispatch attempt before event loop is running
-            self.async_startup_tasks.append(self._process_waits(event))
+            self.async_startup_tasks.append((self._process_waits, (event,), {}))
 
         if "event" in self.listeners:
             # special meta event listener
