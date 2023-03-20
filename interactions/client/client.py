@@ -1898,7 +1898,7 @@ class Client(
 
                 sys.modules[name] = backup
                 self.__load_module(backup, name, **load_kwargs)
-                self.logger.info(f"Reverted extension {name} to previous state")
+                self.logger.info(f"Reverted extension {name} to previous state ", exc_info=e)
             except Exception as ex:
                 sys.modules.pop(name, None)
                 raise ex from e

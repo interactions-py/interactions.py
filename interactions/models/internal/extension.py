@@ -164,7 +164,7 @@ class Extension:
             self.bot.listeners[func.event].remove(func)
 
         self.bot.ext.pop(self.name, None)
-        self.bot.dispatch(events.ExtensionUnload(self))
+        self.bot.dispatch(events.ExtensionUnload(extension=self))
         self.bot.logger.debug(f"{self.name} has been drop")
 
     def add_ext_auto_defer(self, enabled: bool = True, ephemeral: bool = False, time_until_defer: float = 0.0) -> None:
