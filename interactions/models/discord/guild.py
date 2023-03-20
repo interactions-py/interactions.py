@@ -220,6 +220,8 @@ class Guild(BaseGuild):
         repr=False, factory=dict, metadata=no_export_meta
     )
     """A cache of all command permissions for this guild"""
+    premium_progress_bar_enabled: bool = attrs.field(repr=False, default=False)
+    """True if the guild has the boost progress bar enabled"""
 
     _owner_id: Snowflake_Type = attrs.field(repr=False, converter=to_snowflake)
     _channel_ids: Set[Snowflake_Type] = attrs.field(repr=False, factory=set)
@@ -724,6 +726,7 @@ class Guild(BaseGuild):
         rules_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
         public_updates_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
         preferred_locale: Absent[Optional[str]] = MISSING,
+        premium_progress_bar_enabled: Absent[Optional[bool]] = False,
         # ToDo: Fill in guild features. No idea how this works - https://discord.com/developers/docs/resources/guild#guild-object-guild-features
         features: Absent[Optional[list[str]]] = MISSING,
         reason: Absent[Optional[str]] = MISSING,
@@ -749,6 +752,7 @@ class Guild(BaseGuild):
             rules_channel: The text channel where your rules and community guidelines are displayed.
             public_updates_channel: The text channel where updates from discord should appear.
             preferred_locale: The new preferred locale of the guild. Must be an ISO 639 code.
+            premium_progress_bar_enabled: The status of the Nitro boost bar.
             features: The enabled guild features
             reason: An optional reason for the audit log.
 
@@ -774,6 +778,7 @@ class Guild(BaseGuild):
             rules_channel_id=to_snowflake(rules_channel) if rules_channel else MISSING,
             public_updates_channel_id=to_snowflake(public_updates_channel) if public_updates_channel else MISSING,
             preferred_locale=preferred_locale,
+            premium_progress_bar_enabled=premium_progress_bar_enabled if premium_progress_bar_enabled else False,
             features=features,
             reason=reason,
         )
