@@ -106,12 +106,10 @@ If you want to use string options, then you use `StringSelect`. Simply pass a li
 You can also define how many options users can choose by setting `min_values` and `max_values`.
 
 ```python
-from interactions import StringSelectMenu, SelectOption
+from interactions import StringSelectMenu
 
 components = StringSelectMenu(
-    options=[
-        "Pizza", "Pasta", "Burger", "Salad"
-    ],
+    "Pizza", "Pasta", "Burger", "Salad",
     placeholder="What is your favourite food?",
     min_values=1,
     max_values=1,
