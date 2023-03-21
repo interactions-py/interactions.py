@@ -100,7 +100,7 @@ These guides are meant to help you get started with the library and offer a poin
 
     Oh damn, your bot is getting pretty big, huh? Well I guess its time we discuss sharding.
 
--   [__:material-frequently-asked-questions: Migration from discord.py__](99 Migration From D.py.md)
+-   [__:material-frequently-asked-questions: Migration from discord.py__](100 Migration From D.py.md)
 
     ---
 
@@ -111,6 +111,12 @@ These guides are meant to help you get started with the library and offer a poin
     ---
 
     How do I migrate from i.py v4.4 to v5?
+
+-   [__:material-package-up: 2.x Migration Guide__](99 2.x Migration_NAFF.md)
+
+    ---
+
+    How do I migrate from NAFF to i.py v5?
 
 
 </div>
