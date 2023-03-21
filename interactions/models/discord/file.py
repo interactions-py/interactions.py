@@ -40,7 +40,7 @@ class File:
             A file-like BinaryIO object.
 
         """
-        if isinstance(self.file, (IOBase, BinaryIO)):
+        if isinstance(self.file, (IOBase, BinaryIO, bytes)):
             return self.file
         return open(str(self.file), "rb")
 

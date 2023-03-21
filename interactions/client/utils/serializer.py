@@ -146,8 +146,8 @@ def to_image_data(imagefile: Optional["UPLOADABLE_TYPE"]) -> Optional[str]:
             with open(str(imagefile), "rb") as image_buffer:
                 image_data = image_buffer.read()
         case File():
-            with imagefile.open_file() as image_buffer:
-                image_data = image_buffer.read()
+            data = imagefile.open_file()
+            image_data = data.read() if hasattr(data, "read") else data
         case _:
             return imagefile
 
