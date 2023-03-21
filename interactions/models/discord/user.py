@@ -48,6 +48,7 @@ class BaseUser(DiscordObject, _SendDMMixin):
     """Base class for User, essentially partial user discord model."""
 
     username: str = attrs.field(repr=True, metadata=docs("The user's username, not unique across the platform"))
+    global_name: str | None = attrs.field(repr=True, metadata=docs("The user's chosen display name, platform-wide"))
     discriminator: int = attrs.field(repr=True, metadata=docs("The user's 4-digit discord-tag"))
     avatar: "Asset" = attrs.field(repr=False, metadata=docs("The user's default avatar"))
 
@@ -76,7 +77,7 @@ class BaseUser(DiscordObject, _SendDMMixin):
     @property
     def display_name(self) -> str:
         """The users display name, will return nickname if one is set, otherwise will return username."""
-        return self.username  # for duck-typing compatibility with Member
+        return self.global_name or self.username
 
     @property
     def display_avatar(self) -> "Asset":
@@ -378,7 +379,7 @@ class Member(DiscordObject, _SendDMMixin):
     @property
     def display_name(self) -> str:
         """The users display name, will return nickname if one is set, otherwise will return username."""
-        return self.nickname or self.username
+        return self.nickname or self.user.global_name or self.user.username
 
     @property
     def display_avatar(self) -> "Asset":

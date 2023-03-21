@@ -38,6 +38,7 @@ class _SendDMMixin(SendMixin):
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)  # properly typehints added attributes by attrs
 class FakeBaseUserMixin(DiscordObject, _SendDMMixin):
     username: str
+    global_name: str | None
     discriminator: int
     avatar: Asset
     def __str__(self) -> str: ...
