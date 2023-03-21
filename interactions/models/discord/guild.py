@@ -37,6 +37,7 @@ from .enums import (
     AuditLogEventType,
     AutoModEvent,
     AutoModTriggerType,
+    ForumLayoutType,
 )
 from .snowflake import to_snowflake, Snowflake_Type, to_optional_snowflake, to_snowflake_list
 
@@ -895,6 +896,7 @@ class Guild(BaseGuild):
         user_limit: int = 0,
         rate_limit_per_user: int = 0,
         reason: Absent[Optional[str]] = MISSING,
+        **kwargs: dict,
     ) -> "models.TYPE_GUILD_CHANNEL":
         """
         Create a guild channel, allows for explicit channel type setting.
@@ -911,6 +913,7 @@ class Guild(BaseGuild):
             user_limit: The max users that can be in this channel, only for voice
             rate_limit_per_user: The time users must wait between sending messages
             reason: The reason for creating this channel
+            kwargs: Additional keyword arguments to pass to the channel creation
 
         Returns:
             The newly created channel.
@@ -929,6 +932,7 @@ class Guild(BaseGuild):
             user_limit,
             rate_limit_per_user,
             reason,
+            **kwargs,
         )
         return self._client.cache.place_channel_data(channel_data)
 
@@ -985,6 +989,7 @@ class Guild(BaseGuild):
         category: Union[Snowflake_Type, "models.GuildCategory"] = None,
         nsfw: bool = False,
         rate_limit_per_user: int = 0,
+        layout: ForumLayoutType = ForumLayoutType.NOT_SET,
         reason: Absent[Optional[str]] = MISSING,
     ) -> "models.GuildForum":
         """
@@ -998,6 +1003,7 @@ class Guild(BaseGuild):
             category: The category this forum channel should be within
             nsfw: Should this forum be marked nsfw
             rate_limit_per_user: The time users must wait between sending messages
+            layout: The layout of the forum channel
             reason: The reason for creating this channel
 
         Returns:
@@ -1013,6 +1019,7 @@ class Guild(BaseGuild):
             category=category,
             nsfw=nsfw,
             rate_limit_per_user=rate_limit_per_user,
+            default_forum_layout=layout,
             reason=reason,
         )
 
