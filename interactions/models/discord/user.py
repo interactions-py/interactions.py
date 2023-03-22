@@ -48,7 +48,7 @@ class BaseUser(DiscordObject, _SendDMMixin):
     """Base class for User, essentially partial user discord model."""
 
     username: str = attrs.field(repr=True, metadata=docs("The user's username, not unique across the platform"))
-    global_name: str | None = attrs.field(repr=True, metadata=docs("The user's chosen display name, platform-wide"))
+    global_name: str | None = attrs.field(repr=True, metadata=docs("The user's chosen display name, platform-wide"), default=None)
     discriminator: int = attrs.field(repr=True, metadata=docs("The user's 4-digit discord-tag"))
     avatar: "Asset" = attrs.field(repr=False, metadata=docs("The user's default avatar"))
 
