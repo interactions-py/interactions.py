@@ -393,7 +393,7 @@ class Client(
         self.waits: Dict[str, List] = {}
         self.owner_ids: set[Snowflake_Type] = set(owner_ids)
 
-        self.async_startup_tasks: list[tuple[Coroutine, Iterable[Any], dict[str:Any]]] = []
+        self.async_startup_tasks: list[tuple[Callable[..., Coroutine], Iterable[Any], dict[str, Any]]] = []
         """A list of coroutines to run during startup"""
 
         # callbacks
