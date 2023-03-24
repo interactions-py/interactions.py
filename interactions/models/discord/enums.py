@@ -6,47 +6,48 @@ from typing import Iterator, Tuple, TypeVar, Type
 from interactions.client.const import get_logger
 
 __all__ = (
-    "WebSocketOPCode",
-    "Intents",
-    "UserFlags",
+    "ActivityFlag",
+    "ActivityType",
     "ApplicationFlags",
-    "TeamMembershipState",
-    "PremiumType",
-    "MemberFlags",
-    "MessageType",
-    "MessageActivityType",
-    "MessageFlags",
-    "Permissions",
-    "ChannelType",
-    "ComponentType",
-    "CommandType",
-    "InteractionType",
+    "AuditLogEventType",
+    "AutoArchiveDuration",
     "ButtonStyle",
-    "MentionType",
-    "OverwriteType",
+    "ChannelFlags",
+    "ChannelType",
+    "CommandType",
+    "ComponentType",
     "DefaultNotificationLevel",
     "ExplicitContentFilterLevel",
-    "MFALevel",
-    "VerificationLevel",
-    "NSFWLevel",
-    "PremiumTier",
-    "SystemChannelFlags",
-    "ChannelFlags",
-    "VideoQualityMode",
-    "AutoArchiveDuration",
-    "ActivityType",
-    "ActivityFlag",
-    "Status",
-    "StagePrivacyLevel",
+    "ForumLayoutType",
     "IntegrationExpireBehaviour",
-    "InviteTargetType",
-    "ScheduledEventPrivacyLevel",
-    "ScheduledEventType",
-    "ScheduledEventStatus",
-    "AuditLogEventType",
+    "Intents",
     "InteractionPermissionTypes",
-    "StickerTypes",
+    "InteractionType",
+    "InviteTargetType",
+    "MemberFlags",
+    "MentionType",
+    "MessageActivityType",
+    "MessageFlags",
+    "MessageType",
+    "MFALevel",
+    "NSFWLevel",
+    "OverwriteType",
+    "Permissions",
+    "PremiumTier",
+    "PremiumType",
+    "ScheduledEventPrivacyLevel",
+    "ScheduledEventStatus",
+    "ScheduledEventType",
+    "StagePrivacyLevel",
+    "Status",
     "StickerFormatType",
+    "StickerTypes",
+    "SystemChannelFlags",
+    "TeamMembershipState",
+    "UserFlags",
+    "VerificationLevel",
+    "VideoQualityMode",
+    "WebSocketOPCode",
 )
 
 
@@ -967,3 +968,11 @@ class StickerFormatType(CursedIntEnum):
     APNG = 2
     LOTTIE = 3
     GIF = 4
+
+
+class ForumLayoutType(CursedIntEnum):
+    """The layout of a forum channel."""
+
+    NOT_SET = 0
+    LIST = 1
+    GALLERY = 2

@@ -126,6 +126,7 @@ class ChannelRequests(CanRequest):
         user_limit: int = 0,
         rate_limit_per_user: int = 0,
         reason: str | None = None,
+        **kwargs: dict,
     ) -> discord_typings.ChannelData:
         """
         Create a channel in a guild.
@@ -143,6 +144,7 @@ class ChannelRequests(CanRequest):
             user_limit: The max users that can be in this channel, only for voice
             rate_limit_per_user: The time users must wait between sending messages
             reason: The reason for creating this channel
+            kwargs: Additional keyword arguments to pass to the request
 
         Returns:
             The created channel object
@@ -157,6 +159,7 @@ class ChannelRequests(CanRequest):
             "nsfw": nsfw,
             "parent_id": int(parent_id) if parent_id else None,
             "permission_overwrites": list(permission_overwrites) if permission_overwrites else None,
+            **kwargs,
         }
         if channel_type in (ChannelType.GUILD_VOICE, ChannelType.GUILD_STAGE_VOICE):
             payload.update(
