@@ -100,7 +100,7 @@ These guides are meant to help you get started with the library and offer a poin
 
     Oh damn, your bot is getting pretty big, huh? Well I guess its time we discuss sharding.
 
--   [__:material-frequently-asked-questions: Migration from discord.py__](100 Migration From D.py.md)
+-   [__:material-frequently-asked-questions: Migration from discord.py__](99 Migration From D.py.md)
 
     ---
 
