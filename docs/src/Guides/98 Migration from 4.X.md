@@ -8,16 +8,13 @@ Now, let's get started, shall we?
 
 ## Python Version Change
 
-v5 and beyond *requires* Python 3.10 or higher, as compared to v4's 3.8+. This is to necessitate a lot of features that have been introduced since 3.8, including match statements and union types.
+Starting from version 5, **Python 3.10 or higher is now required**, whereas version 4 only needed 3.8+. This is because 5.x incorporates many new and exciting features introduced in more recent versions of Python.
 
-For Windows users, this is usually as simple as downloading 3.10+ (ideally the latest version for the most speed and features) and possibly removing the old version if you have no other projects that depend on older versions.
+For Windows users, this is usually as simple as downloading 3.10 or higher (ideally the latest version for the most speed and features) and possibly removing the old version if you have no other projects that depend on older versions.
 
-TODO: Any Mac users that can tell me how to upgrade?
+For Linux and MacOS, we recommend using [pyenv](https://github.com/pyenv/pyenv); _pyenv lets you easily switch between multiple versions of Python. It's simple, unobtrusive, and follows the UNIX tradition of single-purpose tools that do one thing well._ We strongly suggest consulting pyenv's guides on installation.
 
-For Linux users, this may be more complicated. You almost *never* want to uninstall the current Python you have and replace it wih a new one - you usually want to add a new one and keep the old one, to ensure system stability (lots of Linux tools depend on Python).
-We suggest using [pyenv](https://github.com/pyenv/pyenv) for easy management between multiple Python versions, use Deadsnakes' PPA for Ubuntu devices (you should do a search to find information on how to install the latest version, though [this guide can install 3.11 on Ubuntu 20.04/22.04](https://tecadmin.net/how-to-install-python-3-11-on-ubuntu-22-04/)), build Python from source, or research other, *safe* ways of getting it.
-
-*Please be careful when doing this.* Especially on Linux, it is easy to mess something up. Consult trusted guides if necessary.
+If you prefer not to use pyenv, there are many guides available that can help you safely install a newer version of Python alongside your existing version.
 
 ## Slash Commands
 
