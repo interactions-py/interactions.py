@@ -2,7 +2,7 @@
 
 Version 5.X (and beyond) is a major rewrite of interactions.py compared to 4.X, though there have been major improvements to compensate for the change. 5.X was designed to be more stable and flexible, solving many of the bugs and UX issues 4.X had while also adding additional features you may like.
 
-**You will need to do some updating and rewriting of your code,** but it's not as daunting as it may seem. We've prlovided this document as a starting point (*though it is not exhaustive*), and we have plenty of guides and documentation to help you learn the other parts of this library. Lastly, our support team is always here to help if you need it [in our Discord server](discord.gg/interactions).
+**You will need to do some updating and rewriting of your code,** but it's not as daunting as it may seem. We've provided this document as a starting point (*though it is not exhaustive*), and we have plenty of guides and documentation to help you learn the other parts of this library. Lastly, our support team is always here to help if you need it [in our Discord server](discord.gg/interactions).
 
 Now, let's get started, shall we?
 
@@ -20,7 +20,7 @@ If you prefer not to use pyenv, there are many guides available that can help yo
 
 Slash commands function differently from v4's commands - it's worth taking a good look at the guide to see [how they work in the library now](../03 Creating Commands).
 
-Big changes include the fact that `@bot.command` (we'll get to extensions later) is now `@interactions.slash_command`, and `CommandContext` is now `SlashContext`. There may be some slight renamings elsewhere too in the decorators itself - it's suggested you look over the options for the new decorator and approiately adapt your code.
+Big changes include the fact that `@bot.command` (we'll get to extensions later) is now `@interactions.slash_command`, and `CommandContext` is now `SlashContext`. There may be some slight renamings elsewhere too in the decorators itself - it's suggested you look over the options for the new decorator and appropriately adapt your code.
 
 Arguably the biggest change involves how v5 handles slash options. v5's primary method relies heavily on decorators to do the heavy lifting, though there are other methods you may prefer - again, consult the guide, as that will tell you every method. A general rule of thumb is that if you did not use the "define options as a list right in the slash command decorator" choice, you will have to make some changes to adjust to the new codebase.
 Subcommands also cannot be defined as an option in a command. We encourage you to use a subcommand decorator instead, as seen in the guide.
@@ -31,13 +31,17 @@ Autocomplete *is* different. v5 encourages you to tie autocompletes to specific 
 
 Autodeferring is also pretty similar, although there's more control, with options to allow for global autodefers and extension-wide ones.
 
+## Events
+
+Similarly to Slash Commands, events have also been reworked in v5. Instead of `@bot.event` and `@extension_listener`, the way to listen to events is now `@listen`. There are multiple ways to subscribe to events, whether it is using the function name or the argument of the `@listen` decorator. You can find more information on handling events using v5 [on its own guide page](../10 Events).
+
 ## Other Types of Interactions (Context Menus, Components, Modals)
 
 These should be a lot more familiar to you - many interactions in v5 that aren't slash commands are similar to v4, minus name changes (largely to the decorators and classes you use). They should still *function* similarly though, but it's never a bad idea to consult the various guides that are on the sidebar to gain a better picture of how they work.
 
 [If you're using context menus](../04 Context Menus) (IE `@bot.user_command` or `@bot.message_command`), note that the decorator you use is slightly different from either of the two older ones. You now use `@context_menu`, and specify the type of context menu through `context_type` - otherwise, it's mostly the same.
 
-There also is no "one decorator for every type of command" - there is no equivalent to `bot.command`, and you will need to use the more narrowly-scoped alternatives. Most interaction commands that aren't slash commands use `InteractionContext` for their context too, so keep that in mind.
+There also is no "one decorator for every type of command" - there is no equivalent to `bot.command`, and you will need to use the more narrowly-scoped alternatives.
 
 [For components](../05 Components) and [modals](../06 Modals): you no longer need to use `ActionRow.new(...)` to make an ActionRow now - you can just use `ActionRow(...)` directly. You also send modals via `ctx.send_modal` now. Finally, text inputs in components (the options for string select menus, and the components for modals) are also `*args` now, instead of being a typical parameter:
 ```python
@@ -66,20 +70,25 @@ modal = interactions.Modal(
 
 Otherwise, beyond renamings, components are largely the same.
 
-# WIP - these next sections are not in order of their final appearance
-
-## Extensions
+## Extensions (cogs)
 
 Extensions have not been changed too much. `await teardown(...)` is now just `drop(...)` (note how drop is *not* async), and you use `bot.load_extension`/`bot.unload_extension` instead of `bot.load`/`bot.unload`.
 
-There is one major difference though isn't fully related to extensions themselves - *you use the same decorator for both commands/events in your main file and commands/events in extensions in v5.* Basically, instead of having `bot.command` and `interactions.extension_command`, you *just* have `interactions.slash_command` (and so on for context menus, events, etc.), which functions seemlessly in both contexts.
+There is one major difference though that isn't fully related to extensions themselves: *you use the same decorator for both commands/events in your main file and commands/events in extensions in v5.* Basically, instead of having `bot.command` and `interactions.extension_command`, you *just* have `interactions.slash_command` (and so on for context menus, events, etc.), which functions seemlessly in both contexts.
 
 Also, you no longer require a `setup` function. They can still be used, but if you have no need for them other than just loading the extension, you can get rid of them if you want.
 
 ## Cache and interactions.get
 
-interactions.get is a mistake
-todo because im running out of battery—
+Instead of the `await interactions.get` function in v4, v5 introduces the `await bot.fetch_X` and `bot.get_X` functions, where `X` will be the type of object that you would like to retrieve (user, guild, role...). You might ask, what is the difference between fetch and get? 
+
+The answer is simple, `get` will only look for an object that has been cached, and therefore is a synchronous function that can return None if this object has never been cached before.
+
+On the other hand, `fetch` is an asynchronous function that will request the Discord API to find that object if it has not been cached before. This ensures that you will always retrieve the most up to date version of that object, provided that the IDs you inputted are valid.
+
+## Library extensions
+
+In v4, many extensions could be separately added to your bot to add external functionalities (molter, paginator, tasks, etc...). Many of those extensions were merged in the main library for v5, therefore you will NOT need to download additional packages for functionalities such as prefixed commands, pagination, tasks or sharding.
 
 ## asyncio Changes
 
