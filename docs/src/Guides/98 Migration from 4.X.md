@@ -41,7 +41,14 @@ These should be a lot more familiar to you - many interactions in v5 that aren't
 
 [If you're using context menus](../04 Context Menus) (IE `@bot.user_command` or `@bot.message_command`), note that the decorator you use is slightly different from either of the two older ones. You now use `@context_menu`, and specify the type of context menu through `context_type` - otherwise, it's mostly the same.
 
-There also is no "one decorator for every type of command" - there is no equivalent to `bot.command`, and you will need to use the more narrowly-scoped alternatives.
+There also is no "one decorator for every type of command" - there is no equivalent to `bot.command`, and you will need to use the specialized decorators instead. 
+
+For example
+```python
+@slash_command(...)  # for slash commands
+@subcommand(...)  # for slash subcommands
+@context_menu(...)  # for context menus
+@component_callback(...)  # for component callbacks
 
 [For components](../05 Components) and [modals](../06 Modals): you no longer need to use `ActionRow.new(...)` to make an ActionRow now - you can just use `ActionRow(...)` directly. You also send modals via `ctx.send_modal` now. Finally, text inputs in components (the options for string select menus, and the components for modals) are also `*args` now, instead of being a typical parameter:
 ```python
@@ -82,9 +89,9 @@ Also, you no longer require a `setup` function. They can still be used, but if y
 
 Instead of the `await interactions.get` function in v4, v5 introduces the `await bot.fetch_X` and `bot.get_X` functions, where `X` will be the type of object that you would like to retrieve (user, guild, role...). You might ask, what is the difference between fetch and get?
 
-The answer is simple, `get` will only look for an object that has been cached, and therefore is a synchronous function that can return None if this object has never been cached before.
+The answer is simple, `get` will look for an object that has been cached, and therefore is a synchronous function that can return None if this object has never been cached before.
 
-On the other hand, `fetch` is an asynchronous function that will request the Discord API to find that object if it has not been cached before. This ensures that you will always retrieve the most up to date version of that object, provided that the IDs you inputted are valid.
+On the other hand, `fetch` is an asynchronous function that will request the Discord API to find that object if it has not been cached before. This will *fetch* the latest version of the object from Discord, provided that the IDs you inputted are valid.
 
 ## Library extensions
 
