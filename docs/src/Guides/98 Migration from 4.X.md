@@ -80,7 +80,7 @@ Also, you no longer require a `setup` function. They can still be used, but if y
 
 ## Cache and interactions.get
 
-Instead of the `await interactions.get` function in v4, v5 introduces the `await bot.fetch_X` and `bot.get_X` functions, where `X` will be the type of object that you would like to retrieve (user, guild, role...). You might ask, what is the difference between fetch and get? 
+Instead of the `await interactions.get` function in v4, v5 introduces the `await bot.fetch_X` and `bot.get_X` functions, where `X` will be the type of object that you would like to retrieve (user, guild, role...). You might ask, what is the difference between fetch and get?
 
 The answer is simple, `get` will only look for an object that has been cached, and therefore is a synchronous function that can return None if this object has never been cached before.
 
