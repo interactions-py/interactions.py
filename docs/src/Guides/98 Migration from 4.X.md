@@ -43,12 +43,13 @@ These should be a lot more familiar to you - many interactions in v5 that aren't
 
 There also is no "one decorator for every type of command" - there is no equivalent to `bot.command`, and you will need to use the specialized decorators instead.
 
-For example
+For example:
 ```python
 @slash_command(...)  # for slash commands
 @subcommand(...)  # for slash subcommands
 @context_menu(...)  # for context menus
 @component_callback(...)  # for component callbacks
+```
 
 [For components](../05 Components) and [modals](../06 Modals): you no longer need to use `ActionRow.new(...)` to make an ActionRow now - you can just use `ActionRow(...)` directly. You also send modals via `ctx.send_modal` now. Finally, text inputs in components (the options for string select menus, and the components for modals) are also `*args` now, instead of being a typical parameter:
 ```python
