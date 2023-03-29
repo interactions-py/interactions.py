@@ -41,7 +41,7 @@ These should be a lot more familiar to you - many interactions in v5 that aren't
 
 [If you're using context menus](../04 Context Menus) (IE `@bot.user_command` or `@bot.message_command`), note that the decorator you use is slightly different from either of the two older ones. You now use `@context_menu`, and specify the type of context menu through `context_type` - otherwise, it's mostly the same.
 
-There also is no "one decorator for every type of command" - there is no equivalent to `bot.command`, and you will need to use the specialized decorators instead. 
+There also is no "one decorator for every type of command" - there is no equivalent to `bot.command`, and you will need to use the specialized decorators instead.
 
 For example
 ```python
