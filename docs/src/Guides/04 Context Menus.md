@@ -11,11 +11,11 @@ For more information, please visit the API reference [here](/interactions.py/API
 
 These open up if you right-click a message and choose `Apps`.
 
-This example repeats the selected the message:
+This example repeats the selected message:
 
 ```python
-@context_menu(name="repeat", context_type=CommandType.MESSAGE)
-async def repeat(ctx: InteractionContext):
+@message_context_menu(name="repeat")
+async def repeat(ctx: ContextMenuContext):
     message: Message = ctx.target
     await ctx.send(message.content)
 ```
@@ -27,10 +27,10 @@ These open up if you right-click a user and choose `Apps`.
 This example pings the user:
 
 ```python
-@context_menu(name="ping", context_type=CommandType.USER)
-async def ping(ctx: InteractionContext):
+@user_context_menu(name="ping")
+async def ping(ctx: ContextMenuContext):
     member: Member = ctx.target
     await ctx.send(member.mention)
 ```
 ??? note
-    Command names must be lowercase and can only contain `-` and `_` as special symbols and must not contain spaces.
+    Unlike Slash command names, context menu command names **can** be uppercase, contain special symbols and spaces.
