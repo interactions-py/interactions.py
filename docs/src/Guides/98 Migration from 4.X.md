@@ -39,7 +39,7 @@ Similarly to Slash Commands, events have also been reworked in v5. Instead of `@
 
 These should be a lot more familiar to you - many interactions in v5 that aren't slash commands are similar to v4, minus name changes (largely to the decorators and classes you use). They should still *function* similarly though, but it's never a bad idea to consult the various guides that are on the sidebar to gain a better picture of how they work.
 
-[If you're using context menus](../04 Context Menus) (IE `@bot.user_command` or `@bot.message_command`), note that the decorator you use is slightly different from either of the two older ones. You now use `@context_menu`, and specify the type of context menu through `context_type` - otherwise, it's mostly the same.
+[If you're using context menus](../04 Context Menus) (previously `@bot.user_command` or `@bot.message_command`), the decorators have changed to `@user_context_menu` and `@message_context_menu`, or you can also use the more general `@context_menu` decorator and specify the type of context menu through `context_type` - otherwise, it's mostly the same.
 
 There also is no "one decorator for every type of command" - there is no equivalent to `bot.command`, and you will need to use the specialized decorators instead.
 
@@ -49,6 +49,7 @@ For example:
 @subcommand(...)  # for slash subcommands
 @context_menu(...)  # for context menus
 @component_callback(...)  # for component callbacks
+@modal_callback(...)  # for modal callbacks
 ```
 
 [For components](../05 Components) and [modals](../06 Modals): you no longer need to use `ActionRow.new(...)` to make an ActionRow now - you can just use `ActionRow(...)` directly. You also send modals via `ctx.send_modal` now. Finally, text inputs in components (the options for string select menus, and the components for modals) are also `*args` now, instead of being a typical parameter:
