@@ -111,7 +111,7 @@ To start a task that has been created, you need to run the `Task.start()` method
 
     @listen()
     async def on_startup(): # (1)!
-        await print_every_ten.start()
+        print_every_ten.start()
     ```
     { .annotate }
 
@@ -126,9 +126,9 @@ To start a task that has been created, you need to run the `Task.start()` method
         print("It's been 10 minutes!")
 
     bot = Client(intents=Intents.DEFAULT)
-    task = Task(IntervalTrigger(minutes=10))
+    task = Task(print_every_ten, IntervalTrigger(minutes=10))
 
     @listen()
     async def on_startup():
-        await task.start()
+        task.start()
     ```
