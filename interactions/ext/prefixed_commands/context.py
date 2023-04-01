@@ -73,7 +73,7 @@ class PrefixedContext(BaseContext, SendMixin):
         return self.channel.typing
 
     async def _send_http_request(self, message_payload: dict, files: Iterable["UPLOADABLE_TYPE"] | None = None) -> dict:
-        return await self.client.http.create_message(message_payload, self.channel.id, files=files)
+        return await self.client.http.create_message(message_payload, self.channel_id, files=files)
 
     async def reply(
         self,
