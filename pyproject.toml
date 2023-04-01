@@ -36,14 +36,42 @@ python-dotenv = { version = "*", optional = true }
 typeguard = { version = "*", optional = true }
 pre-commit = { version = "*", optional = true }
 
-[tool.poetry.extras]
-voice = ["PyNaCl>=1.5.0,<1.6"]
-speedup = ["aiodns", "orjson", "Brotli", "faust-cchardet", "uvloop"]
-sentry = ["sentry-sdk"]
-jurigged = ["jurigged"]
-console = ["aioconsole>=0.6.0"]
-docs = ["mkdocs-autorefs", "mkdocs-awesome-pages-plugin", "mkdocs-material", "mkdocstrings-python", "mkdocs-minify-plugin", "mkdocs-git-committers-plugin-2", "mkdocs-git-revision-date-localized-plugin"]
-tests = ["pytest", "pytest-recording", "pytest-asyncio", "pytest-cov", "python-dotenv", "typeguard"]
+[tool.poetry.group.voice.dependencies]
+PyNaCl = "^1.5.0,<1.6"
+
+[tool.poetry.group.speedup.dependencies]
+aiodns = "*"
+orjson = "*"
+Brotli = "*"
+faust-cchardet = "*"
+uvloop = { version = "*", platform = "!win32" }
+
+[tool.poetry.group.sentry.dependencies]
+sentry-sdk = "*"
+
+[tool.poetry.group.jurigged.dependencies]
+jurigged = "*"
+
+[tool.poetry.group.console.dependencies]
+aioconsole = "^0.6.0"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs-autorefs = "*"
+mkdocs-awesome-pages-plugin = "*"
+mkdocs-material = "*"
+mkdocstrings-python = "*"
+mkdocs-minify-plugin = "*"
+mkdocs-git-committers-plugin-2 = "*"
+mkdocs-git-revision-date-localized-plugin = "*"
+
+[tool.poetry.group.tests.dependencies]
+pytest = "*"
+pytest-recording = "*"
+pytest-asyncio = "*"
+pytest-cov = "*"
+python-dotenv = "*"
+typeguard = "*"
+
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.3.0"
