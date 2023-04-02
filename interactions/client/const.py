@@ -76,6 +76,8 @@ __all__ = (
     "T",
     "T_co",
     "LIB_PATH",
+    "RECOVERABLE_WEBSOCKET_CLOSE_CODES",
+    "NON_RESUMABLE_WEBSOCKET_CLOSE_CODES",
 )
 
 _ver_info = sys.version_info
@@ -212,3 +214,6 @@ AsyncCallable = Callable[..., Coroutine]
 
 LIB_PATH = os.sep.join(__file__.split(os.sep)[:-2])
 """The path to the library folder."""
+
+RECOVERABLE_WEBSOCKET_CLOSE_CODES = (4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009)
+NON_RESUMABLE_WEBSOCKET_CLOSE_CODES = (1000, 4007)

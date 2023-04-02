@@ -9,6 +9,7 @@ from typing import TypeVar, TYPE_CHECKING
 
 from aiohttp import WSMsgType
 
+from interactions.client import const
 from interactions.client.errors import WebSocketClosed
 from interactions.client.utils.input_utils import FastJson
 from interactions.models.internal.cooldowns import CooldownSystem
@@ -185,15 +186,16 @@ class WebsocketClient:
 
             if resp.type == WSMsgType.CLOSE:
                 self.logger.debug(f"Disconnecting from gateway! Reason: {resp.data}::{resp.extra}")
-                if resp.data >= 4000:
+                code = int(resp.data)
+                if code not in const.RECOVERABLE_WEBSOCKET_CLOSE_CODES:
                     # This should propagate to __aexit__() which will forcefully shut down everything
                     # and cleanup correctly.
-                    raise WebSocketClosed(resp.data)
+                    raise WebSocketClosed(code)
 
                 if force:
                     raise RuntimeError("Discord unexpectedly wants to close the WebSocket during force receive!")
 
-                await self.reconnect(code=resp.data, resume=resp.data != 1000)
+                await self.reconnect(code=code, resume=code not in const.NON_RESUMABLE_WEBSOCKET_CLOSE_CODES)
                 continue
 
             if resp.type is WSMsgType.CLOSED:
