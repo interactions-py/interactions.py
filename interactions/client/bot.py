@@ -176,7 +176,7 @@ class Client:
 
         Returns a list of guilds the bot is in.
         """
-        
+
         if not self._http or isinstance(self._http, str):
             raise LibraryException(
                 code=13, message="You cannot use this method until the bot has started!"
