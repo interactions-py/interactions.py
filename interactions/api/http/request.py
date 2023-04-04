@@ -170,25 +170,7 @@ class _Request:
                     if _bucket is not None:
                         self.buckets[route.endpoint] = _bucket
                         # real-time replacement/update/add if needed.
-                    if isinstance(data, dict) and (
-                        data.get("errors") or (code and code not in {429, 31001} and message)
-                    ):
-                        log.debug(
-                            f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
-                        )
-                        # This "redundant" debug line is for debug use and tracing back the error codes.
 
-                        raise LibraryException(message=message, code=code, severity=40, data=data)
-                    elif isinstance(data, dict) and code == 0 and message:
-                        log.debug(
-                            f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
-                        )
-                        # This "redundant" debug line is for debug use and tracing back the error codes.
-
-                        raise LibraryException(
-                            message=f"'{message}'. Make sure that your token is set properly.",
-                            severity=50,
-                        )
                     if code in {429, 31001}:
                         hours = int(reset_after // 3600)
                         minutes = int((reset_after % 3600) // 60)
@@ -208,11 +190,32 @@ class _Request:
                             _limiter.reset_after = reset_after
                             await asyncio.sleep(_limiter.reset_after)
                             continue
+
                     if remaining is not None and int(remaining) == 0:
                         log.debug(
                             f"The HTTP client has exhausted a per-route ratelimit. Locking route for {reset_after} seconds."
                         )
                         self._loop.call_later(reset_after, _limiter.release_lock)
+
+                    if isinstance(data, dict) and (
+                        data.get("errors") or (not (200 <= code <= 300) and message)
+                    ):
+                        log.debug(
+                            f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
+                        )
+                        # This "redundant" debug line is for debug use and tracing back the error codes.
+
+                        raise LibraryException(message=message, code=code, severity=40, data=data)
+                    elif isinstance(data, dict) and code == 0 and message:
+                        log.debug(
+                            f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}"
+                        )
+                        # This "redundant" debug line is for debug use and tracing back the error codes.
+
+                        raise LibraryException(
+                            message=f"'{message}'. Make sure that your token is set properly.",
+                            severity=50,
+                        )
 
                     log.debug(f"RETURN {response.status}: {dumps(data, indent=4, sort_keys=True)}")
 
