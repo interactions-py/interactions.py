@@ -71,9 +71,9 @@ class WebhookRequests:
             Webhook object
 
         """
-        endpoint = f"/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
+        endpoint = "/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
 
-        return await self.request(Route("GET", endpoint))
+        return await self.request(Route("GET", endpoint, webhook_id=webhook_id, webhook_token=webhook_token))
 
     async def modify_webhook(
         self,
@@ -94,10 +94,10 @@ class WebhookRequests:
             webhook_token: The token for the webhook
 
         """
-        endpoint = f"/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
+        endpoint = "/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
 
         return await self.request(
-            Route("PATCH", endpoint),
+            Route("PATCH", endpoint, webhook_id=webhook_id, webhook_token=webhook_token),
             payload={"name": name, "avatar": avatar, "channel_id": channel_id},
         )
 
@@ -113,9 +113,9 @@ class WebhookRequests:
             Webhook object
 
         """
-        endpoint = f"/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
+        endpoint = "/webhooks/{webhook_id}{f'/{webhook_token}' if webhook_token else ''}"
 
-        return await self.request(Route("DELETE", endpoint))
+        return await self.request(Route("DELETE", endpoint, webhook_id=webhook_id, webhook_token=webhook_token))
 
     async def execute_webhook(
         self,

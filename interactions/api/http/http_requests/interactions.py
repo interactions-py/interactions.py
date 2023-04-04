@@ -291,7 +291,10 @@ class InteractionRequests(CanRequest):
         result = await self.request(
             Route(
                 "PUT",
-                f"/applications/{application_id}/guilds/{scope}/commands/{command_id}/permissions",
+                "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
+                application_id=application_id,
+                guild_id=scope,
+                command_id=command_id,
             ),
             payload=permissions,
         )
@@ -318,7 +321,10 @@ class InteractionRequests(CanRequest):
         result = await self.request(
             Route(
                 "GET",
-                f"/applications/{application_id}/guilds/{scope}/commands/{command_id}/permissions",
+                "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
+                application_id=application_id,
+                guild_id=scope,
+                command_id=command_id,
             )
         )
         return cast(list[discord_typings.ApplicationCommandPermissionsData], result)
@@ -340,7 +346,9 @@ class InteractionRequests(CanRequest):
         result = await self.request(
             Route(
                 "GET",
-                f"/applications/{application_id}/guilds/{scope}/commands/permissions",
+                "/applications/{application_id}/guilds/{guild_id}/commands/permissions",
+                application_id=application_id,
+                guild_id=scope,
             )
         )
         return cast(list[discord_typings.GuildApplicationCommandPermissionData], result)
