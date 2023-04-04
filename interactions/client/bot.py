@@ -1795,7 +1795,7 @@ class Client:
         """
 
         def _check(_ctx: ComponentContext) -> bool:
-            if _ctx.data.component_type.value not in {4, 5, 6, 7, 8}:
+            if _ctx.data.component_type.value not in {3, 5, 6, 7, 8}:
                 return False
             return check(_ctx) if check else True
 
@@ -1803,7 +1803,7 @@ class Client:
             components, messages, check=_check, timeout=timeout
         )
 
-        if ctx.data.component_type == 4:
+        if ctx.data.component_type == 3:
             return ctx, ctx.data.values
 
         _list = []  # temp storage for items
