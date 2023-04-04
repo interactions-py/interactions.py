@@ -114,7 +114,14 @@ class ReactionRequests:
             message_id: The message to clear reactions from.
 
         """
-        return await self.request(Route("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions"))
+        return await self.request(
+            Route(
+                "DELETE",
+                "/channels/{channel_id}/messages/{message_id}/reactions",
+                channel_id=channel_id,
+                message_id=message_id,
+            )
+        )
 
     async def get_reactions(
         self,

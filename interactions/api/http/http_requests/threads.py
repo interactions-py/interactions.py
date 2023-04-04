@@ -27,7 +27,7 @@ class ThreadRequests:
             thread_id: The thread to join.
 
         """
-        return await self.request(Route("PUT", f"/channels/{thread_id}/thread-members/@me"))
+        return await self.request(Route("PUT", "/channels/{thread_id}/thread-members/@me", thread_id=thread_id))
 
     async def leave_thread(self, thread_id: "Snowflake_Type") -> None:
         """
@@ -37,7 +37,7 @@ class ThreadRequests:
             thread_id: The thread to leave.
 
         """
-        return await self.request(Route("DELETE", f"/channels/{thread_id}/thread-members/@me"))
+        return await self.request(Route("DELETE", "/channels/{thread_id}/thread-members/@me", thread_id=thread_id))
 
     async def add_thread_member(self, thread_id: "Snowflake_Type", user_id: "Snowflake_Type") -> None:
         """
@@ -48,7 +48,9 @@ class ThreadRequests:
             user_id: The ID of the user to add
 
         """
-        return await self.request(Route("PUT", f"/channels/{thread_id}/thread-members/{user_id}"))
+        return await self.request(
+            Route("PUT", "/channels/{thread_id}/thread-members/{user_id}", thread_id=thread_id, user_id=user_id)
+        )
 
     async def remove_thread_member(self, thread_id: "Snowflake_Type", user_id: "Snowflake_Type") -> None:
         """
@@ -59,7 +61,9 @@ class ThreadRequests:
             user_id: The ID of the user to remove
 
         """
-        return await self.request(Route("DELETE", f"/channels/{thread_id}/thread-members/{user_id}"))
+        return await self.request(
+            Route("DELETE", "/channels/{thread_id}/thread-members/{user_id}", thread_id=thread_id, user_id=user_id)
+        )
 
     async def list_thread_members(self, thread_id: "Snowflake_Type") -> List[discord_typings.ThreadMemberData]:
         """
@@ -72,7 +76,7 @@ class ThreadRequests:
             a list of member objects
 
         """
-        return await self.request(Route("GET", f"/channels/{thread_id}/thread-members"))
+        return await self.request(Route("GET", "/channels/{thread_id}/thread-members", thread_id=thread_id))
 
     async def list_public_archived_threads(
         self,
@@ -97,7 +101,9 @@ class ThreadRequests:
             payload["limit"] = limit
         if before:
             payload["before"] = Timestamp.from_snowflake(before).isoformat()
-        return await self.request(Route("GET", f"/channels/{channel_id}/threads/archived/public"), params=payload)
+        return await self.request(
+            Route("GET", "/channels/{channel_id}/threads/archived/public", channel_id=channel_id), params=payload
+        )
 
     async def list_private_archived_threads(
         self,
@@ -122,7 +128,9 @@ class ThreadRequests:
             payload["limit"] = limit
         if before:
             payload["before"] = Timestamp.from_snowflake(before).isoformat()
-        return await self.request(Route("GET", f"/channels/{channel_id}/threads/archived/private"), params=payload)
+        return await self.request(
+            Route("GET", "/channels/{channel_id}/threads/archived/private", channel_id=channel_id), params=payload
+        )
 
     async def list_joined_private_archived_threads(
         self,
@@ -148,7 +156,7 @@ class ThreadRequests:
         if before:
             payload["before"] = before
         return await self.request(
-            Route("GET", f"/channels/{channel_id}/users/@me/threads/archived/private"),
+            Route("GET", "/channels/{channel_id}/users/@me/threads/archived/private", channel_id=channel_id),
             params=payload,
         )
 
@@ -163,7 +171,7 @@ class ThreadRequests:
             A list of active threads
 
         """
-        return await self.request(Route("GET", f"/guilds/{guild_id}/threads/active"))
+        return await self.request(Route("GET", "/guilds/{guild_id}/threads/active", guild_id=guild_id))
 
     async def create_thread(
         self,
@@ -194,13 +202,20 @@ class ThreadRequests:
         payload = {"name": name, "auto_archive_duration": auto_archive_duration}
         if message_id:
             return await self.request(
-                Route("POST", f"/channels/{channel_id}/messages/{message_id}/threads"),
+                Route(
+                    "POST",
+                    "/channels/{channel_id}/messages/{message_id}/threads",
+                    channel_id=channel_id,
+                    message_id=message_id,
+                ),
                 payload=payload,
                 reason=reason,
             )
         payload["type"] = thread_type or ChannelType.GUILD_PUBLIC_THREAD
         payload["invitable"] = invitable
-        return await self.request(Route("POST", f"/channels/{channel_id}/threads"), payload=payload, reason=reason)
+        return await self.request(
+            Route("POST", "/channels/{channel_id}/threads", channel_id=channel_id), payload=payload, reason=reason
+        )
 
     async def create_forum_thread(
         self,
@@ -230,7 +245,7 @@ class ThreadRequests:
             The created thread object
         """
         return await self.request(
-            Route("POST", f"/channels/{channel_id}/threads"),
+            Route("POST", "/channels/{channel_id}/threads", channel_id=channel_id),
             payload={
                 "name": name,
                 "auto_archive_duration": auto_archive_duration,

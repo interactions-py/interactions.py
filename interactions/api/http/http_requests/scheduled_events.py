@@ -29,7 +29,12 @@ class ScheduledEventsRequests:
 
         """
         return await self.request(
-            Route("GET", f"/guilds/{guild_id}/scheduled-events?with_user_count={with_user_count}")
+            Route(
+                "GET",
+                "/guilds/{guild_id}/scheduled-events?with_user_count={with_user_count}",
+                guild_id=guild_id,
+                with_user_count=with_user_count,
+            )
         )
 
     async def get_scheduled_event(
@@ -51,7 +56,12 @@ class ScheduledEventsRequests:
 
         """
         return await self.request(
-            Route("GET", f"/guilds/{guild_id}/scheduled-events/{scheduled_event_id}"),
+            Route(
+                "GET",
+                "/guilds/{guild_id}/scheduled-events/{scheduled_event_id}",
+                guild_id=guild_id,
+                scheduled_event_id=scheduled_event_id,
+            ),
             params={"with_user_count": with_user_count},
         )
 
@@ -73,7 +83,9 @@ class ScheduledEventsRequests:
             Scheduled Event or None
 
         """
-        return await self.request(Route("POST", f"/guilds/{guild_id}/scheduled-events"), payload=payload, reason=reason)
+        return await self.request(
+            Route("POST", "/guilds/{guild_id}/scheduled-events", guild_id=guild_id), payload=payload, reason=reason
+        )
 
     async def modify_scheduled_event(
         self,
@@ -96,7 +108,12 @@ class ScheduledEventsRequests:
 
         """
         return await self.request(
-            Route("PATCH", f"/guilds/{guild_id}/scheduled-events/{scheduled_event_id}"),
+            Route(
+                "PATCH",
+                "/guilds/{guild_id}/scheduled-events/{scheduled_event_id}",
+                guild_id=guild_id,
+                scheduled_event_id=scheduled_event_id,
+            ),
             payload=payload,
             reason=reason,
         )
@@ -117,7 +134,12 @@ class ScheduledEventsRequests:
 
         """
         return await self.request(
-            Route("DELETE", f"/guilds/{guild_id}/scheduled-events/{scheduled_event_id}"),
+            Route(
+                "DELETE",
+                "/guilds/{guild_id}/scheduled-events/{scheduled_event_id}",
+                guild_id=guild_id,
+                scheduled_event_id=scheduled_event_id,
+            ),
             reason=reason,
         )
 
@@ -147,6 +169,11 @@ class ScheduledEventsRequests:
         """
         params = {"limit": limit, "with_member": with_member, "before": before, "after": after}
         return await self.request(
-            Route("GET", f"/guilds/{guild_id}/scheduled-events/{scheduled_event_id}/users"),
+            Route(
+                "GET",
+                "/guilds/{guild_id}/scheduled-events/{scheduled_event_id}/users",
+                guild_id=guild_id,
+                scheduled_event_id=scheduled_event_id,
+            ),
             params=params,
         )

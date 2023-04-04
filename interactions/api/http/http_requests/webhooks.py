@@ -29,7 +29,7 @@ class WebhookRequests:
 
         """
         return await self.request(
-            Route("POST", f"/channels/{channel_id}/webhooks"),
+            Route("POST", "/channels/{channel_id}/webhooks", channel_id=channel_id),
             payload={"name": name, "avatar": avatar},
         )
 
@@ -44,7 +44,7 @@ class WebhookRequests:
             List of webhook objects
 
         """
-        return await self.request(Route("GET", f"/channels/{channel_id}/webhooks"))
+        return await self.request(Route("GET", "/channels/{channel_id}/webhooks", channel_id=channel_id))
 
     async def get_guild_webhooks(self, guild_id: "Snowflake_Type") -> List[discord_typings.WebhookData]:
         """
@@ -57,7 +57,7 @@ class WebhookRequests:
             List of webhook objects
 
         """
-        return await self.request(Route("GET", f"/guilds/{guild_id}/webhooks"))
+        return await self.request(Route("GET", "/guilds/{guild_id}/webhooks", guild_id=guild_id))
 
     async def get_webhook(self, webhook_id: "Snowflake_Type", webhook_token: str = None) -> discord_typings.WebhookData:
         """
@@ -142,7 +142,7 @@ class WebhookRequests:
 
         """
         return await self.request(
-            Route("POST", f"/webhooks/{webhook_id}/{webhook_token}"),
+            Route("POST", "/webhooks/{webhook_id}/{webhook_token}", webhook_id=webhook_id, webhook_token=webhook_token),
             params=dict_filter_none({"wait": "true" if wait else "false", "thread_id": thread_id}),
             payload=payload,
             files=files,
@@ -163,7 +163,15 @@ class WebhookRequests:
             A message object on success
 
         """
-        return await self.request(Route("GET", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}"))
+        return await self.request(
+            Route(
+                "GET",
+                "/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}",
+                webhook_id=webhook_id,
+                webhook_token=webhook_token,
+                message_id=message_id,
+            )
+        )
 
     async def edit_webhook_message(
         self,
@@ -188,7 +196,13 @@ class WebhookRequests:
 
         """
         return await self.request(
-            Route("PATCH", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}"),
+            Route(
+                "PATCH",
+                "/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}",
+                webhook_id=webhook_id,
+                webhook_token=webhook_token,
+                message_id=message_id,
+            ),
             payload=payload,
             files=files,
         )
@@ -205,4 +219,12 @@ class WebhookRequests:
             message_id: The ID of a message sent by this webhook
 
         """
-        return await self.request(Route("DELETE", f"/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}"))
+        return await self.request(
+            Route(
+                "DELETE",
+                "/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}",
+                webhook_id=webhook_id,
+                webhook_token=webhook_token,
+                message_id=message_id,
+            )
+        )
