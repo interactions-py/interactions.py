@@ -69,7 +69,7 @@ class PrefixedContext(BaseContext, SendMixin):
 
     @property
     def typing(self) -> Typing:
-        """A context manager to send a typing state to the context's channel as long as long as the wrapped operation takes."""
+        """A context manager to send a typing state to the context's channel as long as the wrapped operation takes."""
         return self.channel.typing
 
     async def _send_http_request(self, message_payload: dict, files: Iterable["UPLOADABLE_TYPE"] | None = None) -> dict:
