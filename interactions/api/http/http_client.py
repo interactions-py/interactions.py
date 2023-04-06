@@ -164,12 +164,13 @@ class BucketLock:
             return
         self._semaphore.release()
 
-    async def lock_for_duration(self, duration: float) -> None:
+    async def lock_for_duration(self, duration: float, block: bool = False) -> None:
         """
         Locks the bucket for a given duration.
 
         Args:
             duration: The duration to lock the bucket for.
+            block: Whether to block until the bucket is unlocked.
 
         Raises:
             RuntimeError: If the bucket is already locked.
@@ -177,8 +178,16 @@ class BucketLock:
         if self._lock.locked():
             raise RuntimeError("Attempted to lock a bucket that is already locked.")
 
-        async with self._lock:
+        async def _release() -> None:
             await asyncio.sleep(duration)
+            self._lock.release()
+
+        if block:
+            await self._lock.acquire()
+            await _release()
+        else:
+            await self._lock.acquire()
+            asyncio.create_task(_release())
 
     async def __aenter__(self) -> None:
         await self.acquire()
@@ -398,7 +407,7 @@ class HTTPClient(
                                     f"Reset in {result.get('retry_after')} seconds",
                                 )
                                 # lock this resource and wait for unlock
-                                await lock.lock_for_duration(float(result["retry_after"]))
+                                await lock.lock_for_duration(float(result["retry_after"]), block=True)
                             else:
                                 # endpoint ratelimit is reached
                                 # 429's are unfortunately unavoidable, but we can attempt to avoid them
@@ -407,7 +416,7 @@ class HTTPClient(
                                     self.logger.warning,
                                     f"{route.endpoint} Has exceeded it's ratelimit ({lock.limit})! Reset in {lock.delta} seconds",
                                 )
-                                await lock.lock_for_duration(lock.delta)
+                                await lock.lock_for_duration(lock.delta, block=True)
                             continue
                         if lock.remaining == 0:
                             # Last call available in the bucket, lock until reset
