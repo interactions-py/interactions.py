@@ -1,90 +1,73 @@
-name: Report Bug
-description: Create an Issue to report a bug with/about the library.
-title: "[BUG] "
-labels: ["bug"]
-assignees:
-  - DeltaXWizard
-  - EdVraz
-  - Astrea49
-  - Toricane
-  - Catalyst4222
-  - Damego
+name: Bug Report
+description: Report broken or incorrect behavior.
+labels: ["Bug::Library"]
+title: "[BUG] Your Title Here"
+
 body:
   - type: markdown
     attributes:
-      value: |
+      value: >
         Thank you for taking the time to fill out this bug report!
         We rely on users to tell us things that we might not find on our own,
         and your help is greatly valued by the team and others contributing.
-  - type: textarea
-    id: process
-    attributes:
-      label: Describe the bug.
-      description: Please give us an in-depth description of the bug you are having.
-      placeholder: When trying to use feature X, I was unable to make task Y work.
-    validations:
-      required: true
-  - type: textarea
-    id: steps
-    attributes:
-      label: List the steps.
-      description: Please give us a step-by-step process of how you were able to produce this.
-      placeholder: |
-        1. Import the module in Python.
-        2. Create a client variable for the library.
-        3. Try creating a slash command.
-        4. See the traceback error given in the terminal or logger file.
-    validations:
-      required: true
-  - type: textarea
-    id: expectation
-    attributes:
-      label: What you expected.
-      description: Please tell us what you expect for this to do when it ran.
-      placeholder: When I create a slash command, the command should be created and functional.
-    validations:
-      required: true
-  - type: textarea
-    id: result
-    attributes:
-      label: What you saw.
-      description: Please tell us what you found when you actually ran this.
-      placeholder: Instead, I received this traceback error given from my Python terminal.
-      value: |
-        Instead, I received this traceback error given from my Python terminal:
-        ```
-        Traceback (most recent call last):
-          File "A:\Amogus\Python\interactions-bot\main.py", line 6
-            raise SussyBaka("your code doesn't work, silly!")
-                  ^
+        If you want real-time support, consider joining our [Discord](https://discord.gg/interactions) instead.
 
-        SussyBaka: your code doesn't work, silly!
-        ```
-    validations:
-      required: true
-  - type: dropdown
-    id: version
-    attributes:
-      label: What version of the library did you use?
-      multiple: false
-      options:
-        - release
-        - stable
-        - unstable
-    validations:
-      required: true
   - type: input
-    id: version-specific
     attributes:
-      label: Version specification
-      description: "If you're using a pre-release or release candidate, please specify which one."
+      label: Library Version
+      description: Which version of the library you are currently running.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Describe the Bug
+      description: A simple summary of your bug report
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: Please give us a step-by-step process of how you were able to produce this.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected Results
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Minimal Reproducible Code
+      description: A short snippet of code that showcases the bug.
+      render: python
+
+  - type: textarea
+    attributes:
+      label: Traceback
+      description: Was there a traceback? If so, please provide it.
     validations:
       required: false
+
   - type: checkboxes
-    id: accept
     attributes:
-      label: Code of Conduct
-      description: By submitting this Issue, you agree to follow our [contribution requirements.](https://github.com/interactions-py/library/blob/unstable/CONTRIBUTING.rst)
+      label: Checklist
+      description: Let's make sure you've properly done due diligence when reporting this issue!
       options:
-        - label: I agree to follow the contribution requirements.
+        - label: I have searched the open issues for duplicates.
           required: true
+        - label: I have shown the entire traceback, if possible.
+          required: true
+        - label: I have removed my token from display, if visible.
+          required: true
+        - label: I have attempted to debug this myself, and I believe this issue is with the library
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Additional Information
+      description: Any other information about the problem.
