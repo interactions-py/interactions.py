@@ -98,15 +98,22 @@ class BucketLock:
     """Manages the rate limit for each bucket."""
 
     DEFAULT_LIMIT = 1
-    DEFAULT_REMAINING = -1
+    DEFAULT_REMAINING = 1
     DEFAULT_DELTA = 0.0
 
-    def __init__(self) -> None:
+    def __init__(self, header: CIMultiDictProxy | None = None) -> None:
         self._semaphore: asyncio.Semaphore | None = None
-        self.bucket_hash: str | None = None
-        self.limit: int = self.DEFAULT_LIMIT
-        self.remaining: int = self.DEFAULT_REMAINING
-        self.delta: float = self.DEFAULT_DELTA
+        if header is None:
+            self.bucket_hash: str | None = None
+            self.limit: int = self.DEFAULT_LIMIT
+            self.remaining: int = self.DEFAULT_REMAINING
+            self.delta: float = self.DEFAULT_DELTA
+        else:
+            self.ingest_ratelimit_header(header)
+
+        self.logger = constants.get_logger()
+
+        self._lock: asyncio.Lock = asyncio.Lock()
 
     def __repr__(self) -> str:
         return f"<BucketLock: {self.bucket_hash or 'Generic'}, limit: {self.limit}, remaining: {self.remaining}, delta: {self.delta}>"
@@ -114,14 +121,18 @@ class BucketLock:
     @property
     def locked(self) -> bool:
         """Returns whether the bucket is locked."""
+        if self._lock.locked():
+            return True
         return self._semaphore is not None and self._semaphore.locked()
 
     def ingest_ratelimit_header(self, header: CIMultiDictProxy) -> None:
         """
-        Ingests the ratelimit header.
+        Ingests the rate limit header.
 
         Args:
-            header: The header to ingest.
+            header: The header to ingest, containing rate limit information.
+
+        Updates the bucket_hash, limit, remaining, and delta attributes with the information from the header.
         """
         self.bucket_hash = header.get("x-ratelimit-bucket")
         self.limit = int(header.get("x-ratelimit-limit", self.DEFAULT_LIMIT))
@@ -136,10 +147,19 @@ class BucketLock:
         if self._semaphore is None:
             return
 
+        if self._lock.locked():
+            self.logger.debug(f"Waiting for bucket {self.bucket_hash} to unlock.")
+            async with self._lock:
+                pass
+
         await self._semaphore.acquire()
 
     def release(self) -> None:
-        """Releases the semaphore."""
+        """
+        Releases the semaphore.
+
+        Note: If the bucket has been locked with lock_for_duration, this will not release the lock.
+        """
         if self._semaphore is None:
             return
         self._semaphore.release()
@@ -150,17 +170,15 @@ class BucketLock:
 
         Args:
             duration: The duration to lock the bucket for.
+
+        Raises:
+            RuntimeError: If the bucket is already locked.
         """
-        for _ in range(self.limit):
-            await self._semaphore.acquire()
+        if self._lock.locked():
+            raise RuntimeError("Attempted to lock a bucket that is already locked.")
 
-        async def release_all() -> None:
+        async with self._lock:
             await asyncio.sleep(duration)
-
-            for _ in range(self.limit):
-                self._semaphore.release()
-
-        await asyncio.create_task(release_all())
 
     async def __aenter__(self) -> None:
         await self.acquire()
