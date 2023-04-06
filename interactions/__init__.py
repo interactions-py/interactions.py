@@ -38,6 +38,7 @@ from .client import (
     T_co,
     utils,
 )
+from .client import const
 from .models import (
     ActionRow,
     ActiveVoiceState,
@@ -328,10 +329,8 @@ from .models import (
     WebhookMixin,
     WebhookTypes,
     WebSocketOPCode,
+    SlidingWindowCooldownSystem,
 )
-from .api import events
-from . import ext
-from .client import const
 
 __all__ = (
     "__api_version__",
@@ -413,6 +412,7 @@ __all__ = (
     "cooldown",
     "Cooldown",
     "CooldownSystem",
+    "SlidingWindowCooldownSystem",
     "CustomEmoji",
     "CustomEmojiConverter",
     "DateTrigger",

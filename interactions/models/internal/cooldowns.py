@@ -1,12 +1,12 @@
 import asyncio
 import time
 from enum import IntEnum
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, Type
 
 if TYPE_CHECKING:
     from interactions.models.internal.context import BaseContext
 
-__all__ = ("Buckets", "Cooldown", "CooldownSystem", "MaxConcurrency")
+__all__ = ("Buckets", "Cooldown", "CooldownSystem", "SlidingWindowCooldownSystem", "MaxConcurrency")
 
 
 class Buckets(IntEnum):
@@ -50,92 +50,6 @@ class Buckets(IntEnum):
 
     def __call__(self, context: "BaseContext") -> Any:
         return self.get_key(context)
-
-
-class Cooldown:
-    """Manages cooldowns and their respective buckets for a command."""
-
-    __slots__ = "bucket", "cooldown_repositories", "rate", "interval"
-
-    def __init__(self, cooldown_bucket: Buckets, rate: int, interval: float) -> None:
-        self.bucket: Buckets = cooldown_bucket
-        self.cooldown_repositories = {}
-        self.rate: int = rate
-        self.interval: float = interval
-
-    async def get_cooldown(self, context: "BaseContext") -> "CooldownSystem":
-        key = await self.bucket(context)
-
-        if key not in self.cooldown_repositories:
-            cooldown = CooldownSystem(self.rate, self.interval)
-            self.cooldown_repositories[key] = cooldown
-            return cooldown
-        return self.cooldown_repositories.get(await self.bucket(context))
-
-    async def acquire_token(self, context: "BaseContext") -> bool:
-        """
-        Attempt to acquire a token for a command to run. Uses the context of the command to use the correct CooldownSystem.
-
-        Args:
-            context: The context of the command
-
-        Returns:
-            True if a token was acquired, False if not
-
-        """
-        cooldown = await self.get_cooldown(context)
-
-        return cooldown.acquire_token()
-
-    async def get_cooldown_time(self, context: "BaseContext") -> float:
-        """
-        Get the remaining cooldown time.
-
-        Args:
-            context: The context of the command
-
-        Returns:
-            remaining cooldown time, will return 0 if the cooldown has not been reached
-
-        """
-        cooldown = await self.get_cooldown(context)
-        return cooldown.get_cooldown_time()
-
-    async def on_cooldown(self, context: "BaseContext") -> bool:
-        """
-        Returns the cooldown state of the command.
-
-        Args:
-            context: The context of the command
-
-        Returns:
-            boolean state if the command is on cooldown or not
-
-        """
-        cooldown = await self.get_cooldown(context)
-        return cooldown.on_cooldown()
-
-    async def reset_all(self) -> None:
-        """
-        Resets this cooldown system to its initial state.
-
-        !!! warning     To be clear, this will reset **all** cooldowns
-        for this command to their initial states
-
-        """
-        # this doesnt need to be async, but for consistency, it is
-        self.cooldown_repositories = {}
-
-    async def reset(self, context: "BaseContext") -> None:
-        """
-        Resets the cooldown for the bucket of which invoked this command.
-
-        Args:
-            context: The context of the command
-
-        """
-        cooldown = await self.get_cooldown(context)
-        cooldown.reset()
 
 
 class CooldownSystem:
@@ -216,6 +130,192 @@ class CooldownSystem:
         if c_time > self.opened + self.interval:
             # cooldown has expired, reset the cooldown
             self.reset()
+
+
+class SlidingWindowCooldownSystem(CooldownSystem):
+    """
+    Represents a sliding window cooldown system for commands.
+
+    Attributes:
+        rate: How many commands may be ran per interval
+        interval: How many seconds to wait for a cooldown
+        timestamps: A list of timestamps of the most recent commands
+
+    """
+
+    __slots__ = "rate", "interval", "timestamps"
+
+    def __init__(self, rate: int, interval: float) -> None:
+        self.rate: int = rate
+        self.interval: float = interval
+        self.timestamps: list[float] = []
+
+        # sanity checks
+        if self.rate == 0:
+            raise ValueError("Cooldown rate must be greater than 0")
+        if self.interval == 0:
+            raise ValueError("Cooldown interval must be greater than 0")
+
+    def on_cooldown(self) -> bool:
+        """
+        Returns the cooldown state of the command.
+
+        Returns:
+            boolean state if the command is on cooldown or not
+        """
+        self._trim()
+
+        return len(self.timestamps) >= self.rate
+
+    def acquire_token(self) -> bool:
+        """
+        Attempt to acquire a token for a command to run.
+
+        Returns:
+            True if a token was acquired, False if not
+
+        """
+        self._trim()
+
+        if len(self.timestamps) >= self.rate:
+            return False
+
+        self.timestamps.append(time.time())
+
+        return True
+
+    def get_cooldown_time(self) -> float:
+        """
+        Returns how long until the cooldown will reset.
+
+        Returns:
+            remaining cooldown time, will return 0 if the cooldown has not been reached
+
+        """
+        self._trim()
+
+        if len(self.timestamps) < self.rate:
+            return 0
+
+        return self.timestamps[0] + self.interval - time.time()
+
+    def reset(self) -> None:
+        """Resets the timestamps for this cooldown."""
+        self.timestamps = []
+
+    def _trim(self) -> None:
+        """Removes all timestamps that are outside the current interval."""
+        cutoff = time.time() - self.interval
+
+        while self.timestamps and self.timestamps[0] < cutoff:
+            self.timestamps.pop(0)
+
+
+class Cooldown:
+    """
+    Manages cooldowns and their respective buckets for a command.
+
+    There are two pre-defined cooldown systems, a sliding window and a standard cooldown system (default);
+    you can specify which one to use by passing in the cooldown_system parameter.
+
+    Attributes:
+        bucket: The bucket to use for this cooldown
+        cooldown_repositories: A dictionary of cooldowns for each bucket
+        rate: How many commands may be ran per interval
+        interval: How many seconds to wait for a cooldown
+        cooldown_system: The cooldown system to use for this cooldown
+    """
+
+    __slots__ = "bucket", "cooldown_repositories", "rate", "interval", "cooldown_system"
+
+    def __init__(
+        self,
+        cooldown_bucket: Buckets,
+        rate: int,
+        interval: float,
+        *,
+        cooldown_system: Type[CooldownSystem] = CooldownSystem,
+    ) -> None:
+        self.bucket: Buckets = cooldown_bucket
+        self.cooldown_repositories = {}
+        self.rate: int = rate
+        self.interval: float = interval
+
+        self.cooldown_system: Type[CooldownSystem] = cooldown_system
+
+    async def get_cooldown(self, context: "BaseContext") -> "CooldownSystem":
+        key = await self.bucket(context)
+
+        if key not in self.cooldown_repositories:
+            cooldown = self.cooldown_system(self.rate, self.interval)
+            self.cooldown_repositories[key] = cooldown
+            return cooldown
+        return self.cooldown_repositories.get(await self.bucket(context))
+
+    async def acquire_token(self, context: "BaseContext") -> bool:
+        """
+        Attempt to acquire a token for a command to run. Uses the context of the command to use the correct CooldownSystem.
+
+        Args:
+            context: The context of the command
+
+        Returns:
+            True if a token was acquired, False if not
+
+        """
+        cooldown = await self.get_cooldown(context)
+
+        return cooldown.acquire_token()
+
+    async def get_cooldown_time(self, context: "BaseContext") -> float:
+        """
+        Get the remaining cooldown time.
+
+        Args:
+            context: The context of the command
+
+        Returns:
+            remaining cooldown time, will return 0 if the cooldown has not been reached
+
+        """
+        cooldown = await self.get_cooldown(context)
+        return cooldown.get_cooldown_time()
+
+    async def on_cooldown(self, context: "BaseContext") -> bool:
+        """
+        Returns the cooldown state of the command.
+
+        Args:
+            context: The context of the command
+
+        Returns:
+            boolean state if the command is on cooldown or not
+
+        """
+        cooldown = await self.get_cooldown(context)
+        return cooldown.on_cooldown()
+
+    async def reset_all(self) -> None:
+        """
+        Resets this cooldown system to its initial state.
+
+        !!! warning     To be clear, this will reset **all** cooldowns
+        for this command to their initial states
+
+        """
+        # this doesnt need to be async, but for consistency, it is
+        self.cooldown_repositories = {}
+
+    async def reset(self, context: "BaseContext") -> None:
+        """
+        Resets the cooldown for the bucket of which invoked this command.
+
+        Args:
+            context: The context of the command
+
+        """
+        cooldown = await self.get_cooldown(context)
+        cooldown.reset()
 
 
 class MaxConcurrency:
