@@ -111,6 +111,11 @@ class BucketLock:
     def __repr__(self) -> str:
         return f"<BucketLock: {self.bucket_hash or 'Generic'}, limit: {self.limit}, remaining: {self.remaining}, delta: {self.delta}>"
 
+    @property
+    def locked(self) -> bool:
+        """Returns whether the bucket is locked."""
+        return self._semaphore is not None and self._semaphore.locked()
+
     def ingest_ratelimit_header(self, header: CIMultiDictProxy) -> None:
         """
         Ingests the ratelimit header.
