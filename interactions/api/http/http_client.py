@@ -95,61 +95,73 @@ class GlobalLock:
 
 
 class BucketLock:
-    """Manages the ratelimit for each bucket"""
+    """Manages the rate limit for each bucket."""
+
+    DEFAULT_LIMIT = 1
+    DEFAULT_REMAINING = -1
+    DEFAULT_DELTA = 0.0
 
     def __init__(self) -> None:
-        self._lock: asyncio.Lock = asyncio.Lock()
-
-        self.unlock_on_exit: bool = True
-
+        self._semaphore: asyncio.Semaphore | None = None
         self.bucket_hash: str | None = None
-        self.limit: int = -1
-        self.remaining: int = -1
-        self.delta: float = 0.0
+        self.limit: int = self.DEFAULT_LIMIT
+        self.remaining: int = self.DEFAULT_REMAINING
+        self.delta: float = self.DEFAULT_DELTA
 
     def __repr__(self) -> str:
-        return f"<BucketLock: {self.bucket_hash or 'Generic'}>"
-
-    @property
-    def locked(self) -> bool:
-        """Return True if lock is acquired."""
-        return self._lock.locked()
-
-    def unlock(self) -> None:
-        """Unlock this bucket."""
-        self._lock.release()
+        return f"<BucketLock: {self.bucket_hash or 'Generic'}, limit: {self.limit}, remaining: {self.remaining}, delta: {self.delta}>"
 
     def ingest_ratelimit_header(self, header: CIMultiDictProxy) -> None:
         """
-        Ingests a discord rate limit header to configure this bucket lock.
+        Ingests the ratelimit header.
 
         Args:
-            header: A header from a http response
+            header: The header to ingest.
         """
         self.bucket_hash = header.get("x-ratelimit-bucket")
-        self.limit = int(header.get("x-ratelimit-limit") or -1)
-        self.remaining = int(header.get("x-ratelimit-remaining") or -1)
-        self.delta = float(header.get("x-ratelimit-reset-after", 0.0))
+        self.limit = int(header.get("x-ratelimit-limit", self.DEFAULT_LIMIT))
+        self.remaining = int(header.get("x-ratelimit-remaining", self.DEFAULT_REMAINING))
+        self.delta = float(header.get("x-ratelimit-reset-after", self.DEFAULT_DELTA))
 
-    async def blind_defer_unlock(self) -> None:
-        """Unlocks the BucketLock but doesn't wait for completion."""
-        self.unlock_on_exit = False
-        loop = asyncio.get_running_loop()
-        loop.call_later(self.delta, self.unlock)
+        if self._semaphore is None or self._semaphore._value != self.limit:
+            self._semaphore = asyncio.Semaphore(self.limit)
 
-    async def defer_unlock(self, reset_after: float | None = None) -> None:
-        """Unlocks the BucketLock after a specified delay."""
-        self.unlock_on_exit = False
-        await asyncio.sleep(reset_after or self.delta)
-        self.unlock()
+    async def acquire(self) -> None:
+        """Acquires the semaphore."""
+        if self._semaphore is None:
+            return
+
+        await self._semaphore.acquire()
+
+    def release(self) -> None:
+        """Releases the semaphore."""
+        if self._semaphore is None:
+            return
+        self._semaphore.release()
+
+    async def lock_for_duration(self, duration: float) -> None:
+        """
+        Locks the bucket for a given duration.
+
+        Args:
+            duration: The duration to lock the bucket for.
+        """
+        for _ in range(self.limit):
+            await self._semaphore.acquire()
+
+        async def release_all() -> None:
+            await asyncio.sleep(duration)
+
+            for _ in range(self.limit):
+                self._semaphore.release()
+
+        await asyncio.create_task(release_all())
 
     async def __aenter__(self) -> None:
-        await self._lock.acquire()
+        await self.acquire()
 
     async def __aexit__(self, *args) -> None:
-        if self.unlock_on_exit and self._lock.locked():
-            self.unlock()
-        self.unlock_on_exit = True
+        self.release()
 
 
 class HTTPClient(
@@ -363,7 +375,7 @@ class HTTPClient(
                                     f"Reset in {result.get('retry_after')} seconds",
                                 )
                                 # lock this resource and wait for unlock
-                                await lock.defer_unlock(float(result["retry_after"]))
+                                await lock.lock_for_duration(float(result["retry_after"]))
                             else:
                                 # endpoint ratelimit is reached
                                 # 429's are unfortunately unavoidable, but we can attempt to avoid them
@@ -372,7 +384,7 @@ class HTTPClient(
                                     self.logger.warning,
                                     f"{route.endpoint} Has exceeded it's ratelimit ({lock.limit})! Reset in {lock.delta} seconds",
                                 )
-                                await lock.defer_unlock()  # lock this route and wait for unlock
+                                await lock.lock_for_duration(lock.delta)
                             continue
                         if lock.remaining == 0:
                             # Last call available in the bucket, lock until reset
@@ -380,7 +392,9 @@ class HTTPClient(
                                 self.logger.debug,
                                 f"{route.endpoint} Has exhausted its ratelimit ({lock.limit})! Locking route for {lock.delta} seconds",
                             )
-                            await lock.blind_defer_unlock()  # lock this route, but continue processing the current response
+                            await lock.lock_for_duration(
+                                lock.delta
+                            )  # lock this route, but continue processing the current response
 
                         elif response.status in {500, 502, 504}:
                             # Server issues, retry
