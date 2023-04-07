@@ -4,6 +4,7 @@ import functools
 import importlib.util
 import inspect
 import logging
+import os
 import re
 import sys
 import time
@@ -284,6 +285,7 @@ class Client(
         sync_interactions: bool = True,
         token: str | None = None,
         total_shards: int = 1,
+        resume_state_path: str | None = None,
         **kwargs,
     ) -> None:
         if logger is MISSING:
@@ -382,6 +384,8 @@ class Client(
             "Snowflake_Type", Dict[str, InteractionCommand | Dict[str, InteractionCommand]]
         ] = {}
         """A dictionary of registered application commands in a tree"""
+        self.resume_state_path: str | None = resume_state_path
+        """The path to the file to store the resume state in for seamless restarts"""
         self._component_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self._modal_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self._global_autocompletes: Dict[str, GlobalAutoComplete] = {}
@@ -419,7 +423,8 @@ class Client(
     async def __aenter__(self) -> "Client":
         if not self.token:
             raise ValueError(
-                "Token not found - to use the bot in a context manager, you must pass the token in the Client constructor."
+                "Token not found - to use the bot in a context manager, you must pass the token in the Client"
+                " constructor."
             )
         await self.login(self.token)
         return self
@@ -533,7 +538,8 @@ class Client(
 
         if self.del_unused_app_cmd:
             self.logger.warning(
-                "As `delete_unused_application_cmds` is enabled, the client must cache all guilds app-commands, this could take a while."
+                "As `delete_unused_application_cmds` is enabled, the client must cache all guilds app-commands, this"
+                " could take a while."
             )
 
         if Intents.GUILDS not in self._connection_state.intents:
@@ -556,6 +562,16 @@ class Client(
             _cache_obj = getattr(self.cache, cache)
             if isinstance(_cache_obj, NullCache):
                 self.logger.warning(f"{cache} has been disabled")
+
+        if self.resume_state_path:
+            self.resume_state_path = os.path.abspath(self.resume_state_path)
+            if not os.path.exists(self.resume_state_path):
+                self.logger.warning(f"Resume state path does not exist, attempting to create: {self.resume_state_path}")
+                os.makedirs(self.resume_state_path)
+                self.logger.info(f"Successfully created resume state path: {self.resume_state_path}")
+            if not os.access(self.resume_state_path, os.W_OK):
+                raise RuntimeError(f"Cannot write to resume state path: {self.resume_state_path}")
+            self.logger.info(f"Resume state will be saved to: {self.resume_state_path}")
 
     def _queue_task(self, coro: Listener, event: BaseEvent, *args, **kwargs) -> asyncio.Task:
         async def _async_wrap(_coro: Listener, _event: BaseEvent, *_args, **_kwargs) -> None:
@@ -645,16 +661,17 @@ class Client(
             if isinstance(event.error, errors.CommandOnCooldown):
                 await event.ctx.send(
                     embeds=Embed(
-                        description=f"This command is on cooldown!\n"
-                        f"Please try again in {int(event.error.cooldown.get_cooldown_time())} seconds",
+                        description=(
+                            "This command is on cooldown!\n"
+                            f"Please try again in {int(event.error.cooldown.get_cooldown_time())} seconds"
+                        ),
                         color=BrandColors.FUCHSIA,
                     )
                 )
             elif isinstance(event.error, errors.MaxConcurrencyReached):
                 await event.ctx.send(
                     embeds=Embed(
-                        description="This command has reached its maximum concurrent usage!\n"
-                        "Please try again shortly.",
+                        description="This command has reached its maximum concurrent usage!\nPlease try again shortly.",
                         color=BrandColors.FUCHSIA,
                     )
                 )
@@ -756,7 +773,8 @@ class Client(
         """
         symbol = "$"
         self.logger.info(
-            f"Autocomplete Called: {symbol}{event.ctx.invoke_target} with {event.ctx.focussed_option = } | {event.ctx.kwargs = }"
+            f"Autocomplete Called: {symbol}{event.ctx.invoke_target} with {event.ctx.focussed_option = } |"
+            f" {event.ctx.kwargs = }"
         )
 
     @Listener.create(is_default_listener=True)
@@ -791,8 +809,44 @@ class Client(
         """
         self.logger.info(f"Modal Called: {event.ctx.custom_id = } with {event.ctx.responses = }")
 
-    @Listener.create()
-    async def on_resume(self) -> None:
+    def cold_resume(self) -> None:
+        """
+        Called when the client resumes from a cold start.
+
+        Attempts to bring the client as close as possible to the state it was in before the cold start.
+        """
+        self.logger.warning(
+            "Attempting to resume from a cold start. Bot will be in a vulnerable state until deserialization is complete."
+        )
+
+        guilds = []
+        users = []
+        members = []
+        for file in os.listdir(self.resume_state_path):
+            if file.endswith(".json"):
+                with open(os.path.join(self.resume_state_path, file), "r") as f:
+                    data = FastJson.loads(f.read())
+                    guilds.extend(self.cache.place_guild_data(guild) for guild in data["guilds"])
+
+                if self.fetch_members:
+                    users.extend(self.cache.place_user_data(user) for user in data["users"])
+                    members.extend(
+                        self.cache.place_member_data(member["_guild_id"], member) for member in data["members"]
+                    )
+                os.unlink(os.path.join(self.resume_state_path, file))
+
+        self.logger.info(f"Deserialized {len(guilds)} guilds from cold start.")
+        if self.fetch_members:
+            self.logger.info(f"Deserialized {len(users)} users and {len(members)} members from cold start.")
+        self._startup = True
+        self.dispatch(events.Startup())
+        self._ready.set()
+        self.dispatch(events.Ready())
+
+    @Listener.create(is_default_listener=True)
+    async def on_resume(self):
+        if not self._startup:
+            self.cold_resume()
         self._ready.set()
 
     @Listener.create(is_default_listener=True)
@@ -951,12 +1005,17 @@ class Client(
         finally:
             await self.stop()
 
-    async def stop(self) -> None:
-        """Shutdown the bot."""
+    async def stop(self, *, resumable: bool = False) -> None:
+        """
+        Shutdown the bot.
+
+        Args:
+            resumable: Whether the bot should be able to resume or not.
+        """
         self.logger.debug("Stopping the bot.")
         self._ready.clear()
+        await self._connection_state.stop(resumable=resumable)
         await self.http.close()
-        await self._connection_state.stop()
 
     async def _process_waits(self, event: events.BaseEvent) -> None:
         if _waits := self.waits.get(event.resolved_name, []):
@@ -1175,7 +1234,8 @@ class Client(
         """
         if listener.event == "event":
             self.logger.critical(
-                f"Subscribing to `{listener.event}` - Meta Events are very expensive; remember to remove it before releasing your bot"
+                f"Subscribing to `{listener.event}` - Meta Events are very expensive; remember to remove it before"
+                " releasing your bot"
             )
 
         if not listener.is_default_listener:
@@ -1186,7 +1246,8 @@ class Client(
                 if required_intents := _INTENT_EVENTS.get(event_class):
                     if all(required_intent not in self.intents for required_intent in required_intents):
                         self.logger.warning(
-                            f"Event `{listener.event}` will not work since the required intent is not set -> Requires any of: `{required_intents}`"
+                            f"Event `{listener.event}` will not work since the required intent is not set -> Requires"
+                            f" any of: `{required_intents}`"
                         )
 
         # prevent the same callback being added twice
@@ -1410,7 +1471,7 @@ class Client(
                         if cmd_name not in found and warn_missing:
                             self.logger.error(
                                 f'Detected yet to sync slash command "/{cmd_name}" for scope '
-                                f"{'global' if scope == GLOBAL_SCOPE else scope}"
+                                f'{"global" if scope == GLOBAL_SCOPE else scope}'
                             )
                         continue
                     found.add(cmd_name)

@@ -1,4 +1,7 @@
 import asyncio
+import contextlib
+import os
+import time
 import traceback
 from datetime import datetime
 from logging import Logger
@@ -13,6 +16,7 @@ from interactions.client.errors import LibraryException, WebSocketClosed
 from interactions.models.discord.activity import Activity
 from interactions.models.discord.enums import Intents, Status, ActivityType
 from .gateway import GatewayClient
+from ...client.utils import FastJson
 
 if TYPE_CHECKING:
     from interactions import Client, Snowflake_Type
@@ -82,11 +86,37 @@ class ConnectionState:
         # so we need to wait for the task to exit.
         await self._shard_task
 
-    async def stop(self) -> None:
-        """Disconnect from the Discord Gateway."""
+    def load_resume_state(self) -> dict | None:
+        """Load the resume state from disk."""
+        if not self.client.resume_state_path:
+            raise RuntimeError("Cannot load resume state without a path")
+        if not os.path.exists(f"{self.client.resume_state_path}/{self.shard_id}.json"):
+            return None
+
+        with open(f"{self.client.resume_state_path}/{self.shard_id}.json", "r") as f:
+            data = FastJson.loads(f.read())
+
+        if time.time() - data["timestamp"] > 60:
+            self.logger.warning(f"Resume state for shard ID {self.shard_id} is too old, ignoring")
+            return None
+
+        self.logger.info(f"Loaded resume state for shard ID {self.shard_id}")
+        return data
+
+    async def stop(self, *, resumable: bool = False) -> None:
+        """
+        Disconnect from the Discord Gateway.
+
+        Args:
+            resumable: Whether the connection should be resumable.
+        """
         self.logger.debug(f"Shutting down shard ID {self.shard_id}")
+
         if self.gateway is not None:
-            self.gateway.close()
+            with contextlib.suppress(TypeError):
+                if resumable:
+                    self.gateway.resumable_shutdown = True
+                self.gateway.close()
             self.gateway = None
 
         if self._shard_task is not None:
@@ -103,8 +133,14 @@ class ConnectionState:
     async def _ws_connect(self) -> None:
         """Connect to the Discord Gateway."""
         self.logger.info(f"Shard {self.shard_id} is attempting to connect to gateway...")
+        attempt_resume = None
         try:
-            async with GatewayClient(self, (self.shard_id, self.client.total_shards)) as self.gateway:
+            if self.client.resume_state_path and not self.client._startup:
+                attempt_resume = self.load_resume_state()
+
+            async with GatewayClient(
+                self, (self.shard_id, self.client.total_shards), resume_payload=attempt_resume
+            ) as self.gateway:
                 try:
                     await self.gateway.run()
                 finally:

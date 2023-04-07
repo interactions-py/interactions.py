@@ -229,8 +229,16 @@ class Guild(BaseGuild):
     _thread_ids: Set[Snowflake_Type] = attrs.field(repr=False, factory=set)
     _member_ids: Set[Snowflake_Type] = attrs.field(repr=False, factory=set)
     _role_ids: Set[Snowflake_Type] = attrs.field(repr=False, factory=set)
-    _chunk_cache: list = attrs.field(repr=False, factory=list)
-    _channel_gui_positions: Dict[Snowflake_Type, int] = attrs.field(repr=False, factory=dict)
+    _chunk_cache: list = attrs.field(repr=False, factory=list, metadata=no_export_meta)
+    _channel_gui_positions: Dict[Snowflake_Type, int] = attrs.field(repr=False, factory=dict, metadata=no_export_meta)
+
+    def to_dict(self) -> Dict[str, Any]:
+        data = super().to_dict()
+        data["owner_id"] = self._owner_id
+        data["channels"] = [c.to_dict() for c in self.channels]
+        data["threads"] = [t.to_dict() for t in self.threads]
+        data["roles"] = [r.to_dict() for r in self.roles]
+        return data
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:

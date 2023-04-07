@@ -43,6 +43,8 @@ class Color:
                 self.hex = color
             else:
                 self.value = BrandColors[color].value
+        elif isinstance(color, dict):
+            self.value = color["value"]
         else:
             raise TypeError
 

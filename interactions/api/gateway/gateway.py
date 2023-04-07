@@ -54,7 +54,7 @@ class GatewayClient(WebsocketClient):
 
     """
 
-    def __init__(self, state: "ConnectionState", shard: tuple[int, int]) -> None:
+    def __init__(self, state: "ConnectionState", shard: tuple[int, int], *, resume_payload: dict | None = None) -> None:
         super().__init__(state)
 
         self.shard = shard
@@ -62,11 +62,20 @@ class GatewayClient(WebsocketClient):
         self.chunk_cache = {}
 
         self._trace = []
-        self.sequence = None
-        self.session_id = None
-
         self.ws_url = state.gateway_url
-        self.ws_resume_url = MISSING
+
+        self.resumable_shutdown = False
+
+        if resume_payload:
+            self.resumed_startup = True
+            self.session_id = resume_payload["session_id"]
+            self.sequence = resume_payload["sequence"]
+            self.ws_resume_url = resume_payload["resume_url"]
+        else:
+            self.resumed_startup = False
+            self.ws_resume_url = MISSING
+            self.sequence = None
+            self.session_id = None
 
         # This lock needs to be held to send something over the gateway, but is also held when
         # reconnecting. That way there's no race conditions between sending and reconnecting.
@@ -93,7 +102,10 @@ class GatewayClient(WebsocketClient):
         self._entered = True
         self._zlib = zlib.decompressobj()
 
-        self.ws = await self.state.client.http.websocket_connect(self.state.gateway_url)
+        url = self.ws_resume_url if self.resumed_startup else self.ws_url
+
+        self.ws = await self.state.client.http.websocket_connect(url)
+        self.logger.debug(f"Established connection to {url} (shard ID {self.state.shard_id})")
 
         hello = await self.receive(force=True)
         self.heartbeat_interval = hello["d"]["heartbeat_interval"] / 1000
@@ -101,8 +113,11 @@ class GatewayClient(WebsocketClient):
 
         self._keep_alive = asyncio.create_task(self.run_bee_gees())
 
-        await self._identify()
-
+        if not self.resumed_startup:
+            await self._identify()
+        else:
+            self.logger.info("Received resume payload from previous session, attempting to resume...")
+            await self._resume_connection()
         return self
 
     async def __aexit__(
@@ -128,9 +143,31 @@ class GatewayClient(WebsocketClient):
                 # We could be cancelled here, it is extremely important that we close the
                 # WebSocket either way, hence the try/except.
                 try:
-                    await self.ws.close(code=1000)
+                    await self.ws.close(code=1012 if self.resumable_shutdown else 1000)
                 finally:
                     self.ws = None
+        if self.state.client.resume_state_path and self.resumable_shutdown:
+            self.save_resume_data()
+
+    def save_resume_data(self) -> None:
+        """Saves the data required to resume the connection."""
+        data = {
+            "shard_id": self.state.shard_id,
+            "session_id": self.session_id,
+            "sequence": self.sequence,
+            "resume_url": self.ws_resume_url,
+            "timestamp": time.time(),
+            "guilds": [guild.to_dict() for guild in self.state.client.guilds],
+        }
+
+        if self.state.client.fetch_members:
+            # dev cares about members, so we need to save them
+            data["users"] = [user.to_dict() for user in self.state.client.cache.user_cache.values()]
+            data["members"] = [member.to_dict() for member in self.state.client.cache.member_cache.values()]
+
+        with open(f"{self.state.client.resume_state_path}/{self.state.shard_id}.json", "w", encoding="utf-8") as f:
+            f.write(FastJson.dumps(data))
+        self.logger.info(f"Saved resume state for shard ID {self.state.shard_id}")
 
     async def run(self) -> None:
         """Start receiving events from the websocket."""

@@ -330,6 +330,12 @@ class Member(DiscordObject, _SendDMMixin):
 
         return data
 
+    def to_dict(self) -> Dict[str, Any]:
+        data = super().to_dict()
+        data["roles"] = data.pop("role_ids", [])
+        data.pop("_user_ref", None)
+        return data
+
     def update_from_dict(self, data) -> None:
         if "guild_id" not in data:
             data["guild_id"] = self._guild_id
