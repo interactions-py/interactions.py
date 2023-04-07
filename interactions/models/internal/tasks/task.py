@@ -111,6 +111,7 @@ class Task:
     def start(self) -> None:
         """Start this task."""
         try:
+            self.trigger.reschedule()
             self._stop.clear()
             self.task = asyncio.create_task(self._task_loop())
         except RuntimeError:

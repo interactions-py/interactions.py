@@ -15,6 +15,10 @@ class BaseTrigger(ABC):
     def __or__(self, other: "BaseTrigger") -> "OrTrigger":
         return OrTrigger(self, other)
 
+    def reschedule(self) -> None:
+        """Update the last call time to now"""
+        self.last_call_time = datetime.now()
+
     @abstractmethod
     def next_fire(self) -> datetime | None:
         """
