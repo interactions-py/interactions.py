@@ -738,7 +738,7 @@ class Message(BaseMessage):
 
         """
         reaction_data = await self._client.http.get_reactions(
-            self._channel_id, self.id, emoji, limit, to_optional_snowflake(after)
+            self._channel_id, self.id, process_emoji_req_format(emoji), limit, to_optional_snowflake(after)
         )
         return [self._client.cache.place_user_data(user_data) for user_data in reaction_data]
 
