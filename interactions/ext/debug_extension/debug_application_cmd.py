@@ -1,6 +1,5 @@
 import io
 import pprint
-from collections import Counter
 from typing import Optional
 
 from interactions import Extension
@@ -41,14 +40,10 @@ class DebugAppCMD(Extension):
         await ctx.defer()
         e = debug_embed("Application-Commands Cache")
 
-        cmds = sum(len(v.keys()) for v in self.bot.interactions.values())
+        cmds = len(self.bot._interaction_lookup)
         e.add_field("Local application cmds (incld. Subcommands)", str(cmds))
         e.add_field("Component callbacks", str(len(self.bot._component_callbacks)))
-        e.add_field("Prefixed commands", str(len(self.bot.prefixed_commands)))
-        e.add_field(
-            "Tracked Scopes",
-            str(len(Counter(iter(self.bot._interaction_scopes.values())).keys())),
-        )
+        e.add_field("Tracked Scopes", str(len(self.client.interactions_by_scope)))
 
         await ctx.send(embeds=[e])
 
