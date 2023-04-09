@@ -457,10 +457,11 @@ Any error from interactions will trigger `on_command_error`. That includes conte
 In this example, we are logging the error and responding to the interaction if not done so yet:
 ```python
 class CustomClient(Client):
-    async def on_command_error(self, ctx: InteractionContext, error: Exception):
-        logger.error(error)
-        if not ctx.responded:
-            await ctx.send("Something went wrong.")
+    @listen(disable_default_listeners=True)  # tell the dispatcher that this replaces the default listener
+    async def on_command_error(self, event: CommandError):
+        logger.error(event.error)
+        if not event.ctx.responded:
+            await event.ctx.send("Something went wrong.")
 
 client = CustomErrorClient(...)
 ```
