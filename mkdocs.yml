@@ -63,7 +63,7 @@ extra:
       name: Github Repository
   analytics:
     provider: google
-    property: G-817ZC2FC56
+    property: G-K60BP9QCS7
     feedback:
       title: Was this page helpful?
       ratings:
