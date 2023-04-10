@@ -11,7 +11,7 @@ To see the documentation, please head over to the link here:
 """
 from warnings import warn
 
-from .client import *  # noqa
+from .client import *  # noqa isort: skip
 from .api import *  # noqa: F401 F403
 from .base import *  # noqa: F401 F403
 from .utils import *  # noqa: F401 F403
