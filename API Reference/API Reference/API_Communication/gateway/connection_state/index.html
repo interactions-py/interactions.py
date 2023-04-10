@@ -298,13 +298,13 @@
 
         <span class=k>except</span> <span class=n>WebSocketClosed</span> <span class=k>as</span> <span class=n>ex</span><span class=p>:</span>
             <span class=k>if</span> <span class=n>ex</span><span class=o>.</span><span class=n>code</span> <span class=o>==</span> <span class=mi>4011</span><span class=p>:</span>
-                <span class=k>raise</span> <span class=n>LibraryException</span><span class=p>(</span><span class=s2>&quot;Your bot is too large, you must use shards&quot;</span><span class=p>)</span> <span class=kn>from</span> <span class=bp>None</span>
+                <span class=k>raise</span> <span class=n>LibraryException</span><span class=p>(</span><span class=s2>&quot;Your bot is too large, you must use shards&quot;</span><span class=p>)</span> <span class=kn>from</span> <span class=kc>None</span>
             <span class=k>if</span> <span class=n>ex</span><span class=o>.</span><span class=n>code</span> <span class=o>==</span> <span class=mi>4013</span><span class=p>:</span>
-                <span class=k>raise</span> <span class=n>LibraryException</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Invalid Intents have been passed: </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>intents</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span> <span class=kn>from</span> <span class=bp>None</span>
+                <span class=k>raise</span> <span class=n>LibraryException</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Invalid Intents have been passed: </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>intents</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span> <span class=kn>from</span> <span class=kc>None</span>
             <span class=k>if</span> <span class=n>ex</span><span class=o>.</span><span class=n>code</span> <span class=o>==</span> <span class=mi>4014</span><span class=p>:</span>
                 <span class=k>raise</span> <span class=n>LibraryException</span><span class=p>(</span>
                     <span class=s2>&quot;You have requested privileged intents that have not been enabled or approved. Check the developer dashboard&quot;</span>
-                <span class=p>)</span> <span class=kn>from</span> <span class=bp>None</span>
+                <span class=p>)</span> <span class=kn>from</span> <span class=kc>None</span>
             <span class=k>raise</span>
 
         <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
@@ -353,7 +353,7 @@
                 <span class=k>try</span><span class=p>:</span>
                     <span class=n>status</span> <span class=o>=</span> <span class=n>Status</span><span class=p>[</span><span class=n>status</span><span class=o>.</span><span class=n>upper</span><span class=p>()]</span>
                 <span class=k>except</span> <span class=ne>KeyError</span><span class=p>:</span>
-                    <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;`</span><span class=si>{</span><span class=n>status</span><span class=si>}</span><span class=s2>` is not a valid status type. Please use the Status enum&quot;</span><span class=p>)</span> <span class=kn>from</span> <span class=bp>None</span>
+                    <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;`</span><span class=si>{</span><span class=n>status</span><span class=si>}</span><span class=s2>` is not a valid status type. Please use the Status enum&quot;</span><span class=p>)</span> <span class=kn>from</span> <span class=kc>None</span>
         <span class=k>elif</span> <span class=bp>self</span><span class=o>.</span><span class=n>client</span><span class=o>.</span><span class=n>status</span><span class=p>:</span>
             <span class=n>status</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>client</span><span class=o>.</span><span class=n>status</span>
         <span class=k>else</span><span class=p>:</span>
@@ -555,7 +555,7 @@
             <span class=k>try</span><span class=p>:</span>
                 <span class=n>status</span> <span class=o>=</span> <span class=n>Status</span><span class=p>[</span><span class=n>status</span><span class=o>.</span><span class=n>upper</span><span class=p>()]</span>
             <span class=k>except</span> <span class=ne>KeyError</span><span class=p>:</span>
-                <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;`</span><span class=si>{</span><span class=n>status</span><span class=si>}</span><span class=s2>` is not a valid status type. Please use the Status enum&quot;</span><span class=p>)</span> <span class=kn>from</span> <span class=bp>None</span>
+                <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;`</span><span class=si>{</span><span class=n>status</span><span class=si>}</span><span class=s2>` is not a valid status type. Please use the Status enum&quot;</span><span class=p>)</span> <span class=kn>from</span> <span class=kc>None</span>
     <span class=k>elif</span> <span class=bp>self</span><span class=o>.</span><span class=n>client</span><span class=o>.</span><span class=n>status</span><span class=p>:</span>
         <span class=n>status</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>client</span><span class=o>.</span><span class=n>status</span>
     <span class=k>else</span><span class=p>:</span>

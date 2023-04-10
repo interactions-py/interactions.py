@@ -2632,7 +2632,7 @@
         <span class=k>if</span> <span class=ow>not</span> <span class=n>channel_data</span><span class=p>:</span>
             <span class=k>raise</span> <span class=n>TooManyChanges</span><span class=p>(</span>
                 <span class=s2>&quot;You have changed this channel too frequently, you need to wait a while before trying again.&quot;</span>
-            <span class=p>)</span> <span class=kn>from</span> <span class=bp>None</span>
+            <span class=p>)</span> <span class=kn>from</span> <span class=kc>None</span>
 
         <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_client</span><span class=o>.</span><span class=n>cache</span><span class=o>.</span><span class=n>place_channel_data</span><span class=p>(</span><span class=n>channel_data</span><span class=p>)</span>
 
@@ -2856,7 +2856,7 @@
     <span class=k>if</span> <span class=ow>not</span> <span class=n>channel_data</span><span class=p>:</span>
         <span class=k>raise</span> <span class=n>TooManyChanges</span><span class=p>(</span>
             <span class=s2>&quot;You have changed this channel too frequently, you need to wait a while before trying again.&quot;</span>
-        <span class=p>)</span> <span class=kn>from</span> <span class=bp>None</span>
+        <span class=p>)</span> <span class=kn>from</span> <span class=kc>None</span>
 
     <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_client</span><span class=o>.</span><span class=n>cache</span><span class=o>.</span><span class=n>place_channel_data</span><span class=p>(</span><span class=n>channel_data</span><span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.models.discord.channel.BaseChannel.delete class="doc doc-heading"> <code class="highlight language-python"><span class=n>delete</span><span class=p>(</span><span class=n>reason</span><span class=o>=</span><span class=n>MISSING</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-async"><code>async</code></small> </span> <a href=#interactions.models.discord.channel.BaseChannel.delete class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Delete this channel.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>reason</code></td> <td> <code><span title=interactions.client.const.Absent>Absent</span>[<span title=typing.Optional>Optional</span>[str]]</code> </td> <td><p>The reason for deleting this channel</p></td> <td> <code>MISSING</code> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/channel.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>887</span>

@@ -451,7 +451,7 @@
         <span class=k>try</span><span class=p>:</span>
             <span class=bp>self</span><span class=o>.</span><span class=n>_voice_state</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>_voice_server</span> <span class=o>=</span> <span class=k>await</span> <span class=n>asyncio</span><span class=o>.</span><span class=n>gather</span><span class=p>(</span><span class=o>*</span><span class=n>tasks</span><span class=p>)</span>
         <span class=k>except</span> <span class=n>asyncio</span><span class=o>.</span><span class=n>TimeoutError</span><span class=p>:</span>
-            <span class=k>raise</span> <span class=n>VoiceConnectionTimeout</span> <span class=kn>from</span> <span class=bp>None</span>
+            <span class=k>raise</span> <span class=n>VoiceConnectionTimeout</span> <span class=kn>from</span> <span class=kc>None</span>
 
         <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>debug</span><span class=p>(</span><span class=s2>&quot;Attempting to initialise voice gateway...&quot;</span><span class=p>)</span>
         <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>ws_connect</span><span class=p>()</span>
@@ -483,7 +483,7 @@
                 <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>_client</span><span class=o>.</span><span class=n>wait_for</span><span class=p>(</span><span class=s2>&quot;raw_voice_state_update&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>_guild_predicate</span><span class=p>,</span> <span class=n>timeout</span><span class=o>=</span><span class=n>timeout</span><span class=p>)</span>
             <span class=k>except</span> <span class=n>asyncio</span><span class=o>.</span><span class=n>TimeoutError</span><span class=p>:</span>
                 <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>_close_connection</span><span class=p>()</span>
-                <span class=k>raise</span> <span class=n>VoiceConnectionTimeout</span> <span class=kn>from</span> <span class=bp>None</span>
+                <span class=k>raise</span> <span class=n>VoiceConnectionTimeout</span> <span class=kn>from</span> <span class=kc>None</span>
 
             <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>player</span> <span class=ow>and</span> <span class=ow>not</span> <span class=n>already_paused</span><span class=p>:</span>
                 <span class=bp>self</span><span class=o>.</span><span class=n>player</span><span class=o>.</span><span class=n>resume</span><span class=p>()</span>
@@ -703,7 +703,7 @@
     <span class=k>try</span><span class=p>:</span>
         <span class=bp>self</span><span class=o>.</span><span class=n>_voice_state</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>_voice_server</span> <span class=o>=</span> <span class=k>await</span> <span class=n>asyncio</span><span class=o>.</span><span class=n>gather</span><span class=p>(</span><span class=o>*</span><span class=n>tasks</span><span class=p>)</span>
     <span class=k>except</span> <span class=n>asyncio</span><span class=o>.</span><span class=n>TimeoutError</span><span class=p>:</span>
-        <span class=k>raise</span> <span class=n>VoiceConnectionTimeout</span> <span class=kn>from</span> <span class=bp>None</span>
+        <span class=k>raise</span> <span class=n>VoiceConnectionTimeout</span> <span class=kn>from</span> <span class=kc>None</span>
 
     <span class=bp>self</span><span class=o>.</span><span class=n>logger</span><span class=o>.</span><span class=n>debug</span><span class=p>(</span><span class=s2>&quot;Attempting to initialise voice gateway...&quot;</span><span class=p>)</span>
     <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>ws_connect</span><span class=p>()</span>
@@ -761,7 +761,7 @@
             <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>_client</span><span class=o>.</span><span class=n>wait_for</span><span class=p>(</span><span class=s2>&quot;raw_voice_state_update&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>_guild_predicate</span><span class=p>,</span> <span class=n>timeout</span><span class=o>=</span><span class=n>timeout</span><span class=p>)</span>
         <span class=k>except</span> <span class=n>asyncio</span><span class=o>.</span><span class=n>TimeoutError</span><span class=p>:</span>
             <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>_close_connection</span><span class=p>()</span>
-            <span class=k>raise</span> <span class=n>VoiceConnectionTimeout</span> <span class=kn>from</span> <span class=bp>None</span>
+            <span class=k>raise</span> <span class=n>VoiceConnectionTimeout</span> <span class=kn>from</span> <span class=kc>None</span>
 
         <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>player</span> <span class=ow>and</span> <span class=ow>not</span> <span class=n>already_paused</span><span class=p>:</span>
             <span class=bp>self</span><span class=o>.</span><span class=n>player</span><span class=o>.</span><span class=n>resume</span><span class=p>()</span>
