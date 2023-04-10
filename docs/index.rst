@@ -2,7 +2,7 @@
 
 Deprecation Notice
 =================
-Please note, this version is now deprecated. We are recommending migrate to v5. `Migration guide from v4`_
+Please note, this version is now deprecated. We are recommending you migrate to v5. `Migration guide from v4`_
 
 interactions.py
 ===============
