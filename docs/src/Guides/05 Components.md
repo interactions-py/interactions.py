@@ -250,3 +250,17 @@ When responding to a component you need to satisfy discord either by responding 
             )
         )
     ```
+
+=== ":four: Persistent Callbacks, with regex"
+    Ah, I see you are a masochist. You want to use regex to match your custom_ids. Well who am I to stop you?
+
+    ```python
+    @component_callback(re.compile(r"\w*"))
+    async def test_callback(ctx: interactions.ComponentContext):
+        await ctx.send(f"Clicked {ctx.custom_id}")
+    ```
+
+    Just like normal `@component_callback`, you can specify a regex pattern to match your custom_ids, instead of explicitly passing strings. 
+    This is useful if you have a lot of components with similar custom_ids, and you want to handle them all in the same callback.
+
+    Please do bare in mind that using regex patterns can be a bit slower than using strings, especially if you have a lot of components.
