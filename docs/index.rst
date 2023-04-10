@@ -1,5 +1,9 @@
 .. image:: _static/banner.png
 
+Deprecation Notice
+=================
+Please note, this version is now deprecated. We are recommending migrate to v5. `Migration guide from v4`_
+
 interactions.py
 ===============
 Ever since December 2019, this open-source project has become the culmination of dedication and research towards figuring out the best way to bring **interactions from Discord to you:** we are an easy, simple, scalable and modular library for Discord interactions.
@@ -87,6 +91,7 @@ Advanced Search
 * :ref:`genindex`
 * :ref:`modindex`
 
+.. _Migration guide from v4: https://interactions-py.github.io/interactions.py/Guides/98%20Migration%20from%204.X/
 .. _contribution requirements: https://github.com/interactions-py/library/blob/stable/CONTRIBUTING.rst
 .. _MIT License: https://github.com/interactions-py/library/blob/stable/LICENSE
 .. _Pull Requests: https://github.com/interactions-py/library/pulls
