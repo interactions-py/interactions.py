@@ -1,11 +1,81 @@
-"""
-interactions.client
+from .const import (
+    __version__,
+    __repo_url__,
+    __py_version__,
+    __api_version__,
+    get_logger,
+    logger_name,
+    kwarg_spam,
+    DISCORD_EPOCH,
+    ACTION_ROW_MAX_ITEMS,
+    SELECTS_MAX_OPTIONS,
+    SELECT_MAX_NAME_LENGTH,
+    CONTEXT_MENU_NAME_LENGTH,
+    SLASH_CMD_NAME_LENGTH,
+    SLASH_CMD_MAX_DESC_LENGTH,
+    SLASH_CMD_MAX_OPTIONS,
+    SLASH_OPTION_NAME_LENGTH,
+    EMBED_MAX_NAME_LENGTH,
+    EMBED_MAX_DESC_LENGTH,
+    EMBED_MAX_FIELDS,
+    EMBED_TOTAL_MAX,
+    EMBED_FIELD_VALUE_LENGTH,
+    Singleton,
+    Sentinel,
+    GlobalScope,
+    Missing,
+    MentionPrefix,
+    GLOBAL_SCOPE,
+    MISSING,
+    MENTION_PREFIX,
+    PREMIUM_GUILD_LIMITS,
+    Absent,
+    T,
+    T_co,
+)
+from .client import Client
+from .auto_shard_client import AutoShardedClient
+from . import smart_cache
+from . import errors
+from . import utils
 
-This section of the library maintains and
-handles all of the client work.
-"""
-from .bot import *  # noqa: F401 F403
-from .context import *  # noqa: F401 F403
-from .decor import *  # noqa: F401 F403
-from .enums import *  # noqa: F401 F403
-from .models import *  # noqa: F401 F403
+__all__ = (
+    "__version__",
+    "__repo_url__",
+    "__py_version__",
+    "__api_version__",
+    "get_logger",
+    "logger_name",
+    "kwarg_spam",
+    "DISCORD_EPOCH",
+    "ACTION_ROW_MAX_ITEMS",
+    "SELECTS_MAX_OPTIONS",
+    "SELECT_MAX_NAME_LENGTH",
+    "CONTEXT_MENU_NAME_LENGTH",
+    "SLASH_CMD_NAME_LENGTH",
+    "SLASH_CMD_MAX_DESC_LENGTH",
+    "SLASH_CMD_MAX_OPTIONS",
+    "SLASH_OPTION_NAME_LENGTH",
+    "EMBED_MAX_NAME_LENGTH",
+    "EMBED_MAX_DESC_LENGTH",
+    "EMBED_MAX_FIELDS",
+    "EMBED_TOTAL_MAX",
+    "EMBED_FIELD_VALUE_LENGTH",
+    "Singleton",
+    "Sentinel",
+    "GlobalScope",
+    "Missing",
+    "MentionPrefix",
+    "GLOBAL_SCOPE",
+    "MISSING",
+    "MENTION_PREFIX",
+    "PREMIUM_GUILD_LIMITS",
+    "Absent",
+    "T",
+    "T_co",
+    "Client",
+    "AutoShardedClient",
+    "smart_cache",
+    "errors",
+    "utils",
+)

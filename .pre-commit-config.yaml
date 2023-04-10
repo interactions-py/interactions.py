@@ -11,46 +11,45 @@ repos:
       language: python
       types: [file, python]
       exclude_types: ['image']
+      language_version: python3.10
     - id: trailing-whitespace
       name: Trailing Whitespace
       language: python
       types: [file]
-      exclude_types: ['image']
+      exclude_types: ['image', 'binary', 'executable']
     - id: end-of-file-fixer
       name: EOF Newlines
       language: python
       types: [file]
-      exclude_types: ['image']
+      exclude_types: ['image', 'binary', 'executable']
     - id: check-yaml
       name: YAML Structure
       language: python
+      args: ['--unsafe']
     - id: check-toml
       name: TOML Structure
     - id: check-merge-conflict
       name: Merge Conflicts
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: 'v0.0.254'
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
   - repo: https://github.com/psf/black
     rev: 23.1.0
     hooks:
-    - id: black
-      name: Black Formatting
-      language: python
-      types: [file, python]
-      args: [--line-length=100]
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-    - id: flake8
-      name: flake8 Formatting
-      language: python
-      types: [file, python]
-      args: [--max-line-length=100, --ignore=E203 E301 E302 E501 E402 E704 W503 W504]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        name: isort Formatting
+      - id: black
+        name: Black Formatting
         language: python
-        types: [file, python]
+        types: [ file, python ]
+        language_version: python3.10
+#  - repo: https://github.com/pycqa/isort
+#    rev: 5.11.4
+#    hooks:
+#      - id: isort
+#        name: isort Formatting
+#        language: python
+#        types: [file, python]
 ci:
   autoupdate_branch: "unstable"
   autofix_prs: true

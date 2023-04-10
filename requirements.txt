@@ -1,2 +1,5 @@
-aiohttp >= 3.8.1
-attrs >= 21.3.0
+aiohttp
+attrs
+discord-typings>=0.5.1
+emoji
+tomli

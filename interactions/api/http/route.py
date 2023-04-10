@@ -1,63 +1,68 @@
-from typing import ClassVar, Optional
+from typing import TYPE_CHECKING, Any, ClassVar, Optional
+from urllib.parse import quote as _uriquote
 
-__all__ = ("Route",)
+from interactions.client.const import __api_version__
+
+if TYPE_CHECKING:
+    from interactions.models.discord.snowflake import Snowflake_Type
+
+__all__ = ("Route", "PAYLOAD_TYPE")
+
+PAYLOAD_TYPE = dict[str, int | str | bool | list | None]
 
 
 class Route:
-    """
-    A class representing how an HTTP route is structured.
-
-    :ivar ClassVar[str] __api__: The HTTP route path.
-    :ivar str method: The HTTP method.
-    :ivar str path: The URL path.
-    :ivar Optional[str] channel_id: The channel ID from the bucket if given.
-    :ivar Optional[str] guild_id: The guild ID from the bucket if given.
-    """
-
-    __slots__ = ("method", "path", "channel_id", "guild_id")
-    __api__: ClassVar[str] = "https://discord.com/api/v10"
-    method: str
+    BASE: ClassVar[str] = f"https://discord.com/api/v{__api_version__}"
     path: str
-    channel_id: Optional[str]
-    guild_id: Optional[str]
+    params: dict[str, str | int]
 
-    def __init__(self, method: str, path: str, **kwargs) -> None:
-        r"""
-        :param method: The HTTP request method.
-        :type method: str
-        :param path: The path of the HTTP/URL.
-        :type path: str
-        :param \**kwargs?: Optional keyword-only arguments to pass as information in the route.
-        :type \**kwargs?: dict
-        """
-        self.method = method
-        self.path = path.format(**kwargs)
-        self.channel_id = kwargs.get("channel_id")
-        self.guild_id = kwargs.get("guild_id")
+    webhook_id: Optional["Snowflake_Type"]
+    webhook_token: Optional[str]
 
-    def get_bucket(self, shared_bucket: Optional[str] = None) -> str:
-        """
-        Returns the route's bucket. If shared_bucket is None, returns the path with major parameters.
-        Otherwise, it relies on Discord's given bucket.
+    def __init__(self, method: str, path: str, **parameters: Any) -> None:
+        self.path: str = path
+        self.method: str = method
+        self.params = parameters
 
-        :param shared_bucket: The bucket that Discord provides, if available.
-        :type shared_bucket: Optional[str]
+        self.channel_id = parameters.get("channel_id")
+        self.guild_id = parameters.get("guild_id")
+        self.webhook_id = parameters.get("webhook_id")
+        self.webhook_token = parameters.get("webhook_token")
 
-        :return: The route bucket.
-        :rtype: str
-        """
-        return (
-            f"{self.channel_id}:{self.guild_id}:{self.path}"
-            if shared_bucket is None
-            else f"{self.channel_id}:{self.guild_id}:{shared_bucket}"
-        )
+        self.known_bucket: Optional[str] = None
+
+    def __eq__(self, other: "Route") -> bool:
+        if isinstance(other, Route):
+            return self.rl_bucket == other.rl_bucket
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(self.rl_bucket)
+
+    def __repr__(self) -> str:
+        return f"<Route {self.endpoint}>"
+
+    def __str__(self) -> str:
+        return self.endpoint
+
+    @property
+    def rl_bucket(self) -> str:
+        """This route's full rate limit bucket"""
+        if self.known_bucket:
+            return self.known_bucket
+
+        if self.webhook_token:
+            return f"{self.webhook_id}{self.webhook_token}:{self.channel_id}:{self.guild_id}:{self.endpoint}"
+        return f"{self.channel_id}:{self.guild_id}:{self.endpoint}"
 
     @property
     def endpoint(self) -> str:
-        """
-        Returns the route's endpoint.
+        """The endpoint for this route"""
+        return f"{self.method} {self.path}"
 
-        :return: The route endpoint.
-        :rtype: str
-        """
-        return f"{self.method}:{self.path}"
+    @property
+    def url(self) -> str:
+        """The full url for this route"""
+        return f"{self.BASE}{self.path}".format_map(
+            {k: _uriquote(v) if isinstance(v, str) else v for k, v in self.params.items()}
+        )

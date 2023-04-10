@@ -1,0 +1,16 @@
+# Internal Models Index
+
+- [Active Voice State](active_voice_state)
+- [Application Commands](application_commands)
+- [Auto Defer](auto_defer)
+- [Checks](checks)
+- [Commands](command)
+- [Context](context)
+- [Converters](converters)
+- [Cooldowns](cooldowns)
+- [Extension](extension)
+- [Listeners](listener)
+- [Localisation](localisation)
+- [Protocols](protocols)
+- [Tasks](tasks)
+- [Waits](wait)
