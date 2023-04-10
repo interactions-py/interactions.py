@@ -1,0 +1,1129 @@
+<!doctype html><html lang=en class=no-js> <head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><link href=https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/embed/ rel=canonical><link href=../components/ rel=prev><link href=../emoji/ rel=next><link rel=icon href=../../../../../images/favicon.png><meta name=generator content="mkdocs-1.4.2, mkdocs-material-9.1.6+insiders-4.32.5"><title>Embed - Interactions.py</title><link rel=stylesheet href=../../../../../assets/stylesheets/main.dc5b59cc.min.css><link rel=stylesheet href=../../../../../assets/stylesheets/palette.6932e648.min.css><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback"><style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style><link rel=stylesheet href=../../../../../assets/_mkdocstrings.css><link rel=stylesheet href=../../../../../extra.css><script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script><script id=__analytics>function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-817ZC2FC56"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-817ZC2FC56",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-817ZC2FC56",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script><script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script></head> <body dir=ltr data-md-color-scheme=default data-md-color-primary data-md-color-accent> <input class=md-toggle data-md-toggle=drawer type=checkbox id=__drawer autocomplete=off> <input class=md-toggle data-md-toggle=search type=checkbox id=__search autocomplete=off> <label class=md-overlay for=__drawer></label> <div data-md-component=skip> <a href=#interactions.models.discord.embed.EmbedField class=md-skip> Skip to content </a> </div> <div data-md-component=announce> </div> <header class=md-header data-md-component=header> <nav class="md-header__inner md-grid" aria-label=Header> <a href=../../../../.. title=Interactions.py class="md-header__button md-logo" aria-label=Interactions.py data-md-component=logo> <img src=../../../../../images/logo-minified.svg alt=logo> </a> <label class="md-header__button md-icon" for=__drawer> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg> </label> <div class=md-header__title data-md-component=header-title> <div class=md-header__ellipsis> <div class=md-header__topic> <span class=md-ellipsis> Interactions.py </span> </div> <div class=md-header__topic data-md-component=header-topic> <span class=md-ellipsis> Embed </span> </div> </div> </div> <form class=md-header__option data-md-component=palette> <input class=md-option data-md-color-media=(prefers-color-scheme) data-md-color-scheme=default data-md-color-primary data-md-color-accent aria-label="Switch to light mode" type=radio name=__palette id=__palette_0> <label class="md-header__button md-icon" title="Switch to light mode" for=__palette_1 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg> </label> <input class=md-option data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme=default data-md-color-primary data-md-color-accent aria-label="Switch to dark mode" type=radio name=__palette id=__palette_1> <label class="md-header__button md-icon" title="Switch to dark mode" for=__palette_2 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg> </label> <input class=md-option data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme=slate data-md-color-primary data-md-color-accent aria-label="Switch to system preference" type=radio name=__palette id=__palette_2> <label class="md-header__button md-icon" title="Switch to system preference" for=__palette_0 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg> </label> </form> <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script> <label class="md-header__button md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg> </label> <div class=md-search data-md-component=search role=dialog> <label class=md-search__overlay for=__search></label> <div class=md-search__inner role=search> <form class=md-search__form name=search> <input type=text class=md-search__input name=query aria-label=Search placeholder=Search autocapitalize=off autocorrect=off autocomplete=off spellcheck=false data-md-component=search-query required> <label class="md-search__icon md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg> </label> <nav class=md-search__options aria-label=Search> <a href=javascript:void(0) class="md-search__icon md-icon" title=Share aria-label=Share data-clipboard data-clipboard-text data-md-component=search-share tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg> </a> <button type=reset class="md-search__icon md-icon" title=Clear aria-label=Clear tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg> </button> </nav> <div class=md-search__suggest data-md-component=search-suggest></div> </form> <div class=md-search__output> <div class=md-search__scrollwrap data-md-scrollfix> <div class=md-search-result data-md-component=search-result> <div class=md-search-result__meta> Initializing search </div> <ol class=md-search-result__list role=presentation></ol> </div> </div> </div> </div> </div> <div class=md-header__source> <a href=https://github.com/interactions-py/interactions.py title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 480 512"><!-- Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg> </div> <div class=md-source__repository> interactions-py/interactions.py </div> </a> </div> </nav> </header> <div class=md-container data-md-component=container> <nav class=md-tabs aria-label=Tabs data-md-component=tabs> <div class=md-grid> <ul class=md-tabs__list> <li class=md-tabs__item> <a href=../../../../.. class=md-tabs__link> Home </a> </li> <li class=md-tabs__item> <a href=../../../Client/ class="md-tabs__link md-tabs__link--active"> API Reference </a> </li> <li class=md-tabs__item> <a href=../../../../../Guides/ class=md-tabs__link> Guides </a> </li> </ul> </div> </nav> <main class=md-main data-md-component=main> <div class="md-main__inner md-grid"> <div class="md-sidebar md-sidebar--primary" data-md-component=sidebar data-md-type=navigation> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--primary md-nav--lifted" aria-label=Navigation data-md-level=0> <label class=md-nav__title for=__drawer> <a href=../../../../.. title=Interactions.py class="md-nav__button md-logo" aria-label=Interactions.py data-md-component=logo> <img src=../../../../../images/logo-minified.svg alt=logo> </a> Interactions.py </label> <div class=md-nav__source> <a href=https://github.com/interactions-py/interactions.py title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 480 512"><!-- Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg> </div> <div class=md-source__repository> interactions-py/interactions.py </div> </a> </div> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../../../.. class=md-nav__link> <span class=md-ellipsis> Home </span> </a> </li> <li class="md-nav__item md-nav__item--active md-nav__item--nested"> <input class="md-nav__toggle md-toggle " type=checkbox id=__nav_2 checked> <label class=md-nav__link for=__nav_2 id=__nav_2_label tabindex=0> <span class=md-ellipsis> API Reference </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_2_label aria-expanded=true> <label class=md-nav__title for=__nav_2> <span class="md-nav__icon md-icon"></span> API Reference </label> <ul class=md-nav__list data-md-scrollfix> <li class="md-nav__item md-nav__item--active md-nav__item--nested"> <input class="md-nav__toggle md-toggle " type=checkbox id=__nav_2_1 checked> <label class=md-nav__link for=__nav_2_1 id=__nav_2_1_label tabindex=0> <span class=md-ellipsis> API Reference </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=2 aria-labelledby=__nav_2_1_label aria-expanded=true> <label class=md-nav__title for=__nav_2_1> <span class="md-nav__icon md-icon"></span> API Reference </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../../Client/ class=md-nav__link> <span class=md-ellipsis> Client </span> </a> </li> <li class=md-nav__item> <a href=../../../AutoShardClient/ class=md-nav__link> <span class=md-ellipsis> AutoShardClient </span> </a> </li> <li class=md-nav__item> <a href=../../../const/ class=md-nav__link> <span class=md-ellipsis> Const </span> </a> </li> <li class=md-nav__item> <a href=../../../errors/ class=md-nav__link> <span class=md-ellipsis> Errors </span> </a> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../../API_Communication/HTTP/HTTP_client/ class=md-nav__link> <span class=md-ellipsis> API Communication </span> <span class="md-nav__icon md-icon"></span> </a> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../../events/discord/ class=md-nav__link> <span class=md-ellipsis> Events </span> <span class="md-nav__icon md-icon"></span> </a> </li> <li class="md-nav__item md-nav__item--active md-nav__item--nested"> <input class="md-nav__toggle md-toggle " type=checkbox id=__nav_2_1_7 checked> <div class="md-nav__link md-nav__container"> <a href=../../ class="md-nav__link "> <span class=md-ellipsis> Models </span> </a> <label class="md-nav__link " for=__nav_2_1_7> <span class="md-nav__icon md-icon"></span> </label> </div> <nav class=md-nav data-md-level=3 aria-labelledby=__nav_2_1_7_label aria-expanded=true> <label class=md-nav__title for=__nav_2_1_7> <span class="md-nav__icon md-icon"></span> Models </label> <ul class=md-nav__list data-md-scrollfix> <li class="md-nav__item md-nav__item--active md-nav__item--nested"> <input class="md-nav__toggle md-toggle " type=checkbox id=__nav_2_1_7_2 checked> <div class="md-nav__link md-nav__container"> <a href=../ class="md-nav__link "> <span class=md-ellipsis> Discord </span> </a> <label class="md-nav__link " for=__nav_2_1_7_2> <span class="md-nav__icon md-icon"></span> </label> </div> <nav class=md-nav data-md-level=4 aria-labelledby=__nav_2_1_7_2_label aria-expanded=true> <label class=md-nav__title for=__nav_2_1_7_2> <span class="md-nav__icon md-icon"></span> Discord </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../activity/ class=md-nav__link> <span class=md-ellipsis> Activity </span> </a> </li> <li class=md-nav__item> <a href=../application/ class=md-nav__link> <span class=md-ellipsis> Application </span> </a> </li> <li class=md-nav__item> <a href=../asset/ class=md-nav__link> <span class=md-ellipsis> Asset </span> </a> </li> <li class=md-nav__item> <a href=../base/ class=md-nav__link> <span class=md-ellipsis> Base </span> </a> </li> <li class=md-nav__item> <a href=../channel/ class=md-nav__link> <span class=md-ellipsis> Channel </span> </a> </li> <li class=md-nav__item> <a href=../color/ class=md-nav__link> <span class=md-ellipsis> Color </span> </a> </li> <li class=md-nav__item> <a href=../components/ class=md-nav__link> <span class=md-ellipsis> Components </span> </a> </li> <li class="md-nav__item md-nav__item--active"> <input class="md-nav__toggle md-toggle" type=checkbox id=__toc> <label class="md-nav__link md-nav__link--active" for=__toc> <span class=md-ellipsis> Embed </span> <span class="md-nav__icon md-icon"></span> </label> <a href=./ class="md-nav__link md-nav__link--active"> <span class=md-ellipsis> Embed </span> </a> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedField class=md-nav__link> <span class=md-ellipsis> EmbedField </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedAuthor class=md-nav__link> <span class=md-ellipsis> EmbedAuthor </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedAttachment class=md-nav__link> <span class=md-ellipsis> EmbedAttachment </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedFooter class=md-nav__link> <span class=md-ellipsis> EmbedFooter </span> </a> <nav class=md-nav aria-label=EmbedFooter> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedFooter.converter class=md-nav__link> <span class=md-ellipsis> converter() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedProvider class=md-nav__link> <span class=md-ellipsis> EmbedProvider </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed class=md-nav__link> <span class=md-ellipsis> Embed </span> </a> <nav class=md-nav aria-label=Embed> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.title class=md-nav__link> <span class=md-ellipsis> title </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.description class=md-nav__link> <span class=md-ellipsis> description </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.color class=md-nav__link> <span class=md-ellipsis> color </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.url class=md-nav__link> <span class=md-ellipsis> url </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.timestamp class=md-nav__link> <span class=md-ellipsis> timestamp </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.fields class=md-nav__link> <span class=md-ellipsis> fields </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.author class=md-nav__link> <span class=md-ellipsis> author </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.thumbnail class=md-nav__link> <span class=md-ellipsis> thumbnail </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.images class=md-nav__link> <span class=md-ellipsis> images </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.video class=md-nav__link> <span class=md-ellipsis> video </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.footer class=md-nav__link> <span class=md-ellipsis> footer </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.provider class=md-nav__link> <span class=md-ellipsis> provider </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.image class=md-nav__link> <span class=md-ellipsis> image </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.set_author class=md-nav__link> <span class=md-ellipsis> set_author() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.set_thumbnail class=md-nav__link> <span class=md-ellipsis> set_thumbnail() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.set_image class=md-nav__link> <span class=md-ellipsis> set_image() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.set_images class=md-nav__link> <span class=md-ellipsis> set_images() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.add_image class=md-nav__link> <span class=md-ellipsis> add_image() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.set_footer class=md-nav__link> <span class=md-ellipsis> set_footer() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.add_field class=md-nav__link> <span class=md-ellipsis> add_field() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.add_fields class=md-nav__link> <span class=md-ellipsis> add_fields() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.process_embeds class=md-nav__link> <span class=md-ellipsis> process_embeds() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=../emoji/ class=md-nav__link> <span class=md-ellipsis> Emoji </span> </a> </li> <li class=md-nav__item> <a href=../enums/ class=md-nav__link> <span class=md-ellipsis> Enums </span> </a> </li> <li class=md-nav__item> <a href=../file/ class=md-nav__link> <span class=md-ellipsis> File </span> </a> </li> <li class=md-nav__item> <a href=../guild/ class=md-nav__link> <span class=md-ellipsis> Guild </span> </a> </li> <li class=md-nav__item> <a href=../invite/ class=md-nav__link> <span class=md-ellipsis> Invite </span> </a> </li> <li class=md-nav__item> <a href=../message/ class=md-nav__link> <span class=md-ellipsis> Message </span> </a> </li> <li class=md-nav__item> <a href=../modals/ class=md-nav__link> <span class=md-ellipsis> Modals </span> </a> </li> <li class=md-nav__item> <a href=../reaction/ class=md-nav__link> <span class=md-ellipsis> Reaction </span> </a> </li> <li class=md-nav__item> <a href=../role/ class=md-nav__link> <span class=md-ellipsis> Role </span> </a> </li> <li class=md-nav__item> <a href=../scheduled_event/ class=md-nav__link> <span class=md-ellipsis> Scheduled event </span> </a> </li> <li class=md-nav__item> <a href=../snowflake/ class=md-nav__link> <span class=md-ellipsis> Snowflake </span> </a> </li> <li class=md-nav__item> <a href=../stage_instance/ class=md-nav__link> <span class=md-ellipsis> Stage instance </span> </a> </li> <li class=md-nav__item> <a href=../sticker/ class=md-nav__link> <span class=md-ellipsis> Sticker </span> </a> </li> <li class=md-nav__item> <a href=../team/ class=md-nav__link> <span class=md-ellipsis> Team </span> </a> </li> <li class=md-nav__item> <a href=../thread/ class=md-nav__link> <span class=md-ellipsis> Thread </span> </a> </li> <li class=md-nav__item> <a href=../timestamp/ class=md-nav__link> <span class=md-ellipsis> Timestamp </span> </a> </li> <li class=md-nav__item> <a href=../user/ class=md-nav__link> <span class=md-ellipsis> User </span> </a> </li> <li class=md-nav__item> <a href=../voice_state/ class=md-nav__link> <span class=md-ellipsis> Voice state </span> </a> </li> <li class=md-nav__item> <a href=../webhooks/ class=md-nav__link> <span class=md-ellipsis> Webhooks </span> </a> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../Internal/ class=md-nav__link> <span class=md-ellipsis> Internal </span> <span class="md-nav__icon md-icon"></span> </a> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../Misc/ class=md-nav__link> <span class=md-ellipsis> Misc </span> <span class="md-nav__icon md-icon"></span> </a> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../../ext/ class=md-nav__link> <span class=md-ellipsis> Ext </span> <span class="md-nav__icon md-icon"></span> </a> </li> <li class=md-nav__item> <a href=../../../utils/ class=md-nav__link> <span class=md-ellipsis> Utils </span> </a> </li> <li class=md-nav__item> <a href=../../../monopage/ class=md-nav__link> <span class=md-ellipsis> Mono-Doc </span> </a> </li> </ul> </nav> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../../../../Guides/ class=md-nav__link> <span class=md-ellipsis> Guides </span> <span class="md-nav__icon md-icon"></span> </a> </li> </ul> </nav> </div> </div> </div> <div class="md-sidebar md-sidebar--secondary" data-md-component=sidebar data-md-type=toc> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedField class=md-nav__link> <span class=md-ellipsis> EmbedField </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedAuthor class=md-nav__link> <span class=md-ellipsis> EmbedAuthor </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedAttachment class=md-nav__link> <span class=md-ellipsis> EmbedAttachment </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedFooter class=md-nav__link> <span class=md-ellipsis> EmbedFooter </span> </a> <nav class=md-nav aria-label=EmbedFooter> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedFooter.converter class=md-nav__link> <span class=md-ellipsis> converter() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.EmbedProvider class=md-nav__link> <span class=md-ellipsis> EmbedProvider </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed class=md-nav__link> <span class=md-ellipsis> Embed </span> </a> <nav class=md-nav aria-label=Embed> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.title class=md-nav__link> <span class=md-ellipsis> title </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.description class=md-nav__link> <span class=md-ellipsis> description </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.color class=md-nav__link> <span class=md-ellipsis> color </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.url class=md-nav__link> <span class=md-ellipsis> url </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.timestamp class=md-nav__link> <span class=md-ellipsis> timestamp </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.fields class=md-nav__link> <span class=md-ellipsis> fields </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.author class=md-nav__link> <span class=md-ellipsis> author </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.thumbnail class=md-nav__link> <span class=md-ellipsis> thumbnail </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.images class=md-nav__link> <span class=md-ellipsis> images </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.video class=md-nav__link> <span class=md-ellipsis> video </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.footer class=md-nav__link> <span class=md-ellipsis> footer </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.provider class=md-nav__link> <span class=md-ellipsis> provider </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.image class=md-nav__link> <span class=md-ellipsis> image </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.set_author class=md-nav__link> <span class=md-ellipsis> set_author() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.set_thumbnail class=md-nav__link> <span class=md-ellipsis> set_thumbnail() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.set_image class=md-nav__link> <span class=md-ellipsis> set_image() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.set_images class=md-nav__link> <span class=md-ellipsis> set_images() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.add_image class=md-nav__link> <span class=md-ellipsis> add_image() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.set_footer class=md-nav__link> <span class=md-ellipsis> set_footer() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.add_field class=md-nav__link> <span class=md-ellipsis> add_field() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.Embed.add_fields class=md-nav__link> <span class=md-ellipsis> add_fields() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.models.discord.embed.process_embeds class=md-nav__link> <span class=md-ellipsis> process_embeds() </span> </a> </li> </ul> </nav> </div> </div> </div> <div class=md-content data-md-component=content> <article class="md-content__inner md-typeset"> <h1>Embed</h1> <div class="doc doc-object doc-module"> <div class="doc doc-contents first"> <div class="doc doc-children"> <div class="doc doc-object doc-class"> <h3 id=interactions.models.discord.embed.EmbedField class="doc doc-heading"> <code>EmbedField</code> <a href=#interactions.models.discord.embed.EmbedField class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p class="doc doc-class-bases"> Bases: <code><span title=interactions.client.mixins.serialization.DictSerializationMixin>DictSerializationMixin</span></code></p> <p>Representation of an embed field.</p> <p><strong>Attributes:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code>name</code></td> <td> <code>str</code> </td> <td><p>Field name</p></td> </tr> <tr> <td><code>value</code></td> <td> <code>str</code> </td> <td><p>Field value</p></td> </tr> <tr> <td><code>inline</code></td> <td> <code>bool</code> </td> <td><p>If the field should be inline</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>35</span>
+<span class=normal>36</span>
+<span class=normal>37</span>
+<span class=normal>38</span>
+<span class=normal>39</span>
+<span class=normal>40</span>
+<span class=normal>41</span>
+<span class=normal>42</span>
+<span class=normal>43</span>
+<span class=normal>44</span>
+<span class=normal>45</span>
+<span class=normal>46</span>
+<span class=normal>47</span>
+<span class=normal>48</span>
+<span class=normal>49</span>
+<span class=normal>50</span>
+<span class=normal>51</span>
+<span class=normal>52</span>
+<span class=normal>53</span>
+<span class=normal>54</span>
+<span class=normal>55</span>
+<span class=normal>56</span>
+<span class=normal>57</span>
+<span class=normal>58</span>
+<span class=normal>59</span>
+<span class=normal>60</span>
+<span class=normal>61</span>
+<span class=normal>62</span>
+<span class=normal>63</span>
+<span class=normal>64</span>
+<span class=normal>65</span>
+<span class=normal>66</span></pre></div></td><td class=code><div><pre><span></span><code><span class=nd>@attrs</span><span class=o>.</span><span class=n>define</span><span class=p>(</span><span class=n>eq</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>order</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=nb>hash</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>kw_only</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+<span class=k>class</span> <span class=nc>EmbedField</span><span class=p>(</span><span class=n>DictSerializationMixin</span><span class=p>):</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Representation of an embed field.</span>
+
+<span class=sd>    Attributes:</span>
+<span class=sd>        name: Field name</span>
+<span class=sd>        value: Field value</span>
+<span class=sd>        inline: If the field should be inline</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+
+    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span>
+        <span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+    <span class=p>)</span>
+    <span class=n>value</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span>
+        <span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+    <span class=p>)</span>
+    <span class=n>inline</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+
+    <span class=nd>@name</span><span class=o>.</span><span class=n>validator</span>
+    <span class=k>def</span> <span class=nf>_name_validation</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>attribute</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>value</span><span class=p>)</span> <span class=o>&gt;</span> <span class=n>EMBED_MAX_NAME_LENGTH</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Field name cannot exceed </span><span class=si>{</span><span class=n>EMBED_MAX_NAME_LENGTH</span><span class=si>}</span><span class=s2> characters&quot;</span><span class=p>)</span>
+
+    <span class=nd>@value</span><span class=o>.</span><span class=n>validator</span>
+    <span class=k>def</span> <span class=nf>_value_validation</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>attribute</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>value</span><span class=p>)</span> <span class=o>&gt;</span> <span class=n>EMBED_FIELD_VALUE_LENGTH</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Field value cannot exceed </span><span class=si>{</span><span class=n>EMBED_FIELD_VALUE_LENGTH</span><span class=si>}</span><span class=s2> characters&quot;</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=fm>__len__</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>int</span><span class=p>:</span>
+        <span class=k>return</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=p>)</span> <span class=o>+</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>value</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=interactions.models.discord.embed.EmbedAuthor class="doc doc-heading"> <code>EmbedAuthor</code> <a href=#interactions.models.discord.embed.EmbedAuthor class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p class="doc doc-class-bases"> Bases: <code><span title=interactions.client.mixins.serialization.DictSerializationMixin>DictSerializationMixin</span></code></p> <p>Representation of an embed author.</p> <p><strong>Attributes:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code>name</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>Name to show on embed</p></td> </tr> <tr> <td><code>url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>Url to go to when name is clicked</p></td> </tr> <tr> <td><code>icon_url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>Icon to show next to name</p></td> </tr> <tr> <td><code>proxy_icon_url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>Proxy icon url</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>69</span>
+<span class=normal>70</span>
+<span class=normal>71</span>
+<span class=normal>72</span>
+<span class=normal>73</span>
+<span class=normal>74</span>
+<span class=normal>75</span>
+<span class=normal>76</span>
+<span class=normal>77</span>
+<span class=normal>78</span>
+<span class=normal>79</span>
+<span class=normal>80</span>
+<span class=normal>81</span>
+<span class=normal>82</span>
+<span class=normal>83</span>
+<span class=normal>84</span>
+<span class=normal>85</span>
+<span class=normal>86</span>
+<span class=normal>87</span>
+<span class=normal>88</span>
+<span class=normal>89</span>
+<span class=normal>90</span>
+<span class=normal>91</span>
+<span class=normal>92</span>
+<span class=normal>93</span></pre></div></td><td class=code><div><pre><span></span><code><span class=nd>@attrs</span><span class=o>.</span><span class=n>define</span><span class=p>(</span><span class=n>eq</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>order</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=nb>hash</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>kw_only</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+<span class=k>class</span> <span class=nc>EmbedAuthor</span><span class=p>(</span><span class=n>DictSerializationMixin</span><span class=p>):</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Representation of an embed author.</span>
+
+<span class=sd>    Attributes:</span>
+<span class=sd>        name: Name to show on embed</span>
+<span class=sd>        url: Url to go to when name is clicked</span>
+<span class=sd>        icon_url: Icon to show next to name</span>
+<span class=sd>        proxy_icon_url: Proxy icon url</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+
+    <span class=n>name</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
+    <span class=n>url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
+    <span class=n>icon_url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
+    <span class=n>proxy_icon_url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>metadata</span><span class=o>=</span><span class=n>no_export_meta</span><span class=p>)</span>
+
+    <span class=nd>@name</span><span class=o>.</span><span class=n>validator</span>
+    <span class=k>def</span> <span class=nf>_name_validation</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>attribute</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>value</span><span class=p>)</span> <span class=o>&gt;</span> <span class=n>EMBED_MAX_NAME_LENGTH</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Field name cannot exceed </span><span class=si>{</span><span class=n>EMBED_MAX_NAME_LENGTH</span><span class=si>}</span><span class=s2> characters&quot;</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=fm>__len__</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>int</span><span class=p>:</span>
+        <span class=k>return</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>name</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=interactions.models.discord.embed.EmbedAttachment class="doc doc-heading"> <code>EmbedAttachment</code> <a href=#interactions.models.discord.embed.EmbedAttachment class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p class="doc doc-class-bases"> Bases: <code><span title=interactions.client.mixins.serialization.DictSerializationMixin>DictSerializationMixin</span></code></p> <p>Representation of an attachment.</p> <p><strong>Attributes:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code>url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>Attachment url</p></td> </tr> <tr> <td><code>proxy_url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>Proxy url</p></td> </tr> <tr> <td><code>height</code></td> <td> <code><span title=typing.Optional>Optional</span>[int]</code> </td> <td><p>Attachment height</p></td> </tr> <tr> <td><code>width</code></td> <td> <code><span title=typing.Optional>Optional</span>[int]</code> </td> <td><p>Attachment width</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal> 96</span>
+<span class=normal> 97</span>
+<span class=normal> 98</span>
+<span class=normal> 99</span>
+<span class=normal>100</span>
+<span class=normal>101</span>
+<span class=normal>102</span>
+<span class=normal>103</span>
+<span class=normal>104</span>
+<span class=normal>105</span>
+<span class=normal>106</span>
+<span class=normal>107</span>
+<span class=normal>108</span>
+<span class=normal>109</span>
+<span class=normal>110</span>
+<span class=normal>111</span>
+<span class=normal>112</span>
+<span class=normal>113</span>
+<span class=normal>114</span>
+<span class=normal>115</span>
+<span class=normal>116</span>
+<span class=normal>117</span>
+<span class=normal>118</span>
+<span class=normal>119</span>
+<span class=normal>120</span></pre></div></td><td class=code><div><pre><span></span><code><span class=nd>@attrs</span><span class=o>.</span><span class=n>define</span><span class=p>(</span><span class=n>eq</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>order</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=nb>hash</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>kw_only</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+<span class=k>class</span> <span class=nc>EmbedAttachment</span><span class=p>(</span><span class=n>DictSerializationMixin</span><span class=p>):</span>  <span class=c1># thumbnail or image or video</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Representation of an attachment.</span>
+
+<span class=sd>    Attributes:</span>
+<span class=sd>        url: Attachment url</span>
+<span class=sd>        proxy_url: Proxy url</span>
+<span class=sd>        height: Attachment height</span>
+<span class=sd>        width: Attachment width</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+
+    <span class=n>url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
+    <span class=n>proxy_url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>metadata</span><span class=o>=</span><span class=n>no_export_meta</span><span class=p>)</span>
+    <span class=n>height</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>metadata</span><span class=o>=</span><span class=n>no_export_meta</span><span class=p>)</span>
+    <span class=n>width</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>metadata</span><span class=o>=</span><span class=n>no_export_meta</span><span class=p>)</span>
+
+    <span class=nd>@classmethod</span>
+    <span class=k>def</span> <span class=nf>_process_dict</span><span class=p>(</span><span class=bp>cls</span><span class=p>,</span> <span class=n>data</span><span class=p>:</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Any</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Any</span><span class=p>]:</span>
+        <span class=k>return</span> <span class=p>{</span><span class=s2>&quot;url&quot;</span><span class=p>:</span> <span class=n>data</span><span class=p>}</span> <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>data</span><span class=p>,</span> <span class=nb>str</span><span class=p>)</span> <span class=k>else</span> <span class=n>data</span>
+
+    <span class=nd>@property</span>
+    <span class=k>def</span> <span class=nf>size</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>tuple</span><span class=p>[</span><span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>],</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>]]:</span>
+        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>height</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>width</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=interactions.models.discord.embed.EmbedFooter class="doc doc-heading"> <code>EmbedFooter</code> <a href=#interactions.models.discord.embed.EmbedFooter class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p class="doc doc-class-bases"> Bases: <code><span title=interactions.client.mixins.serialization.DictSerializationMixin>DictSerializationMixin</span></code></p> <p>Representation of an Embed Footer.</p> <p><strong>Attributes:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code>text</code></td> <td> <code>str</code> </td> <td><p>Footer text</p></td> </tr> <tr> <td><code>icon_url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>Footer icon url</p></td> </tr> <tr> <td><code>proxy_icon_url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>Proxy icon url</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>123</span>
+<span class=normal>124</span>
+<span class=normal>125</span>
+<span class=normal>126</span>
+<span class=normal>127</span>
+<span class=normal>128</span>
+<span class=normal>129</span>
+<span class=normal>130</span>
+<span class=normal>131</span>
+<span class=normal>132</span>
+<span class=normal>133</span>
+<span class=normal>134</span>
+<span class=normal>135</span>
+<span class=normal>136</span>
+<span class=normal>137</span>
+<span class=normal>138</span>
+<span class=normal>139</span>
+<span class=normal>140</span>
+<span class=normal>141</span>
+<span class=normal>142</span>
+<span class=normal>143</span>
+<span class=normal>144</span>
+<span class=normal>145</span>
+<span class=normal>146</span>
+<span class=normal>147</span>
+<span class=normal>148</span>
+<span class=normal>149</span>
+<span class=normal>150</span>
+<span class=normal>151</span>
+<span class=normal>152</span>
+<span class=normal>153</span>
+<span class=normal>154</span>
+<span class=normal>155</span></pre></div></td><td class=code><div><pre><span></span><code><span class=nd>@attrs</span><span class=o>.</span><span class=n>define</span><span class=p>(</span><span class=n>eq</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>order</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=nb>hash</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>kw_only</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+<span class=k>class</span> <span class=nc>EmbedFooter</span><span class=p>(</span><span class=n>DictSerializationMixin</span><span class=p>):</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Representation of an Embed Footer.</span>
+
+<span class=sd>    Attributes:</span>
+<span class=sd>        text: Footer text</span>
+<span class=sd>        icon_url: Footer icon url</span>
+<span class=sd>        proxy_icon_url: Proxy icon url</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+
+    <span class=n>text</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span>
+        <span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+    <span class=p>)</span>
+    <span class=n>icon_url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
+    <span class=n>proxy_icon_url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>metadata</span><span class=o>=</span><span class=n>no_export_meta</span><span class=p>)</span>
+
+    <span class=nd>@classmethod</span>
+    <span class=k>def</span> <span class=nf>converter</span><span class=p>(</span><span class=bp>cls</span><span class=p>,</span> <span class=n>ingest</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=nb>dict</span><span class=p>,</span> <span class=nb>str</span><span class=p>,</span> <span class=s2>&quot;EmbedFooter&quot;</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=s2>&quot;EmbedFooter&quot;</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        A converter to handle users passing raw strings or dictionaries as footers to the Embed object.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            ingest: The data to convert</span>
+
+<span class=sd>        Returns:</span>
+<span class=sd>            An EmbedFooter object</span>
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=k>return</span> <span class=bp>cls</span><span class=p>(</span><span class=n>text</span><span class=o>=</span><span class=n>ingest</span><span class=p>)</span> <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>ingest</span><span class=p>,</span> <span class=nb>str</span><span class=p>)</span> <span class=k>else</span> <span class=bp>cls</span><span class=o>.</span><span class=n>from_dict</span><span class=p>(</span><span class=n>ingest</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=fm>__len__</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>int</span><span class=p>:</span>
+        <span class=k>return</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>text</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> <div class="doc doc-object doc-function"> <h4 id=interactions.models.discord.embed.EmbedFooter.converter class="doc doc-heading"> <code class="highlight language-python"><span class=n>converter</span><span class=p>(</span><span class=n>ingest</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small> </span> <a href=#interactions.models.discord.embed.EmbedFooter.converter class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>A converter to handle users passing raw strings or dictionaries as footers to the Embed object.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>ingest</code></td> <td> <code><span title=typing.Union>Union</span>[dict, str, <a class="autorefs autorefs-internal" title=interactions.models.discord.embed.EmbedFooter href=#interactions.models.discord.embed.EmbedFooter>EmbedFooter</a>]</code> </td> <td><p>The data to convert</p></td> <td> <em>required</em> </td> </tr> </tbody> </table> <p><strong>Returns:</strong></p> <table> <thead> <tr> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td> <code><a class="autorefs autorefs-internal" title=interactions.models.discord.embed.EmbedFooter href=#interactions.models.discord.embed.EmbedFooter>EmbedFooter</a></code> </td> <td><p>An EmbedFooter object</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>141</span>
+<span class=normal>142</span>
+<span class=normal>143</span>
+<span class=normal>144</span>
+<span class=normal>145</span>
+<span class=normal>146</span>
+<span class=normal>147</span>
+<span class=normal>148</span>
+<span class=normal>149</span>
+<span class=normal>150</span>
+<span class=normal>151</span>
+<span class=normal>152</span></pre></div></td><td class=code><div><pre><span></span><code><span class=nd>@classmethod</span>
+<span class=k>def</span> <span class=nf>converter</span><span class=p>(</span><span class=bp>cls</span><span class=p>,</span> <span class=n>ingest</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=nb>dict</span><span class=p>,</span> <span class=nb>str</span><span class=p>,</span> <span class=s2>&quot;EmbedFooter&quot;</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=s2>&quot;EmbedFooter&quot;</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    A converter to handle users passing raw strings or dictionaries as footers to the Embed object.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        ingest: The data to convert</span>
+
+<span class=sd>    Returns:</span>
+<span class=sd>        An EmbedFooter object</span>
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=k>return</span> <span class=bp>cls</span><span class=p>(</span><span class=n>text</span><span class=o>=</span><span class=n>ingest</span><span class=p>)</span> <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>ingest</span><span class=p>,</span> <span class=nb>str</span><span class=p>)</span> <span class=k>else</span> <span class=bp>cls</span><span class=o>.</span><span class=n>from_dict</span><span class=p>(</span><span class=n>ingest</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=interactions.models.discord.embed.EmbedProvider class="doc doc-heading"> <code>EmbedProvider</code> <a href=#interactions.models.discord.embed.EmbedProvider class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p class="doc doc-class-bases"> Bases: <code><span title=interactions.client.mixins.serialization.DictSerializationMixin>DictSerializationMixin</span></code></p> <p>Represents an embed's provider.</p> <div class="admonition note"> <p class=admonition-title>Note</p> <p>Only used by system embeds, not bots</p> </div> <p><strong>Attributes:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code>name</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>Provider name</p></td> </tr> <tr> <td><code>url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>Provider url</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>158</span>
+<span class=normal>159</span>
+<span class=normal>160</span>
+<span class=normal>161</span>
+<span class=normal>162</span>
+<span class=normal>163</span>
+<span class=normal>164</span>
+<span class=normal>165</span>
+<span class=normal>166</span>
+<span class=normal>167</span>
+<span class=normal>168</span>
+<span class=normal>169</span>
+<span class=normal>170</span>
+<span class=normal>171</span>
+<span class=normal>172</span>
+<span class=normal>173</span></pre></div></td><td class=code><div><pre><span></span><code><span class=nd>@attrs</span><span class=o>.</span><span class=n>define</span><span class=p>(</span><span class=n>eq</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>order</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=nb>hash</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>kw_only</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+<span class=k>class</span> <span class=nc>EmbedProvider</span><span class=p>(</span><span class=n>DictSerializationMixin</span><span class=p>):</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Represents an embed&#39;s provider.</span>
+
+<span class=sd>    !!! note</span>
+<span class=sd>        Only used by system embeds, not bots</span>
+
+<span class=sd>    Attributes:</span>
+<span class=sd>        name: Provider name</span>
+<span class=sd>        url: Provider url</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+
+    <span class=n>name</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
+    <span class=n>url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=interactions.models.discord.embed.Embed class="doc doc-heading"> <code>Embed</code> <a href=#interactions.models.discord.embed.Embed class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p class="doc doc-class-bases"> Bases: <code><span title=interactions.client.mixins.serialization.DictSerializationMixin>DictSerializationMixin</span></code></p> <p>Represents a discord embed object.</p> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>176</span>
+<span class=normal>177</span>
+<span class=normal>178</span>
+<span class=normal>179</span>
+<span class=normal>180</span>
+<span class=normal>181</span>
+<span class=normal>182</span>
+<span class=normal>183</span>
+<span class=normal>184</span>
+<span class=normal>185</span>
+<span class=normal>186</span>
+<span class=normal>187</span>
+<span class=normal>188</span>
+<span class=normal>189</span>
+<span class=normal>190</span>
+<span class=normal>191</span>
+<span class=normal>192</span>
+<span class=normal>193</span>
+<span class=normal>194</span>
+<span class=normal>195</span>
+<span class=normal>196</span>
+<span class=normal>197</span>
+<span class=normal>198</span>
+<span class=normal>199</span>
+<span class=normal>200</span>
+<span class=normal>201</span>
+<span class=normal>202</span>
+<span class=normal>203</span>
+<span class=normal>204</span>
+<span class=normal>205</span>
+<span class=normal>206</span>
+<span class=normal>207</span>
+<span class=normal>208</span>
+<span class=normal>209</span>
+<span class=normal>210</span>
+<span class=normal>211</span>
+<span class=normal>212</span>
+<span class=normal>213</span>
+<span class=normal>214</span>
+<span class=normal>215</span>
+<span class=normal>216</span>
+<span class=normal>217</span>
+<span class=normal>218</span>
+<span class=normal>219</span>
+<span class=normal>220</span>
+<span class=normal>221</span>
+<span class=normal>222</span>
+<span class=normal>223</span>
+<span class=normal>224</span>
+<span class=normal>225</span>
+<span class=normal>226</span>
+<span class=normal>227</span>
+<span class=normal>228</span>
+<span class=normal>229</span>
+<span class=normal>230</span>
+<span class=normal>231</span>
+<span class=normal>232</span>
+<span class=normal>233</span>
+<span class=normal>234</span>
+<span class=normal>235</span>
+<span class=normal>236</span>
+<span class=normal>237</span>
+<span class=normal>238</span>
+<span class=normal>239</span>
+<span class=normal>240</span>
+<span class=normal>241</span>
+<span class=normal>242</span>
+<span class=normal>243</span>
+<span class=normal>244</span>
+<span class=normal>245</span>
+<span class=normal>246</span>
+<span class=normal>247</span>
+<span class=normal>248</span>
+<span class=normal>249</span>
+<span class=normal>250</span>
+<span class=normal>251</span>
+<span class=normal>252</span>
+<span class=normal>253</span>
+<span class=normal>254</span>
+<span class=normal>255</span>
+<span class=normal>256</span>
+<span class=normal>257</span>
+<span class=normal>258</span>
+<span class=normal>259</span>
+<span class=normal>260</span>
+<span class=normal>261</span>
+<span class=normal>262</span>
+<span class=normal>263</span>
+<span class=normal>264</span>
+<span class=normal>265</span>
+<span class=normal>266</span>
+<span class=normal>267</span>
+<span class=normal>268</span>
+<span class=normal>269</span>
+<span class=normal>270</span>
+<span class=normal>271</span>
+<span class=normal>272</span>
+<span class=normal>273</span>
+<span class=normal>274</span>
+<span class=normal>275</span>
+<span class=normal>276</span>
+<span class=normal>277</span>
+<span class=normal>278</span>
+<span class=normal>279</span>
+<span class=normal>280</span>
+<span class=normal>281</span>
+<span class=normal>282</span>
+<span class=normal>283</span>
+<span class=normal>284</span>
+<span class=normal>285</span>
+<span class=normal>286</span>
+<span class=normal>287</span>
+<span class=normal>288</span>
+<span class=normal>289</span>
+<span class=normal>290</span>
+<span class=normal>291</span>
+<span class=normal>292</span>
+<span class=normal>293</span>
+<span class=normal>294</span>
+<span class=normal>295</span>
+<span class=normal>296</span>
+<span class=normal>297</span>
+<span class=normal>298</span>
+<span class=normal>299</span>
+<span class=normal>300</span>
+<span class=normal>301</span>
+<span class=normal>302</span>
+<span class=normal>303</span>
+<span class=normal>304</span>
+<span class=normal>305</span>
+<span class=normal>306</span>
+<span class=normal>307</span>
+<span class=normal>308</span>
+<span class=normal>309</span>
+<span class=normal>310</span>
+<span class=normal>311</span>
+<span class=normal>312</span>
+<span class=normal>313</span>
+<span class=normal>314</span>
+<span class=normal>315</span>
+<span class=normal>316</span>
+<span class=normal>317</span>
+<span class=normal>318</span>
+<span class=normal>319</span>
+<span class=normal>320</span>
+<span class=normal>321</span>
+<span class=normal>322</span>
+<span class=normal>323</span>
+<span class=normal>324</span>
+<span class=normal>325</span>
+<span class=normal>326</span>
+<span class=normal>327</span>
+<span class=normal>328</span>
+<span class=normal>329</span>
+<span class=normal>330</span>
+<span class=normal>331</span>
+<span class=normal>332</span>
+<span class=normal>333</span>
+<span class=normal>334</span>
+<span class=normal>335</span>
+<span class=normal>336</span>
+<span class=normal>337</span>
+<span class=normal>338</span>
+<span class=normal>339</span>
+<span class=normal>340</span>
+<span class=normal>341</span>
+<span class=normal>342</span>
+<span class=normal>343</span>
+<span class=normal>344</span>
+<span class=normal>345</span>
+<span class=normal>346</span>
+<span class=normal>347</span>
+<span class=normal>348</span>
+<span class=normal>349</span>
+<span class=normal>350</span>
+<span class=normal>351</span>
+<span class=normal>352</span>
+<span class=normal>353</span>
+<span class=normal>354</span>
+<span class=normal>355</span>
+<span class=normal>356</span>
+<span class=normal>357</span>
+<span class=normal>358</span>
+<span class=normal>359</span>
+<span class=normal>360</span>
+<span class=normal>361</span>
+<span class=normal>362</span>
+<span class=normal>363</span>
+<span class=normal>364</span>
+<span class=normal>365</span>
+<span class=normal>366</span>
+<span class=normal>367</span>
+<span class=normal>368</span>
+<span class=normal>369</span>
+<span class=normal>370</span>
+<span class=normal>371</span>
+<span class=normal>372</span>
+<span class=normal>373</span>
+<span class=normal>374</span>
+<span class=normal>375</span>
+<span class=normal>376</span>
+<span class=normal>377</span>
+<span class=normal>378</span>
+<span class=normal>379</span>
+<span class=normal>380</span>
+<span class=normal>381</span>
+<span class=normal>382</span>
+<span class=normal>383</span>
+<span class=normal>384</span>
+<span class=normal>385</span>
+<span class=normal>386</span>
+<span class=normal>387</span>
+<span class=normal>388</span>
+<span class=normal>389</span>
+<span class=normal>390</span>
+<span class=normal>391</span>
+<span class=normal>392</span>
+<span class=normal>393</span>
+<span class=normal>394</span>
+<span class=normal>395</span>
+<span class=normal>396</span>
+<span class=normal>397</span>
+<span class=normal>398</span>
+<span class=normal>399</span>
+<span class=normal>400</span>
+<span class=normal>401</span>
+<span class=normal>402</span>
+<span class=normal>403</span>
+<span class=normal>404</span>
+<span class=normal>405</span>
+<span class=normal>406</span>
+<span class=normal>407</span>
+<span class=normal>408</span>
+<span class=normal>409</span>
+<span class=normal>410</span>
+<span class=normal>411</span>
+<span class=normal>412</span>
+<span class=normal>413</span>
+<span class=normal>414</span>
+<span class=normal>415</span>
+<span class=normal>416</span>
+<span class=normal>417</span>
+<span class=normal>418</span>
+<span class=normal>419</span>
+<span class=normal>420</span>
+<span class=normal>421</span>
+<span class=normal>422</span>
+<span class=normal>423</span>
+<span class=normal>424</span>
+<span class=normal>425</span>
+<span class=normal>426</span>
+<span class=normal>427</span>
+<span class=normal>428</span>
+<span class=normal>429</span>
+<span class=normal>430</span>
+<span class=normal>431</span>
+<span class=normal>432</span>
+<span class=normal>433</span>
+<span class=normal>434</span>
+<span class=normal>435</span>
+<span class=normal>436</span>
+<span class=normal>437</span>
+<span class=normal>438</span>
+<span class=normal>439</span>
+<span class=normal>440</span>
+<span class=normal>441</span>
+<span class=normal>442</span>
+<span class=normal>443</span>
+<span class=normal>444</span>
+<span class=normal>445</span>
+<span class=normal>446</span>
+<span class=normal>447</span>
+<span class=normal>448</span>
+<span class=normal>449</span>
+<span class=normal>450</span>
+<span class=normal>451</span>
+<span class=normal>452</span>
+<span class=normal>453</span>
+<span class=normal>454</span>
+<span class=normal>455</span></pre></div></td><td class=code><div><pre><span></span><code><span class=nd>@attrs</span><span class=o>.</span><span class=n>define</span><span class=p>(</span><span class=n>eq</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>order</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=nb>hash</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>kw_only</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+<span class=k>class</span> <span class=nc>Embed</span><span class=p>(</span><span class=n>DictSerializationMixin</span><span class=p>):</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Represents a discord embed object.&quot;&quot;&quot;</span>
+
+    <span class=n>title</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The title of the embed&quot;&quot;&quot;</span>
+    <span class=n>description</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The description of the embed&quot;&quot;&quot;</span>
+    <span class=n>color</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Union</span><span class=p>[</span><span class=n>Color</span><span class=p>,</span> <span class=nb>dict</span><span class=p>,</span> <span class=nb>tuple</span><span class=p>,</span> <span class=nb>list</span><span class=p>,</span> <span class=nb>str</span><span class=p>,</span> <span class=nb>int</span><span class=p>]]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span>
+        <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span> <span class=n>metadata</span><span class=o>=</span><span class=n>export_converter</span><span class=p>(</span><span class=n>process_color</span><span class=p>)</span>
+    <span class=p>)</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The colour of the embed&quot;&quot;&quot;</span>
+    <span class=n>url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>validator</span><span class=o>=</span><span class=n>v_optional</span><span class=p>(</span><span class=n>instance_of</span><span class=p>(</span><span class=nb>str</span><span class=p>)),</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The url the embed should direct to when clicked&quot;&quot;&quot;</span>
+    <span class=n>timestamp</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Timestamp</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span>
+        <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+        <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>timestamp_converter</span><span class=p>),</span>
+        <span class=n>validator</span><span class=o>=</span><span class=n>v_optional</span><span class=p>(</span><span class=n>instance_of</span><span class=p>((</span><span class=n>datetime</span><span class=p>,</span> <span class=nb>float</span><span class=p>,</span> <span class=nb>int</span><span class=p>))),</span>
+        <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+    <span class=p>)</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Timestamp of embed content&quot;&quot;&quot;</span>
+    <span class=n>fields</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>EmbedField</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=n>factory</span><span class=o>=</span><span class=nb>list</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>EmbedField</span><span class=o>.</span><span class=n>from_list</span><span class=p>,</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;A list of [fields][interactions.models.discord.embed.EmbedField] to go in the embed&quot;&quot;&quot;</span>
+    <span class=n>author</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedAuthor</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedAuthor</span><span class=o>.</span><span class=n>from_dict</span><span class=p>))</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The author of the embed&quot;&quot;&quot;</span>
+    <span class=n>thumbnail</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span>
+        <span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedAttachment</span><span class=o>.</span><span class=n>from_dict</span><span class=p>)</span>
+    <span class=p>)</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The thumbnail of the embed&quot;&quot;&quot;</span>
+    <span class=n>images</span><span class=p>:</span> <span class=nb>list</span><span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span>
+        <span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>factory</span><span class=o>=</span><span class=nb>list</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>list_converter</span><span class=p>(</span><span class=n>EmbedAttachment</span><span class=o>.</span><span class=n>from_dict</span><span class=p>)</span>
+    <span class=p>)</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The images of the embed&quot;&quot;&quot;</span>
+    <span class=n>video</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span>
+        <span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+        <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+        <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedAttachment</span><span class=o>.</span><span class=n>from_dict</span><span class=p>),</span>
+        <span class=n>metadata</span><span class=o>=</span><span class=n>no_export_meta</span><span class=p>,</span>
+    <span class=p>)</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The video of the embed, only used by system embeds&quot;&quot;&quot;</span>
+    <span class=n>footer</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedFooter</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedFooter</span><span class=o>.</span><span class=n>converter</span><span class=p>))</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The footer of the embed&quot;&quot;&quot;</span>
+    <span class=n>provider</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedProvider</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span>
+        <span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+        <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span>
+        <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedProvider</span><span class=o>.</span><span class=n>from_dict</span><span class=p>),</span>
+        <span class=n>metadata</span><span class=o>=</span><span class=n>no_export_meta</span><span class=p>,</span>
+    <span class=p>)</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The provider of the embed, only used for system embeds&quot;&quot;&quot;</span>
+    <span class=nb>type</span><span class=p>:</span> <span class=n>EmbedType</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span>
+        <span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span>
+        <span class=n>default</span><span class=o>=</span><span class=n>EmbedType</span><span class=o>.</span><span class=n>RICH</span><span class=p>,</span>
+        <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedType</span><span class=p>),</span>
+        <span class=n>metadata</span><span class=o>=</span><span class=n>no_export_meta</span><span class=p>,</span>
+    <span class=p>)</span>
+
+    <span class=nd>@property</span>
+    <span class=k>def</span> <span class=nf>image</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>]:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        The image of the embed.</span>
+
+<span class=sd>        Raises:</span>
+<span class=sd>            ValueError: If there are multiple images in the embed.</span>
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=mi>1</span><span class=p>:</span>
+            <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>images</span> <span class=k>else</span> <span class=kc>None</span>
+        <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&quot;There are multiple images in this embed, use `images` instead&quot;</span><span class=p>)</span>
+
+    <span class=nd>@image</span><span class=o>.</span><span class=n>setter</span>
+    <span class=k>def</span> <span class=nf>image</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;Set the image of the embed.&quot;&quot;&quot;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>images</span> <span class=o>=</span> <span class=p>[]</span> <span class=k>if</span> <span class=n>value</span> <span class=ow>is</span> <span class=kc>None</span> <span class=k>else</span> <span class=p>[</span><span class=n>value</span><span class=p>]</span>
+        <span class=k>return</span> <span class=bp>self</span>
+
+    <span class=nd>@title</span><span class=o>.</span><span class=n>validator</span>
+    <span class=k>def</span> <span class=nf>_name_validation</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>attribute</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;Validate the embed title.&quot;&quot;&quot;</span>
+        <span class=k>if</span> <span class=n>value</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+            <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>value</span><span class=p>,</span> <span class=nb>str</span><span class=p>):</span>
+                <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>value</span><span class=p>)</span> <span class=o>&gt;</span> <span class=n>EMBED_MAX_NAME_LENGTH</span><span class=p>:</span>
+                    <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Title cannot exceed </span><span class=si>{</span><span class=n>EMBED_MAX_NAME_LENGTH</span><span class=si>}</span><span class=s2> characters&quot;</span><span class=p>)</span>
+                <span class=k>return</span>
+            <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span><span class=s2>&quot;Title must be of type String&quot;</span><span class=p>)</span>
+
+    <span class=nd>@description</span><span class=o>.</span><span class=n>validator</span>
+    <span class=k>def</span> <span class=nf>_description_validation</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>attribute</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;Validate the description.&quot;&quot;&quot;</span>
+        <span class=k>if</span> <span class=n>value</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+            <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>value</span><span class=p>,</span> <span class=nb>str</span><span class=p>):</span>
+                <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>value</span><span class=p>)</span> <span class=o>&gt;</span> <span class=n>EMBED_MAX_DESC_LENGTH</span><span class=p>:</span>
+                    <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Description cannot exceed </span><span class=si>{</span><span class=n>EMBED_MAX_DESC_LENGTH</span><span class=si>}</span><span class=s2> characters&quot;</span><span class=p>)</span>
+                <span class=k>return</span>
+            <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span><span class=s2>&quot;Description must be of type String&quot;</span><span class=p>)</span>
+
+    <span class=nd>@fields</span><span class=o>.</span><span class=n>validator</span>
+    <span class=k>def</span> <span class=nf>_fields_validation</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>attribute</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Any</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;Validate the fields.&quot;&quot;&quot;</span>
+        <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>value</span><span class=p>,</span> <span class=nb>list</span><span class=p>)</span> <span class=ow>and</span> <span class=nb>len</span><span class=p>(</span><span class=n>value</span><span class=p>)</span> <span class=o>&gt;</span> <span class=n>EMBED_MAX_FIELDS</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Embeds can only hold </span><span class=si>{</span><span class=n>EMBED_MAX_FIELDS</span><span class=si>}</span><span class=s2> fields&quot;</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>_check_object</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_name_validation</span><span class=p>(</span><span class=s2>&quot;title&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>title</span><span class=p>)</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_description_validation</span><span class=p>(</span><span class=s2>&quot;description&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>description</span><span class=p>)</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_fields_validation</span><span class=p>(</span><span class=s2>&quot;fields&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=p>)</span>
+
+        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>&gt;</span> <span class=n>EMBED_TOTAL_MAX</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span>
+                <span class=s2>&quot;Your embed is too large, more info at https://discord.com/developers/docs/resources/channel#embed-limits&quot;</span>
+            <span class=p>)</span>
+
+    <span class=k>def</span> <span class=fm>__len__</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>int</span><span class=p>:</span>
+        <span class=c1># yes i know there are far more optimal ways to write this</span>
+        <span class=c1># its written like this for readability</span>
+        <span class=n>total</span><span class=p>:</span> <span class=nb>int</span> <span class=o>=</span> <span class=mi>0</span>
+        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>title</span><span class=p>:</span>
+            <span class=n>total</span> <span class=o>+=</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>title</span><span class=p>)</span>
+        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>description</span><span class=p>:</span>
+            <span class=n>total</span> <span class=o>+=</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>description</span><span class=p>)</span>
+        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>footer</span><span class=p>:</span>
+            <span class=n>total</span> <span class=o>+=</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>footer</span><span class=p>)</span>
+        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>author</span><span class=p>:</span>
+            <span class=n>total</span> <span class=o>+=</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>author</span><span class=p>)</span>
+        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=p>:</span>
+            <span class=n>total</span> <span class=o>+=</span> <span class=nb>sum</span><span class=p>(</span><span class=nb>map</span><span class=p>(</span><span class=nb>len</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=p>))</span>
+        <span class=k>return</span> <span class=n>total</span>
+
+    <span class=k>def</span> <span class=fm>__bool__</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+        <span class=k>return</span> <span class=nb>any</span><span class=p>(</span>
+            <span class=p>(</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>title</span><span class=p>,</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>description</span><span class=p>,</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=p>,</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>author</span><span class=p>,</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>thumbnail</span><span class=p>,</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>footer</span><span class=p>,</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=p>,</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>video</span><span class=p>,</span>
+            <span class=p>)</span>
+        <span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>set_author</span><span class=p>(</span>
+        <span class=bp>self</span><span class=p>,</span>
+        <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
+        <span class=n>url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+        <span class=n>icon_url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+    <span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Set the author field of the embed.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            name: The text to go in the title section</span>
+<span class=sd>            url: A url link to the author</span>
+<span class=sd>            icon_url: A url of an image to use as the icon</span>
+
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>author</span> <span class=o>=</span> <span class=n>EmbedAuthor</span><span class=p>(</span><span class=n>name</span><span class=o>=</span><span class=n>name</span><span class=p>,</span> <span class=n>url</span><span class=o>=</span><span class=n>url</span><span class=p>,</span> <span class=n>icon_url</span><span class=o>=</span><span class=n>icon_url</span><span class=p>)</span>
+        <span class=k>return</span> <span class=bp>self</span>
+
+    <span class=k>def</span> <span class=nf>set_thumbnail</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>url</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Set the thumbnail of the embed.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            url: the url of the image to use</span>
+
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>thumbnail</span> <span class=o>=</span> <span class=n>EmbedAttachment</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>url</span><span class=p>)</span>
+        <span class=k>return</span> <span class=bp>self</span>
+
+    <span class=k>def</span> <span class=nf>set_image</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>url</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Set the image of the embed.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            url: the url of the image to use</span>
+
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>images</span> <span class=o>=</span> <span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>url</span><span class=p>)]</span>
+        <span class=k>return</span> <span class=bp>self</span>
+
+    <span class=k>def</span> <span class=nf>set_images</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=n>images</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Set multiple images for the embed.</span>
+
+<span class=sd>        Note:</span>
+<span class=sd>            To use multiple images, you must also set a url for this embed.</span>
+
+<span class=sd>        Warning:</span>
+<span class=sd>            This takes advantage of an undocumented feature of the API, and may be removed at any time.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            images: the images to use</span>
+
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=p>)</span> <span class=o>+</span> <span class=nb>len</span><span class=p>(</span><span class=n>images</span><span class=p>)</span> <span class=o>&gt;</span> <span class=mi>1</span> <span class=ow>and</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&quot;To use multiple images, you must also set a url for this embed&quot;</span><span class=p>)</span>
+
+        <span class=bp>self</span><span class=o>.</span><span class=n>images</span> <span class=o>=</span> <span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>url</span><span class=p>)</span> <span class=k>for</span> <span class=n>url</span> <span class=ow>in</span> <span class=n>images</span><span class=p>]</span>
+        <span class=k>return</span> <span class=bp>self</span>
+
+    <span class=k>def</span> <span class=nf>add_image</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>image</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Add an image to the embed.</span>
+
+<span class=sd>        Note:</span>
+<span class=sd>            To use multiple images, you must also set a url for this embed.</span>
+
+<span class=sd>        Warning:</span>
+<span class=sd>            This takes advantage of an undocumented feature of the API, and may be removed at any time.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            image: the image to add</span>
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=p>)</span> <span class=o>&gt;</span> <span class=mi>0</span> <span class=ow>and</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&quot;To use multiple images, you must also set a url for this embed&quot;</span><span class=p>)</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>EmbedAttachment</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>image</span><span class=p>))</span>
+        <span class=k>return</span> <span class=bp>self</span>
+
+    <span class=k>def</span> <span class=nf>set_footer</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>text</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>icon_url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Set the footer field of the embed.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            text: The text to go in the title section</span>
+<span class=sd>            icon_url: A url of an image to use as the icon</span>
+
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>footer</span> <span class=o>=</span> <span class=n>EmbedFooter</span><span class=p>(</span><span class=n>text</span><span class=o>=</span><span class=n>text</span><span class=p>,</span> <span class=n>icon_url</span><span class=o>=</span><span class=n>icon_url</span><span class=p>)</span>
+        <span class=k>return</span> <span class=bp>self</span>
+
+    <span class=k>def</span> <span class=nf>add_field</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span> <span class=n>inline</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Add a field to the embed.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            name: The title of this field</span>
+<span class=sd>            value: The value in this field</span>
+<span class=sd>            inline: Should this field be inline with other fields?</span>
+
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>EmbedField</span><span class=p>(</span><span class=n>name</span><span class=p>,</span> <span class=nb>str</span><span class=p>(</span><span class=n>value</span><span class=p>),</span> <span class=n>inline</span><span class=p>))</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_fields_validation</span><span class=p>(</span><span class=s2>&quot;fields&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=p>)</span>
+
+        <span class=k>return</span> <span class=bp>self</span>
+
+    <span class=k>def</span> <span class=nf>add_fields</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=n>fields</span><span class=p>:</span> <span class=n>EmbedField</span> <span class=o>|</span> <span class=nb>str</span> <span class=o>|</span> <span class=nb>dict</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Add multiple fields to the embed.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            fields: The fields to add</span>
+
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=k>for</span> <span class=n>_field</span> <span class=ow>in</span> <span class=n>fields</span><span class=p>:</span>
+            <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>_field</span><span class=p>,</span> <span class=n>EmbedField</span><span class=p>):</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>_field</span><span class=p>)</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>_fields_validation</span><span class=p>(</span><span class=s2>&quot;fields&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=p>)</span>
+            <span class=k>elif</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>_field</span><span class=p>,</span> <span class=nb>str</span><span class=p>):</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>add_field</span><span class=p>(</span><span class=n>_field</span><span class=p>,</span> <span class=n>_field</span><span class=p>)</span>
+            <span class=k>elif</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>_field</span><span class=p>,</span> <span class=nb>dict</span><span class=p>):</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>add_field</span><span class=p>(</span><span class=o>**</span><span class=n>_field</span><span class=p>)</span>
+            <span class=k>else</span><span class=p>:</span>
+                <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Expected EmbedField, str or dict, got </span><span class=si>{</span><span class=nb>type</span><span class=p>(</span><span class=n>_field</span><span class=p>)</span><span class=o>.</span><span class=vm>__name__</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
+        <span class=k>return</span> <span class=bp>self</span>
+
+    <span class=k>def</span> <span class=nf>to_dict</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Dict</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Any</span><span class=p>]:</span>
+        <span class=n>data</span> <span class=o>=</span> <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>to_dict</span><span class=p>()</span>
+        <span class=k>if</span> <span class=n>images</span> <span class=o>:=</span> <span class=n>data</span><span class=o>.</span><span class=n>pop</span><span class=p>(</span><span class=s2>&quot;images&quot;</span><span class=p>,</span> <span class=p>[]):</span>
+            <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>images</span><span class=p>)</span> <span class=o>&gt;</span> <span class=mi>1</span><span class=p>:</span>
+                <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=p>:</span>
+                    <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&quot;To use multiple images, you must also set a url for this embed&quot;</span><span class=p>)</span>
+
+                <span class=n>data</span><span class=p>[</span><span class=s2>&quot;image&quot;</span><span class=p>]</span> <span class=o>=</span> <span class=n>images</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span>
+                <span class=n>data</span> <span class=o>=</span> <span class=p>[</span><span class=n>data</span><span class=p>]</span>
+
+                <span class=n>data</span><span class=o>.</span><span class=n>extend</span><span class=p>({</span><span class=s2>&quot;image&quot;</span><span class=p>:</span> <span class=n>image</span><span class=p>,</span> <span class=s2>&quot;url&quot;</span><span class=p>:</span> <span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=p>}</span> <span class=k>for</span> <span class=n>image</span> <span class=ow>in</span> <span class=n>images</span><span class=p>[</span><span class=mi>1</span><span class=p>:])</span>
+            <span class=k>else</span><span class=p>:</span>
+                <span class=n>data</span><span class=p>[</span><span class=s2>&quot;image&quot;</span><span class=p>]</span> <span class=o>=</span> <span class=n>images</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span>
+
+        <span class=k>return</span> <span class=n>data</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.title class="doc doc-heading"> <code class="highlight language-python"><span class=n>title</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.title class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The title of the embed</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.description class="doc doc-heading"> <code class="highlight language-python"><span class=n>description</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.description class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The description of the embed</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.color class="doc doc-heading"> <code class="highlight language-python"><span class=n>color</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Union</span><span class=p>[</span><span class=n>Color</span><span class=p>,</span> <span class=nb>dict</span><span class=p>,</span> <span class=nb>tuple</span><span class=p>,</span> <span class=nb>list</span><span class=p>,</span> <span class=nb>str</span><span class=p>,</span> <span class=nb>int</span><span class=p>]]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span> <span class=n>metadata</span><span class=o>=</span><span class=n>export_converter</span><span class=p>(</span><span class=n>process_color</span><span class=p>))</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.color class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The colour of the embed</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.url class="doc doc-heading"> <code class="highlight language-python"><span class=n>url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>validator</span><span class=o>=</span><span class=n>v_optional</span><span class=p>(</span><span class=n>instance_of</span><span class=p>(</span><span class=nb>str</span><span class=p>)),</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.url class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The url the embed should direct to when clicked</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.timestamp class="doc doc-heading"> <code class="highlight language-python"><span class=n>timestamp</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Timestamp</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>timestamp_converter</span><span class=p>),</span> <span class=n>validator</span><span class=o>=</span><span class=n>v_optional</span><span class=p>(</span><span class=n>instance_of</span><span class=p>((</span><span class=n>datetime</span><span class=p>,</span> <span class=nb>float</span><span class=p>,</span> <span class=nb>int</span><span class=p>))),</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.timestamp class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Timestamp of embed content</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.fields class="doc doc-heading"> <code class="highlight language-python"><span class=n>fields</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>EmbedField</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=n>factory</span><span class=o>=</span><span class=nb>list</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>EmbedField</span><span class=o>.</span><span class=n>from_list</span><span class=p>,</span> <span class=nb>repr</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.fields class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>A list of <a class="autorefs autorefs-internal" href=#interactions.models.discord.embed.EmbedField>fields</a> to go in the embed</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.author class="doc doc-heading"> <code class="highlight language-python"><span class=n>author</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedAuthor</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedAuthor</span><span class=o>.</span><span class=n>from_dict</span><span class=p>))</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.author class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The author of the embed</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.thumbnail class="doc doc-heading"> <code class="highlight language-python"><span class=n>thumbnail</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedAttachment</span><span class=o>.</span><span class=n>from_dict</span><span class=p>))</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.thumbnail class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The thumbnail of the embed</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.images class="doc doc-heading"> <code class="highlight language-python"><span class=n>images</span><span class=p>:</span> <span class=nb>list</span><span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>factory</span><span class=o>=</span><span class=nb>list</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>list_converter</span><span class=p>(</span><span class=n>EmbedAttachment</span><span class=o>.</span><span class=n>from_dict</span><span class=p>))</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.images class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The images of the embed</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.video class="doc doc-heading"> <code class="highlight language-python"><span class=n>video</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedAttachment</span><span class=o>.</span><span class=n>from_dict</span><span class=p>),</span> <span class=n>metadata</span><span class=o>=</span><span class=n>no_export_meta</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.video class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The video of the embed, only used by system embeds</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.footer class="doc doc-heading"> <code class="highlight language-python"><span class=n>footer</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedFooter</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedFooter</span><span class=o>.</span><span class=n>converter</span><span class=p>))</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.footer class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The footer of the embed</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.provider class="doc doc-heading"> <code class="highlight language-python"><span class=n>provider</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedProvider</span><span class=p>]</span> <span class=o>=</span> <span class=n>attrs</span><span class=o>.</span><span class=n>field</span><span class=p>(</span><span class=nb>repr</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>default</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>converter</span><span class=o>=</span><span class=n>c_optional</span><span class=p>(</span><span class=n>EmbedProvider</span><span class=o>.</span><span class=n>from_dict</span><span class=p>),</span> <span class=n>metadata</span><span class=o>=</span><span class=n>no_export_meta</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.models.discord.embed.Embed.provider class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The provider of the embed, only used for system embeds</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.models.discord.embed.Embed.image class="doc doc-heading"> <code class="highlight language-python"><span class=n>image</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>]</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-writable"><code>writable</code></small> <small class="doc doc-label doc-label-property"><code>property</code></small> </span> <a href=#interactions.models.discord.embed.Embed.image class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The image of the embed.</p> <p><strong>Raises:</strong></p> <table> <thead> <tr> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td> <code>ValueError</code> </td> <td><p>If there are multiple images in the embed.</p></td> </tr> </tbody> </table> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.models.discord.embed.Embed.set_author class="doc doc-heading"> <code class="highlight language-python"><span class=n>set_author</span><span class=p>(</span><span class=n>name</span><span class=p>,</span> <span class=n>url</span><span class=o>=</span><span class=kc>None</span><span class=p>,</span> <span class=n>icon_url</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span></code> <a href=#interactions.models.discord.embed.Embed.set_author class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Set the author field of the embed.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>name</code></td> <td> <code>str</code> </td> <td><p>The text to go in the title section</p></td> <td> <em>required</em> </td> </tr> <tr> <td><code>url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>A url link to the author</p></td> <td> <code>None</code> </td> </tr> <tr> <td><code>icon_url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>A url of an image to use as the icon</p></td> <td> <code>None</code> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>316</span>
+<span class=normal>317</span>
+<span class=normal>318</span>
+<span class=normal>319</span>
+<span class=normal>320</span>
+<span class=normal>321</span>
+<span class=normal>322</span>
+<span class=normal>323</span>
+<span class=normal>324</span>
+<span class=normal>325</span>
+<span class=normal>326</span>
+<span class=normal>327</span>
+<span class=normal>328</span>
+<span class=normal>329</span>
+<span class=normal>330</span>
+<span class=normal>331</span>
+<span class=normal>332</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>set_author</span><span class=p>(</span>
+    <span class=bp>self</span><span class=p>,</span>
+    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
+    <span class=n>url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+    <span class=n>icon_url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Set the author field of the embed.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        name: The text to go in the title section</span>
+<span class=sd>        url: A url link to the author</span>
+<span class=sd>        icon_url: A url of an image to use as the icon</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=bp>self</span><span class=o>.</span><span class=n>author</span> <span class=o>=</span> <span class=n>EmbedAuthor</span><span class=p>(</span><span class=n>name</span><span class=o>=</span><span class=n>name</span><span class=p>,</span> <span class=n>url</span><span class=o>=</span><span class=n>url</span><span class=p>,</span> <span class=n>icon_url</span><span class=o>=</span><span class=n>icon_url</span><span class=p>)</span>
+    <span class=k>return</span> <span class=bp>self</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.models.discord.embed.Embed.set_thumbnail class="doc doc-heading"> <code class="highlight language-python"><span class=n>set_thumbnail</span><span class=p>(</span><span class=n>url</span><span class=p>)</span></code> <a href=#interactions.models.discord.embed.Embed.set_thumbnail class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Set the thumbnail of the embed.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>url</code></td> <td> <code>str</code> </td> <td><p>the url of the image to use</p></td> <td> <em>required</em> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>334</span>
+<span class=normal>335</span>
+<span class=normal>336</span>
+<span class=normal>337</span>
+<span class=normal>338</span>
+<span class=normal>339</span>
+<span class=normal>340</span>
+<span class=normal>341</span>
+<span class=normal>342</span>
+<span class=normal>343</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>set_thumbnail</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>url</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Set the thumbnail of the embed.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        url: the url of the image to use</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=bp>self</span><span class=o>.</span><span class=n>thumbnail</span> <span class=o>=</span> <span class=n>EmbedAttachment</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>url</span><span class=p>)</span>
+    <span class=k>return</span> <span class=bp>self</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.models.discord.embed.Embed.set_image class="doc doc-heading"> <code class="highlight language-python"><span class=n>set_image</span><span class=p>(</span><span class=n>url</span><span class=p>)</span></code> <a href=#interactions.models.discord.embed.Embed.set_image class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Set the image of the embed.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>url</code></td> <td> <code>str</code> </td> <td><p>the url of the image to use</p></td> <td> <em>required</em> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>345</span>
+<span class=normal>346</span>
+<span class=normal>347</span>
+<span class=normal>348</span>
+<span class=normal>349</span>
+<span class=normal>350</span>
+<span class=normal>351</span>
+<span class=normal>352</span>
+<span class=normal>353</span>
+<span class=normal>354</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>set_image</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>url</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Set the image of the embed.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        url: the url of the image to use</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=bp>self</span><span class=o>.</span><span class=n>images</span> <span class=o>=</span> <span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>url</span><span class=p>)]</span>
+    <span class=k>return</span> <span class=bp>self</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.models.discord.embed.Embed.set_images class="doc doc-heading"> <code class="highlight language-python"><span class=n>set_images</span><span class=p>(</span><span class=o>*</span><span class=n>images</span><span class=p>)</span></code> <a href=#interactions.models.discord.embed.Embed.set_images class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Set multiple images for the embed.</p> <details class=note> <summary>Note</summary> <p>To use multiple images, you must also set a url for this embed.</p> </details> <details class=warning> <summary>Warning</summary> <p>This takes advantage of an undocumented feature of the API, and may be removed at any time.</p> </details> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>images</code></td> <td> <code>str</code> </td> <td><p>the images to use</p></td> <td> <code>()</code> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>356</span>
+<span class=normal>357</span>
+<span class=normal>358</span>
+<span class=normal>359</span>
+<span class=normal>360</span>
+<span class=normal>361</span>
+<span class=normal>362</span>
+<span class=normal>363</span>
+<span class=normal>364</span>
+<span class=normal>365</span>
+<span class=normal>366</span>
+<span class=normal>367</span>
+<span class=normal>368</span>
+<span class=normal>369</span>
+<span class=normal>370</span>
+<span class=normal>371</span>
+<span class=normal>372</span>
+<span class=normal>373</span>
+<span class=normal>374</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>set_images</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=n>images</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Set multiple images for the embed.</span>
+
+<span class=sd>    Note:</span>
+<span class=sd>        To use multiple images, you must also set a url for this embed.</span>
+
+<span class=sd>    Warning:</span>
+<span class=sd>        This takes advantage of an undocumented feature of the API, and may be removed at any time.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        images: the images to use</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=p>)</span> <span class=o>+</span> <span class=nb>len</span><span class=p>(</span><span class=n>images</span><span class=p>)</span> <span class=o>&gt;</span> <span class=mi>1</span> <span class=ow>and</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=p>:</span>
+        <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&quot;To use multiple images, you must also set a url for this embed&quot;</span><span class=p>)</span>
+
+    <span class=bp>self</span><span class=o>.</span><span class=n>images</span> <span class=o>=</span> <span class=p>[</span><span class=n>EmbedAttachment</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>url</span><span class=p>)</span> <span class=k>for</span> <span class=n>url</span> <span class=ow>in</span> <span class=n>images</span><span class=p>]</span>
+    <span class=k>return</span> <span class=bp>self</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.models.discord.embed.Embed.add_image class="doc doc-heading"> <code class="highlight language-python"><span class=n>add_image</span><span class=p>(</span><span class=n>image</span><span class=p>)</span></code> <a href=#interactions.models.discord.embed.Embed.add_image class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Add an image to the embed.</p> <details class=note> <summary>Note</summary> <p>To use multiple images, you must also set a url for this embed.</p> </details> <details class=warning> <summary>Warning</summary> <p>This takes advantage of an undocumented feature of the API, and may be removed at any time.</p> </details> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>image</code></td> <td> <code>str</code> </td> <td><p>the image to add</p></td> <td> <em>required</em> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>376</span>
+<span class=normal>377</span>
+<span class=normal>378</span>
+<span class=normal>379</span>
+<span class=normal>380</span>
+<span class=normal>381</span>
+<span class=normal>382</span>
+<span class=normal>383</span>
+<span class=normal>384</span>
+<span class=normal>385</span>
+<span class=normal>386</span>
+<span class=normal>387</span>
+<span class=normal>388</span>
+<span class=normal>389</span>
+<span class=normal>390</span>
+<span class=normal>391</span>
+<span class=normal>392</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>add_image</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>image</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Add an image to the embed.</span>
+
+<span class=sd>    Note:</span>
+<span class=sd>        To use multiple images, you must also set a url for this embed.</span>
+
+<span class=sd>    Warning:</span>
+<span class=sd>        This takes advantage of an undocumented feature of the API, and may be removed at any time.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        image: the image to add</span>
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=p>)</span> <span class=o>&gt;</span> <span class=mi>0</span> <span class=ow>and</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>url</span><span class=p>:</span>
+        <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&quot;To use multiple images, you must also set a url for this embed&quot;</span><span class=p>)</span>
+    <span class=bp>self</span><span class=o>.</span><span class=n>images</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>EmbedAttachment</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>image</span><span class=p>))</span>
+    <span class=k>return</span> <span class=bp>self</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.models.discord.embed.Embed.set_footer class="doc doc-heading"> <code class="highlight language-python"><span class=n>set_footer</span><span class=p>(</span><span class=n>text</span><span class=p>,</span> <span class=n>icon_url</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span></code> <a href=#interactions.models.discord.embed.Embed.set_footer class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Set the footer field of the embed.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>text</code></td> <td> <code>str</code> </td> <td><p>The text to go in the title section</p></td> <td> <em>required</em> </td> </tr> <tr> <td><code>icon_url</code></td> <td> <code><span title=typing.Optional>Optional</span>[str]</code> </td> <td><p>A url of an image to use as the icon</p></td> <td> <code>None</code> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>394</span>
+<span class=normal>395</span>
+<span class=normal>396</span>
+<span class=normal>397</span>
+<span class=normal>398</span>
+<span class=normal>399</span>
+<span class=normal>400</span>
+<span class=normal>401</span>
+<span class=normal>402</span>
+<span class=normal>403</span>
+<span class=normal>404</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>set_footer</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>text</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>icon_url</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Set the footer field of the embed.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        text: The text to go in the title section</span>
+<span class=sd>        icon_url: A url of an image to use as the icon</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=bp>self</span><span class=o>.</span><span class=n>footer</span> <span class=o>=</span> <span class=n>EmbedFooter</span><span class=p>(</span><span class=n>text</span><span class=o>=</span><span class=n>text</span><span class=p>,</span> <span class=n>icon_url</span><span class=o>=</span><span class=n>icon_url</span><span class=p>)</span>
+    <span class=k>return</span> <span class=bp>self</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.models.discord.embed.Embed.add_field class="doc doc-heading"> <code class="highlight language-python"><span class=n>add_field</span><span class=p>(</span><span class=n>name</span><span class=p>,</span> <span class=n>value</span><span class=p>,</span> <span class=n>inline</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span></code> <a href=#interactions.models.discord.embed.Embed.add_field class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Add a field to the embed.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>name</code></td> <td> <code>str</code> </td> <td><p>The title of this field</p></td> <td> <em>required</em> </td> </tr> <tr> <td><code>value</code></td> <td> <code><span title=typing.Any>Any</span></code> </td> <td><p>The value in this field</p></td> <td> <em>required</em> </td> </tr> <tr> <td><code>inline</code></td> <td> <code>bool</code> </td> <td><p>Should this field be inline with other fields?</p></td> <td> <code>False</code> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>406</span>
+<span class=normal>407</span>
+<span class=normal>408</span>
+<span class=normal>409</span>
+<span class=normal>410</span>
+<span class=normal>411</span>
+<span class=normal>412</span>
+<span class=normal>413</span>
+<span class=normal>414</span>
+<span class=normal>415</span>
+<span class=normal>416</span>
+<span class=normal>417</span>
+<span class=normal>418</span>
+<span class=normal>419</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>add_field</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=n>Any</span><span class=p>,</span> <span class=n>inline</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Add a field to the embed.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        name: The title of this field</span>
+<span class=sd>        value: The value in this field</span>
+<span class=sd>        inline: Should this field be inline with other fields?</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>EmbedField</span><span class=p>(</span><span class=n>name</span><span class=p>,</span> <span class=nb>str</span><span class=p>(</span><span class=n>value</span><span class=p>),</span> <span class=n>inline</span><span class=p>))</span>
+    <span class=bp>self</span><span class=o>.</span><span class=n>_fields_validation</span><span class=p>(</span><span class=s2>&quot;fields&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=p>)</span>
+
+    <span class=k>return</span> <span class=bp>self</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.models.discord.embed.Embed.add_fields class="doc doc-heading"> <code class="highlight language-python"><span class=n>add_fields</span><span class=p>(</span><span class=o>*</span><span class=n>fields</span><span class=p>)</span></code> <a href=#interactions.models.discord.embed.Embed.add_fields class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Add multiple fields to the embed.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>fields</code></td> <td> <code><a class="autorefs autorefs-internal" title=interactions.models.discord.embed.EmbedField href=#interactions.models.discord.embed.EmbedField>EmbedField</a> | str | dict</code> </td> <td><p>The fields to add</p></td> <td> <code>()</code> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>421</span>
+<span class=normal>422</span>
+<span class=normal>423</span>
+<span class=normal>424</span>
+<span class=normal>425</span>
+<span class=normal>426</span>
+<span class=normal>427</span>
+<span class=normal>428</span>
+<span class=normal>429</span>
+<span class=normal>430</span>
+<span class=normal>431</span>
+<span class=normal>432</span>
+<span class=normal>433</span>
+<span class=normal>434</span>
+<span class=normal>435</span>
+<span class=normal>436</span>
+<span class=normal>437</span>
+<span class=normal>438</span>
+<span class=normal>439</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>add_fields</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=n>fields</span><span class=p>:</span> <span class=n>EmbedField</span> <span class=o>|</span> <span class=nb>str</span> <span class=o>|</span> <span class=nb>dict</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=s2>&quot;Embed&quot;</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Add multiple fields to the embed.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        fields: The fields to add</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=k>for</span> <span class=n>_field</span> <span class=ow>in</span> <span class=n>fields</span><span class=p>:</span>
+        <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>_field</span><span class=p>,</span> <span class=n>EmbedField</span><span class=p>):</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>_field</span><span class=p>)</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>_fields_validation</span><span class=p>(</span><span class=s2>&quot;fields&quot;</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>fields</span><span class=p>)</span>
+        <span class=k>elif</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>_field</span><span class=p>,</span> <span class=nb>str</span><span class=p>):</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>add_field</span><span class=p>(</span><span class=n>_field</span><span class=p>,</span> <span class=n>_field</span><span class=p>)</span>
+        <span class=k>elif</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>_field</span><span class=p>,</span> <span class=nb>dict</span><span class=p>):</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>add_field</span><span class=p>(</span><span class=o>**</span><span class=n>_field</span><span class=p>)</span>
+        <span class=k>else</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Expected EmbedField, str or dict, got </span><span class=si>{</span><span class=nb>type</span><span class=p>(</span><span class=n>_field</span><span class=p>)</span><span class=o>.</span><span class=vm>__name__</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
+    <span class=k>return</span> <span class=bp>self</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> </div> </div> </div> <div class="doc doc-object doc-function"> <h3 id=interactions.models.discord.embed.process_embeds class="doc doc-heading"> <code class="highlight language-python"><span class=n>process_embeds</span><span class=p>(</span><span class=n>embeds</span><span class=p>)</span></code> <a href=#interactions.models.discord.embed.process_embeds class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p>Process the passed embeds into a format discord will understand.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>embeds</code></td> <td> <code><span title=typing.Optional>Optional</span>[<span title=typing.Union>Union</span>[<span title=typing.List>List</span>[<span title=typing.Union>Union</span>[<a class="autorefs autorefs-internal" title=interactions.models.discord.embed.Embed href=#interactions.models.discord.embed.Embed>Embed</a>, <span title=typing.Dict>Dict</span>]], <span title=typing.Union>Union</span>[<a class="autorefs autorefs-internal" title=interactions.models.discord.embed.Embed href=#interactions.models.discord.embed.Embed>Embed</a>, <span title=typing.Dict>Dict</span>]]]</code> </td> <td><p>List of dict / embeds to process</p></td> <td> <em>required</em> </td> </tr> </tbody> </table> <p><strong>Returns:</strong></p> <table> <thead> <tr> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td> <code><span title=typing.Optional>Optional</span>[<span title=typing.List>List</span>[dict]]</code> </td> <td><p>formatted list for discord</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/models/discord/embed.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>458</span>
+<span class=normal>459</span>
+<span class=normal>460</span>
+<span class=normal>461</span>
+<span class=normal>462</span>
+<span class=normal>463</span>
+<span class=normal>464</span>
+<span class=normal>465</span>
+<span class=normal>466</span>
+<span class=normal>467</span>
+<span class=normal>468</span>
+<span class=normal>469</span>
+<span class=normal>470</span>
+<span class=normal>471</span>
+<span class=normal>472</span>
+<span class=normal>473</span>
+<span class=normal>474</span>
+<span class=normal>475</span>
+<span class=normal>476</span>
+<span class=normal>477</span>
+<span class=normal>478</span>
+<span class=normal>479</span>
+<span class=normal>480</span>
+<span class=normal>481</span>
+<span class=normal>482</span>
+<span class=normal>483</span>
+<span class=normal>484</span>
+<span class=normal>485</span>
+<span class=normal>486</span>
+<span class=normal>487</span>
+<span class=normal>488</span>
+<span class=normal>489</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>process_embeds</span><span class=p>(</span><span class=n>embeds</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Union</span><span class=p>[</span><span class=n>List</span><span class=p>[</span><span class=n>Union</span><span class=p>[</span><span class=n>Embed</span><span class=p>,</span> <span class=n>Dict</span><span class=p>]],</span> <span class=n>Union</span><span class=p>[</span><span class=n>Embed</span><span class=p>,</span> <span class=n>Dict</span><span class=p>]]])</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=n>List</span><span class=p>[</span><span class=nb>dict</span><span class=p>]]:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Process the passed embeds into a format discord will understand.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        embeds: List of dict / embeds to process</span>
+
+<span class=sd>    Returns:</span>
+<span class=sd>        formatted list for discord</span>
+
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=k>if</span> <span class=n>embeds</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=c1># Its just empty, so nothing to process.</span>
+        <span class=k>return</span> <span class=n>embeds</span>
+
+    <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>embeds</span><span class=p>,</span> <span class=n>Embed</span><span class=p>):</span>
+        <span class=c1># Single embed, convert it to dict and wrap it into a list for discord.</span>
+        <span class=n>out</span> <span class=o>=</span> <span class=n>embeds</span><span class=o>.</span><span class=n>to_dict</span><span class=p>()</span>
+        <span class=k>return</span> <span class=n>out</span> <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>out</span><span class=p>,</span> <span class=nb>list</span><span class=p>)</span> <span class=k>else</span> <span class=p>[</span><span class=n>out</span><span class=p>]</span>
+    <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>embeds</span><span class=p>,</span> <span class=nb>dict</span><span class=p>):</span>
+        <span class=c1># We assume the dict correctly represents a single discord embed and just send it blindly</span>
+        <span class=c1># after wrapping it in a list for discord</span>
+        <span class=k>return</span> <span class=p>[</span><span class=n>embeds</span><span class=p>]</span>
+
+    <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>embeds</span><span class=p>,</span> <span class=nb>list</span><span class=p>):</span>
+        <span class=c1># A list of embeds, convert Embed to dict representation if needed.</span>
+        <span class=n>out</span> <span class=o>=</span> <span class=p>[</span><span class=n>embed</span><span class=o>.</span><span class=n>to_dict</span><span class=p>()</span> <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>embed</span><span class=p>,</span> <span class=n>Embed</span><span class=p>)</span> <span class=k>else</span> <span class=n>embed</span> <span class=k>for</span> <span class=n>embed</span> <span class=ow>in</span> <span class=n>embeds</span><span class=p>]</span>
+        <span class=k>if</span> <span class=nb>any</span><span class=p>(</span><span class=nb>isinstance</span><span class=p>(</span><span class=n>embed</span><span class=p>,</span> <span class=nb>list</span><span class=p>)</span> <span class=k>for</span> <span class=n>embed</span> <span class=ow>in</span> <span class=n>out</span><span class=p>):</span>
+            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&quot;You cannot send multiple embeds when using multiple images in a single embed&quot;</span><span class=p>)</span>
+        <span class=k>return</span> <span class=n>out</span>
+
+    <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Invalid embeds: </span><span class=si>{</span><span class=n>embeds</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> </div> </div> </div> <aside class=md-source-file> <span class=md-source-file__fact> <span class=md-icon title="Last update"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg> </span> <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 28, 2023</span> </span> </aside> <form class=md-feedback name=feedback hidden> <fieldset> <legend class=md-feedback__title> Was this page helpful? </legend> <div class=md-feedback__inner> <div class=md-feedback__list> <button class="md-feedback__icon md-icon" type=submit title="This page was helpful" data-md-value=1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35Z"/></svg> </button> <button class="md-feedback__icon md-icon" type=submit title="This page could be improved" data-md-value=0> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c.67 0 1.32.12 1.94.33L13 9.35l-4 5 3 7M16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35l-1-7 4.5-5-2.65-5.08C13.87 3.47 15.17 3 16.5 3Z"/></svg> </button> </div> <div class=md-feedback__note> <div data-md-value=1 hidden> Thanks for your feedback! </div> <div data-md-value=0 hidden> Thanks for your feedback! Please create an <a href=https://github.com/interactions-py/interactions.py/issues/new/choose>issue on Github</a> if you have any suggestions. </div> </div> </div> </fieldset> </form> </article> </div> <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script> </div> <button type=button class="md-top md-icon" data-md-component=top hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg> Back to top </button> </main> <footer class=md-footer> <div class="md-footer-meta md-typeset"> <div class="md-footer-meta__inner md-grid"> <div class=md-copyright> <div class=md-copyright__highlight> Copyright &copy; 2023 - Present LordOfPolls – <a href=#__consent>Change cookie settings</a> </div> Made with <a href=https://squidfunk.github.io/mkdocs-material/ target=_blank rel=noopener> Material for MkDocs Insiders </a> </div> <div class=md-social> <a href=https://discord.gg/interactions target=_blank rel=noopener title="Discord Server" class=md-social__link> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 640 512"><!-- Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485.065 485.065 0 0 0 404.081 32.03a1.816 1.816 0 0 0-1.923.91 337.461 337.461 0 0 0-14.9 30.6 447.848 447.848 0 0 0-134.426 0 309.541 309.541 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.689 483.689 0 0 0-119.688 37.107 1.712 1.712 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.016 2.016 0 0 0 .765 1.375 487.666 487.666 0 0 0 146.825 74.189 1.9 1.9 0 0 0 2.063-.676A348.2 348.2 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321.173 321.173 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126 251.047 251.047 0 0 0 9.109-7.137 1.819 1.819 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.812 1.812 0 0 1 1.924.233 234.533 234.533 0 0 0 9.132 7.16 1.884 1.884 0 0 1-.162 3.126 301.407 301.407 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391.055 391.055 0 0 0 30.014 48.815 1.864 1.864 0 0 0 2.063.7A486.048 486.048 0 0 0 610.7 405.729a1.882 1.882 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541ZM222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241Zm195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241Z"/></svg> </a> <a href=https://github.com/interactions-py/interactions.py target=_blank rel=noopener title="Github Repository" class=md-social__link> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 496 512"><!-- Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg> </a> </div> </div> </div> </footer> </div> <div class=md-dialog data-md-component=dialog> <div class="md-dialog__inner md-typeset"></div> </div> <div class=md-consent data-md-component=consent id=__consent hidden> <div class=md-consent__overlay></div> <aside class=md-consent__inner> <form class="md-consent__form md-grid md-typeset" name=consent> <h4>Cookie consent</h4> <p>We use cookies to measure the effectiveness of our documentation and whether users find what they're searching for. With your consent, you're helping us to make our documentation better.</p> <input class=md-toggle type=checkbox id=__settings checked> <div class=md-consent__settings> <ul class=task-list> <li class=task-list-item> <label class=task-list-control> <input type=checkbox name=analytics checked> <span class=task-list-indicator></span> Google Analytics </label> </li> <li class=task-list-item> <label class=task-list-control> <input type=checkbox name=github checked> <span class=task-list-indicator></span> GitHub </label> </li> </ul> </div> <div class=md-consent__controls> <button class="md-button md-button--primary">Accept</button> <button type=reset class="md-button md-button--primary">Reject</button> </div> </form> </aside> </div> <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script> <script id=__config type=application/json>{"base": "../../../../..", "features": ["header.autohide", "navigation.instant", "navigation.top", "navigation.tabs", "search.suggest", "search.share", "navigation.indexes", "navigation.prune", "toc.follow", "content.tooltips", "content.code.annotate"], "search": "../../../../../assets/javascripts/workers/search.6c7302c4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script> <script src=../../../../../assets/javascripts/bundle.803ed251.min.js></script> <script src=../../../../../scripts/feedback.js></script> </body> </html>

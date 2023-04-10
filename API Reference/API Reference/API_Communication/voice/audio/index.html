@@ -1,0 +1,917 @@
+<!doctype html><html lang=en class=no-js> <head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><link href=https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/API_Communication/voice/audio/ rel=canonical><link href=../../gateway/gateway/ rel=prev><link href=../player/ rel=next><link rel=icon href=../../../../../images/favicon.png><meta name=generator content="mkdocs-1.4.2, mkdocs-material-9.1.6+insiders-4.32.5"><title>Audio - Interactions.py</title><link rel=stylesheet href=../../../../../assets/stylesheets/main.dc5b59cc.min.css><link rel=stylesheet href=../../../../../assets/stylesheets/palette.6932e648.min.css><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback"><style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style><link rel=stylesheet href=../../../../../assets/_mkdocstrings.css><link rel=stylesheet href=../../../../../extra.css><script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script><script id=__analytics>function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-817ZC2FC56"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-817ZC2FC56",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-817ZC2FC56",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script><script>var consent;"undefined"==typeof __md_analytics||(consent=__md_get("__consent"))&&consent.analytics&&__md_analytics()</script></head> <body dir=ltr data-md-color-scheme=default data-md-color-primary data-md-color-accent> <input class=md-toggle data-md-toggle=drawer type=checkbox id=__drawer autocomplete=off> <input class=md-toggle data-md-toggle=search type=checkbox id=__search autocomplete=off> <label class=md-overlay for=__drawer></label> <div data-md-component=skip> <a href=#interactions.api.voice.audio.RawInputAudio class=md-skip> Skip to content </a> </div> <div data-md-component=announce> </div> <header class=md-header data-md-component=header> <nav class="md-header__inner md-grid" aria-label=Header> <a href=../../../../.. title=Interactions.py class="md-header__button md-logo" aria-label=Interactions.py data-md-component=logo> <img src=../../../../../images/logo-minified.svg alt=logo> </a> <label class="md-header__button md-icon" for=__drawer> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg> </label> <div class=md-header__title data-md-component=header-title> <div class=md-header__ellipsis> <div class=md-header__topic> <span class=md-ellipsis> Interactions.py </span> </div> <div class=md-header__topic data-md-component=header-topic> <span class=md-ellipsis> Audio </span> </div> </div> </div> <form class=md-header__option data-md-component=palette> <input class=md-option data-md-color-media=(prefers-color-scheme) data-md-color-scheme=default data-md-color-primary data-md-color-accent aria-label="Switch to light mode" type=radio name=__palette id=__palette_0> <label class="md-header__button md-icon" title="Switch to light mode" for=__palette_1 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg> </label> <input class=md-option data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme=default data-md-color-primary data-md-color-accent aria-label="Switch to dark mode" type=radio name=__palette id=__palette_1> <label class="md-header__button md-icon" title="Switch to dark mode" for=__palette_2 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg> </label> <input class=md-option data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme=slate data-md-color-primary data-md-color-accent aria-label="Switch to system preference" type=radio name=__palette id=__palette_2> <label class="md-header__button md-icon" title="Switch to system preference" for=__palette_0 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg> </label> </form> <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script> <label class="md-header__button md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg> </label> <div class=md-search data-md-component=search role=dialog> <label class=md-search__overlay for=__search></label> <div class=md-search__inner role=search> <form class=md-search__form name=search> <input type=text class=md-search__input name=query aria-label=Search placeholder=Search autocapitalize=off autocorrect=off autocomplete=off spellcheck=false data-md-component=search-query required> <label class="md-search__icon md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg> </label> <nav class=md-search__options aria-label=Search> <a href=javascript:void(0) class="md-search__icon md-icon" title=Share aria-label=Share data-clipboard data-clipboard-text data-md-component=search-share tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg> </a> <button type=reset class="md-search__icon md-icon" title=Clear aria-label=Clear tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg> </button> </nav> <div class=md-search__suggest data-md-component=search-suggest></div> </form> <div class=md-search__output> <div class=md-search__scrollwrap data-md-scrollfix> <div class=md-search-result data-md-component=search-result> <div class=md-search-result__meta> Initializing search </div> <ol class=md-search-result__list role=presentation></ol> </div> </div> </div> </div> </div> <div class=md-header__source> <a href=https://github.com/interactions-py/interactions.py title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 480 512"><!-- Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg> </div> <div class=md-source__repository> interactions-py/interactions.py </div> </a> </div> </nav> </header> <div class=md-container data-md-component=container> <nav class=md-tabs aria-label=Tabs data-md-component=tabs> <div class=md-grid> <ul class=md-tabs__list> <li class=md-tabs__item> <a href=../../../../.. class=md-tabs__link> Home </a> </li> <li class=md-tabs__item> <a href=../../../Client/ class="md-tabs__link md-tabs__link--active"> API Reference </a> </li> <li class=md-tabs__item> <a href=../../../../../Guides/ class=md-tabs__link> Guides </a> </li> </ul> </div> </nav> <main class=md-main data-md-component=main> <div class="md-main__inner md-grid"> <div class="md-sidebar md-sidebar--primary" data-md-component=sidebar data-md-type=navigation> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--primary md-nav--lifted" aria-label=Navigation data-md-level=0> <label class=md-nav__title for=__drawer> <a href=../../../../.. title=Interactions.py class="md-nav__button md-logo" aria-label=Interactions.py data-md-component=logo> <img src=../../../../../images/logo-minified.svg alt=logo> </a> Interactions.py </label> <div class=md-nav__source> <a href=https://github.com/interactions-py/interactions.py title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 480 512"><!-- Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg> </div> <div class=md-source__repository> interactions-py/interactions.py </div> </a> </div> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../../../.. class=md-nav__link> <span class=md-ellipsis> Home </span> </a> </li> <li class="md-nav__item md-nav__item--active md-nav__item--nested"> <input class="md-nav__toggle md-toggle " type=checkbox id=__nav_2 checked> <label class=md-nav__link for=__nav_2 id=__nav_2_label tabindex=0> <span class=md-ellipsis> API Reference </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_2_label aria-expanded=true> <label class=md-nav__title for=__nav_2> <span class="md-nav__icon md-icon"></span> API Reference </label> <ul class=md-nav__list data-md-scrollfix> <li class="md-nav__item md-nav__item--active md-nav__item--nested"> <input class="md-nav__toggle md-toggle " type=checkbox id=__nav_2_1 checked> <label class=md-nav__link for=__nav_2_1 id=__nav_2_1_label tabindex=0> <span class=md-ellipsis> API Reference </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=2 aria-labelledby=__nav_2_1_label aria-expanded=true> <label class=md-nav__title for=__nav_2_1> <span class="md-nav__icon md-icon"></span> API Reference </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../../Client/ class=md-nav__link> <span class=md-ellipsis> Client </span> </a> </li> <li class=md-nav__item> <a href=../../../AutoShardClient/ class=md-nav__link> <span class=md-ellipsis> AutoShardClient </span> </a> </li> <li class=md-nav__item> <a href=../../../const/ class=md-nav__link> <span class=md-ellipsis> Const </span> </a> </li> <li class=md-nav__item> <a href=../../../errors/ class=md-nav__link> <span class=md-ellipsis> Errors </span> </a> </li> <li class="md-nav__item md-nav__item--active md-nav__item--nested"> <input class="md-nav__toggle md-toggle " type=checkbox id=__nav_2_1_5 checked> <label class=md-nav__link for=__nav_2_1_5 id=__nav_2_1_5_label tabindex=0> <span class=md-ellipsis> API Communication </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=3 aria-labelledby=__nav_2_1_5_label aria-expanded=true> <label class=md-nav__title for=__nav_2_1_5> <span class="md-nav__icon md-icon"></span> API Communication </label> <ul class=md-nav__list data-md-scrollfix> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../HTTP/HTTP_client/ class=md-nav__link> <span class=md-ellipsis> HTTP </span> <span class="md-nav__icon md-icon"></span> </a> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../gateway/connection_state/ class=md-nav__link> <span class=md-ellipsis> Gateway </span> <span class="md-nav__icon md-icon"></span> </a> </li> <li class="md-nav__item md-nav__item--active md-nav__item--nested"> <input class="md-nav__toggle md-toggle " type=checkbox id=__nav_2_1_5_3 checked> <label class=md-nav__link for=__nav_2_1_5_3 id=__nav_2_1_5_3_label tabindex=0> <span class=md-ellipsis> Voice </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=4 aria-labelledby=__nav_2_1_5_3_label aria-expanded=true> <label class=md-nav__title for=__nav_2_1_5_3> <span class="md-nav__icon md-icon"></span> Voice </label> <ul class=md-nav__list data-md-scrollfix> <li class="md-nav__item md-nav__item--active"> <input class="md-nav__toggle md-toggle" type=checkbox id=__toc> <label class="md-nav__link md-nav__link--active" for=__toc> <span class=md-ellipsis> Audio </span> <span class="md-nav__icon md-icon"></span> </label> <a href=./ class="md-nav__link md-nav__link--active"> <span class=md-ellipsis> Audio </span> </a> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio class=md-nav__link> <span class=md-ellipsis> RawInputAudio </span> </a> <nav class=md-nav aria-label=RawInputAudio> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.sequence class=md-nav__link> <span class=md-ellipsis> sequence </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.audio_timestamp class=md-nav__link> <span class=md-ellipsis> audio_timestamp </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.ssrc class=md-nav__link> <span class=md-ellipsis> ssrc </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.decoded class=md-nav__link> <span class=md-ellipsis> decoded </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.timestamp_ns class=md-nav__link> <span class=md-ellipsis> timestamp_ns </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.timestamp class=md-nav__link> <span class=md-ellipsis> timestamp </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.pcm class=md-nav__link> <span class=md-ellipsis> pcm </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.user_id class=md-nav__link> <span class=md-ellipsis> user_id </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioBuffer class=md-nav__link> <span class=md-ellipsis> AudioBuffer </span> </a> <nav class=md-nav aria-label=AudioBuffer> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioBuffer.extend class=md-nav__link> <span class=md-ellipsis> extend() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioBuffer.read class=md-nav__link> <span class=md-ellipsis> read() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioBuffer.read_max class=md-nav__link> <span class=md-ellipsis> read_max() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio class=md-nav__link> <span class=md-ellipsis> BaseAudio </span> </a> <nav class=md-nav aria-label=BaseAudio> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.locked_stream class=md-nav__link> <span class=md-ellipsis> locked_stream </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.needs_encode class=md-nav__link> <span class=md-ellipsis> needs_encode </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.bitrate class=md-nav__link> <span class=md-ellipsis> bitrate </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.encoder class=md-nav__link> <span class=md-ellipsis> encoder </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.cleanup class=md-nav__link> <span class=md-ellipsis> cleanup() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.audio_complete class=md-nav__link> <span class=md-ellipsis> audio_complete </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.read class=md-nav__link> <span class=md-ellipsis> read() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio class=md-nav__link> <span class=md-ellipsis> Audio </span> </a> <nav class=md-nav aria-label=Audio> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.source class=md-nav__link> <span class=md-ellipsis> source </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.process class=md-nav__link> <span class=md-ellipsis> process </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.buffer class=md-nav__link> <span class=md-ellipsis> buffer </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.buffer_seconds class=md-nav__link> <span class=md-ellipsis> buffer_seconds </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.read_ahead_task class=md-nav__link> <span class=md-ellipsis> read_ahead_task </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.ffmpeg_before_args class=md-nav__link> <span class=md-ellipsis> ffmpeg_before_args </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.ffmpeg_args class=md-nav__link> <span class=md-ellipsis> ffmpeg_args </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.probe class=md-nav__link> <span class=md-ellipsis> probe </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.audio_complete class=md-nav__link> <span class=md-ellipsis> audio_complete </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.pre_buffer class=md-nav__link> <span class=md-ellipsis> pre_buffer() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.read class=md-nav__link> <span class=md-ellipsis> read() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.cleanup class=md-nav__link> <span class=md-ellipsis> cleanup() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioVolume class=md-nav__link> <span class=md-ellipsis> AudioVolume </span> </a> <nav class=md-nav aria-label=AudioVolume> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioVolume.volume class=md-nav__link> <span class=md-ellipsis> volume </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioVolume.read class=md-nav__link> <span class=md-ellipsis> read() </span> </a> </li> </ul> </nav> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=../player/ class=md-nav__link> <span class=md-ellipsis> Player </span> </a> </li> <li class=md-nav__item> <a href=../recorder/ class=md-nav__link> <span class=md-ellipsis> Recorder </span> </a> </li> <li class=md-nav__item> <a href=../voice_gateway/ class=md-nav__link> <span class=md-ellipsis> Voice gateway </span> </a> </li> </ul> </nav> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../../events/discord/ class=md-nav__link> <span class=md-ellipsis> Events </span> <span class="md-nav__icon md-icon"></span> </a> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../../models/ class=md-nav__link> <span class=md-ellipsis> Models </span> <span class="md-nav__icon md-icon"></span> </a> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../../ext/ class=md-nav__link> <span class=md-ellipsis> Ext </span> <span class="md-nav__icon md-icon"></span> </a> </li> <li class=md-nav__item> <a href=../../../utils/ class=md-nav__link> <span class=md-ellipsis> Utils </span> </a> </li> <li class=md-nav__item> <a href=../../../monopage/ class=md-nav__link> <span class=md-ellipsis> Mono-Doc </span> </a> </li> </ul> </nav> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--pruned md-nav__item--nested"> <a href=../../../../../Guides/ class=md-nav__link> <span class=md-ellipsis> Guides </span> <span class="md-nav__icon md-icon"></span> </a> </li> </ul> </nav> </div> </div> </div> <div class="md-sidebar md-sidebar--secondary" data-md-component=sidebar data-md-type=toc> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio class=md-nav__link> <span class=md-ellipsis> RawInputAudio </span> </a> <nav class=md-nav aria-label=RawInputAudio> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.sequence class=md-nav__link> <span class=md-ellipsis> sequence </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.audio_timestamp class=md-nav__link> <span class=md-ellipsis> audio_timestamp </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.ssrc class=md-nav__link> <span class=md-ellipsis> ssrc </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.decoded class=md-nav__link> <span class=md-ellipsis> decoded </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.timestamp_ns class=md-nav__link> <span class=md-ellipsis> timestamp_ns </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.timestamp class=md-nav__link> <span class=md-ellipsis> timestamp </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.pcm class=md-nav__link> <span class=md-ellipsis> pcm </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.RawInputAudio.user_id class=md-nav__link> <span class=md-ellipsis> user_id </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioBuffer class=md-nav__link> <span class=md-ellipsis> AudioBuffer </span> </a> <nav class=md-nav aria-label=AudioBuffer> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioBuffer.extend class=md-nav__link> <span class=md-ellipsis> extend() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioBuffer.read class=md-nav__link> <span class=md-ellipsis> read() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioBuffer.read_max class=md-nav__link> <span class=md-ellipsis> read_max() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio class=md-nav__link> <span class=md-ellipsis> BaseAudio </span> </a> <nav class=md-nav aria-label=BaseAudio> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.locked_stream class=md-nav__link> <span class=md-ellipsis> locked_stream </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.needs_encode class=md-nav__link> <span class=md-ellipsis> needs_encode </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.bitrate class=md-nav__link> <span class=md-ellipsis> bitrate </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.encoder class=md-nav__link> <span class=md-ellipsis> encoder </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.cleanup class=md-nav__link> <span class=md-ellipsis> cleanup() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.audio_complete class=md-nav__link> <span class=md-ellipsis> audio_complete </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.BaseAudio.read class=md-nav__link> <span class=md-ellipsis> read() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio class=md-nav__link> <span class=md-ellipsis> Audio </span> </a> <nav class=md-nav aria-label=Audio> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.source class=md-nav__link> <span class=md-ellipsis> source </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.process class=md-nav__link> <span class=md-ellipsis> process </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.buffer class=md-nav__link> <span class=md-ellipsis> buffer </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.buffer_seconds class=md-nav__link> <span class=md-ellipsis> buffer_seconds </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.read_ahead_task class=md-nav__link> <span class=md-ellipsis> read_ahead_task </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.ffmpeg_before_args class=md-nav__link> <span class=md-ellipsis> ffmpeg_before_args </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.ffmpeg_args class=md-nav__link> <span class=md-ellipsis> ffmpeg_args </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.probe class=md-nav__link> <span class=md-ellipsis> probe </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.audio_complete class=md-nav__link> <span class=md-ellipsis> audio_complete </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.pre_buffer class=md-nav__link> <span class=md-ellipsis> pre_buffer() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.read class=md-nav__link> <span class=md-ellipsis> read() </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.Audio.cleanup class=md-nav__link> <span class=md-ellipsis> cleanup() </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioVolume class=md-nav__link> <span class=md-ellipsis> AudioVolume </span> </a> <nav class=md-nav aria-label=AudioVolume> <ul class=md-nav__list> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioVolume.volume class=md-nav__link> <span class=md-ellipsis> volume </span> </a> </li> <li class=md-nav__item> <a href=#interactions.api.voice.audio.AudioVolume.read class=md-nav__link> <span class=md-ellipsis> read() </span> </a> </li> </ul> </nav> </li> </ul> </nav> </div> </div> </div> <div class=md-content data-md-component=content> <article class="md-content__inner md-typeset"> <h1>Audio</h1> <div class="doc doc-object doc-module"> <div class="doc doc-contents first"> <div class="doc doc-children"> <div class="doc doc-object doc-class"> <h3 id=interactions.api.voice.audio.RawInputAudio class="doc doc-heading"> <code>RawInputAudio</code> <a href=#interactions.api.voice.audio.RawInputAudio class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>20</span>
+<span class=normal>21</span>
+<span class=normal>22</span>
+<span class=normal>23</span>
+<span class=normal>24</span>
+<span class=normal>25</span>
+<span class=normal>26</span>
+<span class=normal>27</span>
+<span class=normal>28</span>
+<span class=normal>29</span>
+<span class=normal>30</span>
+<span class=normal>31</span>
+<span class=normal>32</span>
+<span class=normal>33</span>
+<span class=normal>34</span>
+<span class=normal>35</span>
+<span class=normal>36</span>
+<span class=normal>37</span>
+<span class=normal>38</span>
+<span class=normal>39</span>
+<span class=normal>40</span>
+<span class=normal>41</span>
+<span class=normal>42</span>
+<span class=normal>43</span>
+<span class=normal>44</span>
+<span class=normal>45</span>
+<span class=normal>46</span>
+<span class=normal>47</span>
+<span class=normal>48</span>
+<span class=normal>49</span>
+<span class=normal>50</span>
+<span class=normal>51</span>
+<span class=normal>52</span>
+<span class=normal>53</span>
+<span class=normal>54</span>
+<span class=normal>55</span>
+<span class=normal>56</span>
+<span class=normal>57</span>
+<span class=normal>58</span>
+<span class=normal>59</span>
+<span class=normal>60</span>
+<span class=normal>61</span>
+<span class=normal>62</span>
+<span class=normal>63</span>
+<span class=normal>64</span>
+<span class=normal>65</span>
+<span class=normal>66</span>
+<span class=normal>67</span>
+<span class=normal>68</span>
+<span class=normal>69</span>
+<span class=normal>70</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>class</span> <span class=nc>RawInputAudio</span><span class=p>:</span>
+    <span class=n>decoded</span><span class=p>:</span> <span class=nb>bytes</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The decoded audio&quot;&quot;&quot;</span>
+    <span class=n>pcm</span><span class=p>:</span> <span class=nb>bytes</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The raw PCM audio&quot;&quot;&quot;</span>
+    <span class=n>sequence</span><span class=p>:</span> <span class=nb>int</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The audio sequence&quot;&quot;&quot;</span>
+    <span class=n>audio_timestamp</span><span class=p>:</span> <span class=nb>int</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The current timestamp for this audio&quot;&quot;&quot;</span>
+    <span class=n>timestamp_ns</span><span class=p>:</span> <span class=nb>float</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The time this audio was received, in nanoseconds&quot;&quot;&quot;</span>
+    <span class=n>timestamp</span><span class=p>:</span> <span class=nb>float</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The time this audio was received, in seconds&quot;&quot;&quot;</span>
+    <span class=n>ssrc</span><span class=p>:</span> <span class=nb>int</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The source of this audio&quot;&quot;&quot;</span>
+    <span class=n>_recoder</span><span class=p>:</span> <span class=s2>&quot;Recorder&quot;</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;A reference to the audio recorder managing this object&quot;&quot;&quot;</span>
+
+    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>recorder</span><span class=p>:</span> <span class=s2>&quot;Recorder&quot;</span><span class=p>,</span> <span class=n>data</span><span class=p>:</span> <span class=nb>bytes</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>decoded</span><span class=p>:</span> <span class=nb>bytes</span> <span class=o>=</span> <span class=sa>b</span><span class=s2>&quot;&quot;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_recorder</span> <span class=o>=</span> <span class=n>recorder</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>timestamp_ns</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>monotonic_ns</span><span class=p>()</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>timestamp</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>timestamp_ns</span> <span class=o>/</span> <span class=mf>1e9</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>pcm</span> <span class=o>=</span> <span class=sa>b</span><span class=s2>&quot;&quot;</span>
+
+        <span class=bp>self</span><span class=o>.</span><span class=n>ingest</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>ingest</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>:</span> <span class=nb>bytes</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytes</span> <span class=o>|</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=n>data</span> <span class=o>=</span> <span class=nb>bytearray</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+        <span class=n>header</span> <span class=o>=</span> <span class=n>data</span><span class=p>[:</span><span class=mi>12</span><span class=p>]</span>
+
+        <span class=n>decrypted</span><span class=p>:</span> <span class=nb>bytes</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_recorder</span><span class=o>.</span><span class=n>decrypt</span><span class=p>(</span><span class=n>header</span><span class=p>,</span> <span class=n>data</span><span class=p>[</span><span class=mi>12</span><span class=p>:])</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>ssrc</span> <span class=o>=</span> <span class=nb>int</span><span class=o>.</span><span class=n>from_bytes</span><span class=p>(</span><span class=n>header</span><span class=p>[</span><span class=mi>8</span><span class=p>:</span><span class=mi>12</span><span class=p>],</span> <span class=n>byteorder</span><span class=o>=</span><span class=s2>&quot;big&quot;</span><span class=p>)</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>sequence</span> <span class=o>=</span> <span class=nb>int</span><span class=o>.</span><span class=n>from_bytes</span><span class=p>(</span><span class=n>header</span><span class=p>[</span><span class=mi>2</span><span class=p>:</span><span class=mi>4</span><span class=p>],</span> <span class=n>byteorder</span><span class=o>=</span><span class=s2>&quot;big&quot;</span><span class=p>)</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>audio_timestamp</span> <span class=o>=</span> <span class=nb>int</span><span class=o>.</span><span class=n>from_bytes</span><span class=p>(</span><span class=n>header</span><span class=p>[</span><span class=mi>4</span><span class=p>:</span><span class=mi>8</span><span class=p>],</span> <span class=n>byteorder</span><span class=o>=</span><span class=s2>&quot;big&quot;</span><span class=p>)</span>
+
+        <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>_recorder</span><span class=o>.</span><span class=n>recording_whitelist</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>user_id</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>_recorder</span><span class=o>.</span><span class=n>recording_whitelist</span><span class=p>:</span>
+            <span class=c1># noinspection PyProtectedMember</span>
+            <span class=k>if</span> <span class=n>decrypted</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>==</span> <span class=mh>0xBE</span> <span class=ow>and</span> <span class=n>decrypted</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=o>==</span> <span class=mh>0xDE</span><span class=p>:</span>
+                <span class=c1># rtp header extension, remove it</span>
+                <span class=n>header_ext_length</span> <span class=o>=</span> <span class=nb>int</span><span class=o>.</span><span class=n>from_bytes</span><span class=p>(</span><span class=n>decrypted</span><span class=p>[</span><span class=mi>2</span><span class=p>:</span><span class=mi>4</span><span class=p>],</span> <span class=n>byteorder</span><span class=o>=</span><span class=s2>&quot;big&quot;</span><span class=p>)</span>
+                <span class=n>decrypted</span> <span class=o>=</span> <span class=n>decrypted</span><span class=p>[</span><span class=mi>4</span> <span class=o>+</span> <span class=mi>4</span> <span class=o>*</span> <span class=n>header_ext_length</span> <span class=p>:]</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>decoded</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>_recorder</span><span class=o>.</span><span class=n>get_decoder</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>ssrc</span><span class=p>)</span><span class=o>.</span><span class=n>decode</span><span class=p>(</span><span class=n>decrypted</span><span class=p>)</span>
+            <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>decoded</span>
+
+    <span class=nd>@property</span>
+    <span class=k>def</span> <span class=nf>user_id</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>]:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;The ID of the user who made this audio.&quot;&quot;&quot;</span>
+        <span class=k>while</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>_recorder</span><span class=o>.</span><span class=n>state</span><span class=o>.</span><span class=n>ws</span><span class=o>.</span><span class=n>user_ssrc_map</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>ssrc</span><span class=p>):</span>
+            <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mf>0.05</span><span class=p>)</span>
+        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_recorder</span><span class=o>.</span><span class=n>state</span><span class=o>.</span><span class=n>ws</span><span class=o>.</span><span class=n>user_ssrc_map</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>ssrc</span><span class=p>)[</span><span class=s2>&quot;user_id&quot;</span><span class=p>]</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.RawInputAudio.sequence class="doc doc-heading"> <code class="highlight language-python"><span class=n>sequence</span><span class=p>:</span> <span class=nb>int</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.RawInputAudio.sequence class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The audio sequence</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.RawInputAudio.audio_timestamp class="doc doc-heading"> <code class="highlight language-python"><span class=n>audio_timestamp</span><span class=p>:</span> <span class=nb>int</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.RawInputAudio.audio_timestamp class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The current timestamp for this audio</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.RawInputAudio.ssrc class="doc doc-heading"> <code class="highlight language-python"><span class=n>ssrc</span><span class=p>:</span> <span class=nb>int</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.RawInputAudio.ssrc class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The source of this audio</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.RawInputAudio.decoded class="doc doc-heading"> <code class="highlight language-python"><span class=n>decoded</span><span class=p>:</span> <span class=nb>bytes</span> <span class=o>=</span> <span class=sa>b</span><span class=s1>&#39;&#39;</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.RawInputAudio.decoded class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The decoded audio</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.RawInputAudio.timestamp_ns class="doc doc-heading"> <code class="highlight language-python"><span class=n>timestamp_ns</span> <span class=o>=</span> <span class=n>time</span><span class=o>.</span><span class=n>monotonic_ns</span><span class=p>()</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.RawInputAudio.timestamp_ns class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The time this audio was received, in nanoseconds</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.RawInputAudio.timestamp class="doc doc-heading"> <code class="highlight language-python"><span class=n>timestamp</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>timestamp_ns</span> <span class=o>/</span> <span class=mf>1000000000.0</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.RawInputAudio.timestamp class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The time this audio was received, in seconds</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.RawInputAudio.pcm class="doc doc-heading"> <code class="highlight language-python"><span class=n>pcm</span> <span class=o>=</span> <span class=sa>b</span><span class=s1>&#39;&#39;</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.RawInputAudio.pcm class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The raw PCM audio</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.RawInputAudio.user_id class="doc doc-heading"> <code class="highlight language-python"><span class=n>user_id</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>]</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-property"><code>property</code></small> </span> <a href=#interactions.api.voice.audio.RawInputAudio.user_id class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The ID of the user who made this audio.</p> </div> </div> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=interactions.api.voice.audio.AudioBuffer class="doc doc-heading"> <code>AudioBuffer</code> <a href=#interactions.api.voice.audio.AudioBuffer class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal> 73</span>
+<span class=normal> 74</span>
+<span class=normal> 75</span>
+<span class=normal> 76</span>
+<span class=normal> 77</span>
+<span class=normal> 78</span>
+<span class=normal> 79</span>
+<span class=normal> 80</span>
+<span class=normal> 81</span>
+<span class=normal> 82</span>
+<span class=normal> 83</span>
+<span class=normal> 84</span>
+<span class=normal> 85</span>
+<span class=normal> 86</span>
+<span class=normal> 87</span>
+<span class=normal> 88</span>
+<span class=normal> 89</span>
+<span class=normal> 90</span>
+<span class=normal> 91</span>
+<span class=normal> 92</span>
+<span class=normal> 93</span>
+<span class=normal> 94</span>
+<span class=normal> 95</span>
+<span class=normal> 96</span>
+<span class=normal> 97</span>
+<span class=normal> 98</span>
+<span class=normal> 99</span>
+<span class=normal>100</span>
+<span class=normal>101</span>
+<span class=normal>102</span>
+<span class=normal>103</span>
+<span class=normal>104</span>
+<span class=normal>105</span>
+<span class=normal>106</span>
+<span class=normal>107</span>
+<span class=normal>108</span>
+<span class=normal>109</span>
+<span class=normal>110</span>
+<span class=normal>111</span>
+<span class=normal>112</span>
+<span class=normal>113</span>
+<span class=normal>114</span>
+<span class=normal>115</span>
+<span class=normal>116</span>
+<span class=normal>117</span>
+<span class=normal>118</span>
+<span class=normal>119</span>
+<span class=normal>120</span>
+<span class=normal>121</span>
+<span class=normal>122</span>
+<span class=normal>123</span>
+<span class=normal>124</span>
+<span class=normal>125</span>
+<span class=normal>126</span>
+<span class=normal>127</span>
+<span class=normal>128</span>
+<span class=normal>129</span>
+<span class=normal>130</span>
+<span class=normal>131</span>
+<span class=normal>132</span>
+<span class=normal>133</span>
+<span class=normal>134</span>
+<span class=normal>135</span>
+<span class=normal>136</span>
+<span class=normal>137</span>
+<span class=normal>138</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>class</span> <span class=nc>AudioBuffer</span><span class=p>:</span>
+    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span> <span class=o>=</span> <span class=nb>bytearray</span><span class=p>()</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_lock</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Lock</span><span class=p>()</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>initialised</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Event</span><span class=p>()</span>
+
+    <span class=k>def</span> <span class=fm>__len__</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>int</span><span class=p>:</span>
+        <span class=k>return</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>extend</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>:</span> <span class=nb>bytes</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Extend the buffer with additional data.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            data: The data to add</span>
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>_lock</span><span class=p>:</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>read</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>total_bytes</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>pad</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>True</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytearray</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Read `total_bytes` bytes of audio from the buffer.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            total_bytes: Amount of bytes to read.</span>
+<span class=sd>            pad: Whether to pad incomplete frames with 0&#39;s.</span>
+
+<span class=sd>        Returns:</span>
+<span class=sd>            Desired amount of bytes</span>
+
+<span class=sd>        Raises:</span>
+<span class=sd>            ValueError: If `pad` is False and the buffer does not contain enough data.</span>
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>_lock</span><span class=p>:</span>
+            <span class=n>view</span> <span class=o>=</span> <span class=nb>memoryview</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span><span class=p>)</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span> <span class=o>=</span> <span class=nb>bytearray</span><span class=p>(</span><span class=n>view</span><span class=p>[</span><span class=n>total_bytes</span><span class=p>:])</span>
+            <span class=n>data</span> <span class=o>=</span> <span class=nb>bytearray</span><span class=p>(</span><span class=n>view</span><span class=p>[:</span><span class=n>total_bytes</span><span class=p>])</span>
+            <span class=k>if</span> <span class=mi>0</span> <span class=o>&lt;</span> <span class=nb>len</span><span class=p>(</span><span class=n>data</span><span class=p>)</span> <span class=o>&lt;</span> <span class=n>total_bytes</span><span class=p>:</span>
+                <span class=k>if</span> <span class=n>pad</span><span class=p>:</span>
+                    <span class=c1># pad incomplete frames with 0&#39;s</span>
+                    <span class=n>data</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=sa>b</span><span class=s2>&quot;</span><span class=se>\0</span><span class=s2>&quot;</span> <span class=o>*</span> <span class=p>(</span><span class=n>total_bytes</span> <span class=o>-</span> <span class=nb>len</span><span class=p>(</span><span class=n>data</span><span class=p>)))</span>
+                <span class=k>else</span><span class=p>:</span>
+                    <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span>
+                        <span class=sa>f</span><span class=s2>&quot;Buffer does not contain enough data to fulfill request </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>data</span><span class=p>)</span><span class=si>}</span><span class=s2> &lt; </span><span class=si>{</span><span class=n>total_bytes</span><span class=si>}</span><span class=s2>&quot;</span>
+                    <span class=p>)</span>
+            <span class=k>return</span> <span class=n>data</span>
+
+    <span class=k>def</span> <span class=nf>read_max</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>total_bytes</span><span class=p>:</span> <span class=nb>int</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytearray</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Read up to `total_bytes` bytes of audio from the buffer.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            total_bytes: Maximum amount of bytes to read.</span>
+
+<span class=sd>        Returns:</span>
+<span class=sd>            Desired amount of bytes</span>
+
+<span class=sd>        Raises:</span>
+<span class=sd>            EOFError: If the buffer is empty.</span>
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>_lock</span><span class=p>:</span>
+            <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+                <span class=k>raise</span> <span class=ne>EOFError</span><span class=p>(</span><span class=s2>&quot;Buffer is empty&quot;</span><span class=p>)</span>
+            <span class=n>view</span> <span class=o>=</span> <span class=nb>memoryview</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span><span class=p>)</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span> <span class=o>=</span> <span class=nb>bytearray</span><span class=p>(</span><span class=n>view</span><span class=p>[</span><span class=n>total_bytes</span><span class=p>:])</span>
+            <span class=k>return</span> <span class=nb>bytearray</span><span class=p>(</span><span class=n>view</span><span class=p>[:</span><span class=n>total_bytes</span><span class=p>])</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> <div class="doc doc-object doc-function"> <h4 id=interactions.api.voice.audio.AudioBuffer.extend class="doc doc-heading"> <code class="highlight language-python"><span class=n>extend</span><span class=p>(</span><span class=n>data</span><span class=p>)</span></code> <a href=#interactions.api.voice.audio.AudioBuffer.extend class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Extend the buffer with additional data.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>data</code></td> <td> <code>bytes</code> </td> <td><p>The data to add</p></td> <td> <em>required</em> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>82</span>
+<span class=normal>83</span>
+<span class=normal>84</span>
+<span class=normal>85</span>
+<span class=normal>86</span>
+<span class=normal>87</span>
+<span class=normal>88</span>
+<span class=normal>89</span>
+<span class=normal>90</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>extend</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>data</span><span class=p>:</span> <span class=nb>bytes</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Extend the buffer with additional data.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        data: The data to add</span>
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>_lock</span><span class=p>:</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.api.voice.audio.AudioBuffer.read class="doc doc-heading"> <code class="highlight language-python"><span class=n>read</span><span class=p>(</span><span class=n>total_bytes</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>pad</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></code> <a href=#interactions.api.voice.audio.AudioBuffer.read class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Read <code>total_bytes</code> bytes of audio from the buffer.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>total_bytes</code></td> <td> <code>int</code> </td> <td><p>Amount of bytes to read.</p></td> <td> <em>required</em> </td> </tr> <tr> <td><code>pad</code></td> <td> <code>bool</code> </td> <td><p>Whether to pad incomplete frames with 0's.</p></td> <td> <code>True</code> </td> </tr> </tbody> </table> <p><strong>Returns:</strong></p> <table> <thead> <tr> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td> <code>bytearray</code> </td> <td><p>Desired amount of bytes</p></td> </tr> </tbody> </table> <p><strong>Raises:</strong></p> <table> <thead> <tr> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td> <code>ValueError</code> </td> <td><p>If <code>pad</code> is False and the buffer does not contain enough data.</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal> 92</span>
+<span class=normal> 93</span>
+<span class=normal> 94</span>
+<span class=normal> 95</span>
+<span class=normal> 96</span>
+<span class=normal> 97</span>
+<span class=normal> 98</span>
+<span class=normal> 99</span>
+<span class=normal>100</span>
+<span class=normal>101</span>
+<span class=normal>102</span>
+<span class=normal>103</span>
+<span class=normal>104</span>
+<span class=normal>105</span>
+<span class=normal>106</span>
+<span class=normal>107</span>
+<span class=normal>108</span>
+<span class=normal>109</span>
+<span class=normal>110</span>
+<span class=normal>111</span>
+<span class=normal>112</span>
+<span class=normal>113</span>
+<span class=normal>114</span>
+<span class=normal>115</span>
+<span class=normal>116</span>
+<span class=normal>117</span>
+<span class=normal>118</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>read</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>total_bytes</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>pad</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>True</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytearray</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Read `total_bytes` bytes of audio from the buffer.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        total_bytes: Amount of bytes to read.</span>
+<span class=sd>        pad: Whether to pad incomplete frames with 0&#39;s.</span>
+
+<span class=sd>    Returns:</span>
+<span class=sd>        Desired amount of bytes</span>
+
+<span class=sd>    Raises:</span>
+<span class=sd>        ValueError: If `pad` is False and the buffer does not contain enough data.</span>
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>_lock</span><span class=p>:</span>
+        <span class=n>view</span> <span class=o>=</span> <span class=nb>memoryview</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span><span class=p>)</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span> <span class=o>=</span> <span class=nb>bytearray</span><span class=p>(</span><span class=n>view</span><span class=p>[</span><span class=n>total_bytes</span><span class=p>:])</span>
+        <span class=n>data</span> <span class=o>=</span> <span class=nb>bytearray</span><span class=p>(</span><span class=n>view</span><span class=p>[:</span><span class=n>total_bytes</span><span class=p>])</span>
+        <span class=k>if</span> <span class=mi>0</span> <span class=o>&lt;</span> <span class=nb>len</span><span class=p>(</span><span class=n>data</span><span class=p>)</span> <span class=o>&lt;</span> <span class=n>total_bytes</span><span class=p>:</span>
+            <span class=k>if</span> <span class=n>pad</span><span class=p>:</span>
+                <span class=c1># pad incomplete frames with 0&#39;s</span>
+                <span class=n>data</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=sa>b</span><span class=s2>&quot;</span><span class=se>\0</span><span class=s2>&quot;</span> <span class=o>*</span> <span class=p>(</span><span class=n>total_bytes</span> <span class=o>-</span> <span class=nb>len</span><span class=p>(</span><span class=n>data</span><span class=p>)))</span>
+            <span class=k>else</span><span class=p>:</span>
+                <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span>
+                    <span class=sa>f</span><span class=s2>&quot;Buffer does not contain enough data to fulfill request </span><span class=si>{</span><span class=nb>len</span><span class=p>(</span><span class=n>data</span><span class=p>)</span><span class=si>}</span><span class=s2> &lt; </span><span class=si>{</span><span class=n>total_bytes</span><span class=si>}</span><span class=s2>&quot;</span>
+                <span class=p>)</span>
+        <span class=k>return</span> <span class=n>data</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.api.voice.audio.AudioBuffer.read_max class="doc doc-heading"> <code class="highlight language-python"><span class=n>read_max</span><span class=p>(</span><span class=n>total_bytes</span><span class=p>)</span></code> <a href=#interactions.api.voice.audio.AudioBuffer.read_max class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Read up to <code>total_bytes</code> bytes of audio from the buffer.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>total_bytes</code></td> <td> <code>int</code> </td> <td><p>Maximum amount of bytes to read.</p></td> <td> <em>required</em> </td> </tr> </tbody> </table> <p><strong>Returns:</strong></p> <table> <thead> <tr> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td> <code>bytearray</code> </td> <td><p>Desired amount of bytes</p></td> </tr> </tbody> </table> <p><strong>Raises:</strong></p> <table> <thead> <tr> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td> <code>EOFError</code> </td> <td><p>If the buffer is empty.</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>120</span>
+<span class=normal>121</span>
+<span class=normal>122</span>
+<span class=normal>123</span>
+<span class=normal>124</span>
+<span class=normal>125</span>
+<span class=normal>126</span>
+<span class=normal>127</span>
+<span class=normal>128</span>
+<span class=normal>129</span>
+<span class=normal>130</span>
+<span class=normal>131</span>
+<span class=normal>132</span>
+<span class=normal>133</span>
+<span class=normal>134</span>
+<span class=normal>135</span>
+<span class=normal>136</span>
+<span class=normal>137</span>
+<span class=normal>138</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>read_max</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>total_bytes</span><span class=p>:</span> <span class=nb>int</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytearray</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Read up to `total_bytes` bytes of audio from the buffer.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        total_bytes: Maximum amount of bytes to read.</span>
+
+<span class=sd>    Returns:</span>
+<span class=sd>        Desired amount of bytes</span>
+
+<span class=sd>    Raises:</span>
+<span class=sd>        EOFError: If the buffer is empty.</span>
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=k>with</span> <span class=bp>self</span><span class=o>.</span><span class=n>_lock</span><span class=p>:</span>
+        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>EOFError</span><span class=p>(</span><span class=s2>&quot;Buffer is empty&quot;</span><span class=p>)</span>
+        <span class=n>view</span> <span class=o>=</span> <span class=nb>memoryview</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span><span class=p>)</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_buffer</span> <span class=o>=</span> <span class=nb>bytearray</span><span class=p>(</span><span class=n>view</span><span class=p>[</span><span class=n>total_bytes</span><span class=p>:])</span>
+        <span class=k>return</span> <span class=nb>bytearray</span><span class=p>(</span><span class=n>view</span><span class=p>[:</span><span class=n>total_bytes</span><span class=p>])</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=interactions.api.voice.audio.BaseAudio class="doc doc-heading"> <code>BaseAudio</code> <a href=#interactions.api.voice.audio.BaseAudio class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p class="doc doc-class-bases"> Bases: <code><span title=abc.ABC>ABC</span></code></p> <p>Base structure of the audio.</p> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>141</span>
+<span class=normal>142</span>
+<span class=normal>143</span>
+<span class=normal>144</span>
+<span class=normal>145</span>
+<span class=normal>146</span>
+<span class=normal>147</span>
+<span class=normal>148</span>
+<span class=normal>149</span>
+<span class=normal>150</span>
+<span class=normal>151</span>
+<span class=normal>152</span>
+<span class=normal>153</span>
+<span class=normal>154</span>
+<span class=normal>155</span>
+<span class=normal>156</span>
+<span class=normal>157</span>
+<span class=normal>158</span>
+<span class=normal>159</span>
+<span class=normal>160</span>
+<span class=normal>161</span>
+<span class=normal>162</span>
+<span class=normal>163</span>
+<span class=normal>164</span>
+<span class=normal>165</span>
+<span class=normal>166</span>
+<span class=normal>167</span>
+<span class=normal>168</span>
+<span class=normal>169</span>
+<span class=normal>170</span>
+<span class=normal>171</span>
+<span class=normal>172</span>
+<span class=normal>173</span>
+<span class=normal>174</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>class</span> <span class=nc>BaseAudio</span><span class=p>(</span><span class=n>ABC</span><span class=p>):</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Base structure of the audio.&quot;&quot;&quot;</span>
+
+    <span class=n>locked_stream</span><span class=p>:</span> <span class=nb>bool</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Prevents the audio task from closing automatically when no data is received.&quot;&quot;&quot;</span>
+    <span class=n>needs_encode</span><span class=p>:</span> <span class=nb>bool</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Does this audio data need encoding with opus?&quot;&quot;&quot;</span>
+    <span class=n>bitrate</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>]</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Optionally specify a specific bitrate to encode this audio data with&quot;&quot;&quot;</span>
+    <span class=n>encoder</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Encoder</span><span class=p>]</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The encoder to use for this audio data&quot;&quot;&quot;</span>
+
+    <span class=k>def</span> <span class=fm>__del__</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>cleanup</span><span class=p>()</span>
+
+    <span class=nd>@abstractmethod</span>
+    <span class=k>def</span> <span class=nf>cleanup</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;A method to optionally cleanup after this object is no longer required.&quot;&quot;&quot;</span>
+        <span class=o>...</span>
+
+    <span class=nd>@property</span>
+    <span class=k>def</span> <span class=nf>audio_complete</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;A property to tell the player if more audio is expected.&quot;&quot;&quot;</span>
+        <span class=k>return</span> <span class=kc>False</span>
+
+    <span class=nd>@abstractmethod</span>
+    <span class=k>def</span> <span class=nf>read</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>frame_size</span><span class=p>:</span> <span class=nb>int</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytes</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Reads frame_size ms of audio from source.</span>
+
+<span class=sd>        Returns:</span>
+<span class=sd>            bytes of audio</span>
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=o>...</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.BaseAudio.locked_stream class="doc doc-heading"> <code class="highlight language-python"><span class=n>locked_stream</span><span class=p>:</span> <span class=nb>bool</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.BaseAudio.locked_stream class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Prevents the audio task from closing automatically when no data is received.</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.BaseAudio.needs_encode class="doc doc-heading"> <code class="highlight language-python"><span class=n>needs_encode</span><span class=p>:</span> <span class=nb>bool</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.BaseAudio.needs_encode class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Does this audio data need encoding with opus?</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.BaseAudio.bitrate class="doc doc-heading"> <code class="highlight language-python"><span class=n>bitrate</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>]</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.BaseAudio.bitrate class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Optionally specify a specific bitrate to encode this audio data with</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.BaseAudio.encoder class="doc doc-heading"> <code class="highlight language-python"><span class=n>encoder</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Encoder</span><span class=p>]</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.BaseAudio.encoder class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The encoder to use for this audio data</p> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.api.voice.audio.BaseAudio.cleanup class="doc doc-heading"> <code class="highlight language-python"><span class=n>cleanup</span><span class=p>()</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small> </span> <a href=#interactions.api.voice.audio.BaseAudio.cleanup class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>A method to optionally cleanup after this object is no longer required.</p> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>156</span>
+<span class=normal>157</span>
+<span class=normal>158</span>
+<span class=normal>159</span></pre></div></td><td class=code><div><pre><span></span><code><span class=nd>@abstractmethod</span>
+<span class=k>def</span> <span class=nf>cleanup</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;A method to optionally cleanup after this object is no longer required.&quot;&quot;&quot;</span>
+    <span class=o>...</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.BaseAudio.audio_complete class="doc doc-heading"> <code class="highlight language-python"><span class=n>audio_complete</span><span class=p>:</span> <span class=nb>bool</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-property"><code>property</code></small> </span> <a href=#interactions.api.voice.audio.BaseAudio.audio_complete class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>A property to tell the player if more audio is expected.</p> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.api.voice.audio.BaseAudio.read class="doc doc-heading"> <code class="highlight language-python"><span class=n>read</span><span class=p>(</span><span class=n>frame_size</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small> </span> <a href=#interactions.api.voice.audio.BaseAudio.read class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Reads frame_size ms of audio from source.</p> <p><strong>Returns:</strong></p> <table> <thead> <tr> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td> <code>bytes</code> </td> <td><p>bytes of audio</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>166</span>
+<span class=normal>167</span>
+<span class=normal>168</span>
+<span class=normal>169</span>
+<span class=normal>170</span>
+<span class=normal>171</span>
+<span class=normal>172</span>
+<span class=normal>173</span>
+<span class=normal>174</span></pre></div></td><td class=code><div><pre><span></span><code><span class=nd>@abstractmethod</span>
+<span class=k>def</span> <span class=nf>read</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>frame_size</span><span class=p>:</span> <span class=nb>int</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytes</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Reads frame_size ms of audio from source.</span>
+
+<span class=sd>    Returns:</span>
+<span class=sd>        bytes of audio</span>
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=o>...</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=interactions.api.voice.audio.Audio class="doc doc-heading"> <code>Audio</code> <a href=#interactions.api.voice.audio.Audio class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p class="doc doc-class-bases"> Bases: <code><a class="autorefs autorefs-internal" title=interactions.api.voice.audio.BaseAudio href=#interactions.api.voice.audio.BaseAudio>BaseAudio</a></code></p> <p>Audio for playing from file or URL.</p> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>177</span>
+<span class=normal>178</span>
+<span class=normal>179</span>
+<span class=normal>180</span>
+<span class=normal>181</span>
+<span class=normal>182</span>
+<span class=normal>183</span>
+<span class=normal>184</span>
+<span class=normal>185</span>
+<span class=normal>186</span>
+<span class=normal>187</span>
+<span class=normal>188</span>
+<span class=normal>189</span>
+<span class=normal>190</span>
+<span class=normal>191</span>
+<span class=normal>192</span>
+<span class=normal>193</span>
+<span class=normal>194</span>
+<span class=normal>195</span>
+<span class=normal>196</span>
+<span class=normal>197</span>
+<span class=normal>198</span>
+<span class=normal>199</span>
+<span class=normal>200</span>
+<span class=normal>201</span>
+<span class=normal>202</span>
+<span class=normal>203</span>
+<span class=normal>204</span>
+<span class=normal>205</span>
+<span class=normal>206</span>
+<span class=normal>207</span>
+<span class=normal>208</span>
+<span class=normal>209</span>
+<span class=normal>210</span>
+<span class=normal>211</span>
+<span class=normal>212</span>
+<span class=normal>213</span>
+<span class=normal>214</span>
+<span class=normal>215</span>
+<span class=normal>216</span>
+<span class=normal>217</span>
+<span class=normal>218</span>
+<span class=normal>219</span>
+<span class=normal>220</span>
+<span class=normal>221</span>
+<span class=normal>222</span>
+<span class=normal>223</span>
+<span class=normal>224</span>
+<span class=normal>225</span>
+<span class=normal>226</span>
+<span class=normal>227</span>
+<span class=normal>228</span>
+<span class=normal>229</span>
+<span class=normal>230</span>
+<span class=normal>231</span>
+<span class=normal>232</span>
+<span class=normal>233</span>
+<span class=normal>234</span>
+<span class=normal>235</span>
+<span class=normal>236</span>
+<span class=normal>237</span>
+<span class=normal>238</span>
+<span class=normal>239</span>
+<span class=normal>240</span>
+<span class=normal>241</span>
+<span class=normal>242</span>
+<span class=normal>243</span>
+<span class=normal>244</span>
+<span class=normal>245</span>
+<span class=normal>246</span>
+<span class=normal>247</span>
+<span class=normal>248</span>
+<span class=normal>249</span>
+<span class=normal>250</span>
+<span class=normal>251</span>
+<span class=normal>252</span>
+<span class=normal>253</span>
+<span class=normal>254</span>
+<span class=normal>255</span>
+<span class=normal>256</span>
+<span class=normal>257</span>
+<span class=normal>258</span>
+<span class=normal>259</span>
+<span class=normal>260</span>
+<span class=normal>261</span>
+<span class=normal>262</span>
+<span class=normal>263</span>
+<span class=normal>264</span>
+<span class=normal>265</span>
+<span class=normal>266</span>
+<span class=normal>267</span>
+<span class=normal>268</span>
+<span class=normal>269</span>
+<span class=normal>270</span>
+<span class=normal>271</span>
+<span class=normal>272</span>
+<span class=normal>273</span>
+<span class=normal>274</span>
+<span class=normal>275</span>
+<span class=normal>276</span>
+<span class=normal>277</span>
+<span class=normal>278</span>
+<span class=normal>279</span>
+<span class=normal>280</span>
+<span class=normal>281</span>
+<span class=normal>282</span>
+<span class=normal>283</span>
+<span class=normal>284</span>
+<span class=normal>285</span>
+<span class=normal>286</span>
+<span class=normal>287</span>
+<span class=normal>288</span>
+<span class=normal>289</span>
+<span class=normal>290</span>
+<span class=normal>291</span>
+<span class=normal>292</span>
+<span class=normal>293</span>
+<span class=normal>294</span>
+<span class=normal>295</span>
+<span class=normal>296</span>
+<span class=normal>297</span>
+<span class=normal>298</span>
+<span class=normal>299</span>
+<span class=normal>300</span>
+<span class=normal>301</span>
+<span class=normal>302</span>
+<span class=normal>303</span>
+<span class=normal>304</span>
+<span class=normal>305</span>
+<span class=normal>306</span>
+<span class=normal>307</span>
+<span class=normal>308</span>
+<span class=normal>309</span>
+<span class=normal>310</span>
+<span class=normal>311</span>
+<span class=normal>312</span>
+<span class=normal>313</span>
+<span class=normal>314</span>
+<span class=normal>315</span>
+<span class=normal>316</span>
+<span class=normal>317</span>
+<span class=normal>318</span>
+<span class=normal>319</span>
+<span class=normal>320</span>
+<span class=normal>321</span>
+<span class=normal>322</span>
+<span class=normal>323</span>
+<span class=normal>324</span>
+<span class=normal>325</span>
+<span class=normal>326</span>
+<span class=normal>327</span>
+<span class=normal>328</span>
+<span class=normal>329</span>
+<span class=normal>330</span>
+<span class=normal>331</span>
+<span class=normal>332</span>
+<span class=normal>333</span>
+<span class=normal>334</span>
+<span class=normal>335</span>
+<span class=normal>336</span>
+<span class=normal>337</span>
+<span class=normal>338</span>
+<span class=normal>339</span>
+<span class=normal>340</span>
+<span class=normal>341</span>
+<span class=normal>342</span>
+<span class=normal>343</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>class</span> <span class=nc>Audio</span><span class=p>(</span><span class=n>BaseAudio</span><span class=p>):</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Audio for playing from file or URL.&quot;&quot;&quot;</span>
+
+    <span class=n>source</span><span class=p>:</span> <span class=nb>str</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The source ffmpeg should use to play the audio&quot;&quot;&quot;</span>
+    <span class=n>process</span><span class=p>:</span> <span class=n>subprocess</span><span class=o>.</span><span class=n>Popen</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The ffmpeg process to use&quot;&quot;&quot;</span>
+    <span class=n>buffer</span><span class=p>:</span> <span class=n>AudioBuffer</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The audio objects buffer to prevent stuttering&quot;&quot;&quot;</span>
+    <span class=n>buffer_seconds</span><span class=p>:</span> <span class=nb>int</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;How many seconds of audio should be buffered&quot;&quot;&quot;</span>
+    <span class=n>read_ahead_task</span><span class=p>:</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;A thread that reads ahead to create the buffer&quot;&quot;&quot;</span>
+    <span class=n>probe</span><span class=p>:</span> <span class=nb>bool</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Should ffprobe be used to detect audio data?&quot;&quot;&quot;</span>
+    <span class=n>ffmpeg_args</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=nb>list</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Args to pass to ffmpeg&quot;&quot;&quot;</span>
+    <span class=n>ffmpeg_before_args</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=nb>list</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Args to pass to ffmpeg before the source&quot;&quot;&quot;</span>
+
+    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>src</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Path</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>source</span> <span class=o>=</span> <span class=n>src</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>needs_encode</span> <span class=o>=</span> <span class=kc>True</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>locked_stream</span> <span class=o>=</span> <span class=kc>False</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>subprocess</span><span class=o>.</span><span class=n>Popen</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
+
+        <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span> <span class=o>=</span> <span class=n>AudioBuffer</span><span class=p>()</span>
+
+        <span class=bp>self</span><span class=o>.</span><span class=n>buffer_seconds</span> <span class=o>=</span> <span class=mi>3</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>read_ahead_task</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_read_ahead</span><span class=p>,</span> <span class=n>daemon</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+
+        <span class=bp>self</span><span class=o>.</span><span class=n>ffmpeg_before_args</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>ffmpeg_args</span> <span class=o>=</span> <span class=s2>&quot;&quot;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>probe</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>True</span>
+
+    <span class=k>def</span> <span class=fm>__repr__</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
+        <span class=k>return</span> <span class=sa>f</span><span class=s2>&quot;&lt;</span><span class=si>{</span><span class=nb>type</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span><span class=o>.</span><span class=vm>__name__</span><span class=si>}</span><span class=s2>: </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>source</span><span class=si>}</span><span class=s2>&gt;&quot;</span>
+
+    <span class=nd>@property</span>
+    <span class=k>def</span> <span class=nf>_max_buffer_size</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>int</span><span class=p>:</span>
+        <span class=c1># 1ms of audio * (buffer seconds * 1000)</span>
+        <span class=k>return</span> <span class=mi>192</span> <span class=o>*</span> <span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>buffer_seconds</span> <span class=o>*</span> <span class=mi>1000</span><span class=p>)</span>
+
+    <span class=nd>@property</span>
+    <span class=k>def</span> <span class=nf>audio_complete</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bool</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;Uses the state of the subprocess to determine if more audio is coming&quot;&quot;&quot;</span>
+        <span class=k>return</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span> <span class=ow>or</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>poll</span><span class=p>()</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span>
+
+    <span class=k>def</span> <span class=nf>_create_process</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=o>*</span><span class=p>,</span> <span class=n>block</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>True</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=n>before</span> <span class=o>=</span> <span class=p>(</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>ffmpeg_before_args</span> <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>ffmpeg_before_args</span><span class=p>,</span> <span class=nb>list</span><span class=p>)</span> <span class=k>else</span> <span class=bp>self</span><span class=o>.</span><span class=n>ffmpeg_before_args</span><span class=o>.</span><span class=n>split</span><span class=p>()</span>
+        <span class=p>)</span>
+
+        <span class=n>config</span> <span class=o>=</span> <span class=p>{</span>
+            <span class=s2>&quot;sample_rate&quot;</span><span class=p>:</span> <span class=mi>48000</span><span class=p>,</span>
+            <span class=s2>&quot;bitrate&quot;</span><span class=p>:</span> <span class=kc>None</span><span class=p>,</span>
+        <span class=p>}</span>
+
+        <span class=k>if</span> <span class=n>shutil</span><span class=o>.</span><span class=n>which</span><span class=p>(</span><span class=s2>&quot;ffprobe&quot;</span><span class=p>)</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>probe</span><span class=p>:</span>
+            <span class=n>ffprobe_cmd</span> <span class=o>=</span> <span class=p>[</span>
+                <span class=s2>&quot;ffprobe&quot;</span><span class=p>,</span>
+                <span class=s2>&quot;-loglevel&quot;</span><span class=p>,</span>
+                <span class=s2>&quot;quiet&quot;</span><span class=p>,</span>
+                <span class=s2>&quot;-print_format&quot;</span><span class=p>,</span>
+                <span class=s2>&quot;json&quot;</span><span class=p>,</span>
+                <span class=s2>&quot;-show_streams&quot;</span><span class=p>,</span>
+                <span class=s2>&quot;-select_streams&quot;</span><span class=p>,</span>
+                <span class=s2>&quot;a:0&quot;</span><span class=p>,</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>source</span><span class=p>,</span>
+            <span class=p>]</span>
+            <span class=n>raw_output</span> <span class=o>=</span> <span class=n>subprocess</span><span class=o>.</span><span class=n>check_output</span><span class=p>(</span><span class=n>ffprobe_cmd</span><span class=p>,</span> <span class=n>stderr</span><span class=o>=</span><span class=n>subprocess</span><span class=o>.</span><span class=n>DEVNULL</span><span class=p>)</span>
+            <span class=n>output</span> <span class=o>=</span> <span class=n>FastJson</span><span class=o>.</span><span class=n>loads</span><span class=p>(</span><span class=n>raw_output</span><span class=p>)</span>
+
+            <span class=n>config</span><span class=p>[</span><span class=s2>&quot;sample_rate&quot;</span><span class=p>]</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>output</span><span class=p>[</span><span class=s2>&quot;streams&quot;</span><span class=p>][</span><span class=mi>0</span><span class=p>][</span><span class=s2>&quot;sample_rate&quot;</span><span class=p>])</span>
+            <span class=n>config</span><span class=p>[</span><span class=s2>&quot;bitrate&quot;</span><span class=p>]</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>output</span><span class=p>[</span><span class=s2>&quot;streams&quot;</span><span class=p>][</span><span class=mi>0</span><span class=p>][</span><span class=s2>&quot;bit_rate&quot;</span><span class=p>])</span>
+
+            <span class=n>get_logger</span><span class=p>()</span><span class=o>.</span><span class=n>debug</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Detected audio data for </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>source</span><span class=si>}</span><span class=s2> - </span><span class=si>{</span><span class=n>config</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
+
+            <span class=k>if</span> <span class=nb>getattr</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=s2>&quot;bitrate&quot;</span><span class=p>,</span> <span class=kc>None</span><span class=p>)</span> <span class=ow>is</span> <span class=kc>None</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>encoder</span><span class=p>:</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>bitrate</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>config</span><span class=p>[</span><span class=s2>&quot;bitrate&quot;</span><span class=p>]</span> <span class=o>/</span> <span class=mi>1024</span><span class=p>)</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>encoder</span><span class=o>.</span><span class=n>set_bitrate</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>bitrate</span><span class=p>)</span>
+
+        <span class=n>after</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>ffmpeg_args</span> <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>ffmpeg_args</span><span class=p>,</span> <span class=nb>list</span><span class=p>)</span> <span class=k>else</span> <span class=bp>self</span><span class=o>.</span><span class=n>ffmpeg_args</span><span class=o>.</span><span class=n>split</span><span class=p>()</span>
+        <span class=n>cmd</span> <span class=o>=</span> <span class=p>[</span>
+            <span class=s2>&quot;ffmpeg&quot;</span><span class=p>,</span>
+            <span class=s2>&quot;-i&quot;</span><span class=p>,</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>source</span><span class=p>,</span>
+            <span class=s2>&quot;-f&quot;</span><span class=p>,</span>
+            <span class=s2>&quot;s16le&quot;</span><span class=p>,</span>
+            <span class=s2>&quot;-ar&quot;</span><span class=p>,</span>
+            <span class=nb>str</span><span class=p>(</span><span class=n>config</span><span class=p>[</span><span class=s2>&quot;sample_rate&quot;</span><span class=p>]),</span>
+            <span class=s2>&quot;-ac&quot;</span><span class=p>,</span>
+            <span class=s2>&quot;2&quot;</span><span class=p>,</span>
+            <span class=s2>&quot;-loglevel&quot;</span><span class=p>,</span>
+            <span class=s2>&quot;warning&quot;</span><span class=p>,</span>
+            <span class=s2>&quot;pipe:1&quot;</span><span class=p>,</span>
+            <span class=s2>&quot;-vn&quot;</span><span class=p>,</span>
+        <span class=p>]</span>
+        <span class=n>cmd</span><span class=p>[</span><span class=mi>1</span><span class=p>:</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>before</span>
+        <span class=n>cmd</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=n>after</span><span class=p>)</span>
+
+        <span class=bp>self</span><span class=o>.</span><span class=n>process</span> <span class=o>=</span> <span class=n>subprocess</span><span class=o>.</span><span class=n>Popen</span><span class=p>(</span><span class=n>cmd</span><span class=p>,</span> <span class=n>stdout</span><span class=o>=</span><span class=n>subprocess</span><span class=o>.</span><span class=n>PIPE</span><span class=p>,</span> <span class=n>stderr</span><span class=o>=</span><span class=n>subprocess</span><span class=o>.</span><span class=n>PIPE</span><span class=p>,</span> <span class=n>stdin</span><span class=o>=</span><span class=n>subprocess</span><span class=o>.</span><span class=n>DEVNULL</span><span class=p>)</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>read_ahead_task</span><span class=o>.</span><span class=n>start</span><span class=p>()</span>
+
+        <span class=k>if</span> <span class=n>block</span><span class=p>:</span>
+            <span class=c1># block until some data is in the buffer</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>wait</span><span class=p>()</span>
+
+    <span class=k>def</span> <span class=nf>_read_ahead</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=k>while</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=p>:</span>
+            <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>poll</span><span class=p>()</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+                <span class=c1># ffmpeg has exited, stop reading ahead</span>
+                <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>is_set</span><span class=p>():</span>
+                    <span class=c1># assume this is a small file and initialise the buffer</span>
+                    <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>set</span><span class=p>()</span>
+
+                <span class=k>return</span>
+            <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=p>)</span> <span class=o>&lt;</span> <span class=bp>self</span><span class=o>.</span><span class=n>_max_buffer_size</span><span class=p>:</span>
+                <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>extend</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>stdout</span><span class=o>.</span><span class=n>read</span><span class=p>(</span><span class=mi>3840</span><span class=p>))</span>
+            <span class=k>else</span><span class=p>:</span>
+                <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>is_set</span><span class=p>():</span>
+                    <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>set</span><span class=p>()</span>
+                <span class=n>time</span><span class=o>.</span><span class=n>sleep</span><span class=p>(</span><span class=mf>0.1</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>pre_buffer</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>duration</span><span class=p>:</span> <span class=kc>None</span> <span class=o>|</span> <span class=nb>float</span> <span class=o>=</span> <span class=kc>None</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Start pre-buffering the audio.</span>
+
+<span class=sd>        Args:</span>
+<span class=sd>            duration: The duration of audio to pre-buffer.</span>
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=k>if</span> <span class=n>duration</span><span class=p>:</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>buffer_seconds</span> <span class=o>=</span> <span class=n>duration</span>
+
+        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>poll</span><span class=p>()</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+            <span class=k>raise</span> <span class=ne>RuntimeError</span><span class=p>(</span><span class=s2>&quot;Cannot pre-buffer an already running process&quot;</span><span class=p>)</span>
+        <span class=c1># sanity value enforcement to prevent audio weirdness</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span> <span class=o>=</span> <span class=n>AudioBuffer</span><span class=p>()</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>clear</span><span class=p>()</span>
+
+        <span class=bp>self</span><span class=o>.</span><span class=n>_create_process</span><span class=p>(</span><span class=n>block</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>read</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>frame_size</span><span class=p>:</span> <span class=nb>int</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytes</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Reads frame_size bytes of audio from the buffer.</span>
+
+<span class=sd>        Returns:</span>
+<span class=sd>            bytes of audio</span>
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=p>:</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>_create_process</span><span class=p>()</span>
+        <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>is_set</span><span class=p>():</span>
+            <span class=c1># we cannot start playing until the buffer is initialised</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>wait</span><span class=p>()</span>
+
+        <span class=n>data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>read</span><span class=p>(</span><span class=n>frame_size</span><span class=p>)</span>
+
+        <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>data</span><span class=p>)</span> <span class=o>!=</span> <span class=n>frame_size</span><span class=p>:</span>
+            <span class=n>data</span> <span class=o>=</span> <span class=sa>b</span><span class=s2>&quot;&quot;</span>
+
+        <span class=k>return</span> <span class=nb>bytes</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>cleanup</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;Cleans up after this audio object.&quot;&quot;&quot;</span>
+        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>poll</span><span class=p>()</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>kill</span><span class=p>()</span>
+            <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>wait</span><span class=p>()</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.Audio.source class="doc doc-heading"> <code class="highlight language-python"><span class=n>source</span> <span class=o>=</span> <span class=n>src</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.Audio.source class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The source ffmpeg should use to play the audio</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.Audio.process class="doc doc-heading"> <code class="highlight language-python"><span class=n>process</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>subprocess</span><span class=o>.</span><span class=n>Popen</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.Audio.process class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The ffmpeg process to use</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.Audio.buffer class="doc doc-heading"> <code class="highlight language-python"><span class=n>buffer</span> <span class=o>=</span> <span class=n>AudioBuffer</span><span class=p>()</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.Audio.buffer class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The audio objects buffer to prevent stuttering</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.Audio.buffer_seconds class="doc doc-heading"> <code class="highlight language-python"><span class=n>buffer_seconds</span> <span class=o>=</span> <span class=mi>3</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.Audio.buffer_seconds class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>How many seconds of audio should be buffered</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.Audio.read_ahead_task class="doc doc-heading"> <code class="highlight language-python"><span class=n>read_ahead_task</span> <span class=o>=</span> <span class=n>threading</span><span class=o>.</span><span class=n>Thread</span><span class=p>(</span><span class=n>target</span><span class=o>=</span><span class=bp>self</span><span class=o>.</span><span class=n>_read_ahead</span><span class=p>,</span> <span class=n>daemon</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.Audio.read_ahead_task class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>A thread that reads ahead to create the buffer</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.Audio.ffmpeg_before_args class="doc doc-heading"> <code class="highlight language-python"><span class=n>ffmpeg_before_args</span> <span class=o>=</span> <span class=s1>&#39;&#39;</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.Audio.ffmpeg_before_args class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Args to pass to ffmpeg before the source</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.Audio.ffmpeg_args class="doc doc-heading"> <code class="highlight language-python"><span class=n>ffmpeg_args</span> <span class=o>=</span> <span class=s1>&#39;&#39;</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.Audio.ffmpeg_args class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Args to pass to ffmpeg</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.Audio.probe class="doc doc-heading"> <code class="highlight language-python"><span class=n>probe</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>True</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> </span> <a href=#interactions.api.voice.audio.Audio.probe class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Should ffprobe be used to detect audio data?</p> </div> </div> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.Audio.audio_complete class="doc doc-heading"> <code class="highlight language-python"><span class=n>audio_complete</span><span class=p>:</span> <span class=nb>bool</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-property"><code>property</code></small> </span> <a href=#interactions.api.voice.audio.Audio.audio_complete class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Uses the state of the subprocess to determine if more audio is coming</p> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.api.voice.audio.Audio.pre_buffer class="doc doc-heading"> <code class="highlight language-python"><span class=n>pre_buffer</span><span class=p>(</span><span class=n>duration</span><span class=o>=</span><span class=kc>None</span><span class=p>)</span></code> <a href=#interactions.api.voice.audio.Audio.pre_buffer class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Start pre-buffering the audio.</p> <p><strong>Parameters:</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> <th>Default</th> </tr> </thead> <tbody> <tr> <td><code>duration</code></td> <td> <code>None | float</code> </td> <td><p>The duration of audio to pre-buffer.</p></td> <td> <code>None</code> </td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>301</span>
+<span class=normal>302</span>
+<span class=normal>303</span>
+<span class=normal>304</span>
+<span class=normal>305</span>
+<span class=normal>306</span>
+<span class=normal>307</span>
+<span class=normal>308</span>
+<span class=normal>309</span>
+<span class=normal>310</span>
+<span class=normal>311</span>
+<span class=normal>312</span>
+<span class=normal>313</span>
+<span class=normal>314</span>
+<span class=normal>315</span>
+<span class=normal>316</span>
+<span class=normal>317</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>pre_buffer</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>duration</span><span class=p>:</span> <span class=kc>None</span> <span class=o>|</span> <span class=nb>float</span> <span class=o>=</span> <span class=kc>None</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Start pre-buffering the audio.</span>
+
+<span class=sd>    Args:</span>
+<span class=sd>        duration: The duration of audio to pre-buffer.</span>
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=k>if</span> <span class=n>duration</span><span class=p>:</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>buffer_seconds</span> <span class=o>=</span> <span class=n>duration</span>
+
+    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>poll</span><span class=p>()</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=k>raise</span> <span class=ne>RuntimeError</span><span class=p>(</span><span class=s2>&quot;Cannot pre-buffer an already running process&quot;</span><span class=p>)</span>
+    <span class=c1># sanity value enforcement to prevent audio weirdness</span>
+    <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span> <span class=o>=</span> <span class=n>AudioBuffer</span><span class=p>()</span>
+    <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>clear</span><span class=p>()</span>
+
+    <span class=bp>self</span><span class=o>.</span><span class=n>_create_process</span><span class=p>(</span><span class=n>block</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.api.voice.audio.Audio.read class="doc doc-heading"> <code class="highlight language-python"><span class=n>read</span><span class=p>(</span><span class=n>frame_size</span><span class=p>)</span></code> <a href=#interactions.api.voice.audio.Audio.read class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Reads frame_size bytes of audio from the buffer.</p> <p><strong>Returns:</strong></p> <table> <thead> <tr> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td> <code>bytes</code> </td> <td><p>bytes of audio</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>319</span>
+<span class=normal>320</span>
+<span class=normal>321</span>
+<span class=normal>322</span>
+<span class=normal>323</span>
+<span class=normal>324</span>
+<span class=normal>325</span>
+<span class=normal>326</span>
+<span class=normal>327</span>
+<span class=normal>328</span>
+<span class=normal>329</span>
+<span class=normal>330</span>
+<span class=normal>331</span>
+<span class=normal>332</span>
+<span class=normal>333</span>
+<span class=normal>334</span>
+<span class=normal>335</span>
+<span class=normal>336</span>
+<span class=normal>337</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>read</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>frame_size</span><span class=p>:</span> <span class=nb>int</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytes</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Reads frame_size bytes of audio from the buffer.</span>
+
+<span class=sd>    Returns:</span>
+<span class=sd>        bytes of audio</span>
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=p>:</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_create_process</span><span class=p>()</span>
+    <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>is_set</span><span class=p>():</span>
+        <span class=c1># we cannot start playing until the buffer is initialised</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>initialised</span><span class=o>.</span><span class=n>wait</span><span class=p>()</span>
+
+    <span class=n>data</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>buffer</span><span class=o>.</span><span class=n>read</span><span class=p>(</span><span class=n>frame_size</span><span class=p>)</span>
+
+    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>data</span><span class=p>)</span> <span class=o>!=</span> <span class=n>frame_size</span><span class=p>:</span>
+        <span class=n>data</span> <span class=o>=</span> <span class=sa>b</span><span class=s2>&quot;&quot;</span>
+
+    <span class=k>return</span> <span class=nb>bytes</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.api.voice.audio.Audio.cleanup class="doc doc-heading"> <code class="highlight language-python"><span class=n>cleanup</span><span class=p>()</span></code> <a href=#interactions.api.voice.audio.Audio.cleanup class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Cleans up after this audio object.</p> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>339</span>
+<span class=normal>340</span>
+<span class=normal>341</span>
+<span class=normal>342</span>
+<span class=normal>343</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>cleanup</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;Cleans up after this audio object.&quot;&quot;&quot;</span>
+    <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span> <span class=ow>and</span> <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>poll</span><span class=p>()</span> <span class=ow>is</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>kill</span><span class=p>()</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>process</span><span class=o>.</span><span class=n>wait</span><span class=p>()</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> </div> </div> </div> <div class="doc doc-object doc-class"> <h3 id=interactions.api.voice.audio.AudioVolume class="doc doc-heading"> <code>AudioVolume</code> <a href=#interactions.api.voice.audio.AudioVolume class=headerlink title="Permanent link">&para;</a></h3> <div class="doc doc-contents "> <p class="doc doc-class-bases"> Bases: <code><a class="autorefs autorefs-internal" title=interactions.api.voice.audio.Audio href=#interactions.api.voice.audio.Audio>Audio</a></code></p> <p>An audio object with volume control</p> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>346</span>
+<span class=normal>347</span>
+<span class=normal>348</span>
+<span class=normal>349</span>
+<span class=normal>350</span>
+<span class=normal>351</span>
+<span class=normal>352</span>
+<span class=normal>353</span>
+<span class=normal>354</span>
+<span class=normal>355</span>
+<span class=normal>356</span>
+<span class=normal>357</span>
+<span class=normal>358</span>
+<span class=normal>359</span>
+<span class=normal>360</span>
+<span class=normal>361</span>
+<span class=normal>362</span>
+<span class=normal>363</span>
+<span class=normal>364</span>
+<span class=normal>365</span>
+<span class=normal>366</span>
+<span class=normal>367</span>
+<span class=normal>368</span>
+<span class=normal>369</span>
+<span class=normal>370</span>
+<span class=normal>371</span>
+<span class=normal>372</span>
+<span class=normal>373</span>
+<span class=normal>374</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>class</span> <span class=nc>AudioVolume</span><span class=p>(</span><span class=n>Audio</span><span class=p>):</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;An audio object with volume control&quot;&quot;&quot;</span>
+
+    <span class=n>_volume</span><span class=p>:</span> <span class=nb>float</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;The internal volume level of the audio&quot;&quot;&quot;</span>
+
+    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>src</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=nb>str</span><span class=p>,</span> <span class=n>Path</span><span class=p>])</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>(</span><span class=n>src</span><span class=p>)</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_volume</span> <span class=o>=</span> <span class=mf>0.5</span>
+
+    <span class=nd>@property</span>
+    <span class=k>def</span> <span class=nf>volume</span><span class=p>(</span><span class=bp>self</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>float</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;The volume of the audio&quot;&quot;&quot;</span>
+        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>_volume</span>
+
+    <span class=nd>@volume</span><span class=o>.</span><span class=n>setter</span>
+    <span class=k>def</span> <span class=nf>volume</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>value</span><span class=p>:</span> <span class=nb>float</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;Sets the volume of the audio. Volume cannot be negative.&quot;&quot;&quot;</span>
+        <span class=bp>self</span><span class=o>.</span><span class=n>_volume</span> <span class=o>=</span> <span class=nb>max</span><span class=p>(</span><span class=n>value</span><span class=p>,</span> <span class=mf>0.0</span><span class=p>)</span>
+
+    <span class=k>def</span> <span class=nf>read</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>frame_size</span><span class=p>:</span> <span class=nb>int</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytes</span><span class=p>:</span>
+<span class=w>        </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>        Reads frame_size ms of audio from source.</span>
+
+<span class=sd>        Returns:</span>
+<span class=sd>            bytes of audio</span>
+<span class=sd>        &quot;&quot;&quot;</span>
+        <span class=n>data</span> <span class=o>=</span> <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>read</span><span class=p>(</span><span class=n>frame_size</span><span class=p>)</span>
+        <span class=k>return</span> <span class=n>audioop</span><span class=o>.</span><span class=n>mul</span><span class=p>(</span><span class=n>data</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>_volume</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> <div class="doc doc-object doc-attribute"> <h4 id=interactions.api.voice.audio.AudioVolume.volume class="doc doc-heading"> <code class="highlight language-python"><span class=n>volume</span><span class=p>:</span> <span class=nb>float</span></code> <span class="doc doc-labels"> <small class="doc doc-label doc-label-writable"><code>writable</code></small> <small class="doc doc-label doc-label-property"><code>property</code></small> </span> <a href=#interactions.api.voice.audio.AudioVolume.volume class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>The volume of the audio</p> </div> </div> <div class="doc doc-object doc-function"> <h4 id=interactions.api.voice.audio.AudioVolume.read class="doc doc-heading"> <code class="highlight language-python"><span class=n>read</span><span class=p>(</span><span class=n>frame_size</span><span class=p>)</span></code> <a href=#interactions.api.voice.audio.AudioVolume.read class=headerlink title="Permanent link">&para;</a></h4> <div class="doc doc-contents "> <p>Reads frame_size ms of audio from source.</p> <p><strong>Returns:</strong></p> <table> <thead> <tr> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td> <code>bytes</code> </td> <td><p>bytes of audio</p></td> </tr> </tbody> </table> <details class=quote> <summary>Source code in <code>interactions/api/voice/audio.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal>366</span>
+<span class=normal>367</span>
+<span class=normal>368</span>
+<span class=normal>369</span>
+<span class=normal>370</span>
+<span class=normal>371</span>
+<span class=normal>372</span>
+<span class=normal>373</span>
+<span class=normal>374</span></pre></div></td><td class=code><div><pre><span></span><code><span class=k>def</span> <span class=nf>read</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>frame_size</span><span class=p>:</span> <span class=nb>int</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>bytes</span><span class=p>:</span>
+<span class=w>    </span><span class=sd>&quot;&quot;&quot;</span>
+<span class=sd>    Reads frame_size ms of audio from source.</span>
+
+<span class=sd>    Returns:</span>
+<span class=sd>        bytes of audio</span>
+<span class=sd>    &quot;&quot;&quot;</span>
+    <span class=n>data</span> <span class=o>=</span> <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=n>read</span><span class=p>(</span><span class=n>frame_size</span><span class=p>)</span>
+    <span class=k>return</span> <span class=n>audioop</span><span class=o>.</span><span class=n>mul</span><span class=p>(</span><span class=n>data</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>_volume</span><span class=p>)</span>
+</code></pre></div></td></tr></table></div> </details> </div> </div> </div> </div> </div> </div> </div> </div> <aside class=md-source-file> <span class=md-source-file__fact> <span class=md-icon title="Last update"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1-2.1-2M12.5 7v5.2l4 2.4-1 1L11 13V7h1.5M11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2v1.8Z"/></svg> </span> <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 28, 2023</span> </span> </aside> <form class=md-feedback name=feedback hidden> <fieldset> <legend class=md-feedback__title> Was this page helpful? </legend> <div class=md-feedback__inner> <div class=md-feedback__list> <button class="md-feedback__icon md-icon" type=submit title="This page was helpful" data-md-value=1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35Z"/></svg> </button> <button class="md-feedback__icon md-icon" type=submit title="This page could be improved" data-md-value=0> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c.67 0 1.32.12 1.94.33L13 9.35l-4 5 3 7M16.5 3C19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35l-1-7 4.5-5-2.65-5.08C13.87 3.47 15.17 3 16.5 3Z"/></svg> </button> </div> <div class=md-feedback__note> <div data-md-value=1 hidden> Thanks for your feedback! </div> <div data-md-value=0 hidden> Thanks for your feedback! Please create an <a href=https://github.com/interactions-py/interactions.py/issues/new/choose>issue on Github</a> if you have any suggestions. </div> </div> </div> </fieldset> </form> </article> </div> <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script> </div> <button type=button class="md-top md-icon" data-md-component=top hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg> Back to top </button> </main> <footer class=md-footer> <div class="md-footer-meta md-typeset"> <div class="md-footer-meta__inner md-grid"> <div class=md-copyright> <div class=md-copyright__highlight> Copyright &copy; 2023 - Present LordOfPolls – <a href=#__consent>Change cookie settings</a> </div> Made with <a href=https://squidfunk.github.io/mkdocs-material/ target=_blank rel=noopener> Material for MkDocs Insiders </a> </div> <div class=md-social> <a href=https://discord.gg/interactions target=_blank rel=noopener title="Discord Server" class=md-social__link> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 640 512"><!-- Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485.065 485.065 0 0 0 404.081 32.03a1.816 1.816 0 0 0-1.923.91 337.461 337.461 0 0 0-14.9 30.6 447.848 447.848 0 0 0-134.426 0 309.541 309.541 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.689 483.689 0 0 0-119.688 37.107 1.712 1.712 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.016 2.016 0 0 0 .765 1.375 487.666 487.666 0 0 0 146.825 74.189 1.9 1.9 0 0 0 2.063-.676A348.2 348.2 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321.173 321.173 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126 251.047 251.047 0 0 0 9.109-7.137 1.819 1.819 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.812 1.812 0 0 1 1.924.233 234.533 234.533 0 0 0 9.132 7.16 1.884 1.884 0 0 1-.162 3.126 301.407 301.407 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391.055 391.055 0 0 0 30.014 48.815 1.864 1.864 0 0 0 2.063.7A486.048 486.048 0 0 0 610.7 405.729a1.882 1.882 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541ZM222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241Zm195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241Z"/></svg> </a> <a href=https://github.com/interactions-py/interactions.py target=_blank rel=noopener title="Github Repository" class=md-social__link> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 496 512"><!-- Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg> </a> </div> </div> </div> </footer> </div> <div class=md-dialog data-md-component=dialog> <div class="md-dialog__inner md-typeset"></div> </div> <div class=md-consent data-md-component=consent id=__consent hidden> <div class=md-consent__overlay></div> <aside class=md-consent__inner> <form class="md-consent__form md-grid md-typeset" name=consent> <h4>Cookie consent</h4> <p>We use cookies to measure the effectiveness of our documentation and whether users find what they're searching for. With your consent, you're helping us to make our documentation better.</p> <input class=md-toggle type=checkbox id=__settings checked> <div class=md-consent__settings> <ul class=task-list> <li class=task-list-item> <label class=task-list-control> <input type=checkbox name=analytics checked> <span class=task-list-indicator></span> Google Analytics </label> </li> <li class=task-list-item> <label class=task-list-control> <input type=checkbox name=github checked> <span class=task-list-indicator></span> GitHub </label> </li> </ul> </div> <div class=md-consent__controls> <button class="md-button md-button--primary">Accept</button> <button type=reset class="md-button md-button--primary">Reject</button> </div> </form> </aside> </div> <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout(function(){document.querySelector("[data-md-component=consent]").hidden=!1},250);var action,form=document.forms.consent;for(action of["submit","reset"])form.addEventListener(action,function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map(function(e){return[e,!0]}))),location.hash="",location.reload()})</script> <script id=__config type=application/json>{"base": "../../../../..", "features": ["header.autohide", "navigation.instant", "navigation.top", "navigation.tabs", "search.suggest", "search.share", "navigation.indexes", "navigation.prune", "toc.follow", "content.tooltips", "content.code.annotate"], "search": "../../../../../assets/javascripts/workers/search.6c7302c4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script> <script src=../../../../../assets/javascripts/bundle.803ed251.min.js></script> <script src=../../../../../scripts/feedback.js></script> </body> </html>
