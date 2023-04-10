@@ -11,11 +11,10 @@ To see the documentation, please head over to the link here:
 """
 from warnings import warn
 
+from .client import *  # noqa
 from .api import *  # noqa: F401 F403
 from .base import *  # noqa: F401 F403
 from .utils import *  # noqa: F401 F403
-
-from .client import *  # noqa: F401 F403 isort: skip
 
 warn(
     "The v4 is now deprecated and won't be supported in the future. Please, migrate to v5. https://github.com/interactions-py/interactions.py",
