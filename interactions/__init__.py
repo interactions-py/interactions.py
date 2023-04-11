@@ -108,7 +108,7 @@ from .models import (
     Converter,
     cooldown,
     Cooldown,
-    CooldownSystem,
+    CooldownStrategy,
     CustomEmoji,
     CustomEmojiConverter,
     DateTrigger,
@@ -329,7 +329,7 @@ from .models import (
     WebhookMixin,
     WebhookTypes,
     WebSocketOPCode,
-    SlidingWindowCooldownSystem,
+    SlidingWindowStrategy,
 )
 
 __all__ = (
@@ -411,8 +411,8 @@ __all__ = (
     "Converter",
     "cooldown",
     "Cooldown",
-    "CooldownSystem",
-    "SlidingWindowCooldownSystem",
+    "CooldownStrategy",
+    "SlidingWindowStrategy",
     "CustomEmoji",
     "CustomEmojiConverter",
     "DateTrigger",

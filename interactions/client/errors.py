@@ -8,7 +8,7 @@ from . import const
 if TYPE_CHECKING:
     from interactions.models.internal.command import BaseCommand
     from interactions.models.internal.context import BaseContext
-    from interactions.models.internal.cooldowns import CooldownSystem, MaxConcurrency
+    from interactions.models.internal.cooldowns import CooldownStrategy, MaxConcurrency
     from interactions.models.discord.snowflake import Snowflake_Type
 
 __all__ = (
@@ -287,9 +287,9 @@ class CommandOnCooldown(CommandException):
 
     """
 
-    def __init__(self, command: "BaseCommand", cooldown: "CooldownSystem") -> None:
+    def __init__(self, command: "BaseCommand", cooldown: "CooldownStrategy") -> None:
         self.command: "BaseCommand" = command
-        self.cooldown: "CooldownSystem" = cooldown
+        self.cooldown: "CooldownStrategy" = cooldown
 
         super().__init__(f"Command on cooldown... {cooldown.get_cooldown_time():.2f} seconds until reset")
 

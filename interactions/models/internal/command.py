@@ -23,7 +23,7 @@ from interactions.client.utils.attr_utils import docs
 from interactions.client.utils.misc_utils import get_parameters, get_object_name, maybe_coroutine
 from interactions.client.utils.serializer import no_export_meta
 from interactions.models.internal.callback import CallbackObject
-from interactions.models.internal.cooldowns import Cooldown, Buckets, MaxConcurrency, CooldownSystem
+from interactions.models.internal.cooldowns import Cooldown, Buckets, MaxConcurrency, CooldownStrategy
 from interactions.models.internal.protocols import Converter
 
 if TYPE_CHECKING:
@@ -284,7 +284,7 @@ def check(check: Callable[..., Awaitable[bool]]) -> Callable[[CommandT], Command
 
 
 def cooldown(
-    bucket: Buckets, rate: int, interval: float, cooldown_system: typing.Type[CooldownSystem] | None = None
+    bucket: Buckets, rate: int, interval: float, cooldown_system: typing.Type[CooldownStrategy] | None = None
 ) -> Callable[[CommandT], CommandT]:
     """
     Add a cooldown to a command.

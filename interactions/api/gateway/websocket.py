@@ -12,7 +12,7 @@ from aiohttp import WSMsgType
 from interactions.client import const
 from interactions.client.errors import WebSocketClosed
 from interactions.client.utils.input_utils import FastJson
-from interactions.models.internal.cooldowns import CooldownSystem
+from interactions.models.internal.cooldowns import CooldownStrategy
 
 if TYPE_CHECKING:
     from interactions.api.gateway.state import ConnectionState
@@ -29,7 +29,7 @@ class WebsocketRateLimit:
         # docs state 120 calls per 60 seconds, this is set conservatively to 110 per 60 seconds.
         rate = 110
         interval = 60
-        self.cooldown_system = CooldownSystem(1, interval / rate)
+        self.cooldown_system = CooldownStrategy(1, interval / rate)
         # hacky way to throttle how frequently we send messages to the gateway
 
     async def rate_limit(self) -> None:

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Dict, Type
 if TYPE_CHECKING:
     from interactions.models.internal.context import BaseContext
 
-__all__ = ("Buckets", "Cooldown", "CooldownSystem", "SlidingWindowCooldownSystem", "MaxConcurrency")
+__all__ = ("Buckets", "Cooldown", "CooldownStrategy", "SlidingWindowStrategy", "MaxConcurrency")
 
 
 class Buckets(IntEnum):
@@ -52,7 +52,7 @@ class Buckets(IntEnum):
         return self.get_key(context)
 
 
-class CooldownSystem:
+class CooldownStrategy:
     """
     Represents a cooldown system for commands.
 
@@ -132,7 +132,7 @@ class CooldownSystem:
             self.reset()
 
 
-class SlidingWindowCooldownSystem(CooldownSystem):
+class SlidingWindowStrategy(CooldownStrategy):
     """
     Represents a sliding window cooldown system for commands.
 
@@ -234,16 +234,16 @@ class Cooldown:
         rate: int,
         interval: float,
         *,
-        cooldown_system: Type[CooldownSystem] = CooldownSystem,
+        cooldown_system: Type[CooldownStrategy] = CooldownStrategy,
     ) -> None:
         self.bucket: Buckets = cooldown_bucket
         self.cooldown_repositories = {}
         self.rate: int = rate
         self.interval: float = interval
 
-        self.cooldown_system: Type[CooldownSystem] = cooldown_system
+        self.cooldown_system: Type[CooldownStrategy] = cooldown_system
 
-    async def get_cooldown(self, context: "BaseContext") -> "CooldownSystem":
+    async def get_cooldown(self, context: "BaseContext") -> "CooldownStrategy":
         key = await self.bucket(context)
 
         if key not in self.cooldown_repositories:
