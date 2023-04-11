@@ -104,27 +104,19 @@ Now that you know all the options you have for options, you can opt into adding 
 You do that by using the `@slash_option()` decorator and passing the option name as a function parameter:
 ```python
 @slash_command(name="my_command", ...)
-@slash_option(
-    name="integer_option",
-    description="Integer Option",
-    required=True,
-    opt_type=OptionType.INTEGER
-)
+@slash_option("Integer Option")
 async def my_command_function(ctx: InteractionContext, integer_option: int):
     await ctx.send(f"You input {integer_option}")
 ```
-
-Options can either be required or not. If an option is not required, make sure to set a default value for them.
+- The description of the option is required and can be passed to the decorator.
+- The name of the option defaults to the name of the parameter.
+- The type of the option can be specified as a type annotation to the parameter.
+- Whether the option is required is inferred from the parameter's default value. If there is a default value specified, the option is not required.
 
 Always make sure to define all required options first, this is a Discord requirement!
 ```python
 @slash_command(name="my_command", ...)
-@slash_option(
-    name="integer_option",
-    description="Integer Option",
-    required=False,
-    opt_type=OptionType.INTEGER
-)
+@slash_option("Integer Option")
 async def my_command_function(ctx: InteractionContext, integer_option: int = 5):
     await ctx.send(f"You input {integer_option}")
 ```
@@ -136,14 +128,8 @@ For more information, please visit the API reference [here](/interactions.py/API
 If you are using an `OptionType.CHANNEL` option, you can restrict the channel a user can choose by setting `channel_types`:
 ```python
 @slash_command(name="my_command", ...)
-@slash_option(
-    name="channel_option",
-    description="Channel Option",
-    required=True,
-    opt_type=OptionType.CHANNEL,
-    channel_types=[ChannelType.GUILD_TEXT]
-)
-async def my_command_function(ctx: InteractionContext, channel_option: GUILD_TEXT):
+@slash_option("Channel Option", channel_types=[ChannelType.GUILD_TEXT])
+async def my_command_function(ctx: InteractionContext, channel_option: GuildChannel):
     await channel_option.send("This is a text channel in a guild")
 
     await ctx.send("...")
@@ -152,14 +138,7 @@ async def my_command_function(ctx: InteractionContext, channel_option: GUILD_TEX
 You can also set an upper and lower limit for both `OptionType.INTEGER` and `OptionType.NUMBER` by setting `min_value` and `max_value`:
 ```python
 @slash_command(name="my_command", ...)
-@slash_option(
-    name="integer_option",
-    description="Integer Option",
-    required=True,
-    opt_type=OptionType.INTEGER,
-    min_value=10,
-    max_value=15
-)
+@slash_option("Integer Option", min_value=10, max_value=15)
 async def my_command_function(ctx: InteractionContext, integer_option: int):
     await ctx.send(f"You input {integer_option} which is always between 10 and 15")
 ```
@@ -167,20 +146,13 @@ async def my_command_function(ctx: InteractionContext, integer_option: int):
 The same can be done with the length of an option when using `OptionType.STRING` by setting `min_length` and `max_length`:
 ```python
 @slash_command(name="my_command", ...)
-@slash_option(
-    name="string_option",
-    description="String Option",
-    required=True,
-    opt_type=OptionType.STRING,
-    min_length=5,
-    max_length=10
-)
+@slash_option("String Option", min_length=5, max_length=10)
 async def my_command_function(ctx: InteractionContext, string_option: str):
     await ctx.send(f"You input `{string_option}` which is between 5 and 10 characters long")
 ```
 
 !!! danger "Option Names"
-    Be aware that the option `name` and the function parameter need to be the same (In this example both are `integer_option`).
+    Be aware that the option `name` and the function parameter need to be the same, if the `name` argument in the decorator is given.
 
 
 ## But I Want A Choice
@@ -192,10 +164,7 @@ To create a choice, simply fill `choices` in `@slash_option()`. An option can ha
 ```python
 @slash_command(name="my_command", ...)
 @slash_option(
-    name="integer_option",
-    description="Integer Option",
-    required=True,
-    opt_type=OptionType.INTEGER,
+    "Integer Option",
     choices=[
         SlashCommandChoice(name="One", value=1),
         SlashCommandChoice(name="Two", value=2)
@@ -215,13 +184,7 @@ The downside is that you need to supply the choices on request, making this a bi
 To use autocomplete options, set `autocomplete=True` in `@slash_option()`:
 ```python
 @slash_command(name="my_command", ...)
-@slash_option(
-    name="string_option",
-    description="String Option",
-    required=True,
-    opt_type=OptionType.STRING,
-    autocomplete=True
-)
+@slash_option("String Option", autocomplete=True)
 async def my_command_function(ctx: InteractionContext, string_option: str):
     await ctx.send(f"You input {string_option}")
 ```
@@ -258,12 +221,7 @@ You are in luck. There are currently four different ways to create interactions,
 === ":one: Multiple Decorators"
     ```python
     @slash_command(name="my_command", description="My first command :)")
-    @slash_option(
-        name="integer_option",
-        description="Integer Option",
-        required=True,
-        opt_type=OptionType.INTEGER
-    )
+    @slash_option("Integer Option")
     async def my_command_function(ctx: InteractionContext, integer_option: int):
         await ctx.send(f"You input {integer_option}")
     ```
@@ -431,12 +389,7 @@ def my_own_int_option():
     """Call with `@my_own_int_option()`"""
 
     def wrapper(func):
-        return slash_option(
-            name="integer_option",
-            description="Integer Option",
-            opt_type=OptionType.INTEGER,
-            required=True
-        )(func)
+        return slash_option("Integer Option")(func)
 
     return wrapper
 

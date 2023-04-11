@@ -1175,10 +1175,10 @@ SlashCommandT = TypeVar("SlashCommandT", SlashCommand, AsyncCallable)
 
 
 def slash_option(
-    name: str,
     description: str,
-    opt_type: Union[OptionType, int],
-    required: bool = False,
+    name: Absent[str] = MISSING,
+    opt_type: Absent[Union[OptionType, int]] = MISSING,
+    required: Absent[bool] = MISSING,
     autocomplete: bool = False,
     choices: List[Union[SlashCommandChoice, dict]] = None,
     channel_types: Optional[list[Union[ChannelType, int]]] = None,
@@ -1191,10 +1191,10 @@ def slash_option(
     A decorator to add an option to a slash command.
 
     Args:
-        name: 1-32 lowercase character name matching ^[\w-]{1,32}$
-        opt_type: The type of option
         description: 1-100 character description of option
-        required: If the parameter is required or optional--default false
+        name: 1-32 lowercase character name matching ^[\w-]{1,32}$--defaults to the parameter name
+        opt_type: The type of option--defaults to parameter type annotation
+        required: If the parameter is required or optional
         autocomplete: If autocomplete interactions are enabled for this STRING, INTEGER, or NUMBER type option
         choices: A list of choices the user has to pick between (max 25)
         channel_types: The channel types permitted. The option needs to be a channel
@@ -1208,11 +1208,29 @@ def slash_option(
         if hasattr(func, "cmd_id"):
             raise ValueError("slash_option decorators must be positioned under a slash_command decorator")
 
+        if not hasattr(func, "options"):
+            func.options = []
+
+        parameters = list(inspect.signature(func).parameters.values())
+        param = parameters[-1 - len(func.options)]
+        option_name = param.name if name is MISSING else name
+        option_type = param.annotation if opt_type is MISSING else opt_type
+        option_required = param.default is param.empty if required is MISSING else required
+        
+        if isinstance(option_type, str):
+            option_type = typing.get_type_hints(func).get(param.name)
+        
+        if option_type is param.empty or option_type is MISSING:
+            raise ValueError(f"Missing type annotation or opt_type for option {name} in command {name}")
+
+        if not isinstance(option_type, int):
+            option_type = OptionType.from_type(option_type)
+
         option = SlashCommandOption(
-            name=name,
-            type=opt_type,
+            name=option_name,
+            type=option_type,
             description=description,
-            required=required,
+            required=option_required,
             autocomplete=autocomplete,
             choices=choices or [],
             channel_types=channel_types,
@@ -1221,8 +1239,6 @@ def slash_option(
             min_length=min_length,
             max_length=max_length,
         )
-        if not hasattr(func, "options"):
-            func.options = []
         func.options.insert(0, option)
         return func
 
