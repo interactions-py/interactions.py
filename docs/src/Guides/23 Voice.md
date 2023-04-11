@@ -8,9 +8,9 @@ So you want to start playing some 🎵tunes🎶 in voice channels? Well let's ge
     ```
     pip install discord.py-interactions[voice]
     ```
-    
+
     Then you'll need to download [FFmpeg](https://ffmpeg.org) and place it in your project directory or PATH.
-    
+
     Now you've got those; let's make a simple play command to get you started.
 
 === ":simple-linux: Linux"
@@ -19,10 +19,10 @@ So you want to start playing some 🎵tunes🎶 in voice channels? Well let's ge
     ```
     pip install discord.py-interactions[voice]
     ```
-    
+
     Then you'll need to install the following packages:
     [libnacl](https://github.com/saltstack/libnacl), [libffi](https://github.com/libffi/libffi), and [FFmpeg](https://ffmpeg.org)
-    
+
     :simple-debian: For debian based distros:
     ```
     sudo apt install ffmpeg libffi-dev libnacl-dev
@@ -38,7 +38,7 @@ So you want to start playing some 🎵tunes🎶 in voice channels? Well let's ge
 
     If you get an error about "Could not find opus library," your distro may not have libopus installed. You'll need to find documentation for your distro on how to install it.
 
-    
+
     Now you've got those; let's make a simple play command to get you started.
 
 ```python
@@ -121,4 +121,3 @@ Are you going to be recording for a long time? You are going to want to write th
 await voice_state.start_recording(output_dir="folder_name")
 ```
 This will write the files to the folder `folder_name` in the current working directory, please note that the library will not create the folder for you, nor will it delete the files when you're done.
-
