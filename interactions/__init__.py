@@ -330,6 +330,9 @@ from .models import (
     WebhookTypes,
     WebSocketOPCode,
     SlidingWindowStrategy,
+    ExponentialBackoffStrategy,
+    LeakyBucketStrategy,
+    TokenBucketStrategy,
 )
 
 __all__ = (
@@ -413,6 +416,9 @@ __all__ = (
     "Cooldown",
     "CooldownStrategy",
     "SlidingWindowStrategy",
+    "ExponentialBackoffStrategy",
+    "LeakyBucketStrategy",
+    "TokenBucketStrategy",
     "CustomEmoji",
     "CustomEmojiConverter",
     "DateTrigger",

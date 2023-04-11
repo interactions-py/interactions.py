@@ -86,7 +86,16 @@ from .converters import (
     UserConverter,
     VoiceChannelConverter,
 )
-from .cooldowns import Buckets, Cooldown, CooldownStrategy, MaxConcurrency, SlidingWindowStrategy
+from .cooldowns import (
+    Buckets,
+    Cooldown,
+    CooldownStrategy,
+    MaxConcurrency,
+    SlidingWindowStrategy,
+    ExponentialBackoffStrategy,
+    LeakyBucketStrategy,
+    TokenBucketStrategy,
+)
 from .listener import listen, Listener
 from .protocols import Converter
 from .extension import Extension
@@ -122,6 +131,9 @@ __all__ = (
     "Cooldown",
     "CooldownStrategy",
     "SlidingWindowStrategy",
+    "ExponentialBackoffStrategy",
+    "LeakyBucketStrategy",
+    "TokenBucketStrategy",
     "CustomEmojiConverter",
     "DateTrigger",
     "dm_only",

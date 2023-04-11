@@ -7,7 +7,16 @@ from typing import TYPE_CHECKING, Any, Dict, Type
 if TYPE_CHECKING:
     from interactions.models.internal.context import BaseContext
 
-__all__ = ("Buckets", "Cooldown", "CooldownStrategy", "SlidingWindowStrategy", "MaxConcurrency")
+__all__ = (
+    "Buckets",
+    "Cooldown",
+    "CooldownStrategy",
+    "SlidingWindowStrategy",
+    "ExponentialBackoffStrategy",
+    "LeakyBucketStrategy",
+    "TokenBucketStrategy",
+    "MaxConcurrency",
+)
 
 
 class Buckets(IntEnum):
