@@ -118,8 +118,8 @@ SELF = TypeVar("SELF")
 
 
 def _log_type_mismatch(cls, value) -> None:
-    get_logger().error(
-        f"Class `{cls.__name__}` received an invalid and unexpected value `{value}`. Please update interactions.py or report this issue on GitHub - https://github.com/interactions-py/interactions.py/issues"
+    get_logger().warning(
+        f"Class `{cls.__name__}` received an invalid and unexpected value `{value}`, a new enum item will be created to represent this value. Please update interactions.py or report this issue on GitHub - https://github.com/interactions-py/interactions.py/issues"
     )
 
 
