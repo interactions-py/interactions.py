@@ -380,6 +380,32 @@ class MessageType(CursedIntEnum):
     STAGE_TOPIC = 31
     GUILD_APPLICATION_PREMIUM_SUBSCRIPTION = 32
 
+    @classmethod
+    def deletable(cls) -> Tuple["MessageType", ...]:
+        """Return a tuple of message types that can be deleted."""
+        return (
+            cls.DEFAULT,
+            cls.CHANNEL_PINNED_MESSAGE,
+            cls.GUILD_MEMBER_JOIN,
+            cls.USER_PREMIUM_GUILD_SUBSCRIPTION,
+            cls.USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1,
+            cls.USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2,
+            cls.USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3,
+            cls.CHANNEL_FOLLOW_ADD,
+            cls.THREAD_CREATED,
+            cls.REPLY,
+            cls.APPLICATION_COMMAND,
+            cls.GUILD_INVITE_REMINDER,
+            cls.CONTEXT_MENU_COMMAND,
+            cls.AUTO_MODERATION_ACTION,
+            cls.ROLE_SUBSCRIPTION_PURCHASE,
+            cls.INTERACTION_PREMIUM_UPSELL,
+            cls.STAGE_START,
+            cls.STAGE_END,
+            cls.STAGE_SPEAKER,
+            cls.STAGE_TOPIC,
+        )
+
 
 class EmbedType(Enum):
     """Types of embed."""
