@@ -297,7 +297,7 @@ def cooldown(
     """
 
     def wrapper(coro: CommandT) -> CommandT:
-        cooldown_obj = Cooldown(bucket, rate, interval, cooldown_system=cooldown_strategy)
+        cooldown_obj = Cooldown(bucket, rate, interval, cooldown_strategy=cooldown_strategy)
 
         coro.cooldown = cooldown_obj
 
