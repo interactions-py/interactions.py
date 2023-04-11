@@ -1216,10 +1216,10 @@ def slash_option(
         option_name = param.name if name is MISSING else name
         option_type = param.annotation if opt_type is MISSING else opt_type
         option_required = param.default is param.empty if required is MISSING else required
-        
+
         if isinstance(option_type, str):
             option_type = typing.get_type_hints(func).get(param.name)
-        
+
         if option_type is param.empty or option_type is MISSING:
             raise ValueError(f"Missing type annotation or opt_type for option {name} in command {name}")
 
