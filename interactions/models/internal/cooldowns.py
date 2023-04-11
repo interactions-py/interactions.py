@@ -1,5 +1,6 @@
 import asyncio
 import time
+import typing
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any, Dict, Type
 
@@ -330,6 +331,23 @@ class Cooldown:
             self.cooldown_repositories[key] = cooldown
             return cooldown
         return self.cooldown_repositories.get(await self.bucket(context))
+
+    def get_cooldown_with_key(self, key: Any, *, create: bool = False) -> typing.Optional["CooldownStrategy"]:
+        """
+        Get the cooldown system for the command.
+
+        Note:
+            The preferred way to get the cooldown system is to use `get_cooldown` as it will use the context to get the correct key.
+
+        Args:
+            key: The key to get the cooldown system for
+            create: Whether to create a new cooldown system if one does not exist
+        """
+        if key not in self.cooldown_repositories and create:
+            cooldown = self.cooldown_strategy(self.rate, self.interval)
+            self.cooldown_repositories[key] = cooldown
+            return cooldown
+        return self.cooldown_repositories.get(key)
 
     async def acquire_token(self, context: "BaseContext") -> bool:
         """
