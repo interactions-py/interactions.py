@@ -302,10 +302,10 @@ class Cooldown:
         cooldown_repositories: A dictionary of cooldowns for each bucket
         rate: How many commands may be ran per interval
         interval: How many seconds to wait for a cooldown
-        cooldown_system: The cooldown system to use for this cooldown
+        cooldown_strategy: The cooldown system to use for this cooldown
     """
 
-    __slots__ = "bucket", "cooldown_repositories", "rate", "interval", "cooldown_system"
+    __slots__ = "bucket", "cooldown_repositories", "rate", "interval", "cooldown_strategy"
 
     def __init__(
         self,
@@ -313,20 +313,20 @@ class Cooldown:
         rate: int,
         interval: float,
         *,
-        cooldown_system: Type[CooldownStrategy] = CooldownStrategy,
+        cooldown_strategy: Type[CooldownStrategy] = CooldownStrategy,
     ) -> None:
         self.bucket: Buckets = cooldown_bucket
         self.cooldown_repositories = {}
         self.rate: int = rate
         self.interval: float = interval
 
-        self.cooldown_system: Type[CooldownStrategy] = cooldown_system
+        self.cooldown_strategy: Type[CooldownStrategy] = cooldown_strategy
 
     async def get_cooldown(self, context: "BaseContext") -> "CooldownStrategy":
         key = await self.bucket(context)
 
         if key not in self.cooldown_repositories:
-            cooldown = self.cooldown_system(self.rate, self.interval)
+            cooldown = self.cooldown_strategy(self.rate, self.interval)
             self.cooldown_repositories[key] = cooldown
             return cooldown
         return self.cooldown_repositories.get(await self.bucket(context))

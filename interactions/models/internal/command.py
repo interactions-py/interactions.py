@@ -284,7 +284,7 @@ def check(check: Callable[..., Awaitable[bool]]) -> Callable[[CommandT], Command
 
 
 def cooldown(
-    bucket: Buckets, rate: int, interval: float, cooldown_system: typing.Type[CooldownStrategy] | None = None
+    bucket: Buckets, rate: int, interval: float, cooldown_strategy: typing.Type[CooldownStrategy] | None = None
 ) -> Callable[[CommandT], CommandT]:
     """
     Add a cooldown to a command.
@@ -293,11 +293,11 @@ def cooldown(
         bucket: The bucket used to track cooldowns
         rate: How many commands may be ran per interval
         interval: How many seconds to wait for a cooldown
-        cooldown_system: The cooldown system to use
+        cooldown_strategy: The cooldown system to use
     """
 
     def wrapper(coro: CommandT) -> CommandT:
-        cooldown_obj = Cooldown(bucket, rate, interval, cooldown_system=cooldown_system)
+        cooldown_obj = Cooldown(bucket, rate, interval, cooldown_system=cooldown_strategy)
 
         coro.cooldown = cooldown_obj
 
