@@ -54,13 +54,14 @@ class Buckets(IntEnum):
 
 class CooldownStrategy:
     """
-    Represents a cooldown system for commands.
+    A basic cooldown strategy that allows a specific number of commands to be executed within a given interval. Once the rate is reached, no more tokens can be acquired until the interval has passed.
 
     Attributes:
-        rate: How many commands may be ran per interval
-        interval: How many seconds to wait for a cooldown
-        opened: When this cooldown session began
+        rate: The number of commands allowed per interval.
+        interval: The time window (in seconds) within which the allowed number of commands can be executed.
 
+    ??? tip "Example Use-case"
+        This strategy is useful for scenarios where you want to limit the number of times a command can be executed within a fixed time frame, such as preventing command spamming or limiting API calls.
     """
 
     __slots__ = "rate", "interval", "opened", "_tokens"
@@ -134,13 +135,16 @@ class CooldownStrategy:
 
 class SlidingWindowStrategy(CooldownStrategy):
     """
-    Represents a sliding window cooldown system for commands.
+    A sliding window cooldown strategy that allows a specific number of commands to be executed within a rolling time window.
+
+    The cooldown incrementally resets as commands fall outside of the window.
 
     Attributes:
-        rate: How many commands may be ran per interval
-        interval: How many seconds to wait for a cooldown
-        timestamps: A list of timestamps of the most recent commands
+        rate: The number of commands allowed per interval.
+        interval: The time window (in seconds) within which the allowed number of commands can be executed.
 
+    ??? tip "Example Use-case"
+        This strategy is useful for scenarios where you want to limit the rate of commands executed over a continuous time window, such as ensuring consistent usage of resources or controlling chat bot response frequency.
     """
 
     __slots__ = "rate", "interval", "timestamps"
@@ -211,6 +215,81 @@ class SlidingWindowStrategy(CooldownStrategy):
             self.timestamps.pop(0)
 
 
+class ExponentialBackoffStrategy(CooldownStrategy):
+    """
+    An exponential backoff cooldown strategy that doubles the interval between allowed commands after each failed attempt, up to a maximum interval.
+
+    Attributes:
+        rate: The number of commands allowed per interval.
+        interval: The initial time window (in seconds) within which the allowed number of commands can be executed.
+        max_interval: The maximum time window (in seconds) between allowed commands.
+        multiplier: The multiplier to apply to the interval after each failed attempt.
+
+    ??? tip "Example Use-case"
+        This strategy is useful for scenarios where you want to progressively slow down repeated attempts at a command, such as preventing brute force attacks or limiting retries on failed operations.
+    """
+
+    def __init__(self, rate: int, interval: float, max_interval: float, multiplier: float = 2) -> None:
+        super().__init__(rate, interval)
+        self.max_interval = max_interval
+        self.multiplier = multiplier
+
+    def determine_cooldown(self) -> None:
+        c_time = time.time()
+
+        if c_time > self.opened + self.interval:
+            if self.interval < self.max_interval:
+                self.interval *= self.multiplier
+            self.reset()
+
+
+class LeakyBucketStrategy(CooldownStrategy):
+    """
+    A leaky bucket cooldown strategy that gradually replenishes tokens over time, allowing commands to be executed as long as there are available tokens in the bucket.
+
+    Attributes:
+        rate: The number of tokens generated per interval.
+        interval: The time window (in seconds) within which the tokens are generated.
+
+    ??? tip "Example Use-case"
+        This strategy is useful for scenarios where you want to allow a steady flow of commands to be executed while preventing sudden bursts, such as rate limiting API calls or managing user interactions in a chatbot.
+    """
+
+    def determine_cooldown(self) -> None:
+        c_time = time.time()
+
+        tokens_to_recover = (c_time - self.opened) / self.interval
+        if tokens_to_recover >= 1:
+            self._tokens = min(self.rate, self._tokens + int(tokens_to_recover))
+            self.opened = c_time
+
+
+class TokenBucketStrategy(CooldownStrategy):
+    """
+    A token bucket cooldown strategy that generates tokens at a specific rate up to a burst rate, allowing commands to be executed as long as there are available tokens in the bucket.
+
+    Attributes:
+        rate: The number of tokens generated per interval.
+        interval: The time window (in seconds) within which the tokens are generated.
+        burst_rate: The maximum number of tokens that can be held in the bucket at any given time.
+
+    ??? tip "Example Use-case"
+        This strategy is useful for scenarios where you want to allow a burst of commands to be executed while limiting the overall rate, such as handling peak traffic in an API or permitting rapid user interactions in a game.
+    """
+
+    def __init__(self, rate: int, interval: float, burst_rate: int) -> None:
+        super().__init__(rate, interval)
+        self.burst_rate = burst_rate
+
+    def determine_cooldown(self) -> None:
+        c_time = time.time()
+
+        tokens_to_recover = (c_time - self.opened) / self.interval
+        if tokens_to_recover >= 1:
+            self._tokens = min(self.burst_rate, self._tokens + int(tokens_to_recover))
+            self.opened = c_time
+
+
 class Cooldown:
     """
     Manages cooldowns and their respective buckets for a command.
@@ -254,7 +333,7 @@ class Cooldown:
 
     async def acquire_token(self, context: "BaseContext") -> bool:
         """
-        Attempt to acquire a token for a command to run. Uses the context of the command to use the correct CooldownSystem.
+        Attempt to acquire a token for a command to run. Uses the context of the command to use the correct CooldownStrategy.
 
         Args:
             context: The context of the command
