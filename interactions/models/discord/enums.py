@@ -858,7 +858,11 @@ class ScheduledEventStatus(CursedIntEnum):
 
 
 class AuditLogEventType(CursedIntEnum):
-    """The type of audit log entry type"""
+    """
+    The type of audit log entry type
+
+    ref: https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
+    """
 
     GUILD_UPDATE = 1
     CHANNEL_CREATE = 10
@@ -912,13 +916,20 @@ class AuditLogEventType(CursedIntEnum):
     AUTO_MODERATION_RULE_UPDATE = 141
     AUTO_MODERATION_RULE_DELETE = 142
     AUTO_MODERATION_BLOCK_MESSAGE = 143
+    AUTO_MODERATION_FLAG_TO_CHANNEL = 144
+    AUTO_MODERATION_USER_COMMUNICATION_DISABLED = 145
     CREATOR_MONETIZATION_REQUEST_CREATED = 150
     CREATOR_MONETIZATION_TERMS_ACCEPTED = 151
     ROLE_PROMPT_CREATE = 160
     ROLE_PROMPT_UPDATE = 161
     ROLE_PROMPT_DELETE = 162
+    ON_BOARDING_QUESTION_CREATE = 163
+    ON_BOARDING_QUESTION_UPDATE = 164
+    ONBOARDING_UPDATE = 167
     GUILD_HOME_FEATURE_ITEM = 171
     GUILD_HOME_FEATURE_ITEM_UPDATE = 172
+    SERVER_GUIDE_CREATE = 190
+    SERVER_GUIDE_UPDATE = 191
 
 
 class AutoModTriggerType(CursedIntEnum):
