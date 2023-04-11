@@ -82,7 +82,7 @@ __all__ = (
 
 _ver_info = sys.version_info
 
-repo_names = ("interactions.py", "discord.py-interactions")
+repo_names = ("interactions.py", "discord-py-interactions")
 for repo_name in repo_names:
     try:
         __version__ = _v(repo_name)

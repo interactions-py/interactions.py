@@ -6,7 +6,7 @@ on:
       - published
 
 env:
-  PACKAGE_NAME1: discord.py-interactions
+  PACKAGE_NAME1: discord-py-interactions
   PACKAGE_NAME2: interactions.py
 
 jobs:
