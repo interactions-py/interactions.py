@@ -112,7 +112,7 @@ These guides are meant to help you get started with the library and offer a poin
 
     How do I migrate from interactions.py v4 to v5?
 
--   [__:material-package-up: 2.x Migration Guide__](99 2.x Migration_NAFF.md)
+-   [__:material-package-up: NAFF Migration Guide__](99 2.x Migration_NAFF.md)
 
     ---
 

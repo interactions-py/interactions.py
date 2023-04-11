@@ -1,7 +1,6 @@
 ![image](https://img.shields.io/pypi/dm/discord-py-slash-command.svg)
 ![image](https://img.shields.io/pypi/pyversions/discord-py-interactions.svg)
 ![image](https://img.shields.io/pypi/v/discord-py-interactions.svg)
-![image](https://readthedocs.org/projects/interactionspy/badge/?version=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ![image](https://discord.com/api/guilds/789032594456576001/embed.png)
 
@@ -72,4 +71,4 @@ async def on_start():
 bot.start("token")
 ```
 
-With interactions.py, you can quickly and easily build complex Discord applications with Python. Check out our [quickstart guide](https://interactionspy.rtfd.io/en/latest/quickstart.html) for more information.
+With interactions.py, you can quickly and easily build complex Discord applications with Python. Check out our [guides](https://interactions-py.github.io/interactions.py/Guides/01%20Getting%20Started) for more information. Or join our [discord](https://discord.gg/interactions).

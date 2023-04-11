@@ -1,14 +1,7 @@
-name: Request a new feature
-description: Create an Issue to suggest or propose implementing something(s).
-title: "[REQUEST] "
-labels: ["documentation", "enhancement"]
-assignees:
-  - DeltaXWizard
-  - EdVraz
-  - Astrea49
-  - Toricane
-  - Catalyst4222
-  - Damego
+name: Feature Request
+description: Request new functionality.
+title: "[FEAT] Your Title Here"
+
 body:
   - type: markdown
     attributes:
@@ -16,14 +9,31 @@ body:
         Thank you for taking the time to fill out this feature request!
         We rely on users to tell us things that we might not find on our own,
         and your help is greatly valued by the team and others contributing.
+
   - type: textarea
-    id: process
     attributes:
-      label: Describe the feature.
-      description: Please give us an in-depth description of the feature you wish to see.
-      placeholder: I am not a fan of doing X for Y, so I would like...
+      label: Problem Description
+      description: A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
     validations:
       required: true
+
+  - type: textarea
+    attributes:
+      label: Proposed Solution
+      description: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Alternatives Considered
+      description: A clear and concise description of any alternative solutions or features you've considered.
+
+  - type: textarea
+    attributes:
+      label: Additional Information
+      description: Any additional information that may help clarify your request.
+
   - type: checkboxes
     id: accept
     attributes:

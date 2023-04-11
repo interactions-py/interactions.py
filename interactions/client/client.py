@@ -383,6 +383,7 @@ class Client(
         ] = {}
         """A dictionary of registered application commands in a tree"""
         self._component_callbacks: Dict[str, Callable[..., Coroutine]] = {}
+        self._regex_component_callbacks: Dict[re.Pattern, Callable[..., Coroutine]] = {}
         self._modal_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self._global_autocompletes: Dict[str, GlobalAutoComplete] = {}
         self.processors: Dict[str, Callable[..., Coroutine]] = {}
@@ -1270,10 +1271,15 @@ class Client(
 
         """
         for listener in command.listeners:
-            # I know this isn't an ideal solution, but it means we can lookup callbacks with O(1)
-            if listener in self._component_callbacks.keys():
-                raise ValueError(f"Duplicate Component! Multiple component callbacks for `{listener}`")
-            self._component_callbacks[listener] = command
+            if isinstance(listener, re.Pattern):
+                if listener in self._regex_component_callbacks.keys():
+                    raise ValueError(f"Duplicate Component! Multiple component callbacks for `{listener}`")
+                self._regex_component_callbacks[listener] = command
+            else:
+                # I know this isn't an ideal solution, but it means we can lookup callbacks with O(1)
+                if listener in self._component_callbacks.keys():
+                    raise ValueError(f"Duplicate Component! Multiple component callbacks for `{listener}`")
+                self._component_callbacks[listener] = command
             continue
 
     def add_modal_callback(self, command: ModalCommand) -> None:
@@ -1410,7 +1416,7 @@ class Client(
                         if cmd_name not in found and warn_missing:
                             self.logger.error(
                                 f'Detected yet to sync slash command "/{cmd_name}" for scope '
-                                f"{'global' if scope == GLOBAL_SCOPE else scope}"
+                                f'{"global" if scope == GLOBAL_SCOPE else scope}'
                             )
                         continue
                     found.add(cmd_name)
@@ -1668,7 +1674,15 @@ class Client(
             component_type = interaction_data["data"]["component_type"]
 
             self.dispatch(events.Component(ctx=ctx))
-            if callback := self._component_callbacks.get(ctx.custom_id):
+            component_callback = self._component_callbacks.get(ctx.custom_id)
+            if not component_callback:
+                # evaluate regex component callbacks
+                for regex, callback in self._regex_component_callbacks.items():
+                    if regex.match(ctx.custom_id):
+                        component_callback = callback
+                        break
+
+            if component_callback:
                 await self.__dispatch_interaction(
                     ctx=ctx,
                     callback=callback(ctx),

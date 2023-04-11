@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "interactions"
+name = "discord-py-interactions"
 version = "5.0.0"
 description = "Easy, simple, scalable and modular: a Python API wrapper for interactions."
 authors = [
@@ -200,4 +200,4 @@ suppress-none-returning = true
 max-string-length = 20
 
 [tool.ruff.mccabe]
-max-complexity = 5
+max-complexity = 10

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, List
 import discord_typings
 
 from interactions.client.const import MISSING, Absent
+from interactions.models.discord.snowflake import to_snowflake
 from ..route import Route
 
 __all__ = ("ReactionRequests",)
@@ -142,8 +143,8 @@ class ReactionRequests:
             Route(
                 "GET",
                 "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}",
-                channel_id=channel_id,
-                message_id=message_id,
+                channel_id=to_snowflake(channel_id),
+                message_id=to_snowflake(message_id),
                 emoji=emoji,
             ),
             params={"limit": limit, "after": after},

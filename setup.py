@@ -35,7 +35,7 @@ extras_require["tests"] = [
 extras_require["dev"] = extras_require["tests"] + extras_require["docs"] + ["pre-commit"]
 
 setup(
-    name="interactions",
+    name="discord-py-interactions",
     description=pyproject["tool"]["poetry"]["description"],
     long_description=(Path(__file__).parent / "README.md").read_text(),
     long_description_content_type="text/markdown",
