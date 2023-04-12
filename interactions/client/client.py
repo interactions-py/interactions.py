@@ -1421,8 +1421,7 @@ class Client(
                             )
                         continue
                     found.add(cmd_name)
-                    self._interaction_lookup[cmd.resolved_name] = cmd
-                    cmd.cmd_id[scope] = int(cmd_data["id"])
+                    self.update_command_cache(scope, cmd.resolved_name, cmd_data["id"])
 
             if warn_missing:
                 for cmd_data in remote_cmds.values():
@@ -1620,7 +1619,7 @@ class Client(
     def _cache_sync_response(self, sync_response: list[dict], scope: "Snowflake_Type") -> None:
         for cmd_data in sync_response:
             command_id = Snowflake(cmd_data["id"])
-            command_name = cmd_data["name"]
+            tier_0_name = cmd_data["name"]
             options = cmd_data.get("options", [])
 
             if any(option["type"] in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP) for option in options):
@@ -1628,17 +1627,17 @@ class Client(
                     option_type = option["type"]
 
                     if option_type in (OptionType.SUB_COMMAND, OptionType.SUB_COMMAND_GROUP):
-                        command_name = f"{command_name} {option['name']}"
+                        tier_2_name = f"{tier_0_name} {option['name']}"
 
                         if option_type == OptionType.SUB_COMMAND_GROUP:
                             for sub_option in option.get("options", []):
-                                command_name = f"{command_name} {sub_option['name']}"
-                                self.update_command_cache(scope, command_name, command_id)
+                                tier_3_name = f"{tier_2_name} {sub_option['name']}"
+                                self.update_command_cache(scope, tier_3_name, command_id)
                         else:
-                            self.update_command_cache(scope, command_name, command_id)
+                            self.update_command_cache(scope, tier_2_name, command_id)
 
             else:
-                self.update_command_cache(scope, command_name, command_id)
+                self.update_command_cache(scope, tier_0_name, command_id)
 
     def update_command_cache(self, scope: "Snowflake_Type", command_name: str, command_id: "Snowflake") -> None:
         if command := self.interactions_by_scope[scope].get(command_name):
