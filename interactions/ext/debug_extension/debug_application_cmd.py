@@ -3,7 +3,7 @@ import pprint
 from collections import Counter
 from typing import Optional
 
-from interactions import Extension
+from interactions import Extension, AutocompleteContext, Snowflake
 from interactions.client.client import Client
 from interactions.client.const import GLOBAL_SCOPE
 from interactions.client.errors import HTTPException
@@ -18,6 +18,13 @@ from interactions.models import (
 )
 from interactions.models.internal import checks
 from .utils import debug_embed
+
+try:
+    from thefuzz import process
+
+    has_thefuzz = True
+except ImportError:
+    has_thefuzz = False
 
 __all__ = ("DebugAppCMD",)
 
@@ -143,6 +150,64 @@ class DebugAppCMD(Extension):
             return await ctx.send(f"No commands found in `{scope.strip()}`")
         except Exception:
             return await ctx.send(f"No commands found in `{scope.strip()}`")
+
+    @app_cmd.subcommand("delete_cmd", sub_cmd_description="Delete a command", **app_cmds_def)
+    @slash_option("scope", "The scope ID of the command (0 for global)", opt_type=OptionType.STRING, required=True)
+    @slash_option(
+        "cmd_id",
+        "The ID of the command you want to delete",
+        opt_type=OptionType.STRING,
+        required=True,
+        autocomplete=True,
+    )
+    async def delete_cmd(self, ctx: InteractionContext, scope: str, cmd_id: str) -> Message:
+        await ctx.defer()
+        try:
+            scope = int(scope.strip())
+            cmd_id = int(cmd_id.strip())
+            await self.bot.http.delete_application_command(self.bot.app.id, scope, cmd_id)
+            return await ctx.send(f"Successfully deleted command with ID `{cmd_id}` in scope `{scope}`!")
+        except Exception:
+            return await ctx.send(f"Unable to delete command with ID `{cmd_id}` in scope `{scope}`!")
+
+    @app_cmd.subcommand("delete_all", sub_cmd_description="Delete all commands from a scope", **app_cmds_def)
+    @slash_option("scope", "The scope ID of the command (0 for global)", opt_type=OptionType.STRING, required=True)
+    async def delete_all(self, ctx: InteractionContext, scope: str) -> Message:
+        await ctx.defer()
+        try:
+            scope = scope.strip()
+            scope = GLOBAL_SCOPE if scope == "0" else Snowflake(scope)
+
+            await self.bot.http.overwrite_application_commands(self.bot.app.id, [], scope)
+
+            return await ctx.send(f"Successfully deleted all commands in scope `{scope}`!")
+        except ValueError:
+            return await ctx.send(f"{scope} is not a valid scope ID!")
+        except Exception:
+            return await ctx.send(f"Unable to delete all commands in scope `{scope}`!")
+
+    @delete_cmd.autocomplete("cmd_id")
+    async def cmd_id_autocomplete(self, ctx: AutocompleteContext) -> None:
+        try:
+            scope = ctx.kwargs["scope"].strip()
+            scope = GLOBAL_SCOPE if scope == "0" else Snowflake(scope)
+            cmds = await self.bot.http.get_application_commands(self.bot.app.id, scope)
+
+            if not ctx.input_text:
+                await ctx.send([{"name": c["name"], "value": c["id"]} for c in cmds][:25])
+                return None
+
+            if has_thefuzz:
+                results = process.extract(ctx.input_text, {c["id"]: c["name"] for c in cmds}, limit=25)
+                return await ctx.send([{"name": c[0], "value": c[2]} for c in results if c[1] > 80])
+
+            await ctx.send(
+                [{"name": c["name"], "value": c["id"]} for c in cmds if ctx.input_text.lower() in c["name"].lower()][
+                    :25
+                ]
+            )
+        except ValueError:
+            return await ctx.send([])
 
 
 def setup(bot: Client) -> None:
