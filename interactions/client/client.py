@@ -1640,6 +1640,14 @@ class Client(
                 self.update_command_cache(scope, tier_0_name, command_id)
 
     def update_command_cache(self, scope: "Snowflake_Type", command_name: str, command_id: "Snowflake") -> None:
+        """
+        Update the internal cache with a command ID.
+
+        Args:
+            scope: The scope of the command to update
+            command_name: The name of the command
+            command_id: The ID of the command
+        """
         if command := self.interactions_by_scope[scope].get(command_name):
             command.cmd_id[scope] = command_id
             self._interaction_lookup[command.resolved_name] = command
