@@ -1175,8 +1175,8 @@ SlashCommandT = TypeVar("SlashCommandT", SlashCommand, AsyncCallable)
 
 
 def slash_option(
-    description: str,
     name: Absent[str] = MISSING,
+    description: Absent[str] = MISSING,
     opt_type: Absent[Union[OptionType, int]] = MISSING,
     required: Absent[bool] = MISSING,
     autocomplete: bool = False,
@@ -1191,8 +1191,8 @@ def slash_option(
     A decorator to add an option to a slash command.
 
     Args:
-        description: 1-100 character description of option
         name: 1-32 lowercase character name matching ^[\w-]{1,32}$--defaults to the parameter name
+        description: 1-100 character description of option--defaults to "No description"
         opt_type: The type of option--defaults to parameter type annotation
         required: If the parameter is required or optional
         autocomplete: If autocomplete interactions are enabled for this STRING, INTEGER, or NUMBER type option
@@ -1214,6 +1214,7 @@ def slash_option(
         parameters = list(inspect.signature(func).parameters.values())
         param = parameters[-1 - len(func.options)]
         option_name = param.name if name is MISSING else name
+        option_description = "No description" if description is MISSING else description
         option_type = param.annotation if opt_type is MISSING else opt_type
         option_required = param.default is param.empty if required is MISSING else required
 
@@ -1229,7 +1230,7 @@ def slash_option(
         option = SlashCommandOption(
             name=option_name,
             type=option_type,
-            description=description,
+            description=option_description,
             required=option_required,
             autocomplete=autocomplete,
             choices=choices or [],
