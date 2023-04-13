@@ -334,6 +334,8 @@ from .models import (
     LeakyBucketSystem,
     TokenBucketSystem,
 )
+from .api import events
+from . import ext
 
 __all__ = (
     "__api_version__",
