@@ -133,6 +133,9 @@ class User(BaseUser):
     )
 
     banner: Optional["Asset"] = attrs.field(repr=False, default=None, metadata=docs("The user's banner"))
+    avatar_decoration: Optional["Asset"] = attrs.field(
+        repr=False, default=None, metadata=docs("The user's avatar decoration")
+    )
     accent_color: Optional["Color"] = attrs.field(
         default=None,
         converter=optional_c(Color),
@@ -155,6 +158,11 @@ class User(BaseUser):
 
         if data.get("premium_type", None) is None:
             data["premium_type"] = 0
+
+        if data.get("avatar_decoration", None):
+            data["avatar_decoration"] = Asset.from_path_hash(
+                client, "avatar-decoration-presets/{}", data["avatar_decoration"]
+            )
 
         return data
 

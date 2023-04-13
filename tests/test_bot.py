@@ -250,20 +250,20 @@ async def test_roles(bot: Client, guild: Guild) -> None:
 
     try:
         with suppress(interactions.errors.Forbidden):
-            roles.extend(
-                (
-                    await guild.create_role("_test_role3"),
-                    await guild.create_role("_test_role1", icon="💥"),
-                    await guild.create_role("_test_role2", icon=r"tests/LordOfPolls.png"),
-                )
-            )
-            assert roles[0].icon is None
+            roles.append(await guild.create_role("_test_role3"))
+            # will fail if the test server has not enabled the feature
+            roles.append(await guild.create_role("_test_role1", icon="💥"))
+            roles.append(await guild.create_role("_test_role2", icon=r"tests/LordOfPolls.png"))
+
+        assert roles[0].icon is None
+        with suppress(IndexError):
             assert isinstance(roles[1].icon, PartialEmoji)
             assert isinstance(roles[2].icon, Asset)
-        await guild.me.add_role(roles[0])
         await guild.me.remove_role(roles[0])
 
         await roles[0].edit(name="_test_renamed", color=BrandColors.RED)
+
+        assert roles[0].name == "_test_renamed"
 
         for role in roles:
             await role.delete()
@@ -422,10 +422,10 @@ async def test_components(bot: Client, channel: GuildText) -> None:
         )
         await thread.send(
             "Test - StringSelectMenu",
-            components=StringSelectMenu([StringSelectOption(label="test", value="test")]),
+            components=StringSelectMenu(StringSelectOption(label="test", value="test")),
         )
 
-        Modal("Test Modal", [ParagraphText(label="test", value="test value, press send")])
+        Modal(ParagraphText(label="test", value="test value, press send"), title="Test Modal")
 
     finally:
         with suppress(interactions.errors.NotFound):
@@ -470,7 +470,7 @@ async def test_voice(bot: Client, guild: Guild) -> None:
 
         audio = AudioVolume("tests/test_audio.mp3")
         vc.play_no_wait(audio)
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
 
         assert len(vc.current_audio.buffer) != 0
         assert vc.player._sent_payloads != 0

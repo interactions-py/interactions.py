@@ -721,7 +721,7 @@ class SlashCommand(InteractionCommand):
             group_description=description,
             scopes=self.scopes,
             dm_permission=self.dm_permission,
-            checks=self.checks if inherit_checks else [],
+            checks=self.checks.copy() if inherit_checks else [],
         )
 
     def subcommand(
@@ -758,7 +758,7 @@ class SlashCommand(InteractionCommand):
                 callback=call,
                 scopes=self.scopes,
                 nsfw=nsfw,
-                checks=self.checks if inherit_checks else [],
+                checks=self.checks.copy() if inherit_checks else [],
             )
 
         return wrapper
