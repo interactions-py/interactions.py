@@ -82,7 +82,7 @@ extra:
     description: >-
       We use cookies to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
-      make our documentation better.
+      make our documentation better. Only operational data is collected, no personal data.
     actions:
       - accept
       - reject
@@ -99,6 +99,10 @@ plugins:
   - autorefs
   - git-revision-date-localized:
       fallback_to_build_date: true
+      enable_creation_date: true
+  - git-committers:
+      repository: interactions-py/interactions.py
+      branch: stable
   - mkdocstrings:
       #    custom_templates: docs/templates
       enable_inventory: true
@@ -117,12 +121,11 @@ plugins:
             show_if_no_docstring: False # temporary, this will be reverted to False once we're done with docs
   - minify:
       minify_html: true
-  # keep these at the bottom of the plugins list
-#  - privacy:
-#      externals: bundle
-#      enabled: !ENV [ DEPLOY, False ]
-#  - offline:
-#      enabled: !ENV [ DEPLOY, False ]
+  # keep this at the bottom of the plugins list - if you are building without insiders, comment it out
+  - privacy:
+      # Downloads all external resources and stores them locally
+      externals: bundle
+      enabled: !ENV [ DEPLOY, False ]
 
 
 markdown_extensions:
