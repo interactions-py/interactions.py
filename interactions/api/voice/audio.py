@@ -1,4 +1,6 @@
 import audioop
+import logging
+import os.path
 import shutil
 import subprocess
 import threading
@@ -193,8 +195,12 @@ class Audio(BaseAudio):
     """Args to pass to ffmpeg"""
     ffmpeg_before_args: str | list[str]
     """Args to pass to ffmpeg before the source"""
+    probe: bool
+    """Should ffprobe be used to detect audio data?"""
+    skip_path_check: bool
+    """Skip the path check for the source, and assume it will work"""
 
-    def __init__(self, src: Union[str, Path]) -> None:
+    def __init__(self, src: Union[str, Path], *, skip_path_check: bool = False) -> None:
         self.source = src
         self.needs_encode = True
         self.locked_stream = False
@@ -207,7 +213,8 @@ class Audio(BaseAudio):
 
         self.ffmpeg_before_args = ""
         self.ffmpeg_args = ""
-        self.probe: bool = False
+        self.probe = False
+        self.skip_path_check = skip_path_check
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}: {self.source}>"
@@ -231,6 +238,9 @@ class Audio(BaseAudio):
             "sample_rate": 48000,
             "bitrate": None,
         }
+
+        if not self.skip_path_check and "://" not in self.source and not os.path.exists(self.source):
+            logging.warning(f"File {os.path.abspath(self.source)} does not exist - this may not work")
 
         if shutil.which("ffprobe") is not None and self.probe:
             ffprobe_cmd = [
