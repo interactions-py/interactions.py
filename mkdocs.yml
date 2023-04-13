@@ -76,7 +76,7 @@ extra:
           name: This page could be improved
           data: 0
           note: >-
-            Thanks for your feedback! So we can improve our documentation, please <a href="https://github.com/interactions-py/interactions.py/issues/new?assignees=LordOfPolls&labels=documentation&template=doc_improvement_req.yml&title=docs:+{title}&page={title} : {url}">open an issue</a> so we can improve our documentation.
+            Thanks for your feedback! Please <a href="https://github.com/interactions-py/interactions.py/issues/new?assignees=LordOfPolls&labels=documentation&template=doc_improvement_req.yml&title=docs:+{title}&page={title} : {url}">open an issue</a> so we can improve our documentation.
     title: Cookie consent
     description: >-
       We use cookies to measure the effectiveness of our documentation and whether users
