@@ -401,8 +401,7 @@ class Cooldown:
         cooldown = await self.get_cooldown_with_key(key, create=create)
         if cooldown is not None:
             return cooldown.get_cooldown_time()
-        else:
-            return 0
+        return 0
 
     async def on_cooldown(self, context: "BaseContext") -> bool:
         """
@@ -457,8 +456,7 @@ class Cooldown:
         if cooldown is not None:
             cooldown.reset()
             return True
-        else:
-            return False
+        return False
 
 
 class MaxConcurrency:
