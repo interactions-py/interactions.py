@@ -53,7 +53,7 @@ async def play(self, ctx: interactions.InteractionContext, song: str):
         # if we haven't already joined a voice channel
         # join the authors vc
         await ctx.author.voice.channel.connect()
-        
+
     # this example assumes you have the requested song in your project directory
 
     audio = AudioVolume(song)
