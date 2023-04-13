@@ -203,7 +203,7 @@ class BaseContext(metaclass=abc.ABCMeta):
         return self.client.cache.get_message(self.channel_id, self.message_id)
 
     @property
-    def voice_state(self) -> typing.Optional["interactions.VoiceState"]:
+    def voice_state(self) -> typing.Optional["interactions.ActiveVoiceState"]:
         """The current voice state of the bot in the guild this context was invoked in, if any."""
         return self.client.cache.get_bot_voice_state(self.guild_id)
 
