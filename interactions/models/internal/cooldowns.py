@@ -398,13 +398,11 @@ class Cooldown:
             key: The key to get the cooldown system for
             create: Whether to create a new cooldown system if one does not exist
         """
-
         cooldown = await self.get_cooldown_with_key(key, create=create)
         if cooldown is not None:
             return cooldown.get_cooldown_time()
         else:
             return 0
-
 
     async def on_cooldown(self, context: "BaseContext") -> bool:
         """
@@ -455,7 +453,6 @@ class Cooldown:
         Returns:
             True if the key existed and was reset successfully, False if the key didn't exist.
         """
-
         cooldown = await self.get_cooldown_with_key(key)
         if cooldown is not None:
             cooldown.reset()
