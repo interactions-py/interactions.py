@@ -268,6 +268,15 @@ class VoiceGateway(WebsocketClient):
         keep_alive = b"\xc9\x00\x00\x00\x00\x00\x00\x00\x00"
 
         self.logger.debug("Starting UDP Keep Alive")
+
+        start = time.monotonic()
+        while not self.ws:
+            self.logger.debug(f"UDP Keep Alive waiting for WS connection... {time.monotonic() - start:.1f}s")
+            time.sleep(5)
+            if time.monotonic() - start > 30:
+                self.logger.warning("UDP Keep Alive failed to start")
+                return
+
         while not self.socket._closed and not self.ws.closed:
             try:
                 _, writable, _ = select.select([], [self.socket], [], 0)
