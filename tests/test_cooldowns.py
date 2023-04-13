@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from interactions import MaxConcurrency, Buckets, CooldownStrategy, Cooldown
+from interactions import MaxConcurrency, Buckets, CooldownSystem, Cooldown
 from tests.utils import generate_dummy_context
 
 __all__ = ()
@@ -29,7 +29,7 @@ async def test_cooldowns() -> None:
     assert await cooldown.on_cooldown(context) is False
     assert await cooldown.acquire_token(context) is True
 
-    assert isinstance(await cooldown.get_cooldown(context), CooldownStrategy)
+    assert isinstance(await cooldown.get_cooldown(context), CooldownSystem)
 
     # test cooldown time
     await cooldown.acquire_token(context)

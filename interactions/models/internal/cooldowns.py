@@ -10,11 +10,11 @@ if TYPE_CHECKING:
 __all__ = (
     "Buckets",
     "Cooldown",
-    "CooldownStrategy",
-    "SlidingWindowStrategy",
-    "ExponentialBackoffStrategy",
-    "LeakyBucketStrategy",
-    "TokenBucketStrategy",
+    "CooldownSystem",
+    "SlidingWindowSystem",
+    "ExponentialBackoffSystem",
+    "LeakyBucketSystem",
+    "TokenBucketSystem",
     "MaxConcurrency",
 )
 
@@ -62,7 +62,7 @@ class Buckets(IntEnum):
         return self.get_key(context)
 
 
-class CooldownStrategy:
+class CooldownSystem:
     """
     A basic cooldown strategy that allows a specific number of commands to be executed within a given interval. Once the rate is reached, no more tokens can be acquired until the interval has passed.
 
@@ -143,7 +143,7 @@ class CooldownStrategy:
             self.reset()
 
 
-class SlidingWindowStrategy(CooldownStrategy):
+class SlidingWindowSystem(CooldownSystem):
     """
     A sliding window cooldown strategy that allows a specific number of commands to be executed within a rolling time window.
 
@@ -225,7 +225,7 @@ class SlidingWindowStrategy(CooldownStrategy):
             self.timestamps.pop(0)
 
 
-class ExponentialBackoffStrategy(CooldownStrategy):
+class ExponentialBackoffSystem(CooldownSystem):
     """
     An exponential backoff cooldown strategy that doubles the interval between allowed commands after each failed attempt, up to a maximum interval.
 
@@ -253,7 +253,7 @@ class ExponentialBackoffStrategy(CooldownStrategy):
             self.reset()
 
 
-class LeakyBucketStrategy(CooldownStrategy):
+class LeakyBucketSystem(CooldownSystem):
     """
     A leaky bucket cooldown strategy that gradually replenishes tokens over time, allowing commands to be executed as long as there are available tokens in the bucket.
 
@@ -274,7 +274,7 @@ class LeakyBucketStrategy(CooldownStrategy):
             self.opened = c_time
 
 
-class TokenBucketStrategy(CooldownStrategy):
+class TokenBucketSystem(CooldownSystem):
     """
     A token bucket cooldown strategy that generates tokens at a specific rate up to a burst rate, allowing commands to be executed as long as there are available tokens in the bucket.
 
@@ -312,10 +312,10 @@ class Cooldown:
         cooldown_repositories: A dictionary of cooldowns for each bucket
         rate: How many commands may be ran per interval
         interval: How many seconds to wait for a cooldown
-        cooldown_strategy: The cooldown system to use for this cooldown
+        cooldown_system: The cooldown system to use for this cooldown
     """
 
-    __slots__ = "bucket", "cooldown_repositories", "rate", "interval", "cooldown_strategy"
+    __slots__ = "bucket", "cooldown_repositories", "rate", "interval", "cooldown_system"
 
     def __init__(
         self,
@@ -323,25 +323,25 @@ class Cooldown:
         rate: int,
         interval: float,
         *,
-        cooldown_strategy: Type[CooldownStrategy] = CooldownStrategy,
+        cooldown_system: Type[CooldownSystem] = CooldownSystem,
     ) -> None:
         self.bucket: Buckets = cooldown_bucket
         self.cooldown_repositories = {}
         self.rate: int = rate
         self.interval: float = interval
 
-        self.cooldown_strategy: Type[CooldownStrategy] = cooldown_strategy
+        self.cooldown_system: Type[CooldownSystem] = cooldown_system
 
-    async def get_cooldown(self, context: "BaseContext") -> "CooldownStrategy":
+    async def get_cooldown(self, context: "BaseContext") -> "CooldownSystem":
         key = await self.bucket(context)
 
         if key not in self.cooldown_repositories:
-            cooldown = self.cooldown_strategy(self.rate, self.interval)
+            cooldown = self.cooldown_system(self.rate, self.interval)
             self.cooldown_repositories[key] = cooldown
             return cooldown
         return self.cooldown_repositories.get(await self.bucket(context))
 
-    def get_cooldown_with_key(self, key: Any, *, create: bool = False) -> typing.Optional["CooldownStrategy"]:
+    def get_cooldown_with_key(self, key: Any, *, create: bool = False) -> typing.Optional["CooldownSystem"]:
         """
         Get the cooldown system for the command.
 
@@ -353,7 +353,7 @@ class Cooldown:
             create: Whether to create a new cooldown system if one does not exist
         """
         if key not in self.cooldown_repositories and create:
-            cooldown = self.cooldown_strategy(self.rate, self.interval)
+            cooldown = self.cooldown_system(self.rate, self.interval)
             self.cooldown_repositories[key] = cooldown
             return cooldown
         return self.cooldown_repositories.get(key)

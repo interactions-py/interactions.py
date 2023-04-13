@@ -14,7 +14,7 @@ from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.discord.enums import Status
 from interactions.models.discord.enums import WebSocketOPCode as OPCODE
 from interactions.models.discord.snowflake import to_snowflake
-from interactions.models.internal.cooldowns import CooldownStrategy
+from interactions.models.internal.cooldowns import CooldownSystem
 from .websocket import WebsocketClient
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ class GatewayRateLimit:
         # docs state 120 calls per 60 seconds, this is set conservatively to 110 per 60 seconds.
         rate = 110
         interval = 60
-        self.cooldown_system = CooldownStrategy(1, interval / rate)
+        self.cooldown_system = CooldownSystem(1, interval / rate)
         # hacky way to throttle how frequently we send messages to the gateway
 
     async def rate_limit(self) -> None:
