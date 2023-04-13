@@ -1,6 +1,6 @@
 # Changelog
 
-Here you can find the changelog for the library. This is a list of all the changes that have been made to the library, since V5.0.0. 
+Here you can find the changelog for the library. This is a list of all the changes that have been made to the library, since V5.0.0.
 In breaking changes, the breaking change is signified by a `💥`
 
 ## 5.1.0 - TBA
