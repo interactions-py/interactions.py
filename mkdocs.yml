@@ -3,7 +3,7 @@ repo_url: https://github.com/interactions-py/interactions.py
 repo_name: interactions-py/interactions.py
 copyright: Copyright &copy; 2023 - Present LordOfPolls – <a href="#__consent">Change cookie settings</a>
 docs_dir: docs/src
-edit_uri: edit/master/docs/src
+edit_uri: edit/stable/docs/src
 site_url: https://interactions-py.github.io/interactions.py/
 
 theme:
@@ -22,6 +22,7 @@ theme:
     - toc.follow
     - content.tooltips
     - content.code.annotate
+    - content.action.edit
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
