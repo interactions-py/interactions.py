@@ -71,13 +71,12 @@ extra:
           name: This page was helpful
           data: 1
           note: >-
-            Thanks for your feedback!
+            Thanks for your feedback! Your feedback helps us improve our documentation.
         - icon: material/heart-broken
           name: This page could be improved
           data: 0
           note: >-
-            Thanks for your feedback! Please create an <a href="https://github.com/interactions-py/interactions.py/issues/new/choose">issue on Github</a> if you have any suggestions.
-  consent:
+            Thanks for your feedback! So we can improve our documentation, please <a href="https://github.com/interactions-py/interactions.py/issues/new?assignees=LordOfPolls&labels=documentation&template=doc_improvement_req.yml&title=docs:+{title}&page={title} : {url}">open an issue</a> so we can improve our documentation.
     title: Cookie consent
     description: >-
       We use cookies to measure the effectiveness of our documentation and whether users
