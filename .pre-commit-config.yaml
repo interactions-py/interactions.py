@@ -11,7 +11,6 @@ repos:
       language: python
       types: [file, python]
       exclude_types: ['image']
-      language_version: python3.10
     - id: trailing-whitespace
       name: Trailing Whitespace
       language: python
@@ -42,7 +41,6 @@ repos:
         name: Black Formatting
         language: python
         types: [ file, python ]
-        language_version: python3.10
 #  - repo: https://github.com/pycqa/isort
 #    rev: 5.11.4
 #    hooks:
