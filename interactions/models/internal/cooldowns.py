@@ -341,7 +341,7 @@ class Cooldown:
             return cooldown
         return self.cooldown_repositories.get(await self.bucket(context))
 
-    async def get_cooldown_with_key(self, key: Any, *, create: bool = False) -> typing.Optional["CooldownSystem"]:
+    def get_cooldown_with_key(self, key: Any, *, create: bool = False) -> typing.Optional["CooldownSystem"]:
         """
         Get the cooldown system for the command.
 
@@ -398,7 +398,7 @@ class Cooldown:
             key: The key to get the cooldown system for
             create: Whether to create a new cooldown system if one does not exist
         """
-        cooldown = await self.get_cooldown_with_key(key, create=create)
+        cooldown = self.get_cooldown_with_key(key, create=create)
         if cooldown is not None:
             return cooldown.get_cooldown_time()
         return 0
@@ -417,7 +417,7 @@ class Cooldown:
         cooldown = await self.get_cooldown(context)
         return cooldown.on_cooldown()
 
-    async def reset_all(self) -> None:
+    def reset_all(self) -> None:
         """
         Resets this cooldown system to its initial state.
 
@@ -425,7 +425,6 @@ class Cooldown:
         for this command to their initial states
 
         """
-        # this doesnt need to be async, but for consistency, it is
         self.cooldown_repositories = {}
 
     async def reset(self, context: "BaseContext") -> None:
@@ -452,7 +451,7 @@ class Cooldown:
         Returns:
             True if the key existed and was reset successfully, False if the key didn't exist.
         """
-        cooldown = await self.get_cooldown_with_key(key)
+        cooldown = self.get_cooldown_with_key(key)
         if cooldown is not None:
             cooldown.reset()
             return True
