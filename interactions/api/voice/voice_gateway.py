@@ -277,44 +277,66 @@ class VoiceGateway(WebsocketClient):
                 self.logger.warning("UDP Keep Alive failed to start")
                 return
 
-        while not self.socket._closed and not self.ws.closed:
-            try:
-                _, writable, _ = select.select([], [self.socket], [], 0)
-                while not writable:
+        try:
+            while not self.socket._closed and not self.ws.closed:
+                try:
                     _, writable, _ = select.select([], [self.socket], [], 0)
+                    while not writable:
+                        _, writable, _ = select.select([], [self.socket], [], 0)
 
-                # discord will never respond to this, but it helps maintain the hole punch
-                self.socket.sendto(keep_alive, (self.voice_ip, self.voice_port))
-                time.sleep(5)
-            except socket.error as e:
-                self.logger.warning(f"Ending Keep Alive due to {e}")
-                return
-            except Exception as e:
-                self.logger.debug("Keep Alive Error: ", exc_info=e)
+                    # discord will never respond to this, but it helps maintain the hole punch
+                    self.send_to_socket(keep_alive)
+
+                    time.sleep(5)
+                except socket.error as e:
+                    self.logger.warning(f"Ending Keep Alive due to {e}")
+                    return
+                except Exception as e:
+                    self.logger.debug("Keep Alive Error: ", exc_info=e)
+        except AttributeError as e:
+            self.logger.error("UDP Keep Alive has been closed", exc_info=e)
         self.logger.debug("Ending UDP Keep Alive")
+
+    def send_to_socket(self, data: bytes, *, log=True) -> None:
+        self.socket.sendto(data, (self.voice_ip, self.voice_port))
+        if log:
+            self.logger.debug(f"{self.guild_id}:: Sent {len(data)} bytes to voice socket :: {data!r}")
 
     async def establish_voice_socket(self) -> None:
         """Establish the socket connection to discord"""
-        self.logger.debug("IP Discovery in progress...")
-
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.setblocking(False)
 
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 8192)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 8192)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        tries = 0
         packet = bytearray(74)
-        struct.pack_into(">H", packet, 0, 1)  # 1 = Send
-        struct.pack_into(">H", packet, 2, 70)  # 70 = Length
-        struct.pack_into(">I", packet, 4, self.ssrc)
+        packet[:2] = (1).to_bytes(2, byteorder="big")
+        packet[2:4] = (0x46).to_bytes(2, byteorder="big")
+        packet[4:8] = self.ssrc.to_bytes(4, byteorder="big")
 
-        self.socket.sendto(packet, (self.voice_ip, self.voice_port))
-        resp = await self.loop.sock_recv(self.socket, 74)
-        self.logger.debug(f"Voice Initial Response Received: {resp}")
+        while tries < 5:
+            self.logger.debug("IP Discovery in progress..." + (f" (Attempt {tries + 1}/5)" if tries > 0 else ""))
+            self.socket.settimeout(10)
+            self.send_to_socket(packet)
 
-        ip_start = 8
-        ip_end = resp.index(0, ip_start)
-        self.me_ip = resp[ip_start:ip_end].decode("ascii")
+            resp = await self.loop.sock_recv(self.socket, 74)
 
-        self.me_port = struct.unpack_from(">H", resp, len(resp) - 2)[0]
-        self.logger.debug(f"IP Discovered: {self.me_ip} #{self.me_port}")
+            if len(resp) != 74:
+                tries += 1
+                if tries == 5:
+                    self.logger.critical("IP Discovery failed, terminating voice connection")
+                    self.close()
+                    return
+                continue
+
+            self.me_ip = resp[8:].split(b"\x00", 1)[0].decode()
+            self.me_port = int.from_bytes(resp[72:74], byteorder="big")
+            self.logger.debug(f"IP Discovered: {self.me_ip} #{self.me_port}")
+            self.socket.settimeout(0)
+            break
 
         await self._select_protocol()
 
@@ -335,7 +357,7 @@ class VoiceGateway(WebsocketClient):
         return self.encryptor.encrypt(self.voice_modes[0], header, data)
 
     def send_packet(self, data: bytes, encoder, needs_encode=True) -> None:
-        """Send a packet to the voice socket"""
+        """Send a packet to the voice socket - called from a thread."""
         self.sock_sequence += 1
         if self.sock_sequence > 0xFFFF:
             self.sock_sequence = 0
@@ -353,7 +375,7 @@ class VoiceGateway(WebsocketClient):
             if errored:
                 self.logger.error(f"Socket errored: {errored}")
             continue
-        self.socket.sendto(packet, (self.voice_ip, self.voice_port))
+        self.send_to_socket(packet, log=False)
         self.timestamp += encoder.samples_per_frame
 
     async def send_heartbeat(self) -> None:
