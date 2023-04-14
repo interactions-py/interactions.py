@@ -1,15 +1,15 @@
 <div align="center">
-   
-   # Interactions.py 
+
+   # Interactions.py
    <br>
 
    ![](https://img.shields.io/pypi/v/discord-py-interactions.svg?label=Version&logo=pypi)
    ![](https://img.shields.io/badge/Python-3.10+-1081c1?logo=python)
    [![](https://img.shields.io/pypi/dm/discord-py-slash-command.svg?logo=python&label=Downloads)](https://pypi.org/project/discord-py-interactions/)
-   
+
    [![](https://img.shields.io/badge/Code%20Style-black-000000.svg)](https://github.com/psf/black)
    [![License](https://img.shields.io/badge/License-GPL-blue)](https://github.com/interactions-py/interactions.py/blob/stable/LICENSE)
-   
+
    [![](https://img.shields.io/badge/Docs-latest-x?logo=readthedocs)](https://interactions-py.github.io/interactions.py/)
    [![](https://img.shields.io/badge/Guides-latest-x?logo=readthedocs)](https://interactions-py.github.io/interactions.py/Guides/01%20Getting%20Started)
    [![image](https://discord.com/api/guilds/789032594456576001/embed.png)](https://discord.gg/interactions)
