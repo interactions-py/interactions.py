@@ -417,7 +417,7 @@ class Cooldown:
         cooldown = await self.get_cooldown(context)
         return cooldown.on_cooldown()
 
-    def reset_all(self) -> None:
+    async def reset_all(self) -> None:
         """
         Resets this cooldown system to its initial state.
 
@@ -425,6 +425,7 @@ class Cooldown:
         for this command to their initial states
 
         """
+        # this doesnt need to be async, but for consistency, it is
         self.cooldown_repositories = {}
 
     async def reset(self, context: "BaseContext") -> None:
