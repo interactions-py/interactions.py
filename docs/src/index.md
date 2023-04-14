@@ -34,7 +34,7 @@ In addition to core functionality, interactions.py provides a range of optional 
 
 So the base library doesn't do what you want? No problem! With builtin extensions, you are able to extend the functionality of the library. And if none of those pique your interest, there are a myriad of other extension libraries available.
 
-Just type `bot.load_extension("extension")`
+Just type `bot.load("extension")`
 
 ---
 
