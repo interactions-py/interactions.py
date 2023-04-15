@@ -31,12 +31,22 @@ class InteractionRequests(CanRequest):
 
         """
         if guild_id == GLOBAL_SCOPE:
-            await self.request(Route("DELETE", f"/applications/{int(application_id)}/commands/{int(command_id)}"))
+            await self.request(
+                Route(
+                    "DELETE",
+                    "/applications/{application_id}/commands/{command_id}",
+                    application_id=application_id,
+                    command_id=command_id,
+                )
+            )
         else:
             await self.request(
                 Route(
                     "DELETE",
-                    f"/applications/{int(application_id)}/guilds/{int(guild_id)}/commands/{int(command_id)}",
+                    "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
+                    application_id=application_id,
+                    guild_id=guild_id,
+                    command_id=command_id,
                 )
             )
 
@@ -60,11 +70,16 @@ class InteractionRequests(CanRequest):
         """
         if guild_id == GLOBAL_SCOPE:
             return await self.request(
-                Route("GET", f"/applications/{application_id}/commands"),
+                Route("GET", "/applications/{application_id}/commands", application_id=application_id),
                 params={"with_localizations": int(with_localisations)},
             )
         return await self.request(
-            Route("GET", f"/applications/{application_id}/guilds/{guild_id}/commands"),
+            Route(
+                "GET",
+                "/applications/{application_id}/guilds/{guild_id}/commands",
+                application_id=application_id,
+                guild_id=guild_id,
+            ),
             params={"with_localizations": int(with_localisations)},
         )
 
@@ -81,10 +96,10 @@ class InteractionRequests(CanRequest):
 
         """
         if guild_id == GLOBAL_SCOPE:
-            result = await self.request(Route("PUT", f"/applications/{app_id}/commands"), payload=data)
+            result = await self.request(Route("PUT", "/applications/{app_id}/commands", app_id=app_id), payload=data)
         else:
             result = await self.request(
-                Route("PUT", f"/applications/{app_id}/guilds/{int(guild_id)}/commands"),
+                Route("PUT", "/applications/{app_id}/guilds/{guild_id}/commands", app_id=app_id, guild_id=guild_id),
                 payload=data,
             )
         return cast(list[discord_typings.ApplicationCommandData], result)
@@ -104,10 +119,12 @@ class InteractionRequests(CanRequest):
             An application command object
         """
         if guild_id == GLOBAL_SCOPE:
-            result = await self.request(Route("POST", f"/applications/{app_id}/commands"), payload=command)
+            result = await self.request(
+                Route("POST", "/applications/{app_id}/commands", app_id=app_id), payload=command
+            )
         else:
             result = await self.request(
-                Route("POST", f"/applications/{app_id}/guilds/{int(guild_id)}/commands"),
+                Route("POST", "/applications/{app_id}/guilds/{guild_id}/commands", app_id=app_id, guild_id=guild_id),
                 payload=command,
             )
         return cast(discord_typings.ApplicationCommandData, result)
@@ -130,7 +147,12 @@ class InteractionRequests(CanRequest):
 
         """
         return await self.request(
-            Route("POST", f"/interactions/{interaction_id}/{token}/callback"),
+            Route(
+                "POST",
+                "/interactions/{interaction_id}/{webhook_token}/callback",
+                interaction_id=interaction_id,
+                webhook_token=token,
+            ),
             payload=payload,
             files=files,
         )
@@ -153,7 +175,11 @@ class InteractionRequests(CanRequest):
 
         """
         return await self.request(
-            Route("POST", f"/webhooks/{int(application_id)}/{token}"), payload=payload, files=files
+            Route(
+                "POST", "/webhooks/{application_id}/{webhook_token}", application_id=application_id, webhook_token=token
+            ),
+            payload=payload,
+            files=files,
         )
 
     async def edit_interaction_message(
@@ -179,7 +205,13 @@ class InteractionRequests(CanRequest):
 
         """
         result = await self.request(
-            Route("PATCH", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}"),
+            Route(
+                "PATCH",
+                "/webhooks/{application_id}/{webhook_token}/messages/{message_id}",
+                application_id=application_id,
+                webhook_token=token,
+                message_id=message_id,
+            ),
             payload=payload,
             files=files,
         )
@@ -200,7 +232,15 @@ class InteractionRequests(CanRequest):
             message_id: The target message to delete. Defaults to @original which represents the initial response message.
 
         """
-        return await self.request(Route("DELETE", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}"))
+        return await self.request(
+            Route(
+                "DELETE",
+                "/webhooks/{application_id}/{webhook_token}/messages/{message_id}",
+                application_id=application_id,
+                webhook_token=token,
+                message_id=message_id,
+            )
+        )
 
     async def get_interaction_message(
         self, application_id: "Snowflake_Type", token: str, message_id: str = "@original"
@@ -217,7 +257,15 @@ class InteractionRequests(CanRequest):
             The message data.
 
         """
-        result = await self.request(Route("GET", f"/webhooks/{int(application_id)}/{token}/messages/{message_id}"))
+        result = await self.request(
+            Route(
+                "GET",
+                "/webhooks/{application_id}/{webhook_token}/messages/{message_id}",
+                application_id=application_id,
+                webhook_token=token,
+                message_id=message_id,
+            )
+        )
         return cast(discord_typings.MessageData, result)
 
     async def edit_application_command_permissions(
@@ -243,7 +291,10 @@ class InteractionRequests(CanRequest):
         result = await self.request(
             Route(
                 "PUT",
-                f"/applications/{int(application_id)}/guilds/{int(scope)}/commands/{int(command_id)}/permissions",
+                "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
+                application_id=application_id,
+                guild_id=scope,
+                command_id=command_id,
             ),
             payload=permissions,
         )
@@ -270,7 +321,10 @@ class InteractionRequests(CanRequest):
         result = await self.request(
             Route(
                 "GET",
-                f"/applications/{int(application_id)}/guilds/{int(scope)}/commands/{int(command_id)}/permissions",
+                "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
+                application_id=application_id,
+                guild_id=scope,
+                command_id=command_id,
             )
         )
         return cast(list[discord_typings.ApplicationCommandPermissionsData], result)
@@ -292,7 +346,9 @@ class InteractionRequests(CanRequest):
         result = await self.request(
             Route(
                 "GET",
-                f"/applications/{int(application_id)}/guilds/{int(scope)}/commands/permissions",
+                "/applications/{application_id}/guilds/{guild_id}/commands/permissions",
+                application_id=application_id,
+                guild_id=scope,
             )
         )
         return cast(list[discord_typings.GuildApplicationCommandPermissionData], result)
