@@ -73,6 +73,11 @@ class WebsocketClient:
             raise RuntimeError("An instance of 'WebsocketClient' cannot be re-used!")
 
         self._entered = True
+        await self._connect_websocket()
+
+        return self
+
+    async def _connect_websocket(self) -> None:
         self._zlib = zlib.decompressobj()
 
         self.ws = await self.state.client.http.websocket_connect(self.ws_url)
@@ -84,8 +89,6 @@ class WebsocketClient:
         self._keep_alive = asyncio.create_task(self.run_bee_gees())
 
         await self._identify()
-
-        return self
 
     async def __aexit__(
         self,

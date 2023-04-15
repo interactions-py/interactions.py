@@ -285,7 +285,7 @@ class ActiveVoiceState(VoiceState):
         Args:
             data: voice server data
         """
-        self.ws.set_new_voice_server(data)
+        ...
 
     async def _voice_state_update(
         self,

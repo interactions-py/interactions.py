@@ -6,15 +6,21 @@ import threading
 import time
 from enum import IntEnum
 from threading import Event
+from typing import TYPE_CHECKING
 
 import select
 from aiohttp import WSMsgType
 
+import interactions.api.events.internal as events
 from interactions.api.gateway.websocket import WebsocketClient
 from interactions.api.voice.encryption import Encryption
 from interactions.client.const import MISSING
 from interactions.client.errors import VoiceWebSocketClosed
 from interactions.client.utils.input_utils import FastJson
+from interactions.models.internal.listener import Listener
+
+if TYPE_CHECKING:
+    from interactions.api.gateway.gateway import GatewayClient
 
 __all__ = ("VoiceGateway",)
 
@@ -31,6 +37,29 @@ class OP(IntEnum):
     HELLO = 8
     RESUMED = 9
     CLIENT_DISCONNECT = 13
+
+
+class HandshakeTracker:
+    def __init__(self, voice_gateway: "VoiceGateway"):
+        self.active = False
+        self.voice_gateway: "VoiceGateway" = voice_gateway
+
+    def __enter__(self):
+        if self.active:
+            raise RuntimeError("Cannot enter a handshake context while another handshake is in progress")
+        self.active = True
+        self.voice_gateway._received_server_update.clear()
+        self.voice_gateway._received_state_update.clear()
+        self.voice_gateway.ready.clear()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.active = False
+        self.voice_gateway._received_server_update.clear()
+        self.voice_gateway._received_state_update.clear()
+
+    @property
+    def handshaking(self) -> bool:
+        return self.active
 
 
 class VoiceGateway(WebsocketClient):
@@ -59,6 +88,7 @@ class VoiceGateway(WebsocketClient):
         self.token = voice_server["token"]
         self.secret: str | None = None
         self.guild_id = voice_server["guild_id"]
+        self.channel_id = voice_state["channel_id"]
 
         self.sock_sequence = 0
         self.timestamp = 0
@@ -68,8 +98,74 @@ class VoiceGateway(WebsocketClient):
 
         self._udp_ka = threading.Thread(target=self._udp_keep_alive, daemon=True)
 
+        self.client_gateway: "GatewayClient" = self.state.client.get_guild_websocket(self.guild_id)
+
+        self.on_voice_state_update = Listener.create("on_raw_voice_state_update")(self._on_voice_state_update)
+        self.on_voice_server_update = Listener.create("on_raw_voice_server_update")(self._on_voice_server_update)
+        self.state.client.add_listener(self.on_voice_server_update)
+        self.state.client.add_listener(self.on_voice_state_update)
+
+        self._received_server_update = asyncio.Event()
+        self._received_state_update = asyncio.Event()
+        self._handshake = HandshakeTracker(self)
+
+    async def cleanup(self) -> None:
+        if self._udp_ka.is_alive():
+            self._udp_ka.join()
+        self._udp_ka = None
+        self.state.client.listeners["raw_voice_server_update"].remove(self.on_voice_server_update)
+        self.state.client.listeners["raw_voice_state_update"].remove(self.on_voice_state_update)
+        self.logger.debug(f"{self.guild_id}:: Successfully removed listeners")
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await super().__aexit__(exc_type, exc_val, exc_tb)
+        await self.cleanup()
+
+    @property
+    def connected(self) -> bool:
+        return self.ready.is_set()
+
     async def wait_until_ready(self) -> None:
         await asyncio.to_thread(self.ready.wait)
+
+    async def _on_voice_server_update(self, event: events.RawGatewayEvent) -> None:
+        data = event.data
+
+        if data["guild_id"] != self.guild_id:
+            return
+        if self._received_server_update.is_set():
+            return
+
+        self.ws_url = f"wss://{data['endpoint']}?v=4"
+        self.token = data["token"]
+        self.guild_id = data["guild_id"]
+
+        if not self._handshake.handshaking:
+            self.logger.debug(f"{self.guild_id}:: Received voice server update, but not handshaking")
+            await self.ws.close()
+
+        self._received_server_update.set()
+
+    async def _on_voice_state_update(
+        self,
+        event: events.RawGatewayEvent,
+    ) -> None:
+        data = event.data
+
+        if data["guild_id"] != self.guild_id:
+            return
+
+        self.session_id = data["session_id"]
+
+        if channel_id := data["channel_id"]:
+            if int(channel_id) == self.channel_id:
+                return
+            await self.state.client.fetch_channel(channel_id)
+            self.logger.debug(f"{self.guild_id}:: Client forcefully moved from {self.channel_id} to {channel_id}")
+            self.channel_id = int(channel_id)
+        else:
+            self.logger.debug(f"{self.guild_id}:: Disconnected from voice {self.channel_id}")
+            self.close()
 
     async def run(self) -> None:
         """Start receiving events from the websocket."""
@@ -100,7 +196,7 @@ class VoiceGateway(WebsocketClient):
             # possible race conditions to consider.
             await self.dispatch_opcode(data, op)
 
-    async def receive(self, force=False) -> str:
+    async def receive(self, force=False) -> dict:
         buffer = bytearray()
 
         while True:
@@ -109,41 +205,22 @@ class VoiceGateway(WebsocketClient):
 
             resp = await self.ws.receive()
 
-            if resp.type == WSMsgType.CLOSE:
-                self.logger.debug(f"Disconnecting from voice gateway! Reason: {resp.data}::{resp.extra}")
-                if resp.data in (4006, 4009, 4014, 4015):
-                    # these are all recoverable close codes, anything else means we're foobared
-                    # codes: session expired, session timeout, disconnected, server crash
-                    self.ready.clear()
-                    # docs state only resume on 4015
-                    await self.reconnect(resume=resp.data == 4015)
+            if resp.type in (WSMsgType.CLOSED, WSMsgType.CLOSING, WSMsgType.CLOSE, WSMsgType.ERROR):
+                close_info_log = f"{self.guild_id}:: Voice websocket closed with code {resp.data}"
+                if resp.data in (1000, 4015):
+                    self.logger.info(close_info_log)
+                    raise VoiceWebSocketClosed(resp.data)
+                if resp.data == 4014:
+                    self.logger.info(f"{self.guild_id}:: Forcefully disconnected from voice")
+                    await self.wait_for_reconnect()
                     continue
-                raise VoiceWebSocketClosed(resp.data)
-
-            if resp.type is WSMsgType.CLOSED:
-                if force:
-                    raise RuntimeError("Discord unexpectedly closed the underlying socket during force receive!")
-
-                if not self._closed.is_set():
-                    # Because we are waiting for the even before we receive, this shouldn't be
-                    # possible - the CLOSING message should be returned instead. Either way, if this
-                    # is possible after all we can just wait for the event to be set.
-                    await self._closed.wait()
-                else:
-                    # This is an odd corner-case where the underlying socket connection was closed
-                    # unexpectedly without communicating the WebSocket closing handshake. We'll have
-                    # to reconnect ourselves.
-                    await self.reconnect(resume=True)
-
-            elif resp.type is WSMsgType.CLOSING:
-                if force:
-                    raise RuntimeError("WebSocket is unexpectedly closing during force receive!")
-
-                # This happens when the keep-alive handler is reconnecting the connection even
-                # though we waited for the event before hand, because it got to run while we waited
-                # for data to come in. We can just wait for the event again.
-                await self._closed.wait()
-                continue
+                self.logger.info(close_info_log)
+                await self.client_gateway.voice_state_update(self.guild_id, None)
+                try:
+                    await self.reconnect()
+                except Exception:
+                    self.logger.exception(f"{self.guild_id}:: Failed to reconnect to voice")
+                    continue
 
             if resp.data is None:
                 continue
@@ -202,6 +279,9 @@ class VoiceGateway(WebsocketClient):
                 if self.cond:
                     with self.cond:
                         self.cond.notify()
+                if self._udp_ka is None or not self._udp_ka.is_alive():
+                    self._udp_ka = threading.Thread(target=self._udp_keep_alive, daemon=True)
+                    self._udp_ka.start()
             case OP.SPEAKING:
                 self.user_ssrc_map[data["ssrc"]] = {"user_id": int(data["user_id"]), "speaking": data["speaking"]}
             case OP.CLIENT_DISCONNECT:
@@ -212,43 +292,48 @@ class VoiceGateway(WebsocketClient):
             case _:
                 return self.logger.debug(f"Unhandled OPCODE: {op} = {data = }")
 
-    async def reconnect(self, *, resume: bool = False, code: int = 1012) -> None:
+    async def reconnect(self, *args, **kwargs) -> None:
         async with self._race_lock:
-            self._closed.clear()
+            self.ready.clear()
 
-            if self.ws is not None:
-                await self.ws.close(code=code)
+            for i in range(5):
+                with self._handshake:
+                    tasks = [
+                        self._received_state_update.wait(),
+                        self._received_state_update.wait(),
+                    ]
+                    await self.client_gateway.voice_state_update(self.guild_id, self.channel_id)
 
-            self.ws = None
+                    try:
+                        await asyncio.wait(tasks, timeout=5, return_when=asyncio.ALL_COMPLETED)
+                    except asyncio.TimeoutError:
+                        await self.client_gateway.voice_state_update(self.guild_id, None)
+                        raise
 
-            if not resume:
-                self.logger.debug("Waiting for updated server information...")
                 try:
-                    await asyncio.wait_for(self._voice_server_update.wait(), timeout=5)
-                except asyncio.TimeoutError:
-                    self._kill_bee_gees.set()
-                    self.close()
-                    self.logger.debug("Terminating VoiceGateway due to disconnection")
-                    return None
+                    await self._connect_websocket()
+                    break
+                except Exception:
+                    self.logger.exception("Failed to reconnect to voice gateway")
+                    await asyncio.sleep(2**i)
+                    await self.client_gateway.voice_state_update(self.guild_id, None)
+                    continue
 
-                self._voice_server_update.clear()
+            self.logger.debug("Reconnected to voice gateway")
 
-            self.ws = await self.state.client.http.websocket_connect(self.ws_url)
-
+    async def wait_for_reconnect(self) -> bool:
+        with self._handshake:
             try:
-                hello = await self.receive(force=True)
-                self.heartbeat_interval = hello["d"]["heartbeat_interval"] / 1000
-            except RuntimeError:
-                # sometimes the initial connection fails with voice gateways, handle that
-                return await self.reconnect(resume=resume, code=code)
+                await asyncio.wait_for(self._received_server_update.wait(), timeout=5)
+            except asyncio.TimeoutError:
+                await self.disconnect(force=True)
+                return False
 
-            if not resume:
-                await self._identify()
-            else:
-                await self._resume_connection()
-
-            self._closed.set()
-            self._acknowledged.set()
+        try:
+            await self._connect_websocket()
+        except Exception:
+            return False
+        return True
 
     async def _resume_connection(self) -> None:
         if self.ws is None:
@@ -260,39 +345,43 @@ class VoiceGateway(WebsocketClient):
         }
         await self.ws.send_json(payload)
 
-        if not self._udp_ka.is_alive():
-            self._udp_ka = threading.Thread(target=self._udp_keep_alive, daemon=True)
-            self._udp_ka.start()
+    async def disconnect(self, *, force: bool = False):
+        if not force and not self.connected:
+            return
+
+        self._close_gateway.set()
+        self._kill_bee_gees.set()
+
+        try:
+            if self.ws:
+                await self.ws.close(code=1000)
+
+            await self.client_gateway.voice_state_update(self.guild_id, None)
+        finally:
+            if self.socket:
+                self.socket.close()
 
     def _udp_keep_alive(self) -> None:
         keep_alive = b"\xc9\x00\x00\x00\x00\x00\x00\x00\x00"
 
         self.logger.debug("Starting UDP Keep Alive")
-
-        start = time.monotonic()
-        while not self.ws:
-            self.logger.debug(f"UDP Keep Alive waiting for WS connection... {time.monotonic() - start:.1f}s")
-            time.sleep(5)
-            if time.monotonic() - start > 30:
-                self.logger.warning("UDP Keep Alive failed to start")
-                return
-
         try:
-            while not self.socket._closed and not self.ws.closed:
-                try:
-                    _, writable, _ = select.select([], [self.socket], [], 0)
-                    while not writable:
+            while not self._kill_bee_gees.is_set() and self.ready.is_set() and not self._close_gateway.is_set():
+                if not self.socket._closed and not self.ws.closed:
+                    try:
                         _, writable, _ = select.select([], [self.socket], [], 0)
+                        while not writable:
+                            _, writable, _ = select.select([], [self.socket], [], 0)
 
-                    # discord will never respond to this, but it helps maintain the hole punch
-                    self.send_to_socket(keep_alive)
+                        # discord will never respond to this, but it helps maintain the hole punch
+                        self.send_to_socket(keep_alive)
 
-                    time.sleep(5)
-                except socket.error as e:
-                    self.logger.warning(f"Ending Keep Alive due to {e}")
-                    return
-                except Exception as e:
-                    self.logger.debug("Keep Alive Error: ", exc_info=e)
+                        time.sleep(5)
+                    except socket.error as e:
+                        self.logger.warning(f"Ending Keep Alive due to {e}")
+                        return
+                    except Exception as e:
+                        self.logger.debug("Keep Alive Error: ", exc_info=e)
         except AttributeError as e:
             self.logger.error("UDP Keep Alive has been closed", exc_info=e)
         self.logger.debug("Ending UDP Keep Alive")
@@ -339,10 +428,6 @@ class VoiceGateway(WebsocketClient):
             break
 
         await self._select_protocol()
-
-        if not self._udp_ka.is_alive():
-            self._udp_ka = threading.Thread(target=self._udp_keep_alive, daemon=True)
-            self._udp_ka.start()
 
     def generate_packet(self, data: bytes) -> bytes:
         """Generate a packet to be sent to the voice socket."""
@@ -426,16 +511,3 @@ class VoiceGateway(WebsocketClient):
             },
         }
         await self.ws.send_json(payload)
-
-    def set_new_voice_server(self, payload: dict) -> None:
-        """
-        Set a new voice server to connect to.
-
-        Args:
-            payload: New voice server connection data
-
-        """
-        self.ws_url = f"wss://{payload['endpoint']}?v=4"
-        self.token = payload["token"]
-        self.guild_id = payload["guild_id"]
-        self._voice_server_update.set()

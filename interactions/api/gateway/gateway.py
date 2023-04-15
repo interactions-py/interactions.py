@@ -2,6 +2,7 @@
 import asyncio
 import sys
 import time
+import typing
 import zlib
 from asyncio import Task
 from types import TracebackType
@@ -344,7 +345,7 @@ class GatewayClient(WebsocketClient):
     async def voice_state_update(
         self,
         guild_id: "Snowflake_Type",
-        channel_id: "Snowflake_Type",
+        channel_id: typing.Optional["Snowflake_Type"],
         muted: bool = False,
         deafened: bool = False,
     ) -> None:
