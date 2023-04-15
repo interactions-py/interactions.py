@@ -70,10 +70,6 @@ Just type `bot.load("extension")`
 
   Easily create multi-page embeds without having to implement the UX
 
-  ### Mypy Support
-
-  Enables mypy support
-
 </details>
 
 ## Where do I start?
