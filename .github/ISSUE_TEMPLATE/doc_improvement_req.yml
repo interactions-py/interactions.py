@@ -1,0 +1,45 @@
+name: Documentation Improvement Request
+description: Suggest an improvement or request a change in the documentation
+title: "[Docs]: "
+labels: [documentation]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to help with our documentation!
+
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Please provide the URL of the page or section in the documentation that needs improvement.
+      placeholder: e.g. https://github.com/your-repo/docs/specific-page.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: Problem description
+      description: Describe the issue or problem with the current documentation. Be as specific as possible.
+      placeholder: e.g. The example code provided is outdated and doesn't work with the latest version.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-changes
+    attributes:
+      label: Suggested changes
+      description: Describe your suggested changes or improvements to the documentation.
+      placeholder: e.g. Update the example code to work with the latest version and add more explanation about the changes.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Provide any additional context or resources that may help in resolving the issue.
+      placeholder: e.g., Links to related issues, documentation, or other resources.
+    validations:
+      required: false

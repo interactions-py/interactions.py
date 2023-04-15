@@ -3,7 +3,7 @@ repo_url: https://github.com/interactions-py/interactions.py
 repo_name: interactions-py/interactions.py
 copyright: Copyright &copy; 2023 - Present LordOfPolls – <a href="#__consent">Change cookie settings</a>
 docs_dir: docs/src
-edit_uri: edit/master/docs/src
+edit_uri: edit/stable/docs/src
 site_url: https://interactions-py.github.io/interactions.py/
 
 theme:
@@ -22,6 +22,7 @@ theme:
     - toc.follow
     - content.tooltips
     - content.code.annotate
+    - content.action.edit
   palette:
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
@@ -71,18 +72,17 @@ extra:
           name: This page was helpful
           data: 1
           note: >-
-            Thanks for your feedback!
+            Thanks for your feedback! Your feedback helps us improve our documentation.
         - icon: material/heart-broken
           name: This page could be improved
           data: 0
           note: >-
-            Thanks for your feedback! Please create an <a href="https://github.com/interactions-py/interactions.py/issues/new/choose">issue on Github</a> if you have any suggestions.
-  consent:
+            Thanks for your feedback! Please <a href="https://github.com/interactions-py/interactions.py/issues/new?assignees=LordOfPolls&labels=documentation&template=doc_improvement_req.yml&title=docs:+{title}&page={title} : {url}">open an issue</a> so we can improve our documentation.
     title: Cookie consent
     description: >-
       We use cookies to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
-      make our documentation better.
+      make our documentation better. Only operational data is collected, no personal data.
     actions:
       - accept
       - reject
@@ -99,6 +99,10 @@ plugins:
   - autorefs
   - git-revision-date-localized:
       fallback_to_build_date: true
+      enable_creation_date: true
+  - git-committers:
+      repository: interactions-py/interactions.py
+      branch: stable
   - mkdocstrings:
       #    custom_templates: docs/templates
       enable_inventory: true
@@ -117,12 +121,11 @@ plugins:
             show_if_no_docstring: False # temporary, this will be reverted to False once we're done with docs
   - minify:
       minify_html: true
-  # keep these at the bottom of the plugins list
-#  - privacy:
-#      externals: bundle
-#      enabled: !ENV [ DEPLOY, False ]
-#  - offline:
-#      enabled: !ENV [ DEPLOY, False ]
+  # keep this at the bottom of the plugins list - if you are building without insiders, comment it out
+  - privacy:
+      # Downloads all external resources and stores them locally
+      externals: bundle
+      enabled: !ENV [ DEPLOY, False ]
 
 
 markdown_extensions:
