@@ -38,7 +38,7 @@ import logging
 import os
 import sys
 from collections import defaultdict
-from importlib.metadata import version as _v
+from importlib.metadata import version as _v, PackageNotFoundError
 from typing import TypeVar, Union, Callable, Coroutine
 
 __all__ = (
@@ -82,10 +82,15 @@ __all__ = (
 
 _ver_info = sys.version_info
 
-try:
-    __version__ = _v("interactions")
-except Exception:
-    __version__ = "0.0.0"
+repo_names = ("interactions.py", "discord-py-interactions")
+for repo_name in repo_names:
+    try:
+        __version__ = _v(repo_name)
+        break
+    except PackageNotFoundError:
+        __version__ = "0.0.0"
+
+
 __repo_url__ = "https://github.com/interactions-py/interactions.py"
 __py_version__ = f"{_ver_info[0]}.{_ver_info[1]}"
 __api_version__ = 10
@@ -182,9 +187,9 @@ MISSING = Missing()
 MENTION_PREFIX = MentionPrefix()
 
 PREMIUM_GUILD_LIMITS = defaultdict(
-    lambda: {"emoji": 50, "stickers": 5, "bitrate": 96000, "filesize": 8388608},
+    lambda: {"emoji": 50, "stickers": 5, "bitrate": 96000, "filesize": 26214400},
     {
-        1: {"emoji": 100, "stickers": 15, "bitrate": 128000, "filesize": 8388608},
+        1: {"emoji": 100, "stickers": 15, "bitrate": 128000, "filesize": 26214400},
         2: {"emoji": 150, "stickers": 30, "bitrate": 256000, "filesize": 52428800},
         3: {"emoji": 250, "stickers": 60, "bitrate": 384000, "filesize": 104857600},
     },

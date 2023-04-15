@@ -27,7 +27,7 @@ class StickerRequests:
             Sticker or None
 
         """
-        return await self.request(Route("GET", f"/stickers/{sticker_id}"))
+        return await self.request(Route("GET", "/stickers/{sticker_id}", sticker_id=sticker_id))
 
     async def list_nitro_sticker_packs(self) -> List[discord_typings.StickerPackData]:
         """
@@ -50,7 +50,7 @@ class StickerRequests:
             List of Stickers or None
 
         """
-        return await self.request(Route("GET", f"/guilds/{guild_id}/stickers"))
+        return await self.request(Route("GET", "/guilds/{guild_id}/stickers", guild_id=guild_id))
 
     async def get_guild_sticker(
         self, guild_id: "Snowflake_Type", sticker_id: "Snowflake_Type"
@@ -66,7 +66,9 @@ class StickerRequests:
             Sticker or None
 
         """
-        return await self.request(Route("GET", f"/guilds/{guild_id}/stickers/{sticker_id}"))
+        return await self.request(
+            Route("GET", "/guilds/{guild_id}/stickers/{sticker_id}", guild_id=guild_id, sticker_id=sticker_id)
+        )
 
     async def create_guild_sticker(
         self,
@@ -89,7 +91,7 @@ class StickerRequests:
 
         """
         return await self.request(
-            Route("POST", f"/guilds/{guild_id}/stickers"),
+            Route("POST", "/guilds/{guild_id}/stickers", guild_id=guild_id),
             payload=payload,
             files=[file],
             reason=reason,
@@ -116,7 +118,7 @@ class StickerRequests:
 
         """
         return await self.request(
-            Route("PATCH", f"/guilds/{guild_id}/stickers/{sticker_id}"),
+            Route("PATCH", "/guilds/{guild_id}/stickers/{sticker_id}", guild_id=guild_id, sticker_id=sticker_id),
             payload=payload,
             reason=reason,
         )
@@ -139,4 +141,7 @@ class StickerRequests:
             Returns 204 No Content on success.
 
         """
-        return await self.request(Route("DELETE", f"/guilds/{guild_id}/stickers/{sticker_id}"), reason=reason)
+        return await self.request(
+            Route("DELETE", "/guilds/{guild_id}/stickers/{sticker_id}", guild_id=guild_id, sticker_id=sticker_id),
+            reason=reason,
+        )
