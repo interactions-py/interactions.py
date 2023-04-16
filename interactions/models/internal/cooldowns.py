@@ -387,7 +387,7 @@ class Cooldown:
         cooldown = await self.get_cooldown(context)
         return cooldown.get_cooldown_time()
 
-    async def get_cooldown_time_with_key(self, key: Any, *, create: bool = False) -> float:
+    def get_cooldown_time_with_key(self, key: Any, *, create: bool = False) -> float:
         """
         Get the remaining cooldown time with a key instead of the context.
 
@@ -439,7 +439,7 @@ class Cooldown:
         cooldown = await self.get_cooldown(context)
         cooldown.reset()
 
-    async def reset_with_key(self, key: Any) -> bool:
+    def reset_with_key(self, key: Any) -> bool:
         """
         Resets the cooldown for the bucket associated with the provided key.
 
