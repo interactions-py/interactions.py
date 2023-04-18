@@ -1144,7 +1144,7 @@ def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable]
         return ComponentCommand(name=f"ComponentCallback::{custom_id}", callback=func, listeners=custom_id)
 
     custom_id = _unpack_helper(custom_id)
-    if not all(isinstance(i, re.Pattern) for i in custom_id) or all(isinstance(i, str) for i in custom_id):
+    if not (all(isinstance(i, re.Pattern) for i in custom_id) or all(isinstance(i, str) for i in custom_id)):
         raise ValueError("All custom IDs be either a string or a regex pattern, not a mix of both.")
     return wrapper
 
