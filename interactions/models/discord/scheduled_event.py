@@ -102,10 +102,15 @@ class ScheduledEvent(DiscordObject):
             return self.entity_metadata["location"]
         return None
 
-    async def fetch_channel(self) -> Optional[Union["GuildVoice", "GuildStageVoice"]]:
-        """Returns the channel this event is scheduled in if it is scheduled in a channel."""
+    async def fetch_channel(self, *, force: bool = False) -> Optional[Union["GuildVoice", "GuildStageVoice"]]:
+        """
+        Returns the channel this event is scheduled in if it is scheduled in a channel.
+
+        Args:
+            force: Whether to force fetch the channel from the API
+        """
         if self._channel_id:
-            return await self._client.cache.fetch_channel(self._channel_id)
+            return await self._client.cache.fetch_channel(self._channel_id, force=force)
         return None
 
     def get_channel(self) -> Optional[Union["GuildVoice", "GuildStageVoice"]]:

@@ -369,9 +369,12 @@ class Message(BaseMessage):
         """The thread that was started from this message, if any"""
         return self._client.cache.get_channel(self.id)
 
-    async def fetch_referenced_message(self) -> Optional["Message"]:
+    async def fetch_referenced_message(self, *, force: bool = False) -> Optional["Message"]:
         """
         Fetch the message this message is referencing, if any.
+
+        Args:
+            force: Whether to force a fetch from the API
 
         Returns:
             The referenced message, if found
@@ -379,7 +382,7 @@ class Message(BaseMessage):
         """
         if self._referenced_message_id is None:
             return None
-        return await self._client.cache.fetch_message(self._channel_id, self._referenced_message_id)
+        return await self._client.cache.fetch_message(self._channel_id, self._referenced_message_id, force=force)
 
     def get_referenced_message(self) -> Optional["Message"]:
         """

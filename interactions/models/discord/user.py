@@ -91,9 +91,14 @@ class BaseUser(DiscordObject, _SendDMMixin):
         """The users avatar url."""
         return self.display_avatar.url
 
-    async def fetch_dm(self) -> "DM":
-        """Fetch the DM channel associated with this user."""
-        return await self._client.cache.fetch_dm_channel(self.id)
+    async def fetch_dm(self, *, force: bool = False) -> "DM":
+        """
+        Fetch the DM channel associated with this user.
+
+        Args:
+            force: Whether to force a fetch from the API
+        """
+        return await self._client.cache.fetch_dm_channel(self.id, force=force)
 
     def get_dm(self) -> Optional["DM"]:
         """Get the DM channel associated with this user."""
