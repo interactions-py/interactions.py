@@ -1,12 +1,12 @@
 ??? Hint "Example Usage:"
     ```python
-    from interactions import slash_command, slash_option, OptionType, InteractionContext
+    from interactions import slash_command, slash_option, OptionType, SlashContext
     from interactions.api.voice.audio import AudioVolume
 
 
     @slash_command("play")
     @slash_option("song", "The song to play", OptionType.STRING, required=True)
-    async def test_cmd(ctx: InteractionContext, song: str):
+    async def test_cmd(ctx: SlashContext, song: str):
         await ctx.defer()
 
         if not ctx.voice_state:

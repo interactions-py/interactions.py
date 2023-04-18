@@ -92,7 +92,7 @@ def setup(bot):
 
 ```python
 
-from interactions import slash_command, slash_option, InteractionContext, context_menu, CommandType, Button, ActionRow,
+from interactions import slash_command, slash_option, SlashContext, context_menu, CommandType, Button, ActionRow,
     ButtonStyle, Extension
 
 
@@ -100,7 +100,7 @@ class CommandsExampleSkin(Extension):
     @slash_command("command", description="This is a test", scopes=701347683591389185)
     @slash_option("another", "str option", 3, required=True)
     @slash_option("option", "int option", 4, required=True)
-    async def command(self, ctx: InteractionContext, **kwargs):
+    async def command(self, ctx: SlashContext, **kwargs):
         await ctx.send(str(ctx.resolved))
         await ctx.send(f"Test: {kwargs}", components=[ActionRow(Button(1, "Test"))])
         print(ctx.resolved)

@@ -27,12 +27,12 @@ class DatabaseEntry():
     required=True,
     opt_type=OptionType.STRING
 )
-async def my_command_function(ctx: InteractionContext, thing: DatabaseEntry):
+async def my_command_function(ctx: SlashContext, thing: DatabaseEntry):
     await ctx.send(f"***{thing.name}***\n{thing.description}\nScore: {thing.score}/10")
 
 # Prefixed Command:
 @prefixed_command()
-async def my_command_function(ctx: InteractionContext, thing: DatabaseEntry):
+async def my_command_function(ctx: SlashContext, thing: DatabaseEntry):
     await ctx.reply(f"***{thing.name}***\n{thing.description}\nScore: {thing.score}/10")
 ```
 
@@ -57,7 +57,7 @@ class UpperConverter(Converter):
     required=True,
     opt_type=OptionType.STRING
 )
-async def upper(ctx: InteractionContext, to_upper: UpperConverter):
+async def upper(ctx: SlashContext, to_upper: UpperConverter):
     await ctx.send(to_upper)
 
 # Prefixed Command:
@@ -118,7 +118,7 @@ class UpperConverter(Converter):
     required=True,
     opt_type=OptionType.STRING
 )
-async def upper(ctx: InteractionContext, to_upper: Annotated[str, UpperConverter]):
+async def upper(ctx: SlashContext, to_upper: Annotated[str, UpperConverter]):
     await ctx.send(to_upper)
 
 # Prefixed Command:
