@@ -1763,7 +1763,7 @@ class Client(
             if component_callback:
                 await self.__dispatch_interaction(
                     ctx=ctx,
-                    callback=callback(ctx),
+                    callback=component_callback(ctx),
                     error_callback=events.ComponentError,
                     completion_callback=events.ComponentCompletion,
                 )
