@@ -150,9 +150,15 @@ class User(BaseUser):
         repr=False, default=MISSING, metadata=docs("The user's status"), converter=optional(Status)
     )
 
+    _fetched: bool = attrs.field(repr=False, default=False, metadata=docs("Has the user been fetched?"))
+    """Flag to indicate if a `fetch` api call has been made to get the full user object."""
+
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
         data = super()._process_dict(data, client)
+        if any(field in data for field in ("banner", "accent_color", "avatar_decoration")):
+            data["_fetched"] = True
+
         if "banner" in data:
             data["banner"] = Asset.from_path_hash(client, f"banners/{data['id']}/{{}}", data["banner"])
 

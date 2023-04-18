@@ -114,9 +114,10 @@ class GlobalCache:
         user_id = to_snowflake(user_id)
 
         user = self.user_cache.get(user_id)
-        if user is None or force:
+        if (user is None or user._fetched is False) or force:
             data = await self._client.http.get_user(user_id)
             user = self.place_user_data(data)
+            user._fetched = True  # the user object should set this to True, but we do it here just in case
         return user
 
     def get_user(self, user_id: Optional["Snowflake_Type"]) -> Optional[User]:
