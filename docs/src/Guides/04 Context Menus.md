@@ -14,6 +14,8 @@ These open up if you right-click a message and choose `Apps`.
 This example repeats the selected message:
 
 ```python
+from interactions import ContextMenuContext, Message, message_context_menu
+
 @message_context_menu(name="repeat")
 async def repeat(ctx: ContextMenuContext):
     message: Message = ctx.target
@@ -27,10 +29,12 @@ These open up if you right-click a user and choose `Apps`.
 This example pings the user:
 
 ```python
+from interactions import user_context_menu, Member
+
 @user_context_menu(name="ping")
 async def ping(ctx: ContextMenuContext):
     member: Member = ctx.target
     await ctx.send(member.mention)
 ```
-??? note
+???+ note
     Unlike Slash command names, context menu command names **can** be uppercase, contain special symbols and spaces.

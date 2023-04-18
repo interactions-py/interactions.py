@@ -27,5 +27,5 @@
      - If you wish to keep using prefixed commands (sometimes called message or text-based commands), you can use our prefixed command extension, which has an [extensive guide for them](/Guides/07 Creating Prefixed Commands). The syntax should be very similar to discord.py with a few exceptions.
      - If you were manually handling commands with `on_message`, you'll probably need to figure it out yourself, as this guide doesn't know how you wrote your parser.  Consider using the provided command handlers.
 
-??? Note
+???+ Note
     This guide was written based on the experiences of porting a small handful of bots.  There may be gotchas that we did not encounter.  If you run into anything you'd like to have known, let us know in our Discord, and we'll add it to this document.

@@ -43,6 +43,8 @@ As you can see, a converter can transparently convert what Discord sends you (a 
 You may also use the `Converter` class that `interactions.py` has as well.
 
 ```python
+from interactions import Converter
+
 class UpperConverter(Converter):
     async def convert(ctx: BaseContext, argument: str):
         return argument.upper()
@@ -102,6 +104,8 @@ A table of objects and their respective converter is as follows:
 Using `typing.Annotated` can allow you to have more proper typehints when using converters:
 
 ```python
+from typing import Annotated
+
 class UpperConverter(Converter):
     async def convert(ctx: BaseContext, argument: str):
         return argument.upper()

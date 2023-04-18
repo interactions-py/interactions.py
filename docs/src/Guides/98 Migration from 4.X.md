@@ -6,6 +6,11 @@ Version 5.X (and beyond) is a major rewrite of interactions.py compared to 4.X, 
 
 Now, let's get started, shall we?
 
+???+ note
+    In v5's documentation, you will often see imports using the format `from interactions import X`, unlike v4. You can still use `import interactions` and do `interactions.X` though.
+
+    Events, errors, and utilities are under their own sub-namespace when using `import interactions`. For example, events are under `interactions.events.X`.
+
 ## Python Version Change
 
 Starting from version 5, **Python 3.10 or higher is now required**, whereas version 4 only needed 3.8+. This is because 5.x incorporates many new and exciting features introduced in more recent versions of Python.

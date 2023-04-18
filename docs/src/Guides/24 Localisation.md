@@ -12,7 +12,6 @@ Let's take this nice and simple `hello` command
 ```python
 import interactions
 
-
 @interactions.slash_command(name="hello")
 async def hello_cmd(ctx: interactions.InteractionContext):
     await ctx.send(f"Hello {ctx.author.display_name}")
@@ -22,7 +21,6 @@ This command was immensely popular, and now we have some 🇫🇷 French users. 
 ```python
 import interactions
 from interactions import LocalisedName
-
 
 @interactions.slash_command(name=LocalisedName(english_us="hello", french="salut"))
 async def hello_cmd(ctx: interactions.InteractionContext):
@@ -34,7 +32,6 @@ For extra flavour lets make this command more dynamic.
 ```python
 import interactions
 from interactions import LocalisedName
-
 
 @interactions.slash_command(name=LocalisedName(english_us="hello", french="salut"))
 async def hello_cmd(ctx: interactions.InteractionContext):
