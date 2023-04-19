@@ -1,6 +1,11 @@
 Let's be honest; reading API documentation is a bit of a pain.
 These guides are meant to help you get started with the library and offer a point of reference.
 
+???+ note
+    As with many Python libraries, you may use `import interactions` and do `interactions.X` for your objects. The documentation leads more towards using `from interactions import X`, however.
+
+    Events, errors, and utilities are under their own sub-namespace when using `import interactions`. For example, events are under `interactions.events.X`.
+
 <div class="grid cards" markdown>
 
 -   [__:material-star-shooting: Getting Started__](01 Getting Started.md)

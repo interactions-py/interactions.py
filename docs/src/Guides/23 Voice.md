@@ -48,7 +48,7 @@ from interactions.api.voice.audio import AudioVolume
 
 @interactions.slash_command("play", "play a song!")
 @interactions.slash_option("song", "The song to play", 3, True)
-async def play(self, ctx: interactions.InteractionContext, song: str):
+async def play(self, ctx: interactions.SlashContext, song: str):
     if not ctx.voice_state:
         # if we haven't already joined a voice channel
         # join the authors vc
@@ -78,7 +78,7 @@ from interactions.api.voice.audio import AudioVolume
 
 
 @interactions.slash_command("play", "play a song!")
-async def play_file(ctx: interactions.InteractionContext):
+async def play_file(ctx: interactions.SlashContext):
     audio = AudioVolume("some_file.wav")
     await ctx.voice_state.play(audio)
 ```
@@ -96,7 +96,7 @@ import asyncio
 import interactions
 
 @interactions.slash_command("record", "record some audio")
-async def record(ctx: interactions.InteractionContext):
+async def record(ctx: interactions.SlashContext):
     voice_state = await ctx.author.voice.channel.connect()
 
     # Start recording

@@ -35,16 +35,15 @@ If you wish to change this, you have two options in `setup`:
 To create a prefixed command, simply define an asynchronous function and use the `@prefixed_command()` (from `interactions.ext.prefixed_commands`) decorator above it.
 
 ```python
+from interactions.ext.prefixed_commands import prefixed_command, PrefixedContext
+
 @prefixed_command(name="my_command")
 async def my_command_function(ctx: PrefixedContext):
     await ctx.reply("Hello world!")
 ```
 
-??? note "Command Name"
+???+ note "Command Name"
     If `name` is not specified, `interactions.py` will automatically use the function's name as the command's name.
-
-??? note "Prefixed Context"
-    `PrefixedContext` also comes from `interactions.ext.prefixed_commands`. In fact, any function/object you see that is unique to prefixed commands is likely from there.
 
 If the bot's prefix was set to `!`, then a user could invoke it like so:
 
@@ -133,7 +132,7 @@ The result looks like this:
 
 ![Keyword-Only Parameter](../images/PrefixedCommands/KeywordParam.png "The above running with the arguments: hello world!")
 
-??? note "Quotes"
+???+ note "Quotes"
     If a user passes quotes into a keyword-only argument, then the resulting argument will have said quotes.
 
     ![Keyword-Only Quotes](../images/PrefixedCommands/KeywordParamWithQuotes.png "The above running with the arguments: "hello world!"")
@@ -199,6 +198,8 @@ There are a few specific converters that only work with prefixed commands due to
 Prefixed commands can be typehinted with some Discord models, like so:
 
 ```python
+from interactions import Member
+
 @prefixed_command()
 async def poke(ctx: PrefixedContext, target: Member):
     await ctx.reply(f"{target.mention}, you got poked by {ctx.author.mention}!")
@@ -217,8 +218,18 @@ A table of supported objects and their converters can be found [here](../08 Conv
 For example, the below will try to convert an argument to a `GuildText` first, then a `User` if it cannot do so.
 
 ```python
+from typing import Union
+from interactions import GuildText, User
+
 @prefixed_command()
 async def union(ctx: PrefixedContext, param: Union[GuildText, User]):
+    await ctx.reply(str(param))
+```
+
+Using `|` for specifying a union is also supported, if you prefer it:
+```python
+@prefixed_command()
+async def union(ctx: PrefixedContext, param: GuildText | User):
     await ctx.reply(str(param))
 ```
 
@@ -233,6 +244,8 @@ If a parameter is marked as `Optional`, then the command handler will try conver
 For example, you could use the following code:
 
 ```python
+from typing import Optional
+
 @prefixed_command()
 async def ban(ctx: PrefixedContext, member: Member, delete_message_days: Optional[int] = 0, *, reason: str):
     await member.ban(delete_message_days=delete_message_days, reason=reason)
@@ -248,6 +261,8 @@ And if a user omits the `delete_message_days` parameter, it would act as so:
 `typing.Literal` specifies that a parameter *must* be one of the values in the list. `interactions.py` also forces that here (though this only works with values of basic types, like `str` or `int`):
 
 ```python
+from typing import Literal
+
 @prefixed_command()
 async def one_or_two(ctx: PrefixedContext, num: Literal[1, 2]):
     await ctx.reply(str(num))
@@ -260,6 +275,8 @@ async def one_or_two(ctx: PrefixedContext, num: Literal[1, 2]):
 The `Greedy` class, included in this library, specifies `interactions.py` to keep converting as many arguments as it can until it fails to do so. For example:
 
 ```python
+from interactions.ext.prefixed_commands import Greedy
+
 @prefixed_command()
 async def slap(ctx: PrefixedContext, members: Greedy[Member]):
     slapped = ", ".join(x.display_name for x in members)

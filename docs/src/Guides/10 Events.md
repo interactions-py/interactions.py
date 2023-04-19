@@ -30,18 +30,15 @@ Be aware that your `Intents` must be set to receive the event you are looking fo
 There are two ways to register events. **Decorators** are the recommended way to do this.
 
 === ":one: Decorators"
-    To use decorators, they need to be in the same file where you defined your `bot = Client()`.
-
     ```python
-    bot = Client(intents=Intents.DEFAULT)
+    from interactions import listen
+    from interactions.api.events import ChannelCreate
 
     @listen()
     async def on_channel_create(event: ChannelCreate):
         # this event is called when a channel is created in a guild where the bot is
 
         print(f"Channel created with name: {event.channel.name}")
-
-    bot.start("Put your token here")
     ```
 
     You can also use `@listen` with any function names:
@@ -67,6 +64,9 @@ There are two ways to register events. **Decorators** are the recommended way to
     You can also register the events manually. This gives you the most flexibility, but it's not the cleanest.
 
     ```python
+    from interactions import Listener
+    from interactions.api.events import ChannelCreate
+
     async def on_channel_create(event: ChannelCreate):
         # this event is called when a channel is created in a guild where the bot is
 

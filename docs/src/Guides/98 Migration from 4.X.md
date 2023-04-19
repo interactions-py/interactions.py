@@ -6,6 +6,11 @@ Version 5.X (and beyond) is a major rewrite of interactions.py compared to 4.X, 
 
 Now, let's get started, shall we?
 
+???+ note
+    In v5's documentation, you will often see imports using the format `from interactions import X`, unlike v4. You can still use `import interactions` and do `interactions.X` though.
+
+    Events, errors, and utilities are under their own sub-namespace when using `import interactions`. For example, events are under `interactions.events.X`.
+
 ## Python Version Change
 
 Starting from version 5, **Python 3.10 or higher is now required**, whereas version 4 only needed 3.8+. This is because 5.x incorporates many new and exciting features introduced in more recent versions of Python.
@@ -34,6 +39,26 @@ Autodeferring is also pretty similar, although there's more control, with option
 ## Events
 
 Similarly to Slash Commands, events have also been reworked in v5. Instead of `@bot.event` and `@extension_listener`, the way to listen to events is now `@listen`. There are multiple ways to subscribe to events, whether it is using the function name or the argument of the `@listen` decorator. You can find more information on handling events using v5 [on its own guide page](../10 Events).
+
+An important note: events now dispatch an event object that contains every part about an event, instead of the object that directly corresponds to an event. For example, message creation now looks like this:
+```python
+from interactions import listen
+from interactions.api.events import MessageCreate
+
+@listen()
+async def on_message_create(event: MessageCreate):
+    event.message  # actual message
+```
+
+This is more notable with events that used to have two or more arguments. They *also* now only have one event object:
+```python
+from interactions.api.events import MemberUpdate
+
+@listen()
+async def on_member_update(event: MemberUpdate):
+    event.before  # before update
+    event.after  # after update
+```
 
 ## Other Types of Interactions (Context Menus, Components, Modals)
 

@@ -11,9 +11,10 @@ You're going to want to have some way of tracking if errors occur.
 The most obvious solution is to think "Well, I'm writing a Discord Bot.  Why not send my errors to a discord channel?"
 
 ```python
+from interactions.api.events import Error
 
 @listen()
-async def on_error(error):
+async def on_error(error: Error):
     await bot.get_channel(LOGGING_CHANNEL_ID).send(f"```\n{error.source}\n{error.error}\n```)
 ```
 
