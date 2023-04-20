@@ -246,19 +246,20 @@ class MessageableMixin(SendMixin):
     ) -> dict:
         return await self._client.http.create_message(message_payload, self.id, files=files)
 
-    async def fetch_message(self, message_id: Snowflake_Type) -> Optional["models.Message"]:
+    async def fetch_message(self, message_id: Snowflake_Type, *, force: bool = False) -> Optional["models.Message"]:
         """
         Fetch a message from the channel.
 
         Args:
             message_id: ID of message to retrieve.
+            force: Whether to force a fetch from the API.
 
         Returns:
             The message object fetched. If the message is not found, returns None.
 
         """
         try:
-            return await self._client.cache.fetch_message(self.id, message_id)
+            return await self._client.cache.fetch_message(self.id, message_id, force=force)
         except NotFound:
             return None
 
@@ -953,9 +954,14 @@ class DMGroup(DMChannel):
         """
         return await super().edit(name=name, icon=icon, reason=reason, **kwargs)
 
-    async def fetch_owner(self) -> "models.User":
-        """Fetch the owner of this DM group"""
-        return await self._client.cache.fetch_user(self.owner_id)
+    async def fetch_owner(self, *, force: bool = False) -> "models.User":
+        """
+        Fetch the owner of this DM group
+
+        Args:
+            force: Whether to force a fetch from the API
+        """
+        return await self._client.cache.fetch_user(self.owner_id, force=force)
 
     def get_owner(self) -> "models.User":
         """Get the owner of this DM group"""
@@ -2493,17 +2499,18 @@ class GuildForum(GuildChannel):
         """An async iterator for all archived posts in this channel."""
         return ArchivedForumPosts(self, limit, before)
 
-    async def fetch_post(self, id: "Snowflake_Type") -> "GuildForumPost":
+    async def fetch_post(self, id: "Snowflake_Type", *, force: bool = False) -> "GuildForumPost":
         """
         Fetch a post within this channel.
 
         Args:
             id: The id of the post to fetch
+            force: Whether to force a fetch from the API
 
         Returns:
             A GuildForumPost object representing the post.
         """
-        return await self._client.fetch_channel(id)
+        return await self._client.fetch_channel(id, force=force)
 
     def get_post(self, id: "Snowflake_Type") -> "GuildForumPost":
         """

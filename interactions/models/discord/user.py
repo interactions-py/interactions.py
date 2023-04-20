@@ -91,9 +91,14 @@ class BaseUser(DiscordObject, _SendDMMixin):
         """The users avatar url."""
         return self.display_avatar.url
 
-    async def fetch_dm(self) -> "DM":
-        """Fetch the DM channel associated with this user."""
-        return await self._client.cache.fetch_dm_channel(self.id)
+    async def fetch_dm(self, *, force: bool = False) -> "DM":
+        """
+        Fetch the DM channel associated with this user.
+
+        Args:
+            force: Whether to force a fetch from the API
+        """
+        return await self._client.cache.fetch_dm_channel(self.id, force=force)
 
     def get_dm(self) -> Optional["DM"]:
         """Get the DM channel associated with this user."""
@@ -150,9 +155,15 @@ class User(BaseUser):
         repr=False, default=MISSING, metadata=docs("The user's status"), converter=optional(Status)
     )
 
+    _fetched: bool = attrs.field(repr=False, default=False, metadata=docs("Has the user been fetched?"))
+    """Flag to indicate if a `fetch` api call has been made to get the full user object."""
+
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
         data = super()._process_dict(data, client)
+        if any(field in data for field in ("banner", "accent_color", "avatar_decoration")):
+            data["_fetched"] = True
+
         if "banner" in data:
             data["banner"] = Asset.from_path_hash(client, f"banners/{data['id']}/{{}}", data["banner"])
 

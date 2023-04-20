@@ -1995,7 +1995,7 @@ class Client(
                 sys.modules.pop(name, None)
                 raise ex from e
 
-    async def fetch_guild(self, guild_id: "Snowflake_Type") -> Optional[Guild]:
+    async def fetch_guild(self, guild_id: "Snowflake_Type", *, force: bool = False) -> Optional[Guild]:
         """
         Fetch a guild.
 
@@ -2005,13 +2005,14 @@ class Client(
 
         Args:
             guild_id: The ID of the guild to get
+            force: Whether to poll the API regardless of cache
 
         Returns:
             Guild Object if found, otherwise None
 
         """
         try:
-            return await self.cache.fetch_guild(guild_id)
+            return await self.cache.fetch_guild(guild_id, force=force)
         except NotFound:
             return None
 
@@ -2060,7 +2061,7 @@ class Client(
         guild_data = await self.http.create_guild_from_guild_template(template_code, name, icon)
         return Guild.from_dict(guild_data, self)
 
-    async def fetch_channel(self, channel_id: "Snowflake_Type") -> Optional["TYPE_ALL_CHANNEL"]:
+    async def fetch_channel(self, channel_id: "Snowflake_Type", *, force: bool = False) -> Optional["TYPE_ALL_CHANNEL"]:
         """
         Fetch a channel.
 
@@ -2070,13 +2071,14 @@ class Client(
 
         Args:
             channel_id: The ID of the channel to get
+            force: Whether to poll the API regardless of cache
 
         Returns:
             Channel Object if found, otherwise None
 
         """
         try:
-            return await self.cache.fetch_channel(channel_id)
+            return await self.cache.fetch_channel(channel_id, force=force)
         except NotFound:
             return None
 
@@ -2096,7 +2098,7 @@ class Client(
         """
         return self.cache.get_channel(channel_id)
 
-    async def fetch_user(self, user_id: "Snowflake_Type") -> Optional[User]:
+    async def fetch_user(self, user_id: "Snowflake_Type", *, force: bool = False) -> Optional[User]:
         """
         Fetch a user.
 
@@ -2106,13 +2108,14 @@ class Client(
 
         Args:
             user_id: The ID of the user to get
+            force: Whether to poll the API regardless of cache
 
         Returns:
             User Object if found, otherwise None
 
         """
         try:
-            return await self.cache.fetch_user(user_id)
+            return await self.cache.fetch_user(user_id, force=force)
         except NotFound:
             return None
 
@@ -2132,7 +2135,9 @@ class Client(
         """
         return self.cache.get_user(user_id)
 
-    async def fetch_member(self, user_id: "Snowflake_Type", guild_id: "Snowflake_Type") -> Optional[Member]:
+    async def fetch_member(
+        self, user_id: "Snowflake_Type", guild_id: "Snowflake_Type", *, force: bool = False
+    ) -> Optional[Member]:
         """
         Fetch a member from a guild.
 
@@ -2143,13 +2148,14 @@ class Client(
         Args:
             user_id: The ID of the member
             guild_id: The ID of the guild to get the member from
+            force: Whether to poll the API regardless of cache
 
         Returns:
             Member object if found, otherwise None
 
         """
         try:
-            return await self.cache.fetch_member(guild_id, user_id)
+            return await self.cache.fetch_member(guild_id, user_id, force=force)
         except NotFound:
             return None
 
@@ -2194,20 +2200,23 @@ class Client(
         except NotFound:
             return None
 
-    async def fetch_custom_emoji(self, emoji_id: "Snowflake_Type", guild_id: "Snowflake_Type") -> Optional[CustomEmoji]:
+    async def fetch_custom_emoji(
+        self, emoji_id: "Snowflake_Type", guild_id: "Snowflake_Type", *, force: bool = False
+    ) -> Optional[CustomEmoji]:
         """
         Fetch a custom emoji by id.
 
         Args:
             emoji_id: The id of the custom emoji.
             guild_id: The id of the guild the emoji belongs to.
+            force: Whether to poll the API regardless of cache.
 
         Returns:
             The custom emoji if found, otherwise None.
 
         """
         try:
-            return await self.cache.fetch_emoji(guild_id, emoji_id)
+            return await self.cache.fetch_emoji(guild_id, emoji_id, force=force)
         except NotFound:
             return None
 
