@@ -807,7 +807,7 @@ class ComponentCommand(InteractionCommand):
     name: str = attrs.field(
         repr=False,
     )
-    listeners: list[str] = attrs.field(repr=False, factory=list)
+    listeners: list[str | re.Pattern] = attrs.field(repr=False, factory=list)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -1122,12 +1122,15 @@ def message_context_menu(
     )
 
 
-def component_callback(*custom_id: str) -> Callable[[AsyncCallable], ComponentCommand]:
+def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], ComponentCommand]:
     """
     Register a coroutine as a component callback.
 
     Component callbacks work the same way as commands, just using components as a way of invoking, instead of messages.
     Your callback will be given a single argument, `ComponentContext`
+
+    Note:
+        This can optionally take a regex pattern, which will be used to match against the custom ID of the component
 
     Args:
         *custom_id: The custom ID of the component to wait for
@@ -1141,6 +1144,8 @@ def component_callback(*custom_id: str) -> Callable[[AsyncCallable], ComponentCo
         return ComponentCommand(name=f"ComponentCallback::{custom_id}", callback=func, listeners=custom_id)
 
     custom_id = _unpack_helper(custom_id)
+    if not (all(isinstance(i, re.Pattern) for i in custom_id) or all(isinstance(i, str) for i in custom_id)):
+        raise ValueError("All custom IDs be either a string or a regex pattern, not a mix of both.")
     return wrapper
 
 

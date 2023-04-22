@@ -35,7 +35,7 @@ class UserRequests:
             The user object.
 
         """
-        return await self.request(Route("GET", f"/users/{user_id}"))
+        return await self.request(Route("GET", "/users/{user_id}", user_id=user_id))
 
     async def modify_client_user(self, payload: dict) -> discord_typings.UserData:
         """
@@ -64,7 +64,7 @@ class UserRequests:
             guild_id: The guild to leave from.
 
         """
-        return await self.request(Route("DELETE", f"/users/@me/guilds/{guild_id}"))
+        return await self.request(Route("DELETE", "/users/@me/guilds/{guild_id}", guild_id=guild_id))
 
     async def create_dm(self, recipient_id: "Snowflake_Type") -> discord_typings.DMChannelData:
         """
@@ -113,7 +113,7 @@ class UserRequests:
 
         """
         return await self.request(
-            Route("PUT", f"/channels/{channel_id}/recipients/{user_id}"),
+            Route("PUT", "/channels/{channel_id}/recipients/{user_id}", channel_id=channel_id, user_id=user_id),
             payload={"access_token": access_token, "nick": nick},
         )
 
@@ -126,7 +126,9 @@ class UserRequests:
             user_id: The ID of the user to remove
 
         """
-        return await self.request(Route("DELETE", f"/channels/{channel_id}/recipients/{user_id}"))
+        return await self.request(
+            Route("DELETE", "/channels/{channel_id}/recipients/{user_id}", channel_id=channel_id, user_id=user_id)
+        )
 
     async def modify_current_user_nick(self, guild_id: "Snowflake_Type", nickname: str = None) -> None:
         """
@@ -137,4 +139,6 @@ class UserRequests:
             nickname: The new nickname to use
 
         """
-        return await self.request(Route("PATCH", f"/guilds/{guild_id}/members/@me/nick"), payload={"nick": nickname})
+        return await self.request(
+            Route("PATCH", "/guilds/{guild_id}/members/@me/nick", guild_id=guild_id), payload={"nick": nickname}
+        )

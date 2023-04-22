@@ -41,15 +41,18 @@ class ThreadMember(DiscordObject, SendMixin):
 
     _user_id: "Snowflake_Type" = attrs.field(repr=False, converter=optional(to_snowflake))
 
-    async def fetch_thread(self) -> "TYPE_THREAD_CHANNEL":
+    async def fetch_thread(self, *, force: bool = False) -> "TYPE_THREAD_CHANNEL":
         """
         Fetches the thread associated with with this member.
+
+        Args:
+            force: Whether to force a fetch from the API
 
         Returns:
             The thread in question
 
         """
-        return await self._client.cache.fetch_channel(self.id)
+        return await self._client.cache.fetch_channel(self.id, force=force)
 
     def get_thread(self) -> "TYPE_THREAD_CHANNEL":
         """
@@ -61,15 +64,18 @@ class ThreadMember(DiscordObject, SendMixin):
         """
         return self._client.cache.get_channel(self.id)
 
-    async def fetch_user(self) -> "User":
+    async def fetch_user(self, *, force: bool = False) -> "User":
         """
         Fetch the user associated with this thread member.
+
+        Args:
+            force: Whether to force a fetch from the API
 
         Returns:
             The user object
 
         """
-        return await self._client.cache.fetch_user(self._user_id)
+        return await self._client.cache.fetch_user(self._user_id, force=force)
 
     def get_user(self) -> "User":
         """

@@ -24,7 +24,7 @@ class EmojiRequests(CanRequest):
             List of emoji objects
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/emojis"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/emojis", guild_id=guild_id))
         return cast(list[discord_typings.EmojiData], result)
 
     async def get_guild_emoji(
@@ -41,7 +41,9 @@ class EmojiRequests(CanRequest):
             PartialEmoji object
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/emojis/{int(emoji_id)}"))
+        result = await self.request(
+            Route("GET", "/guilds/{guild_id}/emojis/{emoji_id}", guild_id=guild_id, emoji_id=emoji_id)
+        )
         return cast(discord_typings.EmojiData, result)
 
     async def create_guild_emoji(
@@ -59,7 +61,10 @@ class EmojiRequests(CanRequest):
             The created emoji object
 
         """
-        result = await self.request(Route("POST", f"/guilds/{int(guild_id)}/emojis"), payload=payload, reason=reason)
+        result = await self.request(
+            Route("POST", "/guilds/{guild_id}/emojis", guild_id=guild_id), payload=payload, reason=reason
+        )
+
         return cast(discord_typings.EmojiData, result)
 
     async def modify_guild_emoji(
@@ -83,7 +88,7 @@ class EmojiRequests(CanRequest):
 
         """
         result = await self.request(
-            Route("PATCH", f"/guilds/{int(guild_id)}/emojis/{int(emoji_id)}"),
+            Route("PATCH", "/guilds/{guild_id}/emojis/{emoji_id}", guild_id=guild_id, emoji_id=emoji_id),
             payload=payload,
             reason=reason,
         )
@@ -101,4 +106,7 @@ class EmojiRequests(CanRequest):
             reason: The reason for this deletion
 
         """
-        await self.request(Route("DELETE", f"/guilds/{int(guild_id)}/emojis/{int(emoji_id)}"), reason=reason)
+        await self.request(
+            Route("DELETE", "/guilds/{guild_id}/emojis/{emoji_id}", guild_id=guild_id, emoji_id=emoji_id),
+            reason=reason,
+        )

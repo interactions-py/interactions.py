@@ -1,3 +1,4 @@
+import re
 from typing import TYPE_CHECKING, Optional, Union
 
 import attrs
@@ -74,7 +75,9 @@ class Asset:
     @property
     def animated(self) -> bool:
         """True if this asset is animated."""
-        return bool(self.hash) and self.hash.startswith("a_")
+        # damn hashes with version numbers
+        _hash = re.sub(r"^v\d+_", "", self.hash or "")
+        return bool(self.hash) and _hash.startswith("a_")
 
     async def fetch(self, extension: Optional[str] = None, size: Optional[int] = None) -> bytes:
         """

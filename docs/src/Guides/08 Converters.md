@@ -27,12 +27,12 @@ class DatabaseEntry():
     required=True,
     opt_type=OptionType.STRING
 )
-async def my_command_function(ctx: InteractionContext, thing: DatabaseEntry):
+async def my_command_function(ctx: SlashContext, thing: DatabaseEntry):
     await ctx.send(f"***{thing.name}***\n{thing.description}\nScore: {thing.score}/10")
 
 # Prefixed Command:
 @prefixed_command()
-async def my_command_function(ctx: InteractionContext, thing: DatabaseEntry):
+async def my_command_function(ctx: SlashContext, thing: DatabaseEntry):
     await ctx.reply(f"***{thing.name}***\n{thing.description}\nScore: {thing.score}/10")
 ```
 
@@ -43,6 +43,8 @@ As you can see, a converter can transparently convert what Discord sends you (a 
 You may also use the `Converter` class that `interactions.py` has as well.
 
 ```python
+from interactions import Converter
+
 class UpperConverter(Converter):
     async def convert(ctx: BaseContext, argument: str):
         return argument.upper()
@@ -55,7 +57,7 @@ class UpperConverter(Converter):
     required=True,
     opt_type=OptionType.STRING
 )
-async def upper(ctx: InteractionContext, to_upper: UpperConverter):
+async def upper(ctx: SlashContext, to_upper: UpperConverter):
     await ctx.send(to_upper)
 
 # Prefixed Command:
@@ -102,6 +104,8 @@ A table of objects and their respective converter is as follows:
 Using `typing.Annotated` can allow you to have more proper typehints when using converters:
 
 ```python
+from typing import Annotated
+
 class UpperConverter(Converter):
     async def convert(ctx: BaseContext, argument: str):
         return argument.upper()
@@ -114,7 +118,7 @@ class UpperConverter(Converter):
     required=True,
     opt_type=OptionType.STRING
 )
-async def upper(ctx: InteractionContext, to_upper: Annotated[str, UpperConverter]):
+async def upper(ctx: SlashContext, to_upper: Annotated[str, UpperConverter]):
     await ctx.send(to_upper)
 
 # Prefixed Command:

@@ -45,15 +45,18 @@ class Sticker(StickerItem):
     _user_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
     _guild_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
 
-    async def fetch_creator(self) -> "User":
+    async def fetch_creator(self, *, force: bool = False) -> "User":
         """
         Fetch the user who created this emoji.
+
+        Args:
+            force: Whether to force a fetch from the API
 
         Returns:
             User object
 
         """
-        return await self._client.cache.fetch_user(self._user_id)
+        return await self._client.cache.fetch_user(self._user_id, force=force)
 
     def get_creator(self) -> "User":
         """
@@ -65,15 +68,18 @@ class Sticker(StickerItem):
         """
         return self._client.cache.get_user(self._user_id)
 
-    async def fetch_guild(self) -> "Guild":
+    async def fetch_guild(self, *, force: bool = False) -> "Guild":
         """
         Fetch the guild associated with this emoji.
+
+        Args:
+            force: Whether to force a fetch from the API
 
         Returns:
             Guild object
 
         """
-        return await self._client.cache.fetch_guild(self._guild_id)
+        return await self._client.cache.fetch_guild(self._guild_id, force=force)
 
     def get_guild(self) -> "Guild":
         """

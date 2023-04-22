@@ -54,8 +54,8 @@ class GuildRequests(CanRequest):
             a guild object
 
         """
-        params = {"with_counts": int(with_counts)}
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}"), params=params)
+        params = {"guild_id": guild_id, "with_counts": int(with_counts)}
+        result = await self.request(Route("GET", "/guilds/{guild_id}"), params=params)
         return cast(discord_typings.GuildData, result)
 
     async def get_guild_preview(self, guild_id: "Snowflake_Type") -> discord_typings.GuildPreviewData:
@@ -69,7 +69,7 @@ class GuildRequests(CanRequest):
             guild preview object
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/preview"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/preview", guild_id=guild_id))
         return cast(discord_typings.GuildPreviewData, result)
 
     async def get_channels(self, guild_id: "Snowflake_Type") -> list[discord_typings.ChannelData]:
@@ -83,7 +83,7 @@ class GuildRequests(CanRequest):
             List of channels
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/channels"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/channels", guild_id=guild_id))
         return cast(list[discord_typings.ChannelData], result)
 
     async def get_roles(self, guild_id: "Snowflake_Type") -> list[discord_typings.RoleData]:
@@ -97,7 +97,7 @@ class GuildRequests(CanRequest):
             List of roles
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/roles"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/roles", guild_id=guild_id))
         return cast(list[discord_typings.RoleData], result)
 
     async def modify_guild(
@@ -140,7 +140,7 @@ class GuildRequests(CanRequest):
 
         # only do the request if there is something to modify
         if payload:
-            await self.request(Route("PATCH", f"/guilds/{int(guild_id)}"), payload=payload, reason=reason)
+            await self.request(Route("PATCH", "/guilds/{guild_id}", guild_id=guild_id), payload=payload, reason=reason)
 
     async def delete_guild(self, guild_id: "Snowflake_Type") -> None:
         """
@@ -150,7 +150,7 @@ class GuildRequests(CanRequest):
             guild_id: The ID of the guild that we want to delete
 
         """
-        await self.request(Route("DELETE", f"/guilds/{int(guild_id)}"))
+        await self.request(Route("DELETE", "/guilds/{guild_id}", guild_id=guild_id))
 
     async def add_guild_member(
         self,
@@ -187,8 +187,7 @@ class GuildRequests(CanRequest):
         payload = dict_filter_none(payload)
 
         result = await self.request(
-            Route("PUT", f"/guilds/{int(guild_id)}/members/{int(user_id)}"),
-            payload=payload,
+            Route("PUT", "/guilds/{guild_id}/members/{user_id}", guild_id=guild_id, user_id=user_id), payload=payload
         )
         return cast(discord_typings.GuildMemberData, result)
 
@@ -204,7 +203,9 @@ class GuildRequests(CanRequest):
             reason: The reason for this action
 
         """
-        await self.request(Route("DELETE", f"/guilds/{int(guild_id)}/members/{int(user_id)}"), reason=reason)
+        await self.request(
+            Route("DELETE", "/guilds/{guild_id}/members/{user_id}", guild_id=guild_id, user_id=user_id), reason=reason
+        )
 
     async def get_guild_bans(
         self,
@@ -233,7 +234,7 @@ class GuildRequests(CanRequest):
         }
         params = dict_filter_none(params)
 
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/bans"), params=params)
+        result = await self.request(Route("GET", "/guilds/{guild_id}/bans", guild_id=guild_id), params=params)
         return cast(list[discord_typings.BanData], result)
 
     async def get_guild_ban(self, guild_id: "Snowflake_Type", user_id: "Snowflake_Type") -> discord_typings.BanData:
@@ -251,7 +252,9 @@ class GuildRequests(CanRequest):
             NotFound: if no ban exists
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/bans/{int(user_id)}"))
+        result = await self.request(
+            Route("GET", "/guilds/{guild_id}/bans/{user_id}", guild_id=guild_id, user_id=user_id)
+        )
         return cast(discord_typings.BanData, result)
 
     async def create_guild_ban(
@@ -273,7 +276,7 @@ class GuildRequests(CanRequest):
         """
         payload = {"delete_message_seconds": delete_message_seconds}
         await self.request(
-            Route("PUT", f"/guilds/{int(guild_id)}/bans/{int(user_id)}"),
+            Route("PUT", "/guilds/{guild_id}/bans/{user_id}", guild_id=guild_id, user_id=user_id),
             payload=payload,
             reason=reason,
         )
@@ -290,7 +293,9 @@ class GuildRequests(CanRequest):
             reason: The reason for this action
 
         """
-        await self.request(Route("DELETE", f"/guilds/{int(guild_id)}/bans/{int(user_id)}"), reason=reason)
+        await self.request(
+            Route("DELETE", "/guilds/{guild_id}/bans/{user_id}", guild_id=guild_id, user_id=user_id), reason=reason
+        )
 
     async def get_guild_prune_count(
         self,
@@ -316,7 +321,7 @@ class GuildRequests(CanRequest):
         }
         params = dict_filter_none(params)
 
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/prune"), params=params)
+        result = await self.request(Route("GET", "/guilds/{guild_id}/prune", guild_id=guild_id), params=params)
         return cast(dict, result)  # todo revisit, create TypedDict for pruned
 
     async def begin_guild_prune(
@@ -348,7 +353,9 @@ class GuildRequests(CanRequest):
         }
         payload = dict_filter_none(payload)
 
-        result = await self.request(Route("POST", f"/guilds/{int(guild_id)}/prune"), payload=payload, reason=reason)
+        result = await self.request(
+            Route("POST", "/guilds/{guild_id}/prune", guild_id=guild_id), payload=payload, reason=reason
+        )
         return cast(dict, result)  # todo revisit, create TypedDict for pruned
 
     async def get_guild_invites(self, guild_id: "Snowflake_Type") -> list[discord_typings.InviteData]:
@@ -362,7 +369,7 @@ class GuildRequests(CanRequest):
             List of invite objects
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/invites"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/invites", guild_id=guild_id))
         return cast(list[discord_typings.InviteData], result)
 
     async def create_guild_role(
@@ -380,7 +387,9 @@ class GuildRequests(CanRequest):
             Role object
 
         """
-        result = await self.request(Route("POST", f"/guilds/{int(guild_id)}/roles"), payload=payload, reason=reason)
+        result = await self.request(
+            Route("POST", "/guilds/{guild_id}/roles", guild_id=guild_id), payload=payload, reason=reason
+        )
         return cast(discord_typings.RoleData, result)
 
     async def modify_guild_role_positions(
@@ -407,7 +416,9 @@ class GuildRequests(CanRequest):
         payload: PAYLOAD_TYPE = [
             {"id": int(role["id"]), "position": int(role["position"])} for role in position_changes
         ]
-        result = await self.request(Route("PATCH", f"/guilds/{int(guild_id)}/roles"), payload=payload, reason=reason)
+        result = await self.request(
+            Route("PATCH", "/guilds/{guild_id}/roles", guild_id=guild_id), payload=payload, reason=reason
+        )
         return cast(list[discord_typings.RoleData], result)
 
     async def modify_guild_role(
@@ -431,7 +442,7 @@ class GuildRequests(CanRequest):
 
         """
         result = await self.request(
-            Route("PATCH", f"/guilds/{int(guild_id)}/roles/{int(role_id)}"),
+            Route("PATCH", "/guilds/{guild_id}/roles/{role_id}", guild_id=guild_id, role_id=role_id),
             payload=payload,
             reason=reason,
         )
@@ -449,7 +460,9 @@ class GuildRequests(CanRequest):
             guild_id: The ID of the guild
 
         """
-        await self.request(Route("DELETE", f"/guilds/{int(guild_id)}/roles/{int(role_id)}"), reason=reason)
+        await self.request(
+            Route("DELETE", "/guilds/{guild_id}/roles/{role_id}", guild_id=guild_id, role_id=role_id), reason=reason
+        )
 
     async def get_audit_log(
         self,
@@ -484,7 +497,7 @@ class GuildRequests(CanRequest):
         }
         params = dict_filter_none(params)
 
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/audit-logs"), params=params)
+        result = await self.request(Route("GET", "/guilds/{guild_id}/audit-logs", guild_id=guild_id), params=params)
         return cast(discord_typings.AuditLogData, result)
 
     async def get_guild_voice_regions(self, guild_id: "Snowflake_Type") -> list[discord_typings.VoiceRegionData]:
@@ -498,7 +511,7 @@ class GuildRequests(CanRequest):
             List of voice region objects
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/regions"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/regions", guild_id=guild_id))
         return cast(list[discord_typings.VoiceRegionData], result)
 
     async def get_guild_integrations(self, guild_id: "Snowflake_Type") -> list[discord_typings.IntegrationData]:
@@ -512,7 +525,7 @@ class GuildRequests(CanRequest):
             list of integration objects
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/integrations"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/integrations", guild_id=guild_id))
         return cast(list[discord_typings.IntegrationData], result)
 
     async def delete_guild_integration(
@@ -531,7 +544,12 @@ class GuildRequests(CanRequest):
 
         """
         await self.request(
-            Route("DELETE", f"/guilds/{int(guild_id)}/integrations/{int(integration_id)}"),
+            Route(
+                "DELETE",
+                "/guilds/{guild_id}/integrations/{integration_id}",
+                guild_id=guild_id,
+                integration_id=integration_id,
+            ),
             reason=reason,
         )
 
@@ -546,7 +564,7 @@ class GuildRequests(CanRequest):
             guild widget object
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/widget"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/widget", guild_id=guild_id))
         return cast(discord_typings.GuildWidgetSettingsData, result)
 
     async def get_guild_widget(self, guild_id: "Snowflake_Type") -> discord_typings.GuildWidgetData:
@@ -560,7 +578,7 @@ class GuildRequests(CanRequest):
             Guild widget
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/widget.json"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/widget.json", guild_id=guild_id))
         return cast(discord_typings.GuildWidgetData, result)
 
     async def get_guild_widget_image(self, guild_id: "Snowflake_Type", style: str | None = None) -> str:
@@ -577,7 +595,9 @@ class GuildRequests(CanRequest):
             A url pointing to this image
 
         """
-        route = Route("GET", f"/guilds/{int(guild_id)}/widget.png{f'?style={style}' if style else ''}")
+        route = Route(
+            "GET", "/guilds/{guild_id}/widget.png{style}", guild_id=guild_id, style="?style={style}" if style else ""
+        )
         return route.url
 
     async def get_guild_welcome_screen(self, guild_id: "Snowflake_Type") -> discord_typings.WelcomeScreenData:
@@ -590,7 +610,7 @@ class GuildRequests(CanRequest):
             Welcome screen object
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/welcome-screen"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/welcome-screen", guild_id=guild_id))
         return cast(discord_typings.WelcomeScreenData, result)
 
     async def get_guild_vanity_url(self, guild_id: "Snowflake_Type") -> dict:
@@ -604,7 +624,7 @@ class GuildRequests(CanRequest):
             Returns a partial invite object. Code is None if a vanity url for the guild is not set.
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/vanity-url"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/vanity-url", guild_id=guild_id))
         return cast(dict, result)  # todo create typing?
 
     async def get_guild_channels(
@@ -619,7 +639,7 @@ class GuildRequests(CanRequest):
         Returns:
             A list of channels in this guild. Does not include threads.
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/channels"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/channels", guild_id=guild_id))
         return cast(list[discord_typings.ChannelData], result)
 
     async def modify_guild_widget(
@@ -646,7 +666,7 @@ class GuildRequests(CanRequest):
         }
         payload = dict_filter_none(payload)
 
-        result = await self.request(Route("PATCH", f"/guilds/{int(guild_id)}/widget"), payload=payload)
+        result = await self.request(Route("PATCH", "/guilds/{guild_id}/widget", guild_id=guild_id), payload=payload)
         return cast(discord_typings.GuildWidgetData, result)
 
     async def modify_guild_welcome_screen(
@@ -674,7 +694,9 @@ class GuildRequests(CanRequest):
             "welcome_channels": [int(channel) for channel in welcome_channels],
             "description": description,
         }
-        result = await self.request(Route("PATCH", f"/guilds/{int(guild_id)}/welcome-screen"), payload=payload)
+        result = await self.request(
+            Route("PATCH", "/guilds/{guild_id}/welcome-screen", guild_id=guild_id), payload=payload
+        )
         return cast(discord_typings.WelcomeScreenData, result)
 
     async def modify_current_user_voice_state(
@@ -701,7 +723,7 @@ class GuildRequests(CanRequest):
         }
         payload = dict_filter_none(payload)
 
-        await self.request(Route("PATCH", f"/guilds/{int(guild_id)}/voice-states/@me"), payload=payload)
+        await self.request(Route("PATCH", "/guilds/{guild_id}/voice-states/@me", guild_id=guild_id), payload=payload)
 
     async def modify_user_voice_state(
         self,
@@ -726,7 +748,10 @@ class GuildRequests(CanRequest):
         }
         payload = dict_filter_none(payload)
 
-        await self.request(Route("PATCH", f"/guilds/{int(guild_id)}/voice-states/{user_id}"), payload=payload)
+        await self.request(
+            Route("PATCH", "/guilds/{guild_id}/voice-states/{user_id}", guild_id=guild_id, user_id=user_id),
+            payload=payload,
+        )
 
     async def create_guild(
         self,
@@ -780,7 +805,9 @@ class GuildRequests(CanRequest):
         """
         payload = {"name": name, "icon": icon}
 
-        result = await self.request(Route("POST", f"/guilds/templates/{template_code}"), payload=payload)
+        result = await self.request(
+            Route("POST", "/guilds/templates/{template_code}", template_code=template_code), payload=payload
+        )
         return cast(discord_typings.GuildData, result)
 
     async def get_guild_templates(self, guild_id: "Snowflake_Type") -> list[discord_typings.GuildTemplateData]:
@@ -794,7 +821,7 @@ class GuildRequests(CanRequest):
             An array of guild templates
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/templates"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/templates", guild_id=guild_id))
         return cast(list[discord_typings.GuildTemplateData], result)
 
     async def create_guild_template(
@@ -815,7 +842,7 @@ class GuildRequests(CanRequest):
         payload = {"name": name, "description": description}
         payload = dict_filter_none(payload)
 
-        result = await self.request(Route("POST", f"/guilds/{int(guild_id)}/templates"), payload=payload)
+        result = await self.request(Route("POST", "/guilds/{guild_id}/templates", guild_id=guild_id), payload=payload)
         return cast(discord_typings.GuildTemplateData, result)
 
     async def sync_guild_template(
@@ -832,7 +859,9 @@ class GuildRequests(CanRequest):
             The updated guild template
 
         """
-        result = await self.request(Route("PUT", f"/guilds/{int(guild_id)}/templates/{template_code}"))
+        result = await self.request(
+            Route("PUT", "/guilds/{guild_id}/templates/{template_code}", guild_id=guild_id, template_code=template_code)
+        )
         return cast(discord_typings.GuildTemplateData, result)
 
     async def modify_guild_template(
@@ -859,7 +888,10 @@ class GuildRequests(CanRequest):
         payload = dict_filter_none(payload)
 
         result = await self.request(
-            Route("PATCH", f"/guilds/{int(guild_id)}/templates/{template_code}"), payload=payload
+            Route(
+                "PATCH", "/guilds/{guild_id}/templates/{template_code}", guild_id=guild_id, template_code=template_code
+            ),
+            payload=payload,
         )
         return cast(discord_typings.GuildTemplateData, result)
 
@@ -878,7 +910,11 @@ class GuildRequests(CanRequest):
 
         """
         # why on earth does this return the deleted template object?
-        result = await self.request(Route("DELETE", f"/guilds/{int(guild_id)}/templates/{template_code}"))
+        result = await self.request(
+            Route(
+                "DELETE", "/guilds/{guild_id}/templates/{template_code}", guild_id=guild_id, template_code=template_code
+            )
+        )
         return cast(discord_typings.GuildTemplateData, result)
 
     async def get_auto_moderation_rules(
@@ -893,7 +929,7 @@ class GuildRequests(CanRequest):
         Returns:
             A list of auto moderation rules
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/auto-moderation/rules"))
+        result = await self.request(Route("GET", "/guilds/{guild_id}/auto-moderation/rules", guild_id=guild_id))
         return cast(list[dict], result)
 
     async def get_auto_moderation_rule(
@@ -909,7 +945,9 @@ class GuildRequests(CanRequest):
         Returns:
             The auto moderation rule
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/auto-moderation/rules/{int(rule_id)}"))
+        result = await self.request(
+            Route("GET", "/guilds/{guild_id}/auto-moderation/rules/{rule_id}", guild_id=guild_id, rule_id=rule_id)
+        )
         return cast(dict, result)
 
     async def create_auto_moderation_rule(
@@ -925,7 +963,9 @@ class GuildRequests(CanRequest):
         Returns:
             The created auto moderation rule
         """
-        result = await self.request(Route("POST", f"/guilds/{int(guild_id)}/auto-moderation/rules"), payload=payload)
+        result = await self.request(
+            Route("POST", "/guilds/{guild_id}/auto-moderation/rules", guild_id=guild_id), payload=payload
+        )
         return cast(dict, result)
 
     async def modify_auto_moderation_rule(
@@ -974,7 +1014,7 @@ class GuildRequests(CanRequest):
         payload = dict_filter_none(payload)
 
         result = await self.request(
-            Route("PATCH", f"/guilds/{int(guild_id)}/auto-moderation/rules/{int(rule_id)}"),
+            Route("PATCH", "/guilds/{guild_id}/auto-moderation/rules/{rule_id}", guild_id=guild_id, rule_id=rule_id),
             payload=payload,
             reason=reason,
         )
@@ -992,7 +1032,7 @@ class GuildRequests(CanRequest):
             reason: The reason for deleting this rule
         """
         result = await self.request(
-            Route("DELETE", f"/guilds/{int(guild_id)}/auto-moderation/rules/{int(rule_id)}"),
+            Route("DELETE", "/guilds/{guild_id}/auto-moderation/rules/{rule_id}", guild_id=guild_id, rule_id=rule_id),
             reason=reason,
         )
         return cast(dict, result)

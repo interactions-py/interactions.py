@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "discord-py-interactions"
-version = "5.0.1"
+name = "interactions.py"
+version = "5.1.0"
 description = "Easy, simple, scalable and modular: a Python API wrapper for interactions."
 authors = [
     "LordOfPolls <dev@lordofpolls.com>",

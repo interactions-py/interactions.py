@@ -33,7 +33,7 @@ class MessageRequests(CanRequest):
 
         """
         result = await self.request(
-            Route("POST", f"/channels/{int(channel_id)}/messages"), payload=payload, files=files
+            Route("POST", "/channels/{channel_id}/messages", channel_id=channel_id), payload=payload, files=files
         )
         return cast(discord_typings.MessageData, result)
 
@@ -50,7 +50,9 @@ class MessageRequests(CanRequest):
 
         """
         await self.request(
-            Route("DELETE", f"/channels/{int(channel_id)}/messages/{int(message_id)}"),
+            Route(
+                "DELETE", "/channels/{channel_id}/messages/{message_id}", channel_id=channel_id, message_id=message_id
+            ),
             reason=reason,
         )
 
@@ -72,7 +74,7 @@ class MessageRequests(CanRequest):
         payload = {"messages": [int(message_id) for message_id in message_ids]}
 
         await self.request(
-            Route("POST", f"/channels/{int(channel_id)}/messages/bulk-delete"),
+            Route("POST", "/channels/{channel_id}/messages/bulk-delete", channel_id=channel_id),
             payload=payload,
             reason=reason,
         )
@@ -91,7 +93,9 @@ class MessageRequests(CanRequest):
             message or None
 
         """
-        result = await self.request(Route("GET", f"/channels/{int(channel_id)}/messages/{int(message_id)}"))
+        result = await self.request(
+            Route("GET", "/channels/{channel_id}/messages/{message_id}", channel_id=channel_id, message_id=message_id)
+        )
         return cast(discord_typings.MessageData, result)
 
     async def pin_message(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type") -> None:
@@ -103,7 +107,9 @@ class MessageRequests(CanRequest):
             message_id: Message to pin
 
         """
-        await self.request(Route("PUT", f"/channels/{int(channel_id)}/pins/{int(message_id)}"))
+        await self.request(
+            Route("PUT", "/channels/{channel_id}/pins/{message_id}", channel_id=channel_id, message_id=message_id)
+        )
 
     async def unpin_message(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type") -> None:
         """
@@ -114,7 +120,9 @@ class MessageRequests(CanRequest):
             message_id: Message to unpin
 
         """
-        await self.request(Route("DELETE", f"/channels/{int(channel_id)}/pins/{int(message_id)}"))
+        await self.request(
+            Route("DELETE", "/channels/{channel_id}/pins/{message_id}", channel_id=channel_id, message_id=message_id)
+        )
 
     async def edit_message(
         self,
@@ -137,7 +145,9 @@ class MessageRequests(CanRequest):
 
         """
         result = await self.request(
-            Route("PATCH", f"/channels/{int(channel_id)}/messages/{int(message_id)}"),
+            Route(
+                "PATCH", "/channels/{channel_id}/messages/{message_id}", channel_id=channel_id, message_id=message_id
+            ),
             payload=payload,
             files=files,
         )
@@ -156,5 +166,12 @@ class MessageRequests(CanRequest):
             message object
 
         """
-        result = await self.request(Route("POST", f"/channels/{int(channel_id)}/messages/{int(message_id)}/crosspost"))
+        result = await self.request(
+            Route(
+                "POST",
+                "/channels/{channel_id}/messages/{message_id}/crosspost",
+                channel_id=channel_id,
+                message_id=message_id,
+            )
+        )
         return cast(discord_typings.MessageData, result)

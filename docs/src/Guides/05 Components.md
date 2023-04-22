@@ -10,6 +10,8 @@ If you want to define the layout yourself, you have to put them in an `ActionRow
 
 === ":one: `ActionRow()`"
     ```python
+    from interactions import ActionRow, Button
+
     components: list[ActionRow] = [
         ActionRow(
             Button(
@@ -28,6 +30,8 @@ If you want to define the layout yourself, you have to put them in an `ActionRow
 
 === ":two: `spread_to_rows()`"
     ```python
+    from interactions import ActionRow, Button, spread_to_rows
+
     components: list[ActionRow] = spread_to_rows(
         Button(
             style=ButtonStyle.GREEN,
@@ -47,6 +51,8 @@ If you want to define the layout yourself, you have to put them in an `ActionRow
     We will put it in an `ActionRow` behind the scenes.
 
     ```python
+    from interactions import Button
+
     components = Button(
         style=ButtonStyle.GREEN,
         label="Click Me",
@@ -84,6 +90,8 @@ The colours correspond to the styles found in `ButtonStyle`. Click [here](/inter
 
 If you use `ButtonStyle.URL`, you can pass an url to the button with `url`. Users who click the button will get redirected to your url.
 ```python
+from interactions import ButtonStyle
+
 components = Button(
     style=ButtonStyle.URL,
     label="Click Me",
@@ -117,7 +125,7 @@ components = StringSelectMenu(
 
 await channel.send("Look a Select!", components=components)
 ```
-??? note
+???+ note
     You can only have upto 25 options in a Select
 
 Alternatively, you can use `RoleSelectMenu`, `UserSelectMenu` and `ChannelSelectMenu` to select roles, users and channels respectively. These select menus are very similar to `StringSelectMenu`, but they don't allow you to pass a list of options; it's all done behind the scenes.
@@ -142,6 +150,8 @@ When responding to a component you need to satisfy discord either by responding 
     In this example, we are checking that the username starts with "a" and clicks the button within 30 seconds.
     If it times out, we're just gonna disable it
     ```python
+    from asyncio import TimeoutError
+
     components = Button(
         custom_id="my_button_id",
         style=ButtonStyle.GREEN,
@@ -178,6 +188,8 @@ When responding to a component you need to satisfy discord either by responding 
     You can listen to the `on_component()` event and then handle your callback. This works even after restarts!
 
     ```python
+    from interactions.api.events import Component
+
     async def my_command(...):
         components = Button(
             custom_id="my_button_id",
@@ -204,6 +216,8 @@ When responding to a component you need to satisfy discord either by responding 
     You have to pass your `custom_id` to `@component_callback(custom_id)` for the library to be able to register the callback function to the wanted component.
 
     ```python
+    from interactions import component_callback, ComponentContext
+
     async def my_command(...):
         components = Button(
             custom_id="my_button_id",
@@ -225,6 +239,8 @@ When responding to a component you need to satisfy discord either by responding 
     For this example to work, the function name needs to be the same as the `custom_id` of the component.
 
     ```python
+    from interactions import ComponentCommand, ComponentContext
+
     async def my_command(...):
         components = Button(
             custom_id="my_button_id",
@@ -250,3 +266,20 @@ When responding to a component you need to satisfy discord either by responding 
             )
         )
     ```
+
+=== ":four: Persistent Callbacks, with regex"
+    Ah, I see you are a masochist. You want to use regex to match your custom_ids. Well who am I to stop you?
+
+    ```python
+    import re
+    from interactions import component_callback, ComponentContext
+
+    @component_callback(re.compile(r"\w*"))
+    async def test_callback(ctx: ComponentContext):
+        await ctx.send(f"Clicked {ctx.custom_id}")
+    ```
+
+    Just like normal `@component_callback`, you can specify a regex pattern to match your custom_ids, instead of explicitly passing strings.
+    This is useful if you have a lot of components with similar custom_ids, and you want to handle them all in the same callback.
+
+    Please do bare in mind that using regex patterns can be a bit slower than using strings, especially if you have a lot of components.

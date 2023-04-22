@@ -28,7 +28,9 @@ class MemberRequests(CanRequest):
             user_id: The user id to grab
 
         """
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/members/{int(user_id)}"))
+        result = await self.request(
+            Route("GET", "/guilds/{guild_id}/members/{user_id}", guild_id=guild_id, user_id=user_id)
+        )
         return cast(discord_typings.GuildMemberData, result)
 
     async def list_members(
@@ -49,7 +51,7 @@ class MemberRequests(CanRequest):
         }
         payload = dict_filter_none(payload)
 
-        result = await self.request(Route("GET", f"/guilds/{int(guild_id)}/members"), params=payload)
+        result = await self.request(Route("GET", "/guilds/{guild_id}/members", guild_id=guild_id), params=payload)
         return cast(list[discord_typings.GuildMemberData], result)
 
     async def search_guild_members(
@@ -65,7 +67,7 @@ class MemberRequests(CanRequest):
 
         """
         result = await self.request(
-            Route("GET", f"/guilds/{int(guild_id)}/members/search"),
+            Route("GET", "/guilds/{guild_id}/members/search", guild_id=guild_id),
             params={"query": query, "limit": limit},
         )
         return cast(list[discord_typings.GuildMemberData], result)
@@ -117,7 +119,7 @@ class MemberRequests(CanRequest):
             payload["communication_disabled_until"] = communication_disabled_until
 
         result = await self.request(
-            Route("PATCH", f"/guilds/{int(guild_id)}/members/{int(user_id)}"),
+            Route("PATCH", "/guilds/{guild_id}/members/{user_id}", guild_id=guild_id, user_id=user_id),
             payload=payload,
             reason=reason,
         )
@@ -140,7 +142,7 @@ class MemberRequests(CanRequest):
         """
         payload: PAYLOAD_TYPE = {"nick": None if isinstance(nickname, Missing) else nickname}
         await self.request(
-            Route("PATCH", f"/guilds/{int(guild_id)}/members/@me"),
+            Route("PATCH", "/guilds/{guild_id}/members/@me", guild_id=guild_id),
             payload=payload,
             reason=reason,
         )
@@ -163,7 +165,13 @@ class MemberRequests(CanRequest):
 
         """
         await self.request(
-            Route("PUT", f"/guilds/{int(guild_id)}/members/{int(user_id)}/roles/{int(role_id)}"),
+            Route(
+                "PUT",
+                "/guilds/{guild_id}/members/{user_id}/roles/{role_id}",
+                guild_id=guild_id,
+                user_id=user_id,
+                role_id=role_id,
+            ),
             reason=reason,
         )
 
@@ -185,6 +193,12 @@ class MemberRequests(CanRequest):
 
         """
         await self.request(
-            Route("DELETE", f"/guilds/{int(guild_id)}/members/{int(user_id)}/roles/{int(role_id)}"),
+            Route(
+                "DELETE",
+                "/guilds/{guild_id}/members/{user_id}/roles/{role_id}",
+                guild_id=guild_id,
+                user_id=user_id,
+                role_id=role_id,
+            ),
             reason=reason,
         )

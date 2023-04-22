@@ -38,7 +38,7 @@ import logging
 import os
 import sys
 from collections import defaultdict
-from importlib.metadata import version as _v
+from importlib.metadata import version as _v, PackageNotFoundError
 from typing import TypeVar, Union, Callable, Coroutine
 
 __all__ = (
@@ -82,10 +82,15 @@ __all__ = (
 
 _ver_info = sys.version_info
 
-try:
-    __version__ = _v("interactions")
-except Exception:
-    __version__ = "0.0.0"
+repo_names = ("interactions.py", "discord-py-interactions")
+for repo_name in repo_names:
+    try:
+        __version__ = _v(repo_name)
+        break
+    except PackageNotFoundError:
+        __version__ = "0.0.0"
+
+
 __repo_url__ = "https://github.com/interactions-py/interactions.py"
 __py_version__ = f"{_ver_info[0]}.{_ver_info[1]}"
 __api_version__ = 10
