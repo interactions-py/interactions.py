@@ -556,6 +556,7 @@ class ThreadableMixin:
         message: Absent[Snowflake_Type] = MISSING,
         thread_type: Absent[ChannelType] = MISSING,
         invitable: Absent[bool] = MISSING,
+        rate_limit_per_user: Absent[int] = MISSING,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
         reason: Absent[str] = None,
     ) -> "TYPE_THREAD_CHANNEL":
@@ -567,6 +568,7 @@ class ThreadableMixin:
             message: The message to connect this thread to. Required for news channel.
             thread_type: Is the thread private or public. Not applicable to news channel, it will always be GUILD_NEWS_THREAD.
             invitable: whether non-moderators can add other non-moderators to a thread. Only applicable when creating a private thread.
+            rate_limit_per_user: The time users must wait between sending messages (0-21600).
             auto_archive_duration: Time before the thread will be automatically archived. Note 3 day and 7 day archive durations require the server to be boosted.
             reason: The reason for creating this thread.
 
@@ -588,6 +590,7 @@ class ThreadableMixin:
             name=name,
             thread_type=thread_type,
             invitable=invitable,
+            rate_limit_per_user=rate_limit_per_user,
             auto_archive_duration=auto_archive_duration,
             message_id=to_optional_snowflake(message),
             reason=reason,
@@ -1740,6 +1743,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         self,
         name: str,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
+        rate_limit_per_user: Absent[int] = MISSING,
         reason: Absent[str] = None,
     ) -> "GuildPublicThread":
         """
@@ -1748,6 +1752,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         Args:
             name: 1-100 character thread name.
             auto_archive_duration: Time before the thread will be automatically archived. Note 3 day and 7 day archive durations require the server to be boosted.
+            rate_limit_per_user: The time users must wait between sending messages (0-21600).
             reason: The reason for creating this thread.
 
         Returns:
@@ -1758,6 +1763,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
             name=name,
             thread_type=ChannelType.GUILD_PUBLIC_THREAD,
             auto_archive_duration=auto_archive_duration,
+            rate_limit_per_user=rate_limit_per_user,
             reason=reason,
         )
 
@@ -1766,6 +1772,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         name: str,
         invitable: Absent[bool] = MISSING,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
+        rate_limit_per_user: Absent[int] = MISSING,
         reason: Absent[str] = None,
     ) -> "GuildPrivateThread":
         """
@@ -1773,7 +1780,8 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
 
         Args:
             name: 1-100 character thread name.
-            invitable: whether non-moderators can add other non-moderators to a thread.
+            invitable: Whether non-moderators can add other non-moderators to a thread.
+            rate_limit_per_user: The time users must wait between sending messages (0-21600).
             auto_archive_duration: Time before the thread will be automatically archived. Note 3 day and 7 day archive durations require the server to be boosted.
             reason: The reason for creating this thread.
 
@@ -1785,6 +1793,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
             name=name,
             thread_type=ChannelType.GUILD_PRIVATE_THREAD,
             invitable=invitable,
+            rate_limit_per_user=rate_limit_per_user,
             auto_archive_duration=auto_archive_duration,
             reason=reason,
         )
