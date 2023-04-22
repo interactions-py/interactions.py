@@ -16,15 +16,7 @@ from interactions.models.discord.enums import (
 from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 
 if TYPE_CHECKING:
-    from interactions import (
-        Snowflake_Type,
-        Guild,
-        GuildText,
-        Message,
-        Client,
-        Member,
-        User
-    )
+    from interactions import Snowflake_Type, Guild, GuildText, Message, Client, Member, User
 
 __all__ = ("AutoModerationAction", "AutoModRule")
 
