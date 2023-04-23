@@ -403,7 +403,7 @@ class HTTPClient(
                                 # resource ratelimit is reached
                                 self.log_ratelimit(
                                     self.logger.warning,
-                                    f"{route.endpoint} The resource is being rate limited! "
+                                    f"{route.resolved_endpoint} The resource is being rate limited! "
                                     f"Reset in {result.get('retry_after')} seconds",
                                 )
                                 # lock this resource and wait for unlock
@@ -414,7 +414,7 @@ class HTTPClient(
                                 # so long as these are infrequent we're doing well
                                 self.log_ratelimit(
                                     self.logger.warning,
-                                    f"{route.endpoint} Has exceeded it's ratelimit ({lock.limit})! Reset in {lock.delta} seconds",
+                                    f"{route.resolved_endpoint} Has exceeded its ratelimit ({lock.limit})! Reset in {lock.delta} seconds",
                                 )
                                 await lock.lock_for_duration(lock.delta, block=True)
                             continue
@@ -422,7 +422,7 @@ class HTTPClient(
                             # Last call available in the bucket, lock until reset
                             self.log_ratelimit(
                                 self.logger.debug,
-                                f"{route.endpoint} Has exhausted its ratelimit ({lock.limit})! Locking route for {lock.delta} seconds",
+                                f"{route.resolved_endpoint} Has exhausted its ratelimit ({lock.limit})! Locking route for {lock.delta} seconds",
                             )
                             await lock.lock_for_duration(
                                 lock.delta
@@ -431,7 +431,7 @@ class HTTPClient(
                         elif response.status in {500, 502, 504}:
                             # Server issues, retry
                             self.logger.warning(
-                                f"{route.endpoint} Received {response.status}... retrying in {1 + attempt * 2} seconds"
+                                f"{route.resolved_endpoint} Received {response.status}... retrying in {1 + attempt * 2} seconds"
                             )
                             await asyncio.sleep(1 + attempt * 2)
                             continue
@@ -440,7 +440,7 @@ class HTTPClient(
                             await self._raise_exception(response, route, result)
 
                         self.logger.debug(
-                            f"{route.endpoint} Received {response.status} :: [{lock.remaining}/{lock.limit} calls remaining]"
+                            f"{route.resolved_endpoint} Received {response.status} :: [{lock.remaining}/{lock.limit} calls remaining]"
                         )
                         return result
                 except OSError as e:

@@ -56,13 +56,35 @@ class Route:
         return f"{self.channel_id}:{self.guild_id}:{self.endpoint}"
 
     @property
+    def major_params(self) -> dict[str, str | int]:
+        """The major parameters for this route"""
+        return {
+            "channel_id": self.channel_id,
+            "guild_id": self.guild_id,
+            "webhook_id": self.webhook_id,
+            "webhook_token": self.webhook_token,
+        }
+
+    @property
+    def resolved_path(self) -> str:
+        """The endpoint for this route, with all parameters resolved"""
+        return self.path.format_map({k: _uriquote(v) if isinstance(v, str) else v for k, v in self.params.items()})
+
+    @property
     def endpoint(self) -> str:
         """The endpoint for this route"""
         return f"{self.method} {self.path}"
 
     @property
+    def resolved_endpoint(self) -> str:
+        """The endpoint for this route, with all major parameters resolved"""
+        path = self.path
+        for key, value in self.major_params.items():
+            path = path.replace(f"{{{key}}}", str(value))
+
+        return f"{self.method} {path}"
+
+    @property
     def url(self) -> str:
         """The full url for this route"""
-        return f"{self.BASE}{self.path}".format_map(
-            {k: _uriquote(v) if isinstance(v, str) else v for k, v in self.params.items()}
-        )
+        return f"{self.BASE}{self.resolved_path}"
