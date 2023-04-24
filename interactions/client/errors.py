@@ -118,7 +118,7 @@ class HTTPException(LibraryException):
         return str(self)
 
     @staticmethod
-    def search_for_message(errors: dict, lookup: Optional[dict] = None) -> list[str]:  # noqa: C901
+    def search_for_message(errors: dict, lookup: Optional[dict] = None) -> list[str]:
         """
         Search the exceptions error dictionary for a message explaining the issue.
 

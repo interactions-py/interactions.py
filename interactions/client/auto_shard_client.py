@@ -113,7 +113,7 @@ class AutoShardedClient(Client):
         return (int(guild_id) >> 22) % self.total_shards
 
     @Listener.create()
-    async def _on_websocket_ready(self, event: events.RawGatewayEvent) -> None:  # noqa: C901
+    async def _on_websocket_ready(self, event: events.RawGatewayEvent) -> None:
         """
         Catches websocket ready and determines when to dispatch the client `READY` signal.
 

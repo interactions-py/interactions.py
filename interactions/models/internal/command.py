@@ -106,7 +106,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
     def __hash__(self) -> int:
         return id(self)
 
-    async def __call__(self, context: "BaseContext", *args, **kwargs) -> None:  # noqa: C901
+    async def __call__(self, context: "BaseContext", *args, **kwargs) -> None:
         """
         Calls this command.
 
@@ -197,7 +197,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
     async def call_callback(self, callback: Callable, context: "BaseContext") -> None:
         await self.call_with_binding(callback, context, **context.kwargs)  # type: ignore
 
-    async def _can_run(self, context: "BaseContext") -> bool:  # noqa: C901
+    async def _can_run(self, context: "BaseContext") -> bool:
         """
         Determines if this command can be run.
 

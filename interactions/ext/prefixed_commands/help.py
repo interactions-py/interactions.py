@@ -114,7 +114,7 @@ class PrefixedHelpCommand:
         else:
             await ctx.reply(self.not_found_message.format(cmd_name=cmd_name))
 
-    async def _gather(self, ctx: PrefixedContext | None = None) -> dict[str, PrefixedCommand]:  # noqa: C901
+    async def _gather(self, ctx: PrefixedContext | None = None) -> dict[str, PrefixedCommand]:
         """
         Gather commands based on the rules set out in the class attributes.
 

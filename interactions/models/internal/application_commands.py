@@ -599,7 +599,7 @@ class SlashCommand(InteractionCommand):
         option.name = name
         self.options.append(option)
 
-    def _parse_parameters(self) -> None:  # noqa: C901
+    def _parse_parameters(self) -> None:
         """
         Parses the parameters that this command has into a form i.py can use.
 

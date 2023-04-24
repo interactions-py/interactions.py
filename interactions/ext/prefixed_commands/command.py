@@ -406,7 +406,7 @@ class PrefixedCommand(BaseCommand):
         return frozenset(self.subcommands.values())
 
     @property
-    def signature(self) -> str:  # noqa: C901
+    def signature(self) -> str:
         """Returns a POSIX-like signature useful for help command output."""
         if not self.parameters:
             return ""

@@ -90,7 +90,7 @@ class Player(threading.Thread):
         self._resume.set()
         self.start()
 
-    def run(self) -> None:  # noqa: C901
+    def run(self) -> None:
         """The main player loop to send audio to the voice websocket."""
         loops = 0
 

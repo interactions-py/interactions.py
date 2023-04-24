@@ -270,7 +270,7 @@ class HTTPClient(
             self.ratelimit_locks[bucket_lock.bucket_hash] = bucket_lock
 
     @staticmethod
-    def _process_payload(  # noqa: C901
+    def _process_payload(
         payload: dict | list[dict] | None, files: UPLOADABLE_TYPE | list[UPLOADABLE_TYPE] | None
     ) -> dict | list[dict] | FormData | None:
         """

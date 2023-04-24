@@ -83,9 +83,7 @@ class DebugExec(Extension):
         else:
             return await self.handle_exec_result(m_ctx, ret, stdout.getvalue(), body)
 
-    async def handle_exec_result(  # noqa: C901
-        self, ctx: ModalContext, result: Any, value: Any, body: str
-    ) -> Optional[Message]:
+    async def handle_exec_result(self, ctx: ModalContext, result: Any, value: Any, body: str) -> Optional[Message]:
         # body can be of length 2000 and exceed the limit after formatting
         if len(cmd_body := f"```py\n{body}```") <= 2000:
             await ctx.send(cmd_body)
