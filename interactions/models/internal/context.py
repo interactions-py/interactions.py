@@ -107,7 +107,9 @@ class Resolved:
         return default
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", data: dict, guild_id: None | Snowflake = None) -> Self:  # noqa: C901
+    def from_dict(
+        cls, client: "interactions.Client", data: dict, guild_id: None | Snowflake = None
+    ) -> Self:  # noqa: C901
         instance = cls()
 
         if channels := data.get("channels"):
