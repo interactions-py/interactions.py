@@ -100,7 +100,7 @@ class VoiceGateway(WebsocketClient):
             # possible race conditions to consider.
             await self.dispatch_opcode(data, op)
 
-    async def receive(self, force=False) -> str:
+    async def receive(self, force=False) -> str:  # noqa: C901
         buffer = bytearray()
 
         while True:

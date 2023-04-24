@@ -674,6 +674,7 @@ class Member(DiscordObject, _SendDMMixin):
             warn(
                 "delete_message_days  is deprecated and will be removed in a future update",
                 DeprecationWarning,
+                stacklevel=2,
             )
             delete_message_seconds = delete_message_days * 3600
         await self._client.http.create_guild_ban(self._guild_id, self.id, delete_message_seconds, reason=reason)

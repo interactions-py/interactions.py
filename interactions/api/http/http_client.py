@@ -270,7 +270,7 @@ class HTTPClient(
             self.ratelimit_locks[bucket_lock.bucket_hash] = bucket_lock
 
     @staticmethod
-    def _process_payload(
+    def _process_payload(  # noqa: C901
         payload: dict | list[dict] | None, files: UPLOADABLE_TYPE | list[UPLOADABLE_TYPE] | None
     ) -> dict | list[dict] | FormData | None:
         """
@@ -334,7 +334,7 @@ class HTTPClient(
         form_data.add_field("payload_json", FastJson.dumps(payload))
         return form_data
 
-    async def request(
+    async def request(  # noqa: C901
         self,
         route: Route,
         payload: list | dict | None = None,

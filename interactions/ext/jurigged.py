@@ -112,7 +112,7 @@ class Jurigged(Extension):
             self.bot.logger.debug(f"Caching {cf.module_name}")
             self.command_cache = get_all_commands(cf.module)
 
-    def jurigged_postrun(self, _path: str, cf: CodeFile) -> None:
+    def jurigged_postrun(self, _path: str, cf: CodeFile) -> None:  # noqa: C901
         """
         Jurigged postrun event.
 

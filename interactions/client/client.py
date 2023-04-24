@@ -802,7 +802,7 @@ class Client(
         self._ready.set()
 
     @Listener.create(is_default_listener=True)
-    async def _on_websocket_ready(self, event: events.RawGatewayEvent) -> None:
+    async def _on_websocket_ready(self, event: events.RawGatewayEvent) -> None:  # noqa: C901
         """
         Catches websocket ready and determines when to dispatch the client `READY` signal.
 
@@ -1215,7 +1215,7 @@ class Client(
                 c_listener for c_listener in self.listeners[listener.event] if not c_listener.is_default_listener
             ]
 
-    def add_interaction(self, command: InteractionCommand) -> bool:
+    def add_interaction(self, command: InteractionCommand) -> bool:  # noqa: C901
         """
         Add a slash command to the client.
 
@@ -1387,7 +1387,7 @@ class Client(
         except Exception as e:
             self.dispatch(events.Error(source="Interaction Syncing", error=e))
 
-    async def _cache_interactions(self, warn_missing: bool = False) -> None:
+    async def _cache_interactions(self, warn_missing: bool = False) -> None:  # noqa: C901
         """Get all interactions used by this bot and cache them."""
         if warn_missing or self.del_unused_app_cmd:
             bot_scopes = {g.id for g in self.cache.guild_cache.values()}
@@ -1691,7 +1691,7 @@ class Client(
         return await command(ctx, **ctx.kwargs)
 
     @processors.Processor.define("raw_interaction_create")
-    async def _dispatch_interaction(self, event: RawGatewayEvent) -> None:
+    async def _dispatch_interaction(self, event: RawGatewayEvent) -> None:  # noqa: C901
         """
         Identify and dispatch interaction of slash commands or components.
 

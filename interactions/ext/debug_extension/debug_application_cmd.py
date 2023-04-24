@@ -77,7 +77,7 @@ class DebugAppCMD(Extension):
         opt_type=OptionType.BOOLEAN,
         required=False,
     )
-    async def cmd_lookup(
+    async def cmd_lookup(  # noqa: C901
         self, ctx: InteractionContext, cmd_id: str, scope: str, remote: bool = False
     ) -> Optional[Message]:
         await ctx.defer()

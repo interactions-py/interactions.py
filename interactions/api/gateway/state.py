@@ -129,7 +129,7 @@ class ConnectionState:
             self.client.dispatch(events.Disconnect())
             self.logger.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
 
-    async def change_presence(
+    async def change_presence(  # noqa: C901
         self,
         status: Optional[Union[str, Status]] = Status.ONLINE,
         activity: Absent[Union[Activity, str]] = MISSING,

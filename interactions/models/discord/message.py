@@ -412,7 +412,7 @@ class Message(BaseMessage):
         return mentions(text=self.content or self.system_content, query=query, tag_as_mention=tag_as_mention)
 
     @classmethod
-    def _process_dict(cls, data: dict, client: "Client") -> dict:
+    def _process_dict(cls, data: dict, client: "Client") -> dict:  # noqa: C901
         if author_data := data.pop("author", None):
             if "guild_id" in data and "member" in data:
                 author_data["member"] = data.pop("member")

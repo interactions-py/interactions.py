@@ -599,7 +599,7 @@ class SlashCommand(InteractionCommand):
         option.name = name
         self.options.append(option)
 
-    def _parse_parameters(self) -> None:
+    def _parse_parameters(self) -> None:  # noqa: C901
         """
         Parses the parameters that this command has into a form i.py can use.
 
@@ -1277,7 +1277,7 @@ def auto_defer(
     return wrapper
 
 
-def application_commands_to_dict(
+def application_commands_to_dict(  # noqa: C901
     commands: Dict["Snowflake_Type", Dict[str, InteractionCommand]], client: "Client"
 ) -> dict:
     """

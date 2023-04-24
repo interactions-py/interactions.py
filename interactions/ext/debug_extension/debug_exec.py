@@ -83,7 +83,7 @@ class DebugExec(Extension):
         else:
             return await self.handle_exec_result(m_ctx, ret, stdout.getvalue(), body)
 
-    async def handle_exec_result(self, ctx: ModalContext, result: Any, value: Any, body: str) -> Optional[Message]:
+    async def handle_exec_result(self, ctx: ModalContext, result: Any, value: Any, body: str) -> Optional[Message]:  # noqa: C901
         # body can be of length 2000 and exceed the limit after formatting
         if len(cmd_body := f"```py\n{body}```") <= 2000:
             await ctx.send(cmd_body)
@@ -95,7 +95,7 @@ class DebugExec(Extension):
         if result is None:
             result = value or "No Output!"
 
-        if isinstance(result, Message):
+        elif isinstance(result, Message):
             try:
                 e = debug_embed("Exec", timestamp=result.created_at, url=result.jump_url)
                 e.description = result.content
@@ -109,13 +109,13 @@ class DebugExec(Extension):
             except Exception:
                 return await ctx.send(result.jump_url)
 
-        if isinstance(result, Embed):
+        elif isinstance(result, Embed):
             return await ctx.send(embeds=[result])
 
-        if isinstance(result, File):
+        elif isinstance(result, File):
             return await ctx.send(file=result)
 
-        if isinstance(result, Paginator):
+        elif isinstance(result, Paginator):
             return await result.send(ctx)
 
         if hasattr(result, "__iter__"):

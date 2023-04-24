@@ -406,7 +406,7 @@ class PrefixedCommand(BaseCommand):
         return frozenset(self.subcommands.values())
 
     @property
-    def signature(self) -> str:
+    def signature(self) -> str:  # noqa: C901
         """Returns a POSIX-like signature useful for help command output."""
         if not self.parameters:
             return ""
@@ -465,7 +465,7 @@ class PrefixedCommand(BaseCommand):
         """Return whether this command is a subcommand or not."""
         return bool(self.parent)
 
-    def _parse_parameters(self) -> None:
+    def _parse_parameters(self) -> None:  # noqa: C901
         """
         Parses the parameters that this command has into a form i.py can use.
 
@@ -668,7 +668,7 @@ class PrefixedCommand(BaseCommand):
 
         return wrapper
 
-    async def call_callback(self, callback: Callable, ctx: "PrefixedContext") -> None:
+    async def call_callback(self, callback: Callable, ctx: "PrefixedContext") -> None:  # noqa: C901
         """
         Runs the callback of this command.
 

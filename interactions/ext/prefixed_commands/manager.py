@@ -243,7 +243,7 @@ class PrefixedManager:
             self.remove_command(name)
 
     @listen("raw_message_create", is_default_listener=True)
-    async def _dispatch_prefixed_commands(self, event: RawGatewayEvent) -> None:
+    async def _dispatch_prefixed_commands(self, event: RawGatewayEvent) -> None:  # noqa: C901
         """Determine if a prefixed command is being triggered, and dispatch it."""
         # don't waste time processing this if there are no prefixed commands
         if not self.commands:
