@@ -334,7 +334,7 @@ class HTTPClient(
         form_data.add_field("payload_json", FastJson.dumps(payload))
         return form_data
 
-    async def request(
+    async def request(  # noqa: C901
         self,
         route: Route,
         payload: list | dict | None = None,

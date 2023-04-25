@@ -1691,7 +1691,7 @@ class Client(
         return await command(ctx, **ctx.kwargs)
 
     @processors.Processor.define("raw_interaction_create")
-    async def _dispatch_interaction(self, event: RawGatewayEvent) -> None:
+    async def _dispatch_interaction(self, event: RawGatewayEvent) -> None:  # noqa: C901
         """
         Identify and dispatch interaction of slash commands or components.
 

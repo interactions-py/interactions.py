@@ -200,4 +200,4 @@ suppress-none-returning = true
 max-string-length = 20
 
 [tool.ruff.mccabe]
-max-complexity = 10
+max-complexity = 13

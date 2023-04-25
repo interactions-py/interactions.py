@@ -1664,6 +1664,7 @@ class Guild(BaseGuild):
             warn(
                 "delete_message_days is deprecated and will be removed in a future update",
                 DeprecationWarning,
+                stacklevel=2,
             )
             delete_message_seconds = delete_message_days * 3600
         await self._client.http.create_guild_ban(self.id, to_snowflake(user), delete_message_seconds, reason=reason)
