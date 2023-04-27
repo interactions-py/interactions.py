@@ -376,7 +376,7 @@ class ChannelRequests(CanRequest):
         }
         params = dict_filter_none(params)
 
-        result = await self.request(Route("GET", "/invites/{invite_code}", params=params))
+        result = await self.request(Route("GET", "/invites/{invite_code}", invite_code=invite_code, params=params))
         return cast(discord_typings.InviteData, result)
 
     async def delete_invite(self, invite_code: str, reason: str | None = None) -> discord_typings.InviteData:
