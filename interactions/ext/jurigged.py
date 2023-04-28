@@ -3,7 +3,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Callable, Dict
 
-from interactions import Extension, SlashCommand
+from interactions import Extension, SlashCommand, Client
 from interactions.client.errors import ExtensionLoadException, ExtensionNotFound
 from interactions.client.utils.misc_utils import find
 from interactions.client.const import get_logger
@@ -55,15 +55,19 @@ def get_all_commands(module: ModuleType) -> Dict[str, Callable]:
 
 
 class Jurigged(Extension):
+    def __init__(self, *_, poll=False) -> None:
+        self.poll = poll
+        self.command_cache = {}
+        self.watcher = None
+
     async def async_start(self) -> None:
         """Jurigged starting utility."""
-        self.command_cache = {}
         self.bot.logger.warning("Setting sync_ext to True by default for syncing changes")
         self.bot.sync_ext = True
 
         self.bot.logger.info("Loading jurigged")
         path = Path().resolve()
-        self.watcher = watch(f"{path}/[!.]*.py", logger=self.jurigged_log)
+        self.watcher = watch(f"{path}/[!.]*.py", logger=self.jurigged_log, poll=self.poll)
         self.watcher.prerun.register(self.jurigged_prerun)
         self.watcher.postrun.register(self.jurigged_postrun)
 
@@ -203,5 +207,8 @@ class Jurigged(Extension):
         self.command_cache.clear()
 
 
-def setup(bot) -> None:
-    Jurigged(bot)
+def setup(
+    bot: Client,
+    poll: bool = False,
+) -> None:
+    Jurigged(bot, poll=poll)
