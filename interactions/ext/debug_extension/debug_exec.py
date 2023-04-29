@@ -43,15 +43,13 @@ class DebugExec(Extension):
         } | globals()
 
         modal = Modal(
+            ParagraphText(
+                label="Code to run",
+                value=last_code,
+                custom_id="body",
+                placeholder="Write your code here!",
+            ),
             title="Debug-Exec",
-            components=[
-                ParagraphText(
-                    label="Code to run",
-                    value=last_code,
-                    custom_id="body",
-                    placeholder="Write your code here!",
-                )
-            ],
         )
         await ctx.send_modal(modal)
 

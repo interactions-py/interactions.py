@@ -1598,12 +1598,14 @@ class Client(
             The command, if one with the given ID exists internally, otherwise None
 
         """
+        cmd_id = to_snowflake(cmd_id)
+        scope = to_snowflake(scope) if scope is not None else None
+
         if scope is not None:
-            return self.interactions_by_scope.get(scope, {}).get(cmd_id)
-        return next(
-            (scope[cmd_id] for scope in self.interactions_by_scope.values() if cmd_id in scope),
-            None,
-        )
+            return next(
+                (cmd for cmd in self.interactions_by_scope[scope].values() if cmd.get_cmd_id(scope) == cmd_id), None
+            )
+        return next(cmd for cmd in self._interaction_lookup.values() if cmd_id in cmd.cmd_id.values())
 
     def _raise_sync_exception(self, e: HTTPException, cmds_json: dict, cmd_scope: "Snowflake_Type") -> NoReturn:
         try:
@@ -1700,6 +1702,10 @@ class Client(
 
         """
         interaction_data = event.data
+
+        if not self._startup:
+            self.logger.warning("Received interaction before startup completed, ignoring")
+            return
 
         if interaction_data["type"] in (
             InteractionType.APPLICATION_COMMAND,
