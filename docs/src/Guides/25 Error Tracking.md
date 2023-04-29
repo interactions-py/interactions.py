@@ -15,7 +15,7 @@ from interactions.api.events import Error
 
 @listen()
 async def on_error(error: Error):
-    await bot.get_channel(LOGGING_CHANNEL_ID).send(f"```\n{error.source}\n{error.error}\n```)
+    await bot.get_channel(LOGGING_CHANNEL_ID).send(f"```\n{error.source}\n{error.error}\n```")
 ```
 
 And this is great when debugging.  But it consumes your rate limit, can run into the 2000 character message limit, and won't work on shards that don't contain your personal server.  It's also very hard to notice patterns and can be noisy.
