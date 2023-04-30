@@ -96,12 +96,11 @@ class DebugAppCMD(Extension):
                 )
 
             if not remote:
-                data = application_commands_to_dict(self.bot.interactions, self.bot)[scope]
+                data = application_commands_to_dict(self.bot.interactions_by_scope, self.bot)[scope]
                 cmd_obj = self.bot.get_application_cmd_by_id(cmd_id)
-                for cmd in data:
-                    if cmd["name"] == cmd_obj.name:
-                        return await send(cmd)
-
+                cmd_data = next((c for c in data if c["name"] == str(cmd_obj.name)), None)
+                if cmd_data:
+                    return await send(cmd_data)
             else:
                 data = await self.bot.http.get_application_commands(self.bot.app.id, scope)
                 try:

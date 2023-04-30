@@ -1277,7 +1277,7 @@ def auto_defer(
     return wrapper
 
 
-def application_commands_to_dict(
+def application_commands_to_dict(  # noqa: C901
     commands: Dict["Snowflake_Type", Dict[str, InteractionCommand]], client: "Client"
 ) -> dict:
     """

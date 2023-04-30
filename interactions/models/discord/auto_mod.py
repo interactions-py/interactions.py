@@ -16,14 +16,7 @@ from interactions.models.discord.enums import (
 from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 
 if TYPE_CHECKING:
-    from interactions import (
-        Snowflake_Type,
-        Guild,
-        GuildText,
-        Message,
-        Client,
-        Member,
-    )
+    from interactions import Snowflake_Type, Guild, GuildText, Message, Client, Member, User
 
 __all__ = ("AutoModerationAction", "AutoModRule")
 
@@ -319,6 +312,7 @@ class AutoModerationAction(ClientObject):
     _guild_id: "Snowflake_Type" = attrs.field(
         repr=False,
     )
+    _user_id: "Snowflake_Type" = attrs.field(repr=False)
 
     @classmethod
     def _process_dict(cls, data: dict, client: "Client") -> dict:
@@ -337,6 +331,14 @@ class AutoModerationAction(ClientObject):
     @property
     def message(self) -> "Optional[Message]":
         return self._client.cache.get_message(self._channel_id, self._message_id)
+
+    @property
+    def user(self) -> "User":
+        return self._client.cache.get_user(self._user_id)
+
+    @property
+    def member(self) -> "Optional[Member]":
+        return self._client.cache.get_member(self._guild_id, self._user_id)
 
 
 ACTION_MAPPING = {

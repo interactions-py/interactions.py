@@ -180,6 +180,7 @@ class ThreadRequests:
         auto_archive_duration: int,
         thread_type: Absent[int] = MISSING,
         invitable: Absent[bool] = MISSING,
+        rate_limit_per_user: Absent[int] = MISSING,
         message_id: Absent["Snowflake_Type"] = MISSING,
         reason: Absent[str] = MISSING,
     ) -> discord_typings.ThreadChannelData:
@@ -191,7 +192,8 @@ class ThreadRequests:
             name: The name of the thread
             auto_archive_duration: duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080
             thread_type: The type of thread, defaults to public. ignored if creating thread from a message
-            invitable:
+            invitable: Whether non-moderators can add other non-moderators to a thread; only available when creating a private thread
+            rate_limit_per_user: The time users must wait between sending messages (0-21600)
             message_id: An optional message to create a thread from.
             reason: An optional reason for the audit log
 
@@ -199,7 +201,11 @@ class ThreadRequests:
             The created thread
 
         """
-        payload = {"name": name, "auto_archive_duration": auto_archive_duration}
+        payload = {
+            "name": name,
+            "auto_archive_duration": auto_archive_duration,
+            "rate_limit_per_user": rate_limit_per_user,
+        }
         if message_id:
             return await self.request(
                 Route(

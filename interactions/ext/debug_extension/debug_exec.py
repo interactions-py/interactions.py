@@ -43,15 +43,13 @@ class DebugExec(Extension):
         } | globals()
 
         modal = Modal(
+            ParagraphText(
+                label="Code to run",
+                value=last_code,
+                custom_id="body",
+                placeholder="Write your code here!",
+            ),
             title="Debug-Exec",
-            components=[
-                ParagraphText(
-                    label="Code to run",
-                    value=last_code,
-                    custom_id="body",
-                    placeholder="Write your code here!",
-                )
-            ],
         )
         await ctx.send_modal(modal)
 
@@ -95,7 +93,7 @@ class DebugExec(Extension):
         if result is None:
             result = value or "No Output!"
 
-        if isinstance(result, Message):
+        elif isinstance(result, Message):
             try:
                 e = debug_embed("Exec", timestamp=result.created_at, url=result.jump_url)
                 e.description = result.content
@@ -109,13 +107,13 @@ class DebugExec(Extension):
             except Exception:
                 return await ctx.send(result.jump_url)
 
-        if isinstance(result, Embed):
+        elif isinstance(result, Embed):
             return await ctx.send(embeds=[result])
 
-        if isinstance(result, File):
+        elif isinstance(result, File):
             return await ctx.send(file=result)
 
-        if isinstance(result, Paginator):
+        elif isinstance(result, Paginator):
             return await result.send(ctx)
 
         if hasattr(result, "__iter__"):

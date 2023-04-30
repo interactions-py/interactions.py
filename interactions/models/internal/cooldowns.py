@@ -330,7 +330,7 @@ class Cooldown:
         self.rate: int = rate
         self.interval: float = interval
 
-        self.cooldown_system: Type[CooldownSystem] = cooldown_system
+        self.cooldown_system: Type[CooldownSystem] = cooldown_system or CooldownSystem
 
     async def get_cooldown(self, context: "BaseContext") -> "CooldownSystem":
         key = await self.bucket(context)
