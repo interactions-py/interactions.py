@@ -17,3 +17,12 @@ That's it! The extension will handle all of the leg work, and all you'll notice 
 ## How is this useful?
 
 interactions.py takes advantage of jurigged to reload any and all commands that were edited whenever a change is made, allowing you to have more uptime with while still adding/improving features of your bot.
+
+## It's not working inside Docker!
+To make `jurigged` work inside Docker container, you need to mount the directory you're working in as a volume in the container (pointing to the code directory inside the container).
+
+Additionally, you need to initialize the `jurigged` extension with the `poll` keyword argument set to `True`:
+
+```py
+bot.load_extension("interactions.ext.jurigged", poll=True)
+```
