@@ -571,8 +571,10 @@ class Client(
                 ):
                     await self.wait_until_ready()
 
-                if len(_event.__attrs_attrs__) == 2 and coro.event != "event":
-                    # override_name & bot & logging
+                # don't pass event object if listener doesn't expect it
+                # check coro signature for event param
+                callback_signature = inspect.signature(_coro.callback)
+                if len(callback_signature.parameters) == 0:
                     await _coro()
                 else:
                     await _coro(_event, *_args, **_kwargs)
