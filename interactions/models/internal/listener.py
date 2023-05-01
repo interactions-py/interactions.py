@@ -3,7 +3,7 @@ import inspect
 from typing import Callable
 
 from interactions.api.events.internal import BaseEvent
-from interactions.client.const import MISSING, Absent, AsyncCallable
+from interactions.client.const import MISSING, Absent, AsyncCallable, get_logger
 from interactions.client.utils import get_event_name
 from interactions.models.internal.callback import CallbackObject
 
@@ -30,6 +30,7 @@ class Listener(CallbackObject):
         delay_until_ready: bool = False,
         is_default_listener: bool = False,
         disable_default_listeners: bool = False,
+        pass_event_object: bool = True,
     ) -> None:
         super().__init__()
 
@@ -41,6 +42,9 @@ class Listener(CallbackObject):
         self.delay_until_ready = delay_until_ready
         self.is_default_listener = is_default_listener
         self.disable_default_listeners = disable_default_listeners
+        self.pass_event_object = pass_event_object
+
+        self.warned_no_event_arg = False
 
     def __repr__(self) -> str:
         return f"<Listener event={self.event!r} callback={self.callback!r}>"
@@ -73,6 +77,7 @@ class Listener(CallbackObject):
             if not asyncio.iscoroutinefunction(coro):
                 raise TypeError("Listener must be a coroutine")
 
+            coro_signature = inspect.signature(coro)
             name = event_name
 
             if name is MISSING:
@@ -88,12 +93,16 @@ class Listener(CallbackObject):
                 if not name:
                     name = coro.__name__
 
+            # If the coroutine has no parameters, we don't need to pass the event object
+            pass_event_object = len(coro_signature.parameters) != 0
+
             return cls(
                 coro,
                 get_event_name(name),
                 delay_until_ready=delay_until_ready,
                 is_default_listener=is_default_listener,
                 disable_default_listeners=disable_default_listeners,
+                pass_event_object=pass_event_object,
             )
 
         return wrapper

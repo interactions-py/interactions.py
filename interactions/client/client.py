@@ -572,12 +572,16 @@ class Client(
                     await self.wait_until_ready()
 
                 # don't pass event object if listener doesn't expect it
-                # check coro signature for event param
-                callback_signature = inspect.signature(_coro.callback)
-                if len(callback_signature.parameters) == 0:
-                    await _coro()
-                else:
+                if _coro.pass_event_object:
                     await _coro(_event, *_args, **_kwargs)
+                else:
+                    if not _coro.warned_no_event_arg and len(_event.__attrs_attrs__) > 2 and _coro.event != "event":
+                        self.logger.warning(
+                            f"{_coro} is listening to {_coro.event} event which contains event data. "
+                            f"Add an event argument to this listener to receive the event data object."
+                        )
+                        _coro.warned_no_event_arg = True
+                    await _coro()
             except asyncio.CancelledError:
                 pass
             except Exception as e:
