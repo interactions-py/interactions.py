@@ -28,6 +28,11 @@ class BaseEvent:
     """The client instance that dispatched this event."""
 
     @property
+    def client(self) -> "Client":
+        """The client instance that dispatched this event."""
+        return self.bot
+
+    @property
     def resolved_name(self) -> str:
         """The name of the event, defaults to the class name if not overridden."""
         name = self.override_name or self.__class__.__name__
