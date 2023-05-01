@@ -15,7 +15,10 @@ class ReactionEvents(EventMixinTemplate):
         if member := event.data.get("member"):
             author = self.cache.place_member_data(event.data.get("guild_id"), member)
         else:
-            author = await self.cache.fetch_user(event.data.get("user_id"))
+            if guild_id := event.data.get("guild_id"):
+                author = await self.cache.fetch_member(guild_id, event.data.get("user_id"))
+            else:
+                author = await self.cache.fetch_user(event.data.get("user_id"))
 
         emoji = PartialEmoji.from_dict(event.data.get("emoji"))  # type: ignore
         message = self.cache.get_message(event.data.get("channel_id"), event.data.get("message_id"))
