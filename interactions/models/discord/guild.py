@@ -439,6 +439,21 @@ class Guild(BaseGuild):
         # noinspection PyProtectedMember
         return [v_state for v_state in self._client.cache.voice_state_cache.values() if v_state._guild_id == self.id]
 
+    @property
+    def mention_onboarding_customize(self) -> str:
+        """Return a mention string for the customise section of Onboarding"""
+        return "<id:customize>"
+
+    @property
+    def mention_onboarding_browse(self) -> str:
+        """Return a mention string for the browse section of Onboarding"""
+        return "<id:browse>"
+
+    @property
+    def mention_onboarding_guide(self) -> str:
+        """Return a mention string for the guide section of Onboarding"""
+        return "<id:guide>"
+
     async def fetch_member(self, member_id: Snowflake_Type, *, force: bool = False) -> Optional["models.Member"]:
         """
         Return the Member with the given discord ID, fetching from the API if necessary.
