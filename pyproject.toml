@@ -114,7 +114,7 @@ source = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "-l -ra --durations=2 --cov=./ --cov-report xml:coverage.xml --junitxml=TestResults.xml"
+addopts = "-l -ra --durations=2 --junitxml=TestResults.xml"
 doctest_optionflags = "NORMALIZE_WHITESPACE"
 asyncio_mode="auto"
 log_cli = "1"
