@@ -121,7 +121,6 @@ class HarmfulLinkFilter(BaseTrigger):
         repr=True,
         metadata=docs("The type of trigger"),
     )
-    ...
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -169,7 +168,6 @@ class BlockMessage(BaseAction):
     """blocks the content of a message according to the rule"""
 
     type: AutoModAction = attrs.field(repr=False, default=AutoModAction.BLOCK_MESSAGE, converter=AutoModAction)
-    ...
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -193,7 +191,6 @@ class BlockMemberInteraction(BaseAction):
     """Block a member from using text, voice, or other interactions"""
 
     # this action has no metadata
-    ...
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
