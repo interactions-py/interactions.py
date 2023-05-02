@@ -551,6 +551,14 @@ class Permissions(DiscordIntFlag):  # type: ignore
     """Allows for using Activities (applications with the `EMBEDDED` flag) in a voice channel"""
     MODERATE_MEMBERS = 1 << 40
     """Allows for timing out users to prevent them from sending or reacting to messages in chat and threads, and from speaking in voice and stage channels"""
+    VIEW_CREATOR_MONETIZATION_ANALYTICS = 1 << 41
+    """Allows for viewing guild monetization insights"""
+    USE_SOUNDBOARD = 1 << 42
+    """Allows for using the soundboard in a voice channel"""
+    CREATE_GUILD_EXPRESSIONS = 1 << 43
+    """Allows for creating emojis, stickers, and soundboard sounds"""
+    USE_EXTERNAL_SOUNDS = 1 << 45
+    """Allows the usage of custom sounds from other servers"""
 
     # Shortcuts/grouping/aliases
     REQUIRES_MFA = (
