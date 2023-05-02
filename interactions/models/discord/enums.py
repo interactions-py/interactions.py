@@ -559,6 +559,8 @@ class Permissions(DiscordIntFlag):  # type: ignore
     """Allows for creating emojis, stickers, and soundboard sounds"""
     USE_EXTERNAL_SOUNDS = 1 << 45
     """Allows the usage of custom sounds from other servers"""
+    SEND_VOICE_MESSAGES = 1 << 46
+    """Allows for sending audio messages"""
 
     # Shortcuts/grouping/aliases
     REQUIRES_MFA = (
