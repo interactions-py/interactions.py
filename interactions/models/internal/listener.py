@@ -77,7 +77,14 @@ class Listener(CallbackObject):
             if not asyncio.iscoroutinefunction(coro):
                 raise TypeError("Listener must be a coroutine")
 
-            coro_signature = inspect.signature(coro)
+            coro_parametrers = inspect.signature(coro).parameters.copy()
+            if coro_parametrers and list(coro_parametrers.keys())[0] == "self":
+                # remove self; those who name it differently are on their own
+                coro_parametrers.pop("self")
+
+            # If the coroutine has no parameters, we don't need to pass the event object
+            pass_event_object = len(coro_parametrers) != 0
+
             name = event_name
 
             if name is MISSING:
@@ -92,9 +99,6 @@ class Listener(CallbackObject):
 
                 if not name:
                     name = coro.__name__
-
-            # If the coroutine has no parameters, we don't need to pass the event object
-            pass_event_object = len(coro_signature.parameters) != 0
 
             return cls(
                 coro,
