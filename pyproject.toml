@@ -29,7 +29,6 @@ mkdocs-minify-plugin = { version = "*", optional = true }
 mkdocs-git-committers-plugin-2 = { version = "*", optional = true }
 mkdocs-git-revision-date-localized-plugin = { version = "*", optional = true }
 pytest = { version = "*", optional = true }
-pytest-recording = { version = "*", optional = true }
 pytest-asyncio = { version = "*", optional = true }
 pytest-cov = { version = "*", optional = true }
 python-dotenv = { version = "*", optional = true }
@@ -66,7 +65,6 @@ mkdocs-git-revision-date-localized-plugin = "*"
 
 [tool.poetry.group.tests.dependencies]
 pytest = "*"
-pytest-recording = "*"
 pytest-asyncio = "*"
 pytest-cov = "*"
 python-dotenv = "*"
