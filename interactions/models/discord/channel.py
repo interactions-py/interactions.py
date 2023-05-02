@@ -1901,6 +1901,11 @@ class ThreadChannel(BaseChannel, MessageableMixin, WebhookMixin):
         """The permission overwrites for this channel."""
         return []
 
+    @property
+    def clyde_created(self) -> bool:
+        """Whether this thread was created by Clyde."""
+        return ChannelFlags.CLYDE_THREAD in self.flags
+
     def permissions_for(self, instance: Snowflake_Type) -> Permissions:
         """
         Calculates permissions for an instance
