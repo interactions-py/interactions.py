@@ -42,7 +42,7 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           RUN_TESTBOT: ${{ matrix.RUN_TESTBOT }}
         run: |
-          pytest
+          pytest --cov=./ --cov-report xml:coverage.xml
           coverage xml -i
       - name: Upload Coverage
         run: |
