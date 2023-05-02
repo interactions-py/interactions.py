@@ -7,7 +7,7 @@ from typing_extensions import Self
 import discord_typings
 from aiohttp import FormData
 from interactions.client.const import get_logger, MISSING
-from interactions.models.discord.components import BaseComponent, BaseSelectMenu, Button
+from interactions.models.discord.components import BaseComponent
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.sticker import Sticker
 from interactions.models.discord.user import Member, User
@@ -781,13 +781,8 @@ class ComponentContext(InteractionContext, ModalMixin):
             return message
 
     @property
-    def component(self) -> typing.Optional[typing.Union[Button, BaseSelectMenu]]:
-        """
-        The component that you interacted.
-
-        .. versionadded:: 5.3.0
-        :rtype: Optional[Union[Button, "BaseSelectMenu"]]
-        """
+    def component(self) -> typing.Optional[BaseComponent]:
+        """The component that you interacted."""
         if self.message is None or self.message.components is None:
             return None
         for action_row in self.message.components:
