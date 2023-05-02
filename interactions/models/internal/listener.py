@@ -3,7 +3,7 @@ import inspect
 from typing import Callable
 
 from interactions.api.events.internal import BaseEvent
-from interactions.client.const import MISSING, Absent, AsyncCallable, get_logger
+from interactions.client.const import MISSING, Absent, AsyncCallable
 from interactions.client.utils import get_event_name
 from interactions.models.internal.callback import CallbackObject
 
