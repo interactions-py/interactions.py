@@ -974,16 +974,19 @@ class AutoModTriggerType(CursedIntEnum):
     SPAM = 3
     KEYWORD_PRESET = 4
     MENTION_SPAM = 5
+    MEMBER_PROFILE = 6
 
 
 class AutoModAction(CursedIntEnum):
     BLOCK_MESSAGE = 1
     ALERT_MESSAGE = 2
     TIMEOUT_USER = 3
+    BLOCK_MEMBER_INTERACTION = 4
 
 
 class AutoModEvent(CursedIntEnum):
     MESSAGE_SEND = 1
+    MEMBER_UPDATE = 2
 
 
 class AutoModLanuguageType(Enum):
