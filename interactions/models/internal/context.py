@@ -782,7 +782,7 @@ class ComponentContext(InteractionContext, ModalMixin):
 
     @property
     def component(self) -> typing.Optional[BaseComponent]:
-        """The component that you interacted."""
+        """The component that was interacted with."""
         if self.message is None or self.message.components is None:
             return None
         for action_row in self.message.components:
