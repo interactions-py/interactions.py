@@ -1208,6 +1208,8 @@ class Client(
             self.logger.debug(f"Listener {listener} has already been hooked, not re-hooking it again")
             return
 
+        listener.lazy_parse_params()
+
         if listener.event not in self.listeners:
             self.listeners[listener.event] = []
         self.listeners[listener.event].append(listener)

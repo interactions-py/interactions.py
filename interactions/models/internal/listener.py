@@ -30,7 +30,7 @@ class Listener(CallbackObject):
         delay_until_ready: bool = False,
         is_default_listener: bool = False,
         disable_default_listeners: bool = False,
-        pass_event_object: bool = True,
+        pass_event_object: Absent[bool] = MISSING,
     ) -> None:
         super().__init__()
 
@@ -42,8 +42,9 @@ class Listener(CallbackObject):
         self.delay_until_ready = delay_until_ready
         self.is_default_listener = is_default_listener
         self.disable_default_listeners = disable_default_listeners
-        self.pass_event_object = pass_event_object
 
+        self._params = inspect.signature(func).parameters.copy()
+        self.pass_event_object = pass_event_object
         self.warned_no_event_arg = False
 
     def __repr__(self) -> str:
@@ -77,14 +78,6 @@ class Listener(CallbackObject):
             if not asyncio.iscoroutinefunction(coro):
                 raise TypeError("Listener must be a coroutine")
 
-            coro_parametrers = inspect.signature(coro).parameters.copy()
-            if coro_parametrers and list(coro_parametrers.keys())[0] == "self":
-                # remove self; those who name it differently are on their own
-                coro_parametrers.pop("self")
-
-            # If the coroutine has no parameters, we don't need to pass the event object
-            pass_event_object = len(coro_parametrers) != 0
-
             name = event_name
 
             if name is MISSING:
@@ -106,10 +99,20 @@ class Listener(CallbackObject):
                 delay_until_ready=delay_until_ready,
                 is_default_listener=is_default_listener,
                 disable_default_listeners=disable_default_listeners,
-                pass_event_object=pass_event_object,
             )
 
         return wrapper
+
+    def lazy_parse_params(self):
+        """Process the parameters of this listener."""
+        if self.pass_event_object is not MISSING:
+            return
+
+        if self.has_binding:
+            # discard the first parameter, which is the class instance
+            self._params = list(self._params.values())[1:]
+
+        self.pass_event_object = len(self._params) != 0
 
 
 def listen(
