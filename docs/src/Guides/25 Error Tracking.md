@@ -11,10 +11,11 @@ You're going to want to have some way of tracking if errors occur.
 The most obvious solution is to think "Well, I'm writing a Discord Bot.  Why not send my errors to a discord channel?"
 
 ```python
+from interactions.api.events import Error
 
 @listen()
-async def on_error(error):
-    await bot.get_channel(LOGGING_CHANNEL_ID).send(f"```\n{error.source}\n{error.error}\n```)
+async def on_error(error: Error):
+    await bot.get_channel(LOGGING_CHANNEL_ID).send(f"```\n{error.source}\n{error.error}\n```")
 ```
 
 And this is great when debugging.  But it consumes your rate limit, can run into the 2000 character message limit, and won't work on shards that don't contain your personal server.  It's also very hard to notice patterns and can be noisy.

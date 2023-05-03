@@ -20,8 +20,6 @@ Below is an example of a bot, one with extensions, one without.
 
         import interactions.const
         from interactions.client import Client
-        from interactions.models.application_commands import slash_command, slash_option
-        from interactions.models.context import InteractionContext
         from interactions.models.discord_objects.components import Button, ActionRow
         from interactions.models.enums import ButtonStyle
         from interactions.models.enums import Intents

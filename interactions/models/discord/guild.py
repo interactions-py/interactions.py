@@ -439,19 +439,35 @@ class Guild(BaseGuild):
         # noinspection PyProtectedMember
         return [v_state for v_state in self._client.cache.voice_state_cache.values() if v_state._guild_id == self.id]
 
-    async def fetch_member(self, member_id: Snowflake_Type) -> Optional["models.Member"]:
+    @property
+    def mention_onboarding_customize(self) -> str:
+        """Return a mention string for the customise section of Onboarding"""
+        return "<id:customize>"
+
+    @property
+    def mention_onboarding_browse(self) -> str:
+        """Return a mention string for the browse section of Onboarding"""
+        return "<id:browse>"
+
+    @property
+    def mention_onboarding_guide(self) -> str:
+        """Return a mention string for the guide section of Onboarding"""
+        return "<id:guide>"
+
+    async def fetch_member(self, member_id: Snowflake_Type, *, force: bool = False) -> Optional["models.Member"]:
         """
         Return the Member with the given discord ID, fetching from the API if necessary.
 
         Args:
             member_id: The ID of the member.
+            force: Whether to force a fetch from the API.
 
         Returns:
             The member object fetched. If the member is not in this guild, returns None.
 
         """
         try:
-            return await self._client.cache.fetch_member(self.id, member_id)
+            return await self._client.cache.fetch_member(self.id, member_id, force=force)
         except NotFound:
             return None
 
@@ -468,15 +484,18 @@ class Guild(BaseGuild):
         """
         return self._client.cache.get_member(self.id, member_id)
 
-    async def fetch_owner(self) -> "models.Member":
+    async def fetch_owner(self, *, force: bool = False) -> "models.Member":
         """
         Return the Guild owner, fetching from the API if necessary.
+
+        Args:
+            force: Whether to force a fetch from the API.
 
         Returns:
             Member object or None
 
         """
-        return await self._client.cache.fetch_member(self.id, self._owner_id)
+        return await self._client.cache.fetch_member(self.id, self._owner_id, force=force)
 
     def get_owner(self) -> "models.Member":
         """
@@ -850,19 +869,22 @@ class Guild(BaseGuild):
         emojis_data = await self._client.http.get_all_guild_emoji(self.id)
         return [self._client.cache.place_emoji_data(self.id, emoji_data) for emoji_data in emojis_data]
 
-    async def fetch_custom_emoji(self, emoji_id: Snowflake_Type) -> Optional["models.CustomEmoji"]:
+    async def fetch_custom_emoji(
+        self, emoji_id: Snowflake_Type, *, force: bool = False
+    ) -> Optional["models.CustomEmoji"]:
         """
         Fetches the custom emoji present for this guild, based on the emoji id.
 
         Args:
             emoji_id: The target emoji to get data of.
+            force: Whether to force fetch the emoji from the API.
 
         Returns:
             The custom emoji object. If the emoji is not found, returns None.
 
         """
         try:
-            return await self._client.cache.fetch_emoji(self.id, emoji_id)
+            return await self._client.cache.fetch_emoji(self.id, emoji_id, force=force)
         except NotFound:
             return None
 
@@ -1369,19 +1391,20 @@ class Guild(BaseGuild):
         threads_data = await self._client.http.list_active_threads(self.id)
         return models.ThreadList.from_dict(threads_data, self._client)
 
-    async def fetch_role(self, role_id: Snowflake_Type) -> Optional["models.Role"]:
+    async def fetch_role(self, role_id: Snowflake_Type, *, force: bool = False) -> Optional["models.Role"]:
         """
         Fetch the specified role by ID.
 
         Args:
             role_id: The ID of the role to get
+            force: Whether to force a fetch from the API
 
         Returns:
             The role object. If the role does not exist, returns None.
 
         """
         try:
-            return await self._client.cache.fetch_role(self.id, role_id)
+            return await self._client.cache.fetch_role(self.id, role_id, force=force)
         except NotFound:
             return None
 
@@ -1476,12 +1499,15 @@ class Guild(BaseGuild):
             return self._client.cache.get_channel(channel_id)
         return None
 
-    async def fetch_channel(self, channel_id: Snowflake_Type) -> Optional["models.TYPE_GUILD_CHANNEL"]:
+    async def fetch_channel(
+        self, channel_id: Snowflake_Type, *, force: bool = False
+    ) -> Optional["models.TYPE_GUILD_CHANNEL"]:
         """
         Returns a channel with the given `channel_id` from the API.
 
         Args:
             channel_id: The ID of the channel to get
+            force: Whether to force a fetch from the API
 
         Returns:
             The channel object. If the channel does not exist, returns None.
@@ -1497,7 +1523,7 @@ class Guild(BaseGuild):
             # but to make it less confusing to new programmers,
             # i intentionally check that the guild contains the channel first
             try:
-                channel = await self._client.fetch_channel(channel_id)
+                channel = await self._client.fetch_channel(channel_id, force=force)
                 if channel._guild_id == self.id:
                     return channel
             except (NotFound, AttributeError):
@@ -1521,12 +1547,15 @@ class Guild(BaseGuild):
             return self._client.cache.get_channel(thread_id)
         return None
 
-    async def fetch_thread(self, thread_id: Snowflake_Type) -> Optional["models.TYPE_THREAD_CHANNEL"]:
+    async def fetch_thread(
+        self, thread_id: Snowflake_Type, *, force: bool = False
+    ) -> Optional["models.TYPE_THREAD_CHANNEL"]:
         """
         Returns a Thread with the given `thread_id` from the API.
 
         Args:
             thread_id: The ID of the thread to get
+            force: Whether to force a fetch from the API
 
         Returns:
             Thread object if found, otherwise None
@@ -1535,7 +1564,7 @@ class Guild(BaseGuild):
         thread_id = to_snowflake(thread_id)
         if thread_id in self._thread_ids:
             try:
-                return await self._client.fetch_channel(thread_id)
+                return await self._client.fetch_channel(thread_id, force=force)
             except NotFound:
                 return None
         return None
@@ -1650,6 +1679,7 @@ class Guild(BaseGuild):
             warn(
                 "delete_message_days is deprecated and will be removed in a future update",
                 DeprecationWarning,
+                stacklevel=2,
             )
             delete_message_seconds = delete_message_days * 3600
         await self._client.http.create_guild_ban(self.id, to_snowflake(user), delete_message_seconds, reason=reason)
@@ -2181,15 +2211,18 @@ class GuildWidget(DiscordObject):
         """
         return [self._client.get_channel(channel_id) for channel_id in self._channel_ids]
 
-    async def fetch_channels(self) -> List["models.TYPE_VOICE_CHANNEL"]:
+    async def fetch_channels(self, *, force: bool = False) -> List["models.TYPE_VOICE_CHANNEL"]:
         """
         Gets voice and stage channels which are accessible by @everyone. Fetches the channels from API if they are not cached.
+
+        Args:
+            force: Whether to force fetch the channels from API
 
         Returns:
             List of channels
 
         """
-        return [await self._client.fetch_channel(channel_id) for channel_id in self._channel_ids]
+        return [await self._client.fetch_channel(channel_id, force=force) for channel_id in self._channel_ids]
 
     def get_members(self) -> List["models.User"]:
         """
@@ -2201,15 +2234,18 @@ class GuildWidget(DiscordObject):
         """
         return [self._client.get_user(member_id) for member_id in self._member_ids]
 
-    async def fetch_members(self) -> List["models.User"]:
+    async def fetch_members(self, *, force: bool = False) -> List["models.User"]:
         """
         Gets special widget user objects that includes users presence (Limit 100). Fetches the users from API if they are not cached.
+
+        Args:
+            force: Whether to force fetch the users from API
 
         Returns:
             List of users
 
         """
-        return [await self._client.fetch_user(member_id) for member_id in self._member_ids]
+        return [await self._client.fetch_user(member_id, force=force) for member_id in self._member_ids]
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)

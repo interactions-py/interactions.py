@@ -551,6 +551,16 @@ class Permissions(DiscordIntFlag):  # type: ignore
     """Allows for using Activities (applications with the `EMBEDDED` flag) in a voice channel"""
     MODERATE_MEMBERS = 1 << 40
     """Allows for timing out users to prevent them from sending or reacting to messages in chat and threads, and from speaking in voice and stage channels"""
+    VIEW_CREATOR_MONETIZATION_ANALYTICS = 1 << 41
+    """Allows for viewing guild monetization insights"""
+    USE_SOUNDBOARD = 1 << 42
+    """Allows for using the soundboard in a voice channel"""
+    CREATE_GUILD_EXPRESSIONS = 1 << 43
+    """Allows for creating emojis, stickers, and soundboard sounds"""
+    USE_EXTERNAL_SOUNDS = 1 << 45
+    """Allows the usage of custom sounds from other servers"""
+    SEND_VOICE_MESSAGES = 1 << 46
+    """Allows for sending audio messages"""
 
     # Shortcuts/grouping/aliases
     REQUIRES_MFA = (
@@ -780,6 +790,8 @@ class SystemChannelFlags(DiscordIntFlag):
 class ChannelFlags(DiscordIntFlag):
     PINNED = 1 << 1
     """ Thread is pinned to the top of its parent forum channel """
+    CLYDE_THREAD = 1 << 8
+    """This thread was created by Clyde"""
 
     # Special members
     NONE = 0
@@ -964,6 +976,7 @@ class AuditLogEventType(CursedIntEnum):
     ONBOARDING_UPDATE = 167
     GUILD_HOME_FEATURE_ITEM = 171
     GUILD_HOME_FEATURE_ITEM_UPDATE = 172
+    BLOCKED_PHISHING_LINK = 180
     SERVER_GUIDE_CREATE = 190
     SERVER_GUIDE_UPDATE = 191
 
@@ -974,16 +987,19 @@ class AutoModTriggerType(CursedIntEnum):
     SPAM = 3
     KEYWORD_PRESET = 4
     MENTION_SPAM = 5
+    MEMBER_PROFILE = 6
 
 
 class AutoModAction(CursedIntEnum):
     BLOCK_MESSAGE = 1
     ALERT_MESSAGE = 2
     TIMEOUT_USER = 3
+    BLOCK_MEMBER_INTERACTION = 4
 
 
 class AutoModEvent(CursedIntEnum):
     MESSAGE_SEND = 1
+    MEMBER_UPDATE = 2
 
 
 class AutoModLanuguageType(Enum):

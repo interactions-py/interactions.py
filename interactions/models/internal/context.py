@@ -780,6 +780,16 @@ class ComponentContext(InteractionContext, ModalMixin):
             self.message_id = message.id
             return message
 
+    @property
+    def component(self) -> typing.Optional[BaseComponent]:
+        """The component that was interacted with."""
+        if self.message is None or self.message.components is None:
+            return None
+        for action_row in self.message.components:
+            for component in action_row.components:
+                if component.custom_id == self.custom_id:
+                    return component
+
 
 class ModalContext(InteractionContext):
     responses: dict[str, str]

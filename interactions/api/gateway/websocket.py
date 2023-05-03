@@ -167,7 +167,7 @@ class WebsocketClient:
         serialized = FastJson.dumps(data)
         await self.send(serialized, bypass)
 
-    async def receive(self, force: bool = False) -> str:
+    async def receive(self, force: bool = False) -> str:  # noqa: C901
         """
         Receive a full event payload from the WebSocket.
 

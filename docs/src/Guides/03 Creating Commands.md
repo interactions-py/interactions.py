@@ -10,12 +10,14 @@ To create an interaction, simply define an asynchronous function and use the `@s
 Interactions need to be responded to within 3 seconds. To do this, use `await ctx.send()`.
 If your code needs more time, don't worry. You can use `await ctx.defer()` to increase the time until you need to respond to the command to 15 minutes.
 ```python
+from interactions import slash_command, SlashContext
+
 @slash_command(name="my_command", description="My first command :)")
-async def my_command_function(ctx: InteractionContext):
+async def my_command_function(ctx: SlashContext):
     await ctx.send("Hello World")
 
 @slash_command(name="my_long_command", description="My second command :)")
-async def my_long_command_function(ctx: InteractionContext):
+async def my_long_command_function(ctx: SlashContext):
     # need to defer it, otherwise, it fails
     await ctx.defer()
 
@@ -24,7 +26,7 @@ async def my_long_command_function(ctx: InteractionContext):
 
     await ctx.send("Hello World")
 ```
-??? note
+???+ note
     Command names must be lowercase and can only contain `-` and `_` as special symbols and must not contain spaces.
 
 When testing, it is recommended to use non-global commands, as they sync instantly.
@@ -33,7 +35,7 @@ For that, you can either define `scopes` in every command or set `debug_scope` i
 You can define non-global commands by passing a list of guild ids to `scopes` in the interaction creation.
 ```python
 @slash_command(name="my_command", description="My first command :)", scopes=[870046872864165888])
-async def my_command_function(ctx: InteractionContext):
+async def my_command_function(ctx: SlashContext):
     await ctx.send("Hello World")
 ```
 
@@ -53,16 +55,21 @@ Let's define a basic subcommand:
     sub_cmd_name="command",
     sub_cmd_description="My command",
 )
-async def my_command_function(ctx: InteractionContext):
+async def my_command_function(ctx: SlashContext):
     await ctx.send("Hello World")
 ```
 
-This will show up in discord as `/base group command`. There are two ways to add additional subcommands:
+This will show up in discord as `/base group command`. There are more ways to add additional subcommands:
 
 === ":one: Decorator"
     ```python
-    @my_command_function.subcommand(sub_cmd_name="second_command", sub_cmd_description="My second command")
-    async def my_second_command_function(ctx: InteractionContext):
+    @my_command_function.subcommand(
+        group_name="group",
+        group_description="My command group",
+        sub_cmd_name="sub",
+        sub_cmd_description="My subcommand",
+    )
+    async def my_second_command_function(ctx: SlashContext):
         await ctx.send("Hello World")
     ```
 
@@ -76,11 +83,26 @@ This will show up in discord as `/base group command`. There are two ways to add
         sub_cmd_name="second_command",
         sub_cmd_description="My second command",
     )
-    async def my_second_command_function(ctx: InteractionContext):
+    async def my_second_command_function(ctx: SlashContext):
         await ctx.send("Hello World")
     ```
 
     **Note:** This is particularly useful if you want to split subcommands into different files.
+
+=== ":three: Class Definition"
+    ```python
+    base = SlashCommand(name="base", description="My command base")
+    group = base.group(name="group", description="My command group")
+
+    @group.subcommand(sub_cmd_name="second_command", sub_cmd_description="My second command")
+    async def my_second_command_function(ctx: SlashContext):
+        await ctx.send("Hello World")
+    ```
+
+For all of these, the "group" parts are optional, allowing you to do `/base command` instead.
+
+???+ note
+    You cannot mix group subcommands and non-group subcommands into one base command - you must either use all group subcommands or normal subcommands.
 
 
 ## But I Need More Options
@@ -103,6 +125,8 @@ Now that you know all the options you have for options, you can opt into adding 
 
 You do that by using the `@slash_option()` decorator and passing the option name as a function parameter:
 ```python
+from interactions import OptionType
+
 @slash_command(name="my_command", ...)
 @slash_option(
     name="integer_option",
@@ -110,7 +134,7 @@ You do that by using the `@slash_option()` decorator and passing the option name
     required=True,
     opt_type=OptionType.INTEGER
 )
-async def my_command_function(ctx: InteractionContext, integer_option: int):
+async def my_command_function(ctx: SlashContext, integer_option: int):
     await ctx.send(f"You input {integer_option}")
 ```
 
@@ -125,7 +149,7 @@ Always make sure to define all required options first, this is a Discord require
     required=False,
     opt_type=OptionType.INTEGER
 )
-async def my_command_function(ctx: InteractionContext, integer_option: int = 5):
+async def my_command_function(ctx: SlashContext, integer_option: int = 5):
     await ctx.send(f"You input {integer_option}")
 ```
 
@@ -143,7 +167,7 @@ If you are using an `OptionType.CHANNEL` option, you can restrict the channel a 
     opt_type=OptionType.CHANNEL,
     channel_types=[ChannelType.GUILD_TEXT]
 )
-async def my_command_function(ctx: InteractionContext, channel_option: GUILD_TEXT):
+async def my_command_function(ctx: SlashContext, channel_option: GUILD_TEXT):
     await channel_option.send("This is a text channel in a guild")
 
     await ctx.send("...")
@@ -160,7 +184,7 @@ You can also set an upper and lower limit for both `OptionType.INTEGER` and `Opt
     min_value=10,
     max_value=15
 )
-async def my_command_function(ctx: InteractionContext, integer_option: int):
+async def my_command_function(ctx: SlashContext, integer_option: int):
     await ctx.send(f"You input {integer_option} which is always between 10 and 15")
 ```
 
@@ -175,7 +199,7 @@ The same can be done with the length of an option when using `OptionType.STRING`
     min_length=5,
     max_length=10
 )
-async def my_command_function(ctx: InteractionContext, string_option: str):
+async def my_command_function(ctx: SlashContext, string_option: str):
     await ctx.send(f"You input `{string_option}` which is between 5 and 10 characters long")
 ```
 
@@ -190,6 +214,8 @@ With choices, the user can no longer freely input whatever they want, instead, t
 
 To create a choice, simply fill `choices` in `@slash_option()`. An option can have up to 25 choices:
 ```python
+from interactions import SlashCommandChoice
+
 @slash_command(name="my_command", ...)
 @slash_option(
     name="integer_option",
@@ -201,7 +227,7 @@ To create a choice, simply fill `choices` in `@slash_option()`. An option can ha
         SlashCommandChoice(name="Two", value=2)
     ]
 )
-async def my_command_function(ctx: InteractionContext, integer_option: int):
+async def my_command_function(ctx: SlashContext, integer_option: int):
     await ctx.send(f"You input {integer_option} which is either 1 or 2")
 ```
 
@@ -222,7 +248,7 @@ To use autocomplete options, set `autocomplete=True` in `@slash_option()`:
     opt_type=OptionType.STRING,
     autocomplete=True
 )
-async def my_command_function(ctx: InteractionContext, string_option: str):
+async def my_command_function(ctx: SlashContext, string_option: str):
     await ctx.send(f"You input {string_option}")
 ```
 
@@ -230,6 +256,8 @@ Then you need to register the autocomplete callback, aka the function Discord ca
 
 In there, you have three seconds to return whatever choices you want to the user. In this example we will simply return their input with "a", "b" or "c" appended:
 ```python
+from interactions import AutocompleteContext
+
 @my_command.autocomplete("string_option")
 async def autocomplete(self, ctx: AutocompleteContext):
     # make sure this is done within three seconds
@@ -264,12 +292,14 @@ You are in luck. There are currently four different ways to create interactions,
         required=True,
         opt_type=OptionType.INTEGER
     )
-    async def my_command_function(ctx: InteractionContext, integer_option: int):
+    async def my_command_function(ctx: SlashContext, integer_option: int):
         await ctx.send(f"You input {integer_option}")
     ```
 
 === ":two: Single Decorator"
     ```python
+    from interactions import SlashCommandOption
+
     @slash_command(
         name="my_command",
         description="My first command :)",
@@ -278,24 +308,28 @@ You are in luck. There are currently four different ways to create interactions,
                 name="integer_option",
                 description="Integer Option",
                 required=True,
-                opt_type=OptionType.INTEGER
+                type=OptionType.INTEGER
             )
         ]
     )
-    async def my_command_function(ctx: InteractionContext, integer_option: int):
+    async def my_command_function(ctx: SlashContext, integer_option: int):
         await ctx.send(f"You input {integer_option}")
     ```
 
 === ":three: Function Annotations"
     ```python
+    from interactions import slash_int_option
+
     @slash_command(name="my_command", description="My first command :)")
-    async def my_command_function(ctx: InteractionContext, integer_option: slash_int_option("Integer Option")):
+    async def my_command_function(ctx: SlashContext, integer_option: slash_int_option("Integer Option")):
         await ctx.send(f"You input {integer_option}")
     ```
 
 === ":four: Manual Registration"
     ```python
-    async def my_command_function(ctx: InteractionContext, integer_option: int):
+    from interactions import SlashCommandOption
+
+    async def my_command_function(ctx: SlashContext, integer_option: int):
         await ctx.send(f"You input {integer_option}")
 
     bot.add_interaction(
@@ -307,7 +341,7 @@ You are in luck. There are currently four different ways to create interactions,
                     name="integer_option",
                     description="Integer Option",
                     required=True,
-                    opt_type=OptionType.INTEGER
+                    type=OptionType.INTEGER
                 )
             ]
         )
@@ -331,20 +365,24 @@ There are two ways to define permissions.
 
 === ":one: Decorators"
     ```py
+    from interactions import Permissions, slash_default_member_permission
+
     @slash_command(name="my_command")
     @slash_default_member_permission(Permissions.MANAGE_EVENTS)
     @slash_default_member_permission(Permissions.MANAGE_THREADS)
-    async def my_command_function(ctx: InteractionContext):
+    async def my_command_function(ctx: SlashContext):
         ...
     ```
 
 === ":two: Function Definition"
     ```py
+    from interactions import Permissions
+
     @slash_command(
         name="my_command",
         default_member_permissions=Permissions.MANAGE_EVENTS | Permissions.MANAGE_THREADS,
     )
-    async def my_command_function(ctx: InteractionContext):
+    async def my_command_function(ctx: SlashContext):
         ...
     ```
 
@@ -359,7 +397,7 @@ You can also block commands in DMs. To do that, just set `dm_permission` to fals
     name="my_guild_only_command",
     dm_permission=False,
 )
-async def my_command_function(ctx: InteractionContext):
+async def my_command_function(ctx: SlashContext):
     ...
 ```
 
@@ -377,9 +415,11 @@ There are a few pre-made checks for you to use, and you can simply create your o
     Check that the author is the owner of the bot:
 
     ```py
+    from interactions import is_owner
+
     @is_owner()
     @slash_command(name="my_command")
-    async def my_command_function(ctx: InteractionContext):
+    async def my_command_function(ctx: SlashContext):
         ...
     ```
 
@@ -387,12 +427,14 @@ There are a few pre-made checks for you to use, and you can simply create your o
     Check that the author's name starts with `a`:
 
     ```py
+    from interactions import check
+
     async def my_check(ctx: Context):
         return ctx.author.name.startswith("a")
 
     @check(check=my_check)
     @slash_command(name="my_command")
-    async def my_command_function(ctx: InteractionContext):
+    async def my_command_function(ctx: SlashContext):
         ...
     ```
 
@@ -400,17 +442,19 @@ There are a few pre-made checks for you to use, and you can simply create your o
     You can reuse checks in extensions by adding them to the extension check list
 
     ```py
+    from interactions import Extension
+
     class MyExtension(Extension):
         def __init__(self, bot) -> None:
             super().__init__(bot)
             self.add_ext_check(is_owner())
 
     @slash_command(name="my_command")
-    async def my_command_function(ctx: InteractionContext):
+    async def my_command_function(ctx: SlashContext):
         ...
 
     @slash_command(name="my_command2")
-    async def my_command_function2(ctx: InteractionContext):
+    async def my_command_function2(ctx: SlashContext):
         ...
 
     def setup(bot) -> None:
@@ -443,7 +487,7 @@ def my_own_int_option():
 
 @slash_command(name="my_command", ...)
 @my_own_int_option()
-async def my_command_function(ctx: InteractionContext, integer_option: int):
+async def my_command_function(ctx: SlashContext, integer_option: int):
     await ctx.send(f"You input {integer_option}")
 ```
 
@@ -456,6 +500,9 @@ Any error from interactions will trigger `on_command_error`. That includes conte
 
 In this example, we are logging the error and responding to the interaction if not done so yet:
 ```python
+from interactions import Client
+from interactions.api.events import CommandError
+
 class CustomClient(Client):
     @listen(disable_default_listeners=True)  # tell the dispatcher that this replaces the default listener
     async def on_command_error(self, event: CommandError):

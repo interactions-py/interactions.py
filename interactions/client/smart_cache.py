@@ -99,12 +99,13 @@ class GlobalCache:
 
     # region User cache
 
-    async def fetch_user(self, user_id: "Snowflake_Type") -> User:
+    async def fetch_user(self, user_id: "Snowflake_Type", *, force: bool = False) -> User:
         """
         Fetch a user by their ID.
 
         Args:
             user_id: The user's ID
+            force: If the cache should be ignored, and the user should be fetched from the API
 
         Returns:
             User object if found
@@ -113,9 +114,10 @@ class GlobalCache:
         user_id = to_snowflake(user_id)
 
         user = self.user_cache.get(user_id)
-        if user is None:
+        if (user is None or user._fetched is False) or force:
             data = await self._client.http.get_user(user_id)
             user = self.place_user_data(data)
+            user._fetched = True  # the user object should set this to True, but we do it here just in case
         return user
 
     def get_user(self, user_id: Optional["Snowflake_Type"]) -> Optional[User]:
@@ -164,13 +166,16 @@ class GlobalCache:
 
     # region Member cache
 
-    async def fetch_member(self, guild_id: "Snowflake_Type", user_id: "Snowflake_Type") -> Member:
+    async def fetch_member(
+        self, guild_id: "Snowflake_Type", user_id: "Snowflake_Type", *, force: bool = False
+    ) -> Member:
         """
         Fetch a member by their guild and user IDs.
 
         Args:
             guild_id: The ID of the guild this user belongs to
             user_id: The ID of the user
+            force: If the cache should be ignored, and the member should be fetched from the API
 
         Returns:
             Member object if found
@@ -179,7 +184,7 @@ class GlobalCache:
         guild_id = to_snowflake(guild_id)
         user_id = to_snowflake(user_id)
         member = self.member_cache.get((guild_id, user_id))
-        if member is None:
+        if member is None or force:
             data = await self._client.http.get_member(guild_id, user_id)
             member = self.place_member_data(guild_id, data)
         return member
@@ -323,15 +328,13 @@ class GlobalCache:
 
         return False
 
-    async def fetch_user_guild_ids(
-        self,
-        user_id: "Snowflake_Type",
-    ) -> List["Snowflake_Type"]:
+    async def fetch_user_guild_ids(self, user_id: "Snowflake_Type") -> List["Snowflake_Type"]:
         """
         Fetch a list of IDs for the guilds a user has joined.
 
         Args:
             user_id: The ID of the user
+
         Returns:
             A list of snowflakes for the guilds the client can see the user is within
         """
@@ -361,9 +364,7 @@ class GlobalCache:
     # region Message cache
 
     async def fetch_message(
-        self,
-        channel_id: "Snowflake_Type",
-        message_id: "Snowflake_Type",
+        self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type", *, force: bool = False
     ) -> Message:
         """
         Fetch a message from a channel based on their IDs.
@@ -371,6 +372,7 @@ class GlobalCache:
         Args:
             channel_id: The ID of the channel the message is in
             message_id: The ID of the message
+            force: If the cache should be ignored, and the message should be fetched from the API
 
         Returns:
             The message if found
@@ -379,7 +381,7 @@ class GlobalCache:
         message_id = to_snowflake(message_id)
         message = self.message_cache.get((channel_id, message_id))
 
-        if message is None:
+        if message is None or force:
             data = await self._client.http.get_message(channel_id, message_id)
             message = self.place_message_data(data)
             if message.channel is None:
@@ -437,22 +439,20 @@ class GlobalCache:
     # endregion Message cache
 
     # region Channel cache
-    async def fetch_channel(
-        self,
-        channel_id: "Snowflake_Type",
-    ) -> "TYPE_ALL_CHANNEL":
+    async def fetch_channel(self, channel_id: "Snowflake_Type", *, force: bool = False) -> "TYPE_ALL_CHANNEL":
         """
         Get a channel based on its ID.
 
         Args:
             channel_id: The ID of the channel
+            force: If the cache should be ignored, and the channel should be fetched from the API
 
         Returns:
             The channel if found
         """
         channel_id = to_snowflake(channel_id)
         channel = self.channel_cache.get(channel_id)
-        if channel is None:
+        if channel is None or force:
             try:
                 data = await self._client.http.get_channel(channel_id)
                 channel = self.place_channel_data(data)
@@ -518,31 +518,33 @@ class GlobalCache:
         """
         self.dm_channels[to_snowflake(user_id)] = to_snowflake(channel_id)
 
-    async def fetch_dm_channel_id(self, user_id: "Snowflake_Type") -> "Snowflake_Type":
+    async def fetch_dm_channel_id(self, user_id: "Snowflake_Type", *, force: bool = False) -> "Snowflake_Type":
         """
         Get the DM channel ID for a user.
 
         Args:
             user_id: The ID of the user
+            force: If the cache should be ignored, and the channel should be fetched from the API
         """
         user_id = to_snowflake(user_id)
         channel_id = self.dm_channels.get(user_id)
-        if channel_id is None:
+        if channel_id is None or force:
             data = await self._client.http.create_dm(user_id)
             channel = self.place_channel_data(data)
             channel_id = channel.id
         return channel_id
 
-    async def fetch_dm_channel(self, user_id: "Snowflake_Type") -> "DM":
+    async def fetch_dm_channel(self, user_id: "Snowflake_Type", *, force: bool = False) -> "DM":
         """
         Fetch the DM channel for a user.
 
         Args:
             user_id: The ID of the user
+            force: If the cache should be ignored, and the channel should be fetched from the API
         """
         user_id = to_snowflake(user_id)
-        channel_id = await self.fetch_dm_channel_id(user_id)
-        return await self.fetch_channel(channel_id)
+        channel_id = await self.fetch_dm_channel_id(user_id, force=force)
+        return await self.fetch_channel(channel_id, force=force)
 
     def get_dm_channel(self, user_id: Optional["Snowflake_Type"]) -> Optional["DM"]:
         """
@@ -575,19 +577,20 @@ class GlobalCache:
 
     # region Guild cache
 
-    async def fetch_guild(self, guild_id: "Snowflake_Type") -> Guild:
+    async def fetch_guild(self, guild_id: "Snowflake_Type", *, force: bool = False) -> Guild:
         """
         Fetch a guild based on its ID.
 
         Args:
             guild_id: The ID of the guild
+            force: If the cache should be ignored, and the guild should be fetched from the API
 
         Returns:
             The guild if found
         """
         guild_id = to_snowflake(guild_id)
         guild = self.guild_cache.get(guild_id)
-        if guild is None:
+        if guild is None or force:
             data = await self._client.http.get_guild(guild_id)
             guild = self.place_guild_data(data)
         return guild
@@ -648,6 +651,8 @@ class GlobalCache:
         self,
         guild_id: "Snowflake_Type",
         role_id: "Snowflake_Type",
+        *,
+        force: bool = False,
     ) -> Role:
         """
         Fetch a role based on the guild and its own ID.
@@ -655,6 +660,7 @@ class GlobalCache:
         Args:
             guild_id: The ID of the guild this role belongs to
             role_id: The ID of the role
+            force: If the cache should be ignored, and the role should be fetched from the API
 
         Returns:
             The role if found
@@ -662,7 +668,7 @@ class GlobalCache:
         guild_id = to_snowflake(guild_id)
         role_id = to_snowflake(role_id)
         role = self.role_cache.get(role_id)
-        if role is None:
+        if role is None or force:
             data = await self._client.http.get_roles(guild_id)
             role = self.place_role_data(guild_id, data).get(role_id)
         return role
@@ -830,9 +836,7 @@ class GlobalCache:
     # region Emoji cache
 
     async def fetch_emoji(
-        self,
-        guild_id: "Snowflake_Type",
-        emoji_id: "Snowflake_Type",
+        self, guild_id: "Snowflake_Type", emoji_id: "Snowflake_Type", *, force: bool = False
     ) -> "CustomEmoji":
         """
         Fetch an emoji based on the guild and its own ID.
@@ -842,6 +846,7 @@ class GlobalCache:
         Args:
             guild_id: The ID of the guild this emoji belongs to
             emoji_id: The ID of the emoji
+            force: If the cache should be ignored, and the emoji should be fetched from the API
 
         Returns:
             The Emoji if found
@@ -849,7 +854,7 @@ class GlobalCache:
         guild_id = to_snowflake(guild_id)
         emoji_id = to_snowflake(emoji_id)
         emoji = self.emoji_cache.get(emoji_id) if self.emoji_cache is not None else None
-        if emoji is None:
+        if emoji is None or force:
             data = await self._client.http.get_guild_emoji(guild_id, emoji_id)
             emoji = self.place_emoji_data(guild_id, data)
 

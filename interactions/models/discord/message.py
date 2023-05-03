@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import re
 from dataclasses import dataclass
 from typing import (
@@ -89,11 +90,21 @@ class Attachment(DiscordObject):
     """width of file (if image)"""
     ephemeral: bool = attrs.field(repr=False, default=False)
     """whether this attachment is ephemeral"""
+    duration_secs: Optional[int] = attrs.field(repr=False, default=None)
+    """the duration of the audio file (currently for voice messages)"""
+    waveform: bytearray = attrs.field(repr=False, default=None)
+    """base64 encoded bytearray representing a sampled waveform (currently for voice messages)"""
 
     @property
     def resolution(self) -> tuple[Optional[int], Optional[int]]:
         """Returns the image resolution of the attachment file"""
         return self.height, self.width
+
+    @classmethod
+    def _process_dict(cls, data: Dict[str, Any], _) -> Dict[str, Any]:
+        if waveform := data.pop("waveform", None):
+            data["waveform"] = bytearray(base64.b64decode(waveform))
+        return data
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -369,9 +380,19 @@ class Message(BaseMessage):
         """The thread that was started from this message, if any"""
         return self._client.cache.get_channel(self.id)
 
-    async def fetch_referenced_message(self) -> Optional["Message"]:
+    @property
+    def editable(self) -> bool:
+        """Whether this message can be edited by the current user"""
+        if self.author.id == self._client.user.id:
+            return MessageFlags.VOICE_MESSAGE not in self.flags
+        return False
+
+    async def fetch_referenced_message(self, *, force: bool = False) -> Optional["Message"]:
         """
         Fetch the message this message is referencing, if any.
+
+        Args:
+            force: Whether to force a fetch from the API
 
         Returns:
             The referenced message, if found
@@ -379,7 +400,7 @@ class Message(BaseMessage):
         """
         if self._referenced_message_id is None:
             return None
-        return await self._client.cache.fetch_message(self._channel_id, self._referenced_message_id)
+        return await self._client.cache.fetch_message(self._channel_id, self._referenced_message_id, force=force)
 
     def get_referenced_message(self) -> Optional["Message"]:
         """
@@ -412,7 +433,7 @@ class Message(BaseMessage):
         return mentions(text=self.content or self.system_content, query=query, tag_as_mention=tag_as_mention)
 
     @classmethod
-    def _process_dict(cls, data: dict, client: "Client") -> dict:
+    def _process_dict(cls, data: dict, client: "Client") -> dict:  # noqa: C901
         if author_data := data.pop("author", None):
             if "guild_id" in data and "member" in data:
                 author_data["member"] = data.pop("member")

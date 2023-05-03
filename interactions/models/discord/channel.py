@@ -246,19 +246,20 @@ class MessageableMixin(SendMixin):
     ) -> dict:
         return await self._client.http.create_message(message_payload, self.id, files=files)
 
-    async def fetch_message(self, message_id: Snowflake_Type) -> Optional["models.Message"]:
+    async def fetch_message(self, message_id: Snowflake_Type, *, force: bool = False) -> Optional["models.Message"]:
         """
         Fetch a message from the channel.
 
         Args:
             message_id: ID of message to retrieve.
+            force: Whether to force a fetch from the API.
 
         Returns:
             The message object fetched. If the message is not found, returns None.
 
         """
         try:
-            return await self._client.cache.fetch_message(self.id, message_id)
+            return await self._client.cache.fetch_message(self.id, message_id, force=force)
         except NotFound:
             return None
 
@@ -555,6 +556,7 @@ class ThreadableMixin:
         message: Absent[Snowflake_Type] = MISSING,
         thread_type: Absent[ChannelType] = MISSING,
         invitable: Absent[bool] = MISSING,
+        rate_limit_per_user: Absent[int] = MISSING,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
         reason: Absent[str] = None,
     ) -> "TYPE_THREAD_CHANNEL":
@@ -566,6 +568,7 @@ class ThreadableMixin:
             message: The message to connect this thread to. Required for news channel.
             thread_type: Is the thread private or public. Not applicable to news channel, it will always be GUILD_NEWS_THREAD.
             invitable: whether non-moderators can add other non-moderators to a thread. Only applicable when creating a private thread.
+            rate_limit_per_user: The time users must wait between sending messages (0-21600).
             auto_archive_duration: Time before the thread will be automatically archived. Note 3 day and 7 day archive durations require the server to be boosted.
             reason: The reason for creating this thread.
 
@@ -587,6 +590,7 @@ class ThreadableMixin:
             name=name,
             thread_type=thread_type,
             invitable=invitable,
+            rate_limit_per_user=rate_limit_per_user,
             auto_archive_duration=auto_archive_duration,
             message_id=to_optional_snowflake(message),
             reason=reason,
@@ -953,9 +957,14 @@ class DMGroup(DMChannel):
         """
         return await super().edit(name=name, icon=icon, reason=reason, **kwargs)
 
-    async def fetch_owner(self) -> "models.User":
-        """Fetch the owner of this DM group"""
-        return await self._client.cache.fetch_user(self.owner_id)
+    async def fetch_owner(self, *, force: bool = False) -> "models.User":
+        """
+        Fetch the owner of this DM group
+
+        Args:
+            force: Whether to force a fetch from the API
+        """
+        return await self._client.cache.fetch_user(self.owner_id, force=force)
 
     def get_owner(self) -> "models.User":
         """Get the owner of this DM group"""
@@ -1734,6 +1743,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         self,
         name: str,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
+        rate_limit_per_user: Absent[int] = MISSING,
         reason: Absent[str] = None,
     ) -> "GuildPublicThread":
         """
@@ -1742,6 +1752,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         Args:
             name: 1-100 character thread name.
             auto_archive_duration: Time before the thread will be automatically archived. Note 3 day and 7 day archive durations require the server to be boosted.
+            rate_limit_per_user: The time users must wait between sending messages (0-21600).
             reason: The reason for creating this thread.
 
         Returns:
@@ -1752,6 +1763,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
             name=name,
             thread_type=ChannelType.GUILD_PUBLIC_THREAD,
             auto_archive_duration=auto_archive_duration,
+            rate_limit_per_user=rate_limit_per_user,
             reason=reason,
         )
 
@@ -1760,6 +1772,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         name: str,
         invitable: Absent[bool] = MISSING,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
+        rate_limit_per_user: Absent[int] = MISSING,
         reason: Absent[str] = None,
     ) -> "GuildPrivateThread":
         """
@@ -1767,7 +1780,8 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
 
         Args:
             name: 1-100 character thread name.
-            invitable: whether non-moderators can add other non-moderators to a thread.
+            invitable: Whether non-moderators can add other non-moderators to a thread.
+            rate_limit_per_user: The time users must wait between sending messages (0-21600).
             auto_archive_duration: Time before the thread will be automatically archived. Note 3 day and 7 day archive durations require the server to be boosted.
             reason: The reason for creating this thread.
 
@@ -1779,6 +1793,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
             name=name,
             thread_type=ChannelType.GUILD_PRIVATE_THREAD,
             invitable=invitable,
+            rate_limit_per_user=rate_limit_per_user,
             auto_archive_duration=auto_archive_duration,
             reason=reason,
         )
@@ -1885,6 +1900,11 @@ class ThreadChannel(BaseChannel, MessageableMixin, WebhookMixin):
     def permission_overwrites(self) -> List["PermissionOverwrite"]:
         """The permission overwrites for this channel."""
         return []
+
+    @property
+    def clyde_created(self) -> bool:
+        """Whether this thread was created by Clyde."""
+        return ChannelFlags.CLYDE_THREAD in self.flags
 
     def permissions_for(self, instance: Snowflake_Type) -> Permissions:
         """
@@ -2493,17 +2513,18 @@ class GuildForum(GuildChannel):
         """An async iterator for all archived posts in this channel."""
         return ArchivedForumPosts(self, limit, before)
 
-    async def fetch_post(self, id: "Snowflake_Type") -> "GuildForumPost":
+    async def fetch_post(self, id: "Snowflake_Type", *, force: bool = False) -> "GuildForumPost":
         """
         Fetch a post within this channel.
 
         Args:
             id: The id of the post to fetch
+            force: Whether to force a fetch from the API
 
         Returns:
             A GuildForumPost object representing the post.
         """
-        return await self._client.fetch_channel(id)
+        return await self._client.fetch_channel(id, force=force)
 
     def get_post(self, id: "Snowflake_Type") -> "GuildForumPost":
         """

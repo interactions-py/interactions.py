@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "interactions.py"
-version = "5.0.1"
+version = "5.2.0"
 description = "Easy, simple, scalable and modular: a Python API wrapper for interactions."
 authors = [
     "LordOfPolls <dev@lordofpolls.com>",
@@ -29,7 +29,6 @@ mkdocs-minify-plugin = { version = "*", optional = true }
 mkdocs-git-committers-plugin-2 = { version = "*", optional = true }
 mkdocs-git-revision-date-localized-plugin = { version = "*", optional = true }
 pytest = { version = "*", optional = true }
-pytest-recording = { version = "*", optional = true }
 pytest-asyncio = { version = "*", optional = true }
 pytest-cov = { version = "*", optional = true }
 python-dotenv = { version = "*", optional = true }
@@ -66,7 +65,6 @@ mkdocs-git-revision-date-localized-plugin = "*"
 
 [tool.poetry.group.tests.dependencies]
 pytest = "*"
-pytest-recording = "*"
 pytest-asyncio = "*"
 pytest-cov = "*"
 python-dotenv = "*"
@@ -116,7 +114,7 @@ source = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "-l -ra --durations=2 --cov=./ --cov-report xml:coverage.xml --junitxml=TestResults.xml"
+addopts = "-l -ra --durations=2 --junitxml=TestResults.xml"
 doctest_optionflags = "NORMALIZE_WHITESPACE"
 asyncio_mode="auto"
 log_cli = "1"
@@ -200,4 +198,4 @@ suppress-none-returning = true
 max-string-length = 20
 
 [tool.ruff.mccabe]
-max-complexity = 10
+max-complexity = 13

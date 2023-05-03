@@ -330,7 +330,7 @@ class Cooldown:
         self.rate: int = rate
         self.interval: float = interval
 
-        self.cooldown_system: Type[CooldownSystem] = cooldown_system
+        self.cooldown_system: Type[CooldownSystem] = cooldown_system or CooldownSystem
 
     async def get_cooldown(self, context: "BaseContext") -> "CooldownSystem":
         key = await self.bucket(context)
@@ -387,6 +387,22 @@ class Cooldown:
         cooldown = await self.get_cooldown(context)
         return cooldown.get_cooldown_time()
 
+    def get_cooldown_time_with_key(self, key: Any, *, create: bool = False) -> float:
+        """
+        Get the remaining cooldown time with a key instead of the context.
+
+        Note:
+            The preferred way to get the cooldown system is to use `get_cooldown` as it will use the context to get the correct key.
+
+        Args:
+            key: The key to get the cooldown system for
+            create: Whether to create a new cooldown system if one does not exist
+        """
+        cooldown = self.get_cooldown_with_key(key, create=create)
+        if cooldown is not None:
+            return cooldown.get_cooldown_time()
+        return 0
+
     async def on_cooldown(self, context: "BaseContext") -> bool:
         """
         Returns the cooldown state of the command.
@@ -422,6 +438,25 @@ class Cooldown:
         """
         cooldown = await self.get_cooldown(context)
         cooldown.reset()
+
+    def reset_with_key(self, key: Any) -> bool:
+        """
+        Resets the cooldown for the bucket associated with the provided key.
+
+        Note:
+            The preferred way to reset the cooldown system is to use `reset_cooldown` as it will use the context to reset the correct cooldown.
+
+        Args:
+            key: The key to reset the cooldown system for
+
+        Returns:
+            True if the key existed and was reset successfully, False if the key didn't exist.
+        """
+        cooldown = self.get_cooldown_with_key(key)
+        if cooldown is not None:
+            cooldown.reset()
+            return True
+        return False
 
 
 class MaxConcurrency:

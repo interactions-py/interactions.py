@@ -16,14 +16,7 @@ from interactions.models.discord.enums import (
 from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 
 if TYPE_CHECKING:
-    from interactions import (
-        Snowflake_Type,
-        Guild,
-        GuildText,
-        Message,
-        Client,
-        Member,
-    )
+    from interactions import Snowflake_Type, Guild, GuildText, Message, Client, Member, User
 
 __all__ = ("AutoModerationAction", "AutoModRule")
 
@@ -128,7 +121,6 @@ class HarmfulLinkFilter(BaseTrigger):
         repr=True,
         metadata=docs("The type of trigger"),
     )
-    ...
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -159,11 +151,23 @@ class MentionSpamTrigger(BaseTrigger):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class MemberProfileTrigger(BaseTrigger):
+    regex_patterns: list[str] = attrs.field(
+        factory=list, repr=True, metadata=docs("The regex patterns to check against")
+    )
+    keyword_filter: str | list[str] = attrs.field(
+        factory=list, repr=True, metadata=docs("The keywords to check against")
+    )
+    allow_list: list["Snowflake_Type"] = attrs.field(
+        factory=list, repr=True, metadata=docs("The roles exempt from this rule")
+    )
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class BlockMessage(BaseAction):
     """blocks the content of a message according to the rule"""
 
     type: AutoModAction = attrs.field(repr=False, default=AutoModAction.BLOCK_MESSAGE, converter=AutoModAction)
-    ...
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -180,6 +184,13 @@ class TimeoutUser(BaseAction):
 
     duration_seconds: int = attrs.field(repr=True, default=60)
     type: AutoModAction = attrs.field(repr=False, default=AutoModAction.TIMEOUT_USER, converter=AutoModAction)
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class BlockMemberInteraction(BaseAction):
+    """Block a member from using text, voice, or other interactions"""
+
+    # this action has no metadata
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -319,6 +330,7 @@ class AutoModerationAction(ClientObject):
     _guild_id: "Snowflake_Type" = attrs.field(
         repr=False,
     )
+    _user_id: "Snowflake_Type" = attrs.field(repr=False)
 
     @classmethod
     def _process_dict(cls, data: dict, client: "Client") -> dict:
@@ -338,11 +350,20 @@ class AutoModerationAction(ClientObject):
     def message(self) -> "Optional[Message]":
         return self._client.cache.get_message(self._channel_id, self._message_id)
 
+    @property
+    def user(self) -> "User":
+        return self._client.cache.get_user(self._user_id)
+
+    @property
+    def member(self) -> "Optional[Member]":
+        return self._client.cache.get_member(self._guild_id, self._user_id)
+
 
 ACTION_MAPPING = {
     AutoModAction.BLOCK_MESSAGE: BlockMessage,
     AutoModAction.ALERT_MESSAGE: AlertMessage,
     AutoModAction.TIMEOUT_USER: TimeoutUser,
+    AutoModAction.BLOCK_MEMBER_INTERACTION: BlockMemberInteraction,
 }
 
 TRIGGER_MAPPING = {
@@ -350,4 +371,5 @@ TRIGGER_MAPPING = {
     AutoModTriggerType.HARMFUL_LINK: HarmfulLinkFilter,
     AutoModTriggerType.KEYWORD_PRESET: KeywordPresetTrigger,
     AutoModTriggerType.MENTION_SPAM: MentionSpamTrigger,
+    AutoModTriggerType.MEMBER_PROFILE: MemberProfileTrigger,
 }

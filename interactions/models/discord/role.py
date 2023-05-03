@@ -86,9 +86,12 @@ class Role(DiscordObject):
 
         return data
 
-    async def fetch_bot(self) -> "Member | None":
+    async def fetch_bot(self, *, force: bool = False) -> "Member | None":
         """
         Fetch the bot associated with this role if any.
+
+        Args:
+            force: Whether to force fetch the bot from the API.
 
         Returns:
             Member object if any
@@ -96,7 +99,7 @@ class Role(DiscordObject):
         """
         if self._bot_id is None:
             return None
-        return await self._client.cache.fetch_member(self._guild_id, self._bot_id)
+        return await self._client.cache.fetch_member(self._guild_id, self._bot_id, force=force)
 
     def get_bot(self) -> "Member | None":
         """

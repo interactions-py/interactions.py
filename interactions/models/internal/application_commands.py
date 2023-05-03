@@ -720,6 +720,7 @@ class SlashCommand(InteractionCommand):
             group_name=name,
             group_description=description,
             scopes=self.scopes,
+            default_member_permissions=self.default_member_permissions,
             dm_permission=self.dm_permission,
             checks=self.checks.copy() if inherit_checks else [],
         )
@@ -1144,7 +1145,7 @@ def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable]
         return ComponentCommand(name=f"ComponentCallback::{custom_id}", callback=func, listeners=custom_id)
 
     custom_id = _unpack_helper(custom_id)
-    if not all(isinstance(i, re.Pattern) for i in custom_id) or all(isinstance(i, str) for i in custom_id):
+    if not (all(isinstance(i, re.Pattern) for i in custom_id) or all(isinstance(i, str) for i in custom_id)):
         raise ValueError("All custom IDs be either a string or a regex pattern, not a mix of both.")
     return wrapper
 
@@ -1277,7 +1278,7 @@ def auto_defer(
     return wrapper
 
 
-def application_commands_to_dict(
+def application_commands_to_dict(  # noqa: C901
     commands: Dict["Snowflake_Type", Dict[str, InteractionCommand]], client: "Client"
 ) -> dict:
     """
