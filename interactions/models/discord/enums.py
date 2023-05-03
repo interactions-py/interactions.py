@@ -788,6 +788,8 @@ class SystemChannelFlags(DiscordIntFlag):
 class ChannelFlags(DiscordIntFlag):
     PINNED = 1 << 1
     """ Thread is pinned to the top of its parent forum channel """
+    CLYDE_THREAD = 1 << 8
+    """This thread was created by Clyde"""
 
     # Special members
     NONE = 0
