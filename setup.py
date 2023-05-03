@@ -26,7 +26,6 @@ extras_require["docs"] = extras_require["all"] + [
 ]
 extras_require["tests"] = [
     "pytest",
-    "pytest-recording",
     "pytest-asyncio",
     "pytest-cov",
     "python-dotenv",
