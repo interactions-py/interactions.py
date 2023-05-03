@@ -36,6 +36,7 @@ from interactions.models.discord.embed import Embed
 from interactions.models.internal.application_commands import (
     OptionType,
     CallbackType,
+    SlashCommandChoice,
     SlashCommandOption,
     InteractionCommand,
 )
@@ -852,7 +853,7 @@ class AutocompleteContext(BaseInteractionContext):
             self.focussed_option = SlashCommandOption.from_dict(option)
         return
 
-    async def send(self, choices: typing.Iterable[str | int | float | dict[str, int | float | str]]) -> None:
+    async def send(self, choices: typing.Iterable[str | int | float | dict[str, int | float | str]|SlashCommandChoice]) -> None:
         """
         Send your autocomplete choices to discord. Choices must be either a list of strings, or a dictionary following the following format:
 
@@ -882,6 +883,9 @@ class AutocompleteContext(BaseInteractionContext):
             if isinstance(choice, dict):
                 name = choice["name"]
                 value = choice["value"]
+            if isinstance(choice, SlashCommandChoice):
+                name = choice.name
+                value = choice.value
             else:
                 name = str(choice)
                 value = choice
