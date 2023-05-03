@@ -101,7 +101,7 @@ class Extension:
         for _name, val in callables:
             if isinstance(val, models.BaseCommand):
                 val.extension = instance
-                val = wrap_partial(val, instance)
+                val = val.copy_with_binding(instance)
                 bot.add_command(val)
                 instance._commands.append(val)
 
@@ -110,12 +110,12 @@ class Extension:
 
             elif isinstance(val, models.Listener):
                 val.extension = instance
-                val = wrap_partial(val, instance)
+                val = val.copy_with_binding(instance)
                 bot.add_listener(val)  # type: ignore
                 instance._listeners.append(val)
             elif isinstance(val, models.GlobalAutoComplete):
                 val.extension = instance
-                val = wrap_partial(val, instance)
+                val = val.copy_with_binding(instance)
                 bot.add_global_autocomplete(val)
         bot.dispatch(events.ExtensionCommandParse(extension=instance, callables=callables))
 
