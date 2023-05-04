@@ -51,7 +51,7 @@ class BaseUser(DiscordObject, _SendDMMixin):
     global_name: str | None = attrs.field(
         repr=True, metadata=docs("The user's chosen display name, platform-wide"), default=None
     )
-    discriminator: str = attrs.field(repr=True, metadata=docs("The user's 4-digit discord-tag"))
+    discriminator: str | None = attrs.field(repr=True, metadata=docs("The user's 4-digit discord-tag"), default=None)
     avatar: "Asset" = attrs.field(repr=False, metadata=docs("The user's default avatar"))
 
     def __str__(self) -> str:
@@ -69,6 +69,8 @@ class BaseUser(DiscordObject, _SendDMMixin):
     @property
     def tag(self) -> str:
         """Returns the user's Discord tag."""
+        if not self.discriminator or self.discriminator == "0":
+            return f"@{self.username}"
         return f"{self.username}#{self.discriminator}"
 
     @property
