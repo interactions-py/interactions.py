@@ -457,6 +457,8 @@ class MessageFlags(DiscordIntFlag):  # type: ignore
     """This message contains a abusive website link, pops up a warning when clicked"""
     SILENT = 1 << 12
     """This message should not trigger push or desktop notifications"""
+    VOICE_MESSAGE = 1 << 13
+    """This message is a voice message"""
 
     # Special members
     NONE = 0
