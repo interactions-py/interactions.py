@@ -386,6 +386,7 @@ class Client(
         self._component_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self._regex_component_callbacks: Dict[re.Pattern, Callable[..., Coroutine]] = {}
         self._modal_callbacks: Dict[str, Callable[..., Coroutine]] = {}
+        self._regex_modal_callbacks: Dict[re.Pattern, Callable[..., Coroutine]] = {}
         self._global_autocompletes: Dict[str, GlobalAutoComplete] = {}
         self.processors: Dict[str, Callable[..., Coroutine]] = {}
         self.__modules = {}
@@ -1297,9 +1298,14 @@ class Client(
             command: The command to add
         """
         for listener in command.listeners:
-            if listener in self._modal_callbacks.keys():
-                raise ValueError(f"Duplicate Component! Multiple modal callbacks for `{listener}`")
-            self._modal_callbacks[listener] = command
+            if isinstance(listener, re.Pattern):
+                if listener in self._regex_component_callbacks.keys():
+                    raise ValueError(f"Duplicate Component! Multiple modal callbacks for `{listener}`")
+                self._regex_modal_callbacks[listener] = command
+            else:
+                if listener in self._modal_callbacks.keys():
+                    raise ValueError(f"Duplicate Component! Multiple modal callbacks for `{listener}`")
+                self._modal_callbacks[listener] = command
             continue
 
     def add_global_autocomplete(self, callback: GlobalAutoComplete) -> None:
@@ -1778,8 +1784,16 @@ class Client(
             ctx = await self.get_context(interaction_data)
             self.dispatch(events.ModalCompletion(ctx=ctx))
 
-            if callback := self._modal_callbacks.get(ctx.custom_id):
-                await self.__dispatch_interaction(ctx=ctx, callback=callback(ctx), error_callback=events.ModalError)
+            modal_callback = self._modal_callbacks.get(ctx.custom_id)
+            if not modal_callback:
+                # evaluate regex component callbacks
+                for regex, callback in self._regex_modal_callbacks.items():
+                    if regex.match(ctx.custom_id):
+                        modal_callback = callback
+                        break
+
+            if modal_callback:
+                await self.__dispatch_interaction(ctx=ctx, callback=modal_callback(ctx), error_callback=events.ModalError)
 
         else:
             raise NotImplementedError(f"Unknown Interaction Received: {interaction_data['type']}")
