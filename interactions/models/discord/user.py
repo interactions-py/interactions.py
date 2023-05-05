@@ -52,7 +52,7 @@ class BaseUser(DiscordObject, _SendDMMixin):
         repr=True, metadata=docs("The user's chosen display name, platform-wide"), default=None
     )
     discriminator: str = attrs.field(
-        repr=True, metadata=docs("The user's 4-digit discord-tag")
+        repr=True, metadata=docs("The user's 4-digit discord-tag"), default="0"
     )  # will likely be removed in future api version
     avatar: "Asset" = attrs.field(repr=False, metadata=docs("The user's default avatar"))
 
