@@ -239,7 +239,7 @@ class PrefixedManager:
     @listen("extension_unload")
     async def _handle_ext_unload(self, event: ExtensionUnload) -> None:
         """Unregisters all prefixed commands in an extension as it is being unloaded."""
-        for name in self._ext_command_list[event.extension.extension_name]:
+        for name in self._ext_command_list[event.extension.extension_name].copy():
             self.remove_command(name)
 
     @listen("raw_message_create", is_default_listener=True)
