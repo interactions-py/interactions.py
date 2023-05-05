@@ -1,17 +1,18 @@
-from typing import TYPE_CHECKING, List, cast, Mapping, Any
+from typing import TYPE_CHECKING, Any, List, Mapping, cast
 
 import discord_typings
 
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.models.internal.protocols import CanRequest
-from ..route import Route, PAYLOAD_TYPE
+
+from ..route import PAYLOAD_TYPE, Route
 
 __all__ = ("GuildRequests",)
 
 
 if TYPE_CHECKING:
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.enums import AuditLogEventType
+    from interactions.models.discord.snowflake import Snowflake_Type
 
 
 class GuildRequests(CanRequest):
@@ -404,9 +405,6 @@ class GuildRequests(CanRequest):
         Args:
             guild_id: The ID of the guild
             position_changes: A list of dicts representing the roles to move and their new positions
-
-            ``{"id": role_id, "position": new_position}``
-
             reason: The reason for this action
 
         Returns:
