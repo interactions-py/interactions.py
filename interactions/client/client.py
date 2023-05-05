@@ -1793,7 +1793,9 @@ class Client(
                         break
 
             if modal_callback:
-                await self.__dispatch_interaction(ctx=ctx, callback=modal_callback(ctx), error_callback=events.ModalError)
+                await self.__dispatch_interaction(
+                    ctx=ctx, callback=modal_callback(ctx), error_callback=events.ModalError
+                )
 
         else:
             raise NotImplementedError(f"Unknown Interaction Received: {interaction_data['type']}")
