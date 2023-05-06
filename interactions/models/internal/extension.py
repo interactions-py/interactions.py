@@ -101,7 +101,7 @@ class Extension:
         for _name, val in callables:
             if isinstance(val, models.BaseCommand):
                 val.extension = instance
-                val = val.copy_with_binding(instance)
+                val = wrap_partial(val, instance)
                 bot.add_command(val)
                 instance._commands.append(val)
 
