@@ -88,11 +88,17 @@ from interactions.models.discord.enums import (
     Intents,
     InteractionType,
     Status,
+    MessageFlags,
 )
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import Snowflake, to_snowflake_list
 from interactions.models.internal.active_voice_state import ActiveVoiceState
-from interactions.models.internal.application_commands import ContextMenu, ModalCommand, GlobalAutoComplete
+from interactions.models.internal.application_commands import (
+    ContextMenu,
+    ModalCommand,
+    GlobalAutoComplete,
+    CallbackType,
+)
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.callback import CallbackObject
 from interactions.models.internal.command import BaseCommand
@@ -111,9 +117,7 @@ from interactions.models.internal.tasks import Task
 if TYPE_CHECKING:
     from interactions.models import Snowflake_Type, TYPE_ALL_CHANNEL
 
-
 __all__ = ("Client",)
-
 
 # see https://discord.com/developers/docs/topics/gateway#list-of-intents
 _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
@@ -225,6 +229,7 @@ class Client(
         enforce_interaction_perms: Enforce discord application command permissions, locally
         fetch_members: Should the client fetch members from guilds upon startup (this will delay the client being ready)
         send_command_tracebacks: Automatically send uncaught tracebacks if a command throws an exception
+        send_not_ready_messages: Send a message to the user if they try to use a command before the client is ready
 
         auto_defer: AutoDefer: A system to automatically defer commands after a set duration
         interaction_context: Type[InteractionContext]: InteractionContext: The object to instantiate for Interaction Context
@@ -277,6 +282,7 @@ class Client(
         modal_context: Type[BaseContext] = ModalContext,
         owner_ids: Iterable["Snowflake_Type"] = (),
         send_command_tracebacks: bool = True,
+        send_not_ready_messages: bool = False,
         shard_id: int = 0,
         show_ratelimit_tracebacks: bool = False,
         slash_context: Type[BaseContext] = SlashContext,
@@ -312,6 +318,8 @@ class Client(
         """Sync global commands as guild for quicker command updates during debug"""
         self.send_command_tracebacks: bool = send_command_tracebacks
         """Should the traceback of command errors be sent in reply to the command invocation"""
+        self.send_not_ready_messages: bool = send_not_ready_messages
+        """Should the bot send a message when it is not ready yet in response to a command invocation"""
         if auto_defer is True:
             auto_defer = AutoDefer(enabled=True)
         else:
@@ -684,7 +692,7 @@ class Client(
                     embeds=Embed(
                         title=f"Error: {type(event.error).__name__}",
                         color=BrandColors.RED,
-                        description=f"```\n{out[:EMBED_MAX_DESC_LENGTH-8]}```",
+                        description=f"```\n{out[:EMBED_MAX_DESC_LENGTH - 8]}```",
                     )
                 )
 
@@ -1696,6 +1704,32 @@ class Client(
                 self.logger.debug(f"Failed to fetch channel data for {data['channel_id']}")
         return cls
 
+    async def handle_pre_ready_response(self, data: dict) -> None:
+        """
+        Respond to an interaction that was received before the bot was ready.
+
+        Args:
+            data: The interaction data
+
+        """
+        if data["type"] == InteractionType.AUTOCOMPLETE:
+            # we do not want to respond to autocompletes as discord will cache the response,
+            # so we just ignore them
+            return
+
+        with contextlib.suppress(HTTPException):
+            await self.http.post_initial_response(
+                {
+                    "type": CallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    "data": {
+                        "content": f"{self.user.display_name} is starting up. Please try again in a few seconds",
+                        "flags": MessageFlags.EPHEMERAL,
+                    },
+                },
+                token=data["token"],
+                interaction_id=data["id"],
+            )
+
     async def _run_slash_command(self, command: SlashCommand, ctx: "InteractionContext") -> Any:
         """Overrideable method that executes slash commands, can be used to wrap callback execution"""
         return await command(ctx, **ctx.kwargs)
@@ -1713,6 +1747,8 @@ class Client(
 
         if not self._startup:
             self.logger.warning("Received interaction before startup completed, ignoring")
+            if self.send_not_ready_messages:
+                await self.handle_pre_ready_response(interaction_data)
             return
 
         if interaction_data["type"] in (
