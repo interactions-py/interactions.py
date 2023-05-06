@@ -30,6 +30,7 @@ class Listener(CallbackObject):
         delay_until_ready: bool = False,
         is_default_listener: bool = False,
         disable_default_listeners: bool = False,
+        pass_event_object: Absent[bool] = MISSING,
     ) -> None:
         super().__init__()
 
@@ -41,6 +42,10 @@ class Listener(CallbackObject):
         self.delay_until_ready = delay_until_ready
         self.is_default_listener = is_default_listener
         self.disable_default_listeners = disable_default_listeners
+
+        self._params = inspect.signature(func).parameters.copy()
+        self.pass_event_object = pass_event_object
+        self.warned_no_event_arg = False
 
     def __repr__(self) -> str:
         return f"<Listener event={self.event!r} callback={self.callback!r}>"
@@ -97,6 +102,17 @@ class Listener(CallbackObject):
             )
 
         return wrapper
+
+    def lazy_parse_params(self):
+        """Process the parameters of this listener."""
+        if self.pass_event_object is not MISSING:
+            return
+
+        if self.has_binding:
+            # discard the first parameter, which is the class instance
+            self._params = list(self._params.values())[1:]
+
+        self.pass_event_object = len(self._params) != 0
 
 
 def listen(

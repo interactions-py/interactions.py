@@ -571,11 +571,17 @@ class Client(
                 ):
                     await self.wait_until_ready()
 
-                if len(_event.__attrs_attrs__) == 2 and coro.event != "event":
-                    # override_name & bot & logging
-                    await _coro()
-                else:
+                # don't pass event object if listener doesn't expect it
+                if _coro.pass_event_object:
                     await _coro(_event, *_args, **_kwargs)
+                else:
+                    if not _coro.warned_no_event_arg and len(_event.__attrs_attrs__) > 2 and _coro.event != "event":
+                        self.logger.warning(
+                            f"{_coro} is listening to {_coro.event} event which contains event data. "
+                            f"Add an event argument to this listener to receive the event data object."
+                        )
+                        _coro.warned_no_event_arg = True
+                    await _coro()
             except asyncio.CancelledError:
                 pass
             except Exception as e:
@@ -1201,6 +1207,8 @@ class Client(
         if listener in self.listeners.get(listener.event, []):
             self.logger.debug(f"Listener {listener} has already been hooked, not re-hooking it again")
             return
+
+        listener.lazy_parse_params()
 
         if listener.event not in self.listeners:
             self.listeners[listener.event] = []

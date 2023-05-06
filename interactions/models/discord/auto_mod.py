@@ -121,7 +121,6 @@ class HarmfulLinkFilter(BaseTrigger):
         repr=True,
         metadata=docs("The type of trigger"),
     )
-    ...
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -152,11 +151,23 @@ class MentionSpamTrigger(BaseTrigger):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class MemberProfileTrigger(BaseTrigger):
+    regex_patterns: list[str] = attrs.field(
+        factory=list, repr=True, metadata=docs("The regex patterns to check against")
+    )
+    keyword_filter: str | list[str] = attrs.field(
+        factory=list, repr=True, metadata=docs("The keywords to check against")
+    )
+    allow_list: list["Snowflake_Type"] = attrs.field(
+        factory=list, repr=True, metadata=docs("The roles exempt from this rule")
+    )
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class BlockMessage(BaseAction):
     """blocks the content of a message according to the rule"""
 
     type: AutoModAction = attrs.field(repr=False, default=AutoModAction.BLOCK_MESSAGE, converter=AutoModAction)
-    ...
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -173,6 +184,13 @@ class TimeoutUser(BaseAction):
 
     duration_seconds: int = attrs.field(repr=True, default=60)
     type: AutoModAction = attrs.field(repr=False, default=AutoModAction.TIMEOUT_USER, converter=AutoModAction)
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class BlockMemberInteraction(BaseAction):
+    """Block a member from using text, voice, or other interactions"""
+
+    # this action has no metadata
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -345,6 +363,7 @@ ACTION_MAPPING = {
     AutoModAction.BLOCK_MESSAGE: BlockMessage,
     AutoModAction.ALERT_MESSAGE: AlertMessage,
     AutoModAction.TIMEOUT_USER: TimeoutUser,
+    AutoModAction.BLOCK_MEMBER_INTERACTION: BlockMemberInteraction,
 }
 
 TRIGGER_MAPPING = {
@@ -352,4 +371,5 @@ TRIGGER_MAPPING = {
     AutoModTriggerType.HARMFUL_LINK: HarmfulLinkFilter,
     AutoModTriggerType.KEYWORD_PRESET: KeywordPresetTrigger,
     AutoModTriggerType.MENTION_SPAM: MentionSpamTrigger,
+    AutoModTriggerType.MEMBER_PROFILE: MemberProfileTrigger,
 }

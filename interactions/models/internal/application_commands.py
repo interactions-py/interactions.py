@@ -720,6 +720,7 @@ class SlashCommand(InteractionCommand):
             group_name=name,
             group_description=description,
             scopes=self.scopes,
+            default_member_permissions=self.default_member_permissions,
             dm_permission=self.dm_permission,
             checks=self.checks.copy() if inherit_checks else [],
         )

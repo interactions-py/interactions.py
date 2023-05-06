@@ -36,6 +36,7 @@ from interactions.models.discord.embed import Embed
 from interactions.models.internal.application_commands import (
     OptionType,
     CallbackType,
+    SlashCommandChoice,
     SlashCommandOption,
     InteractionCommand,
 )
@@ -780,6 +781,16 @@ class ComponentContext(InteractionContext, ModalMixin):
             self.message_id = message.id
             return message
 
+    @property
+    def component(self) -> typing.Optional[BaseComponent]:
+        """The component that was interacted with."""
+        if self.message is None or self.message.components is None:
+            return None
+        for action_row in self.message.components:
+            for component in action_row.components:
+                if component.custom_id == self.custom_id:
+                    return component
+
 
 class ModalContext(InteractionContext):
     responses: dict[str, str]
@@ -852,7 +863,9 @@ class AutocompleteContext(BaseInteractionContext):
             self.focussed_option = SlashCommandOption.from_dict(option)
         return
 
-    async def send(self, choices: typing.Iterable[str | int | float | dict[str, int | float | str]]) -> None:
+    async def send(
+        self, choices: typing.Iterable[str | int | float | dict[str, int | float | str] | SlashCommandChoice]
+    ) -> None:
         """
         Send your autocomplete choices to discord. Choices must be either a list of strings, or a dictionary following the following format:
 
@@ -882,6 +895,9 @@ class AutocompleteContext(BaseInteractionContext):
             if isinstance(choice, dict):
                 name = choice["name"]
                 value = choice["value"]
+            elif isinstance(choice, SlashCommandChoice):
+                name = choice.name
+                value = choice.value
             else:
                 name = str(choice)
                 value = choice

@@ -39,7 +39,7 @@ class _SendDMMixin(SendMixin):
 class FakeBaseUserMixin(DiscordObject, _SendDMMixin):
     username: str
     global_name: str | None
-    discriminator: int
+    discriminator: str
     avatar: Asset
     def __str__(self) -> str: ...
     @classmethod
