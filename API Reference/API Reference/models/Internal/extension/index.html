@@ -347,7 +347,7 @@
         <span class=k>for</span> <span class=n>_name</span><span class=p>,</span> <span class=n>val</span> <span class=ow>in</span> <span class=n>callables</span><span class=p>:</span>
             <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>val</span><span class=p>,</span> <span class=n>models</span><span class=o>.</span><span class=n>BaseCommand</span><span class=p>):</span>
                 <span class=n>val</span><span class=o>.</span><span class=n>extension</span> <span class=o>=</span> <span class=n>instance</span>
-                <span class=n>val</span> <span class=o>=</span> <span class=n>val</span><span class=o>.</span><span class=n>copy_with_binding</span><span class=p>(</span><span class=n>instance</span><span class=p>)</span>
+                <span class=n>val</span> <span class=o>=</span> <span class=n>wrap_partial</span><span class=p>(</span><span class=n>val</span><span class=p>,</span> <span class=n>instance</span><span class=p>)</span>
                 <span class=n>bot</span><span class=o>.</span><span class=n>add_command</span><span class=p>(</span><span class=n>val</span><span class=p>)</span>
                 <span class=n>instance</span><span class=o>.</span><span class=n>_commands</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=n>val</span><span class=p>)</span>
 
