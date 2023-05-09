@@ -1559,8 +1559,7 @@ class Client(
 
         for local_cmd in self.interactions_by_scope.get(cmd_scope, {}).values():
             remote_cmd_json = next(
-                (v for v in remote_commands if int(v["id"]) == local_cmd.cmd_id.get(cmd_scope)),
-                None,
+                (c for c in remote_commands if int(c["id"]) == int(local_cmd.cmd_id.get(cmd_scope, 0))), None
             )
             local_cmd_json = next((c for c in local_cmds_json[cmd_scope] if c["name"] == str(local_cmd.name)))
 
