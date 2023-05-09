@@ -896,7 +896,7 @@ class AutocompleteContext(BaseInteractionContext):
                 name = choice["name"]
                 value = choice["value"]
             elif isinstance(choice, SlashCommandChoice):
-                name = choice.name
+                name = choice.name.get_locale(self.locale)
                 value = choice.value
             else:
                 name = str(choice)
