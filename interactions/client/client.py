@@ -26,6 +26,8 @@ from typing import (
     Tuple,
 )
 
+from aiohttp import BasicAuth
+
 import interactions.api.events as events
 import interactions.client.const as constants
 from interactions.api.events import BaseEvent, RawGatewayEvent, processors
@@ -241,6 +243,9 @@ class Client(
         logging_level: The level of logging to use for basic_logging. Do not use in combination with `Client.logger`
         logger: The logger interactions.py should use. Do not use in combination with `Client.basic_logging` and `Client.logging_level`. Note: Different loggers with multiple clients are not supported
 
+        proxy: A http/https proxy to use for all requests
+        proxy_auth: The auth to use for the proxy - must be either a tuple of (username, password) or aiohttp.BasicAuth
+
     Optionally, you can configure the caches here, by specifying the name of the cache, followed by a dict-style object to use.
     It is recommended to use `smart_cache.create_cache` to configure the cache here.
     as an example, this is a recommended attribute `message_cache=create_cache(250, 50)`,
@@ -283,6 +288,8 @@ class Client(
         status: Status = Status.ONLINE,
         sync_ext: bool = True,
         sync_interactions: bool = True,
+        proxy_url: str | None = None,
+        proxy_auth: BasicAuth | tuple[str, str] | None = None,
         token: str | None = None,
         total_shards: int = 1,
         **kwargs,
@@ -321,8 +328,12 @@ class Client(
         self.intents = intents if isinstance(intents, Intents) else Intents(intents)
 
         # resources
+        if isinstance(proxy_auth, tuple):
+            proxy_auth = BasicAuth(*proxy_auth)
 
-        self.http: HTTPClient = HTTPClient(logger=self.logger, show_ratelimit_tracebacks=show_ratelimit_tracebacks)
+        self.http: HTTPClient = HTTPClient(
+            logger=self.logger, show_ratelimit_tracebacks=show_ratelimit_tracebacks, proxy=(proxy_url, proxy_auth)
+        )
         """The HTTP client to use when interacting with discord endpoints"""
 
         # context factories

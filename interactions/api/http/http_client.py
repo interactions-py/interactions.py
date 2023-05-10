@@ -10,7 +10,7 @@ from weakref import WeakValueDictionary
 
 import aiohttp
 import discord_typings
-from aiohttp import BaseConnector, ClientSession, ClientWebSocketResponse, FormData
+from aiohttp import BaseConnector, ClientSession, ClientWebSocketResponse, FormData, BasicAuth
 from multidict import CIMultiDictProxy
 
 import interactions.client.const as constants
@@ -214,7 +214,11 @@ class HTTPClient(
     """A http client for sending requests to the Discord API."""
 
     def __init__(
-        self, connector: BaseConnector | None = None, logger: Logger = MISSING, show_ratelimit_tracebacks: bool = False
+        self,
+        connector: BaseConnector | None = None,
+        logger: Logger = MISSING,
+        show_ratelimit_tracebacks: bool = False,
+        proxy: tuple[str, BasicAuth] | None = None,
     ) -> None:
         self.connector: BaseConnector | None = connector
         self.__session: ClientSession | None = None
@@ -229,6 +233,8 @@ class HTTPClient(
         self.user_agent: str = (
             f"DiscordBot ({__repo_url__} {__version__} Python/{__py_version__}) aiohttp/{aiohttp.__version__}"
         )
+        self.proxy: tuple[str, BasicAuth] | None = proxy
+        self.__proxy_validated: bool = False
 
         if logger is MISSING:
             logger = constants.get_logger()
@@ -384,6 +390,10 @@ class HTTPClient(
                         kwargs["json"] = processed_data  # pyright: ignore
                     await self.global_lock.wait()
 
+                    if self.proxy:
+                        kwargs["proxy"] = self.proxy[0]
+                        kwargs["proxy_auth"] = self.proxy[1]
+
                     async with self.__session.request(route.method, route.url, **kwargs) as response:
                         result = await response_decode(response)
                         self.ingest_ratelimit(route, response.headers, lock)
@@ -505,6 +515,19 @@ class HTTPClient(
             connector=self.connector or aiohttp.TCPConnector(limit=self.global_lock.max_requests),
             json_serialize=FastJson.dumps,
         )
+        if not self.__proxy_validated and self.proxy:
+            try:
+                self.logger.info(f"Validating Proxy @ {self.proxy[0]}")
+                async with self.__session.get(
+                    "http://icanhazip.com/", proxy=self.proxy[0], proxy_auth=self.proxy[1]
+                ) as response:
+                    if response.status != 200:
+                        raise RuntimeError("Proxy configuration is invalid")
+                    self.logger.info(f"Proxy Connected @ {(await response.text()).strip()}")
+                    self.__proxy_validated = True
+            except Exception as e:
+                raise RuntimeError("Proxy configuration is invalid") from e
+
         self.token = token
         try:
             result = await self.request(Route("GET", "/users/@me"))
@@ -556,4 +579,6 @@ class HTTPClient(
             autoclose=False,
             headers={"User-Agent": self.user_agent},
             compress=0,
+            proxy=self.proxy[0] if self.proxy else None,
+            proxy_auth=self.proxy[1] if self.proxy else None,
         )
