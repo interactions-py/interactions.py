@@ -220,5 +220,5 @@ AsyncCallable = Callable[..., Coroutine]
 LIB_PATH = os.sep.join(__file__.split(os.sep)[:-2])
 """The path to the library folder."""
 
-RECOVERABLE_WEBSOCKET_CLOSE_CODES = (4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009)
+RECOVERABLE_WEBSOCKET_CLOSE_CODES = (1001, 1011, 1012, 4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009)
 NON_RESUMABLE_WEBSOCKET_CLOSE_CODES = (1000, 4007)
