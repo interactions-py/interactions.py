@@ -251,7 +251,7 @@ NON_RESUMABLE_WEBSOCKET_CLOSE_CODES = (  # Codes that are recoverable, but the b
     1012,  # Server is restarting
     1014,  # Handshake failed
     1015,  # TLS error
-    4007,   # Invalid seq
+    4007,  # Invalid seq
 )
 # Any close code not in the above two tuples is a non-recoverable close code, and will result in the bot shutting down
 # fmt: on
