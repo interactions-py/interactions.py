@@ -221,7 +221,7 @@ LIB_PATH = os.sep.join(__file__.split(os.sep)[:-2])
 """The path to the library folder."""
 
 # fmt: off
-RECOVERABLE_WEBSOCKET_CLOSE_CODES = (  # Codes that can are recoverable, and the bot will reconnect
+RECOVERABLE_WEBSOCKET_CLOSE_CODES = (  # Codes that are recoverable, and the bot will reconnect
     1000,  # Normal closure
     1001,  # Server going away
     1003,  # Unsupported Data
