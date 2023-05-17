@@ -207,7 +207,7 @@ class Audio(BaseAudio):
 
         self.ffmpeg_before_args = ""
         self.ffmpeg_args = ""
-        self.probe: bool = True
+        self.probe: bool = False
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}: {self.source}>"

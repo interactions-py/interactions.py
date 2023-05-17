@@ -26,6 +26,8 @@ from typing import (
     Tuple,
 )
 
+from aiohttp import BasicAuth
+
 import interactions.api.events as events
 import interactions.client.const as constants
 from interactions.api.events import BaseEvent, RawGatewayEvent, processors
@@ -88,11 +90,17 @@ from interactions.models.discord.enums import (
     Intents,
     InteractionType,
     Status,
+    MessageFlags,
 )
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.snowflake import Snowflake, to_snowflake_list
 from interactions.models.internal.active_voice_state import ActiveVoiceState
-from interactions.models.internal.application_commands import ContextMenu, ModalCommand, GlobalAutoComplete
+from interactions.models.internal.application_commands import (
+    ContextMenu,
+    ModalCommand,
+    GlobalAutoComplete,
+    CallbackType,
+)
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.callback import CallbackObject
 from interactions.models.internal.command import BaseCommand
@@ -111,9 +119,7 @@ from interactions.models.internal.tasks import Task
 if TYPE_CHECKING:
     from interactions.models import Snowflake_Type, TYPE_ALL_CHANNEL
 
-
 __all__ = ("Client",)
-
 
 # see https://discord.com/developers/docs/topics/gateway#list-of-intents
 _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
@@ -225,6 +231,7 @@ class Client(
         enforce_interaction_perms: Enforce discord application command permissions, locally
         fetch_members: Should the client fetch members from guilds upon startup (this will delay the client being ready)
         send_command_tracebacks: Automatically send uncaught tracebacks if a command throws an exception
+        send_not_ready_messages: Send a message to the user if they try to use a command before the client is ready
 
         auto_defer: AutoDefer: A system to automatically defer commands after a set duration
         interaction_context: Type[InteractionContext]: InteractionContext: The object to instantiate for Interaction Context
@@ -240,6 +247,9 @@ class Client(
         basic_logging: Utilise basic logging to output library data to console. Do not use in combination with `Client.logger`
         logging_level: The level of logging to use for basic_logging. Do not use in combination with `Client.logger`
         logger: The logger interactions.py should use. Do not use in combination with `Client.basic_logging` and `Client.logging_level`. Note: Different loggers with multiple clients are not supported
+
+        proxy: A http/https proxy to use for all requests
+        proxy_auth: The auth to use for the proxy - must be either a tuple of (username, password) or aiohttp.BasicAuth
 
     Optionally, you can configure the caches here, by specifying the name of the cache, followed by a dict-style object to use.
     It is recommended to use `smart_cache.create_cache` to configure the cache here.
@@ -277,12 +287,15 @@ class Client(
         modal_context: Type[BaseContext] = ModalContext,
         owner_ids: Iterable["Snowflake_Type"] = (),
         send_command_tracebacks: bool = True,
+        send_not_ready_messages: bool = False,
         shard_id: int = 0,
         show_ratelimit_tracebacks: bool = False,
         slash_context: Type[BaseContext] = SlashContext,
         status: Status = Status.ONLINE,
         sync_ext: bool = True,
         sync_interactions: bool = True,
+        proxy_url: str | None = None,
+        proxy_auth: BasicAuth | tuple[str, str] | None = None,
         token: str | None = None,
         total_shards: int = 1,
         **kwargs,
@@ -312,6 +325,8 @@ class Client(
         """Sync global commands as guild for quicker command updates during debug"""
         self.send_command_tracebacks: bool = send_command_tracebacks
         """Should the traceback of command errors be sent in reply to the command invocation"""
+        self.send_not_ready_messages: bool = send_not_ready_messages
+        """Should the bot send a message when it is not ready yet in response to a command invocation"""
         if auto_defer is True:
             auto_defer = AutoDefer(enabled=True)
         else:
@@ -321,8 +336,12 @@ class Client(
         self.intents = intents if isinstance(intents, Intents) else Intents(intents)
 
         # resources
+        if isinstance(proxy_auth, tuple):
+            proxy_auth = BasicAuth(*proxy_auth)
 
-        self.http: HTTPClient = HTTPClient(logger=self.logger, show_ratelimit_tracebacks=show_ratelimit_tracebacks)
+        self.http: HTTPClient = HTTPClient(
+            logger=self.logger, show_ratelimit_tracebacks=show_ratelimit_tracebacks, proxy=(proxy_url, proxy_auth)
+        )
         """The HTTP client to use when interacting with discord endpoints"""
 
         # context factories
@@ -386,6 +405,7 @@ class Client(
         self._component_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self._regex_component_callbacks: Dict[re.Pattern, Callable[..., Coroutine]] = {}
         self._modal_callbacks: Dict[str, Callable[..., Coroutine]] = {}
+        self._regex_modal_callbacks: Dict[re.Pattern, Callable[..., Coroutine]] = {}
         self._global_autocompletes: Dict[str, GlobalAutoComplete] = {}
         self.processors: Dict[str, Callable[..., Coroutine]] = {}
         self.__modules = {}
@@ -684,7 +704,7 @@ class Client(
                     embeds=Embed(
                         title=f"Error: {type(event.error).__name__}",
                         color=BrandColors.RED,
-                        description=f"```\n{out[:EMBED_MAX_DESC_LENGTH-8]}```",
+                        description=f"```\n{out[:EMBED_MAX_DESC_LENGTH - 8]}```",
                     )
                 )
 
@@ -1305,9 +1325,14 @@ class Client(
             command: The command to add
         """
         for listener in command.listeners:
-            if listener in self._modal_callbacks.keys():
-                raise ValueError(f"Duplicate Component! Multiple modal callbacks for `{listener}`")
-            self._modal_callbacks[listener] = command
+            if isinstance(listener, re.Pattern):
+                if listener in self._regex_component_callbacks.keys():
+                    raise ValueError(f"Duplicate Component! Multiple modal callbacks for `{listener}`")
+                self._regex_modal_callbacks[listener] = command
+            else:
+                if listener in self._modal_callbacks.keys():
+                    raise ValueError(f"Duplicate Component! Multiple modal callbacks for `{listener}`")
+                self._modal_callbacks[listener] = command
             continue
 
     def add_global_autocomplete(self, callback: GlobalAutoComplete) -> None:
@@ -1559,8 +1584,7 @@ class Client(
 
         for local_cmd in self.interactions_by_scope.get(cmd_scope, {}).values():
             remote_cmd_json = next(
-                (v for v in remote_commands if int(v["id"]) == local_cmd.cmd_id.get(cmd_scope)),
-                None,
+                (c for c in remote_commands if int(c["id"]) == int(local_cmd.cmd_id.get(cmd_scope, 0))), None
             )
             local_cmd_json = next((c for c in local_cmds_json[cmd_scope] if c["name"] == str(local_cmd.name)))
 
@@ -1696,6 +1720,32 @@ class Client(
                 self.logger.debug(f"Failed to fetch channel data for {data['channel_id']}")
         return cls
 
+    async def handle_pre_ready_response(self, data: dict) -> None:
+        """
+        Respond to an interaction that was received before the bot was ready.
+
+        Args:
+            data: The interaction data
+
+        """
+        if data["type"] == InteractionType.AUTOCOMPLETE:
+            # we do not want to respond to autocompletes as discord will cache the response,
+            # so we just ignore them
+            return
+
+        with contextlib.suppress(HTTPException):
+            await self.http.post_initial_response(
+                {
+                    "type": CallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+                    "data": {
+                        "content": f"{self.user.display_name} is starting up. Please try again in a few seconds",
+                        "flags": MessageFlags.EPHEMERAL,
+                    },
+                },
+                token=data["token"],
+                interaction_id=data["id"],
+            )
+
     async def _run_slash_command(self, command: SlashCommand, ctx: "InteractionContext") -> Any:
         """Overrideable method that executes slash commands, can be used to wrap callback execution"""
         return await command(ctx, **ctx.kwargs)
@@ -1713,6 +1763,8 @@ class Client(
 
         if not self._startup:
             self.logger.warning("Received interaction before startup completed, ignoring")
+            if self.send_not_ready_messages:
+                await self.handle_pre_ready_response(interaction_data)
             return
 
         if interaction_data["type"] in (
@@ -1792,8 +1844,18 @@ class Client(
             ctx = await self.get_context(interaction_data)
             self.dispatch(events.ModalCompletion(ctx=ctx))
 
-            if callback := self._modal_callbacks.get(ctx.custom_id):
-                await self.__dispatch_interaction(ctx=ctx, callback=callback(ctx), error_callback=events.ModalError)
+            modal_callback = self._modal_callbacks.get(ctx.custom_id)
+            if not modal_callback:
+                # evaluate regex component callbacks
+                for regex, callback in self._regex_modal_callbacks.items():
+                    if regex.match(ctx.custom_id):
+                        modal_callback = callback
+                        break
+
+            if modal_callback:
+                await self.__dispatch_interaction(
+                    ctx=ctx, callback=modal_callback(ctx), error_callback=events.ModalError
+                )
 
         else:
             raise NotImplementedError(f"Unknown Interaction Received: {interaction_data['type']}")

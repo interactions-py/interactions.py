@@ -360,7 +360,7 @@ class Guild(BaseGuild):
     @property
     def roles(self) -> List["models.Role"]:
         """Returns a list of roles associated with this guild."""
-        return [self._client.cache.get_role(r_id) for r_id in self._role_ids]
+        return sorted([self._client.cache.get_role(r_id) for r_id in self._role_ids], reverse=True)
 
     @property
     def me(self) -> "models.Member":
