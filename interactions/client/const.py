@@ -32,6 +32,9 @@ Attributes:
     T TypeVar: A type variable used for generic typing.
     Absent Union[T, Missing]: A type hint for a value that may be MISSING.
 
+    CLIENT_FEATURE_FLAGS dict: A dict of feature flags that can be enabled or disabled for the client.
+    has_feature_flag Callable[[str], bool]: A function that returns whether a feature flag is enabled.
+
 """
 import inspect
 import logging
@@ -78,6 +81,8 @@ __all__ = (
     "LIB_PATH",
     "RECOVERABLE_WEBSOCKET_CLOSE_CODES",
     "NON_RESUMABLE_WEBSOCKET_CLOSE_CODES",
+    "CLIENT_FEATURE_FLAGS",
+    "has_client_feature",
 )
 
 _ver_info = sys.version_info
