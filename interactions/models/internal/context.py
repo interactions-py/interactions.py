@@ -6,6 +6,8 @@ from typing_extensions import Self
 
 import discord_typings
 from aiohttp import FormData
+
+from interactions.client import const
 from interactions.client.const import get_logger, MISSING
 from interactions.models.discord.components import BaseComponent
 from interactions.models.discord.file import UPLOADABLE_TYPE
@@ -401,6 +403,14 @@ class InteractionContext(BaseInteractionContext, SendMixin):
     async def _send_http_request(
         self, message_payload: dict, files: typing.Iterable["UPLOADABLE_TYPE"] | None = None
     ) -> dict:
+        if const.has_client_feature("FOLLOWUP_INTERACTIONS_FOR_IMAGES") and not self.deferred:
+            # experimental bypass for discords broken image proxy
+            if embeds := message_payload.get("embeds", {}):
+                if any(e.get("image") for e in embeds):
+                    if MessageFlags.EPHEMERAL in message_payload.get("flags", MessageFlags.NONE):
+                        self.ephemeral = True
+                    await self.defer(ephemeral=self.ephemeral)
+
         if self.responded:
             message_data = await self.client.http.post_followup(
                 message_payload, self.client.app.id, self.token, files=files
@@ -409,9 +419,14 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             if isinstance(message_payload, FormData) and not self.deferred:
                 await self.defer(ephemeral=self.ephemeral)
             if self.deferred:
-                message_data = await self.client.http.edit_interaction_message(
-                    message_payload, self.client.app.id, self.token, files=files
-                )
+                if const.has_client_feature("FOLLOWUP_INTERACTIONS_FOR_IMAGES"):
+                    message_data = await self.client.http.post_followup(
+                        message_payload, self.client.app.id, self.token, files=files
+                    )
+                else:
+                    message_data = await self.client.http.edit_interaction_message(
+                        message_payload, self.client.app.id, self.token, files=files
+                    )
             else:
                 payload = {
                     "type": CallbackType.CHANNEL_MESSAGE_WITH_SOURCE,

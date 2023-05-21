@@ -195,6 +195,17 @@ PREMIUM_GUILD_LIMITS = defaultdict(
     },
 )
 
+CLIENT_FEATURE_FLAGS = {
+    "FOLLOWUP_INTERACTIONS_FOR_IMAGES": False,  # Experimental fix to bypass Discord's broken image proxy
+}
+
+
+def has_client_feature(feature: str) -> bool:
+    """Checks if a feature is enabled for the client."""
+    if feature.upper() not in CLIENT_FEATURE_FLAGS:
+        raise ValueError(f"Unknown feature {feature!r} - Known features: {list(CLIENT_FEATURE_FLAGS)}")
+    return CLIENT_FEATURE_FLAGS[feature.upper()]
+
 
 GUILD_WELCOME_MESSAGES = (
     "{0} joined the party.",
