@@ -208,7 +208,8 @@ CLIENT_FEATURE_FLAGS = {
 def has_client_feature(feature: str) -> bool:
     """Checks if a feature is enabled for the client."""
     if feature.upper() not in CLIENT_FEATURE_FLAGS:
-        raise ValueError(f"Unknown feature {feature!r} - Known features: {list(CLIENT_FEATURE_FLAGS)}")
+        get_logger().warning(f"Unknown feature {feature!r} - Known features: {list(CLIENT_FEATURE_FLAGS)}")
+        return False
     return CLIENT_FEATURE_FLAGS[feature.upper()]
 
 
