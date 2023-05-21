@@ -130,7 +130,13 @@ class ThreadTag(DiscordObject):
     _parent_channel_id: "Snowflake_Type" = attrs.field(repr=False, default=MISSING)
 
     @classmethod
-    def create(cls, name: str, moderated: bool, emoji: Union["models.PartialEmoji", dict, str, None]) -> "ThreadTag":
+    def create(
+        cls,
+        name: str,
+        *,
+        moderated: bool = False,
+        emoji: Union["models.PartialEmoji", dict, str, None] = None,
+    ) -> "ThreadTag":
         """
         Create a new thread tag - this is useful if you're making a new forum
 
