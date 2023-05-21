@@ -406,7 +406,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         if const.has_client_feature("FOLLOWUP_INTERACTIONS_FOR_IMAGES") and not self.deferred:
             # experimental bypass for discords broken image proxy
             if embeds := message_payload.get("embeds", {}):
-                if any(e.get("image") for e in embeds):
+                if any(e.get("image") for e in embeds) or any(e.get("thumbnail") for e in embeds):
                     if MessageFlags.EPHEMERAL in message_payload.get("flags", MessageFlags.NONE):
                         self.ephemeral = True
                     await self.defer(ephemeral=self.ephemeral)
