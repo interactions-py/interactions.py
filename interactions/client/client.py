@@ -1151,7 +1151,9 @@ class Client(
 
     def command(self, *args, **kwargs) -> Callable:
         """A decorator that registers a command. Aliases `interactions.slash_command`"""
-        raise NotImplementedError  # TODO: implement
+        raise NotImplementedError(
+            "Use interactions.slash_command instead. Please consult the v4 -> v5 migration guide https://interactions-py.github.io/interactions.py/Guides/98%20Migration%20from%204.X/"
+        )
 
     def listen(self, event_name: Absent[str] = MISSING) -> Callable[[AsyncCallable], Listener]:
         """
