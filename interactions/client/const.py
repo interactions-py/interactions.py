@@ -32,6 +32,9 @@ Attributes:
     T TypeVar: A type variable used for generic typing.
     Absent Union[T, Missing]: A type hint for a value that may be MISSING.
 
+    CLIENT_FEATURE_FLAGS dict: A dict of feature flags that can be enabled or disabled for the client.
+    has_feature_flag Callable[[str], bool]: A function that returns whether a feature flag is enabled.
+
 """
 import inspect
 import logging
@@ -78,6 +81,8 @@ __all__ = (
     "LIB_PATH",
     "RECOVERABLE_WEBSOCKET_CLOSE_CODES",
     "NON_RESUMABLE_WEBSOCKET_CLOSE_CODES",
+    "CLIENT_FEATURE_FLAGS",
+    "has_client_feature",
 )
 
 _ver_info = sys.version_info
@@ -194,6 +199,18 @@ PREMIUM_GUILD_LIMITS = defaultdict(
         3: {"emoji": 250, "stickers": 60, "bitrate": 384000, "filesize": 104857600},
     },
 )
+
+CLIENT_FEATURE_FLAGS = {
+    "FOLLOWUP_INTERACTIONS_FOR_IMAGES": False,  # Experimental fix to bypass Discord's broken image proxy
+}
+
+
+def has_client_feature(feature: str) -> bool:
+    """Checks if a feature is enabled for the client."""
+    if feature.upper() not in CLIENT_FEATURE_FLAGS:
+        get_logger().warning(f"Unknown feature {feature!r} - Known features: {list(CLIENT_FEATURE_FLAGS)}")
+        return False
+    return CLIENT_FEATURE_FLAGS[feature.upper()]
 
 
 GUILD_WELCOME_MESSAGES = (

@@ -544,6 +544,7 @@ class Client(
     def _sanity_check(self) -> None:
         """Checks for possible and common errors in the bot's configuration."""
         self.logger.debug("Running client sanity checks...")
+
         contexts = {
             self.interaction_context: InteractionContext,
             self.component_context: ComponentContext,
@@ -911,6 +912,11 @@ class Client(
         # so im gathering commands here
         self._gather_callbacks()
 
+        if any(v for v in constants.CLIENT_FEATURE_FLAGS.values()):
+            # list all enabled flags
+            enabled_flags = [k for k, v in constants.CLIENT_FEATURE_FLAGS.items() if v]
+            self.logger.info(f"Enabled feature flags: {', '.join(enabled_flags)}")
+
         self.logger.debug("Attempting to login")
         me = await self.http.login(self.token)
         self._user = ClientUser.from_dict(me, self)
@@ -1105,7 +1111,7 @@ class Client(
                 dict,
             ]
         ] = None,
-        check: Optional[Callable] = None,
+        check: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] = None,
         timeout: Optional[float] = None,
     ) -> "events.Component":
         """
@@ -1136,7 +1142,7 @@ class Client(
         if custom_ids and not all(isinstance(x, str) for x in custom_ids):
             custom_ids = [str(i) for i in custom_ids]
 
-        def _check(event: events.Component) -> bool:
+        async def _check(event: events.Component) -> bool:
             ctx: ComponentContext = event.ctx
             # if custom_ids is empty or there is a match
             wanted_message = not message_ids or ctx.message.id in (
@@ -1144,6 +1150,8 @@ class Client(
             )
             wanted_component = not custom_ids or ctx.custom_id in custom_ids
             if wanted_message and wanted_component:
+                if asyncio.iscoroutinefunction(check):
+                    return bool(check is None or await check(event))
                 return bool(check is None or check(event))
             return False
 
@@ -1151,7 +1159,9 @@ class Client(
 
     def command(self, *args, **kwargs) -> Callable:
         """A decorator that registers a command. Aliases `interactions.slash_command`"""
-        raise NotImplementedError  # TODO: implement
+        raise NotImplementedError(
+            "Use interactions.slash_command instead. Please consult the v4 -> v5 migration guide https://interactions-py.github.io/interactions.py/Guides/98%20Migration%20from%204.X/"
+        )
 
     def listen(self, event_name: Absent[str] = MISSING) -> Callable[[AsyncCallable], Listener]:
         """
