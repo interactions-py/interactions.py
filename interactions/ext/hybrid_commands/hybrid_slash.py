@@ -324,6 +324,10 @@ def slash_to_prefixed(cmd: SlashCommand) -> _HybridToPrefixedCommand:  # noqa: C
     if cmd.default_member_permissions:
         prefixed_cmd.add_check(generate_permission_check(cmd.default_member_permissions))
 
+    if not cmd.options:
+        prefixed_cmd._inspect_signature = inspect.Signature()
+        return prefixed_cmd
+
     fake_sig_parameters: list[inspect.Parameter] = []
 
     for option in cmd.options:
