@@ -1,6 +1,6 @@
 import asyncio
 import inspect
-from typing import Any, Callable, List, Optional, Union, TYPE_CHECKING
+from typing import Any, Callable, List, Optional, Union, TYPE_CHECKING, Awaitable
 
 import attrs
 from interactions import (
@@ -32,6 +32,7 @@ from interactions.client.utils.misc_utils import maybe_coroutine, get_object_nam
 from interactions.client.errors import BadArgument
 from interactions.ext.prefixed_commands import PrefixedCommand, PrefixedContext
 from interactions.models.internal.converters import _LiteralConverter
+from interactions.models.internal.checks import guild_only
 
 if TYPE_CHECKING:
     from .context import HybridContext
@@ -41,6 +42,22 @@ __all__ = ("HybridSlashCommand", "hybrid_slash_command", "hybrid_slash_subcomman
 
 def _values_wrapper(a_dict: dict | None) -> list:
     return list(a_dict.values()) if a_dict else []
+
+
+def generate_permission_check(permissions: "Permissions") -> Callable[["HybridContext"], Awaitable[bool]]:
+    async def _permission_check(ctx: HybridContext) -> bool:
+        return ctx.author.has_permission(*permissions) if ctx.guild_id else True  # type: ignore
+
+    return _permission_check  # type: ignore
+
+
+def generate_scope_check(_scopes: list["Snowflake_Type"]) -> Callable[["HybridContext"], Awaitable[bool]]:
+    scopes = frozenset(int(s) for s in _scopes)
+
+    async def _scope_check(ctx: HybridContext) -> bool:
+        return int(ctx.guild_id) in scopes
+
+    return _scope_check  # type: ignore
 
 
 class BasicConverter(Converter):
@@ -297,6 +314,15 @@ def slash_to_prefixed(cmd: SlashCommand) -> _HybridToPrefixedCommand:  # noqa: C
         post_run_callback=cmd.post_run_callback,
         error_callback=cmd.error_callback,
     )
+
+    if not cmd.dm_permission:
+        prefixed_cmd.add_check(guild_only())
+
+    if cmd.scopes:
+        prefixed_cmd.add_check(generate_scope_check(cmd.scopes))
+
+    if cmd.default_member_permissions:
+        prefixed_cmd.add_check(generate_permission_check(cmd.default_member_permissions))
 
     fake_sig_parameters: list[inspect.Parameter] = []
 
