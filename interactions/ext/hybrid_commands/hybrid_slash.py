@@ -45,7 +45,7 @@ def _values_wrapper(a_dict: dict | None) -> list:
 
 
 def generate_permission_check(permissions: "Permissions") -> Callable[["HybridContext"], Awaitable[bool]]:
-    async def _permission_check(ctx: HybridContext) -> bool:
+    async def _permission_check(ctx: "HybridContext") -> bool:
         return ctx.author.has_permission(*permissions) if ctx.guild_id else True  # type: ignore
 
     return _permission_check  # type: ignore
@@ -54,7 +54,7 @@ def generate_permission_check(permissions: "Permissions") -> Callable[["HybridCo
 def generate_scope_check(_scopes: list["Snowflake_Type"]) -> Callable[["HybridContext"], Awaitable[bool]]:
     scopes = frozenset(int(s) for s in _scopes)
 
-    async def _scope_check(ctx: HybridContext) -> bool:
+    async def _scope_check(ctx: "HybridContext") -> bool:
         return int(ctx.guild_id) in scopes
 
     return _scope_check  # type: ignore
@@ -318,7 +318,7 @@ def slash_to_prefixed(cmd: SlashCommand) -> _HybridToPrefixedCommand:  # noqa: C
     if not cmd.dm_permission:
         prefixed_cmd.add_check(guild_only())
 
-    if cmd.scopes:
+    if cmd.scopes != [GLOBAL_SCOPE]:
         prefixed_cmd.add_check(generate_scope_check(cmd.scopes))
 
     if cmd.default_member_permissions:
