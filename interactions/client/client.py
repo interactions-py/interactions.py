@@ -544,6 +544,7 @@ class Client(
     def _sanity_check(self) -> None:
         """Checks for possible and common errors in the bot's configuration."""
         self.logger.debug("Running client sanity checks...")
+
         contexts = {
             self.interaction_context: InteractionContext,
             self.component_context: ComponentContext,
@@ -910,6 +911,11 @@ class Client(
         # login will always run after initialisation
         # so im gathering commands here
         self._gather_callbacks()
+
+        if any(v for v in constants.CLIENT_FEATURE_FLAGS.values()):
+            # list all enabled flags
+            enabled_flags = [k for k, v in constants.CLIENT_FEATURE_FLAGS.items() if v]
+            self.logger.info(f"Enabled feature flags: {', '.join(enabled_flags)}")
 
         self.logger.debug("Attempting to login")
         me = await self.http.login(self.token)
