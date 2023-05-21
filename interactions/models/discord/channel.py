@@ -23,7 +23,7 @@ from interactions.models.discord.snowflake import (
     to_optional_snowflake,
     SnowflakeObject,
 )
-from interactions.models.discord.thread import ThreadTag
+from interactions.models.discord.thread import DefaultReaction, ThreadTag
 from interactions.models.misc.context_manager import Typing
 from interactions.models.misc.iterator import AsyncIterator
 from .enums import (
@@ -2387,6 +2387,8 @@ class GuildStageVoice(GuildVoice):
 class GuildForum(GuildChannel):
     available_tags: List[ThreadTag] = attrs.field(repr=False, factory=list)
     """A list of tags available to assign to threads"""
+    default_reaction_emoji: Optional[DefaultReaction] = attrs.field(repr=False, default=None)
+    """The default emoji to react with for posts"""
     last_message_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
     # TODO: Implement "template" once the API supports them
 

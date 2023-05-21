@@ -1011,7 +1011,7 @@ class Guild(BaseGuild):
         category: Union[Snowflake_Type, "models.GuildCategory"] = None,
         nsfw: bool = False,
         rate_limit_per_user: int = 0,
-        default_reaction_emoji: Absent[Union[dict, "models.PartialEmoji", str]] = MISSING,
+        default_reaction_emoji: Absent[Union[dict, "models.PartialEmoji", "models.DefaultReaction", str]] = MISSING,
         available_tags: Absent["list[dict | models.ThreadTag] | dict | models.ThreadTag"] = MISSING,
         layout: ForumLayoutType = ForumLayoutType.NOT_SET,
         reason: Absent[Optional[str]] = MISSING,
@@ -1027,6 +1027,8 @@ class Guild(BaseGuild):
             category: The category this forum channel should be within
             nsfw: Should this forum be marked nsfw
             rate_limit_per_user: The time users must wait between sending messages
+            default_reaction_emoji: The default emoji to react with when creating a thread
+            available_tags: The available tags for this forum channel
             layout: The layout of the forum channel
             reason: The reason for creating this channel
 
@@ -1034,16 +1036,6 @@ class Guild(BaseGuild):
            The newly created forum channel.
 
         """
-
-        def emoji_to_default_reaction(emoji: Absent[dict]) -> Absent[dict]:  # discord, why?
-            if not emoji:
-                return emoji
-
-            # these are mutually exlusive - we prioritize id
-            if an_id := emoji.get("id"):
-                return {"emoji_id": an_id}
-            return {"emoji_name": emoji["name"]}
-
         return await self.create_channel(
             channel_type=ChannelType.GUILD_FORUM,
             name=name,
@@ -1053,7 +1045,7 @@ class Guild(BaseGuild):
             category=category,
             nsfw=nsfw,
             rate_limit_per_user=rate_limit_per_user,
-            default_reaction_emoji=emoji_to_default_reaction(models.process_emoji(default_reaction_emoji)),
+            default_reaction_emoji=models.process_default_reaction(default_reaction_emoji),
             available_tags=list_converter(models.process_thread_tag)(available_tags) if available_tags else MISSING,
             default_forum_layout=layout,
             reason=reason,
