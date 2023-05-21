@@ -12,7 +12,7 @@ import interactions.models as models
 from interactions.client.const import Absent, MISSING, PREMIUM_GUILD_LIMITS
 from interactions.client.errors import EventLocationNotProvided, NotFound
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_converters import optional
+from interactions.client.utils.attr_converters import optional, list_converter
 from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.client.utils.attr_utils import docs
 from interactions.client.utils.deserialise_app_cmds import deserialize_app_cmds
@@ -1011,6 +1011,8 @@ class Guild(BaseGuild):
         category: Union[Snowflake_Type, "models.GuildCategory"] = None,
         nsfw: bool = False,
         rate_limit_per_user: int = 0,
+        default_reaction_emoji: Absent[Union[dict, "models.PartialEmoji", str]] = MISSING,
+        available_tags: Absent["list[dict | models.ThreadTag] | dict | models.ThreadTag"] = MISSING,
         layout: ForumLayoutType = ForumLayoutType.NOT_SET,
         reason: Absent[Optional[str]] = MISSING,
     ) -> "models.GuildForum":
@@ -1032,6 +1034,16 @@ class Guild(BaseGuild):
            The newly created forum channel.
 
         """
+
+        def emoji_to_default_reaction(emoji: Absent[dict]) -> Absent[dict]:  # discord, why?
+            if not emoji:
+                return emoji
+
+            # these are mutually exlusive - we prioritize id
+            if an_id := emoji.get("id"):
+                return {"emoji_id": an_id}
+            return {"emoji_name": emoji["name"]}
+
         return await self.create_channel(
             channel_type=ChannelType.GUILD_FORUM,
             name=name,
@@ -1041,6 +1053,8 @@ class Guild(BaseGuild):
             category=category,
             nsfw=nsfw,
             rate_limit_per_user=rate_limit_per_user,
+            default_reaction_emoji=emoji_to_default_reaction(models.process_emoji(default_reaction_emoji)),
+            available_tags=list_converter(models.process_thread_tag)(available_tags) if available_tags else MISSING,
             default_forum_layout=layout,
             reason=reason,
         )
