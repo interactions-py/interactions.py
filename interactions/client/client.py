@@ -1105,7 +1105,7 @@ class Client(
                 dict,
             ]
         ] = None,
-        check: Optional[Callable] = None,
+        check: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] = None,
         timeout: Optional[float] = None,
     ) -> "events.Component":
         """
@@ -1136,7 +1136,7 @@ class Client(
         if custom_ids and not all(isinstance(x, str) for x in custom_ids):
             custom_ids = [str(i) for i in custom_ids]
 
-        def _check(event: events.Component) -> bool:
+        async def _check(event: events.Component) -> bool:
             ctx: ComponentContext = event.ctx
             # if custom_ids is empty or there is a match
             wanted_message = not message_ids or ctx.message.id in (
@@ -1144,6 +1144,8 @@ class Client(
             )
             wanted_component = not custom_ids or ctx.custom_id in custom_ids
             if wanted_message and wanted_component:
+                if asyncio.iscoroutinefunction(check):
+                    return bool(check is None or await check(event))
                 return bool(check is None or check(event))
             return False
 
