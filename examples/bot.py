@@ -10,7 +10,7 @@ import interactions
 # When you make a bot, we refer to it as the "client."
 # The client is the main object that interacts with the Gateway, what talks to Discord.
 # The client is also the main object that interacts with the API, what makes requests with Discord.
-# The client can also have "intents" that are what the bot recieves, 
+# The client can also have "intents" that are what the bot recieves,
 # in this case the default ones and message content
 intents = interactions.Intents.DEFAULT | interactions.Intents.MESSAGE_CONTENT
 client = interactions.Client(intents=intents)
@@ -26,6 +26,7 @@ async def on_ready():
 
     # We're also able to use property methods to gather additional data.
     print(f"Our latency is {round(client.latency)} ms.")
+
 
 # We can either pass in the event name or make the function name be the event name.
 @interactions.listen("on_message_create")
@@ -70,6 +71,6 @@ async def hello_world(ctx: interactions.SlashContext):
 #   object on line 13.
 # - we are not setting a presence.
 # - we are not automatically sharding, and registering the connection under 1 shard.
-# - we are using default intents and the message content intent, which are Gateway intents and 
+# - we are using default intents and the message content intent, which are Gateway intents and
 # - message content excluding privileged ones.
 client.start("Your token here.")
