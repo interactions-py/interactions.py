@@ -11,7 +11,8 @@ import interactions
 # The client is the main object that interacts with the Gateway, what talks to Discord.
 # The client is also the main object that interacts with the API, what makes requests with Discord.
 # The client can also have "intents" that are what the bot recieves,
-# in this case the default ones and message content
+# in this case the default ones and message content (a privilaged intent that needs 
+# to be enabled in the developer portal)
 intents = interactions.Intents.DEFAULT | interactions.Intents.MESSAGE_CONTENT
 client = interactions.Client(intents=intents)
 
@@ -30,7 +31,7 @@ async def on_ready():
 
 # We can either pass in the event name or make the function name be the event name.
 @interactions.listen("on_message_create")
-async def name_this_however_you_want(message_create: interactions.api.events.MessageCreate):
+async def name_this_however_you_want(message_create: interactions.events.MessageCreate):
     # Whenever we specify any other event type that isn't "READY," the function underneath
     # the decorator will most likely have an argument required. This argument is the data
     # that is being supplied back to us developers, which we call a data model.
@@ -71,6 +72,6 @@ async def hello_world(ctx: interactions.SlashContext):
 #   object on line 13.
 # - we are not setting a presence.
 # - we are not automatically sharding, and registering the connection under 1 shard.
-# - we are using default intents and the message content intent, which are Gateway intents and
-# - message content excluding privileged ones.
+# - we are using default intents, which are Gateway intents excluding privileged ones
+# - and the privilaged message content intent.
 client.start("Your token here.")
