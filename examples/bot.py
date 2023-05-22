@@ -11,7 +11,7 @@ import interactions
 # The client is the main object that interacts with the Gateway, what talks to Discord.
 # The client is also the main object that interacts with the API, what makes requests with Discord.
 # The client can also have "intents" that are what the bot recieves,
-# in this case the default ones and message content (a privilaged intent that needs 
+# in this case the default ones and message content (a privilaged intent that needs
 # to be enabled in the developer portal)
 intents = interactions.Intents.DEFAULT | interactions.Intents.MESSAGE_CONTENT
 client = interactions.Client(intents=intents)
