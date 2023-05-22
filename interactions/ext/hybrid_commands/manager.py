@@ -42,6 +42,16 @@ def add_use_slash_command_message(
 
 
 class HybridManager:
+    """
+    The main part of the extension. Deals with injecting itself in the first place.
+
+    Parameters:
+        client: The client instance.
+        hybrid_context: The object to instantiate for Hybrid Context
+        use_slash_command_msg: If enabled, will send out a message encouraging users to use the slash command \
+            equivalent whenever they use the prefixed command version.
+    """
+
     def __init__(
         self, client: Client, *, hybrid_context: type[BaseContext] = HybridContext, use_slash_command_msg: bool = False
     ) -> None:
@@ -54,13 +64,13 @@ class HybridManager:
         self.client = cast(prefixed.PrefixedInjectedClient, client)
         self.ext_command_list: dict[str, list[str]] = {}
 
-        self.client.add_listener(self.on_callback_added.copy_with_binding(self))
+        self.client.add_listener(self.add_hybrid_command.copy_with_binding(self))
         self.client.add_listener(self.handle_ext_unload.copy_with_binding(self))
 
         self.client.hybrid = self
 
-    @listen()
-    async def on_callback_added(self, event: CallbackAdded):
+    @listen("on_callback_added")
+    async def add_hybrid_command(self, event: CallbackAdded):
         if not isinstance(event.callback, HybridSlashCommand) or not event.callback.callback:
             return
 
@@ -114,4 +124,19 @@ class HybridManager:
 def setup(
     client: Client, *, hybrid_context: type[BaseContext] = HybridContext, use_slash_command_msg: bool = False
 ) -> HybridManager:
+    """
+    Sets up hybrid commands. It is recommended to use this function directly to do so.
+
+    !!! warning
+        Prefixed commands need to be set up prior to using this.
+
+    Args:
+        client: The client instance.
+        hybrid_context: The object to instantiate for Hybrid Context
+        use_slash_command_msg: If enabled, will send out a message encouraging users to use the slash command \
+            equivalent whenever they use the prefixed command version.
+
+    Returns:
+        HybridManager: The class that deals with all things hybrid commands.
+    """
     return HybridManager(client, hybrid_context=hybrid_context, use_slash_command_msg=use_slash_command_msg)
