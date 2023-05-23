@@ -112,7 +112,7 @@ def _make_data_line(
     if isinstance(aligns, str):
         aligns = [aligns for _ in column_widths]
 
-    line = (f"{str(value): {align}{width}}" for width, align, value in zip(column_widths, aligns, line, strict=False))
+    line = (f"{value!s: {align}{width}}" for width, align, value in zip(column_widths, aligns, line, strict=False))
     return f"{left_char}{f'{middle_char}'.join(line)}{right_char}"
 
 
