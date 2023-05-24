@@ -37,7 +37,7 @@ async def name_this_however_you_want(message_create: interactions.events.Message
     # that is being supplied back to us developers, which we call a data model.
 
     # In this example, we're listening to messages being created. This means we can expect
-    # a "message_create" argument to be passed to the function, which will contain the 
+    # a "message_create" argument to be passed to the function, which will contain the
     # data model for the message
 
     # We can use the data model to access the data we need.
