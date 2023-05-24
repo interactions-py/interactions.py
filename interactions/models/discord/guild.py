@@ -1457,7 +1457,7 @@ class Guild(BaseGuild):
         if name:
             payload["name"] = name
 
-        if permissions:
+        if permissions or permissions == Permissions.NONE:
             payload["permissions"] = str(int(permissions))
 
         if colour := colour or color:
