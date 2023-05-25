@@ -520,3 +520,38 @@ There also is `on_command` which you can overwrite too. That fires on every inte
 If your bot is complex enough, you might find yourself wanting to use custom models in your commands.
 
 To do this, you'll want to use a string option, and define a converter. Information on how to use converters can be found [on the converter page](/Guides/08 Converters).
+
+## I Want To Make A Prefixed Command Too
+
+You're in luck! You can use a hybrid command, which is a slash command that also gets converted to an equivalent prefixed command under the hood.
+
+Hybrid commands are their own extension, and require [prefixed commands to set up beforehand](/interactions.py/Guides/26 Prefixed Commands). After that, use the `setup` function in the `hybrid_commands` extension in your main bot file.
+
+Your setup can (but doesn't necessarily have to) look like this:
+
+```python
+import interactions
+from interactions.ext import prefixed_commands as prefixed
+from interactions.ext import hybrid_commands as hybrid
+
+bot = interactions.Client(...)  # may want to enable the message content intent
+prefixed.setup(bot)  # normal step for prefixed commands
+hybrid.setup(bot)  # note its usage AFTER prefixed commands have been set up
+```
+
+To actually make slash commands, simply replace `@slash_command` with `@hybrid_slash_command`, and `SlashContext` with `HybridContext`, like so:
+
+```python
+from interactions.ext.hybrid_commands import hybrid_slash_command, HybridContext
+
+@hybrid_slash_command(name="my_command", description="My hybrid command!")
+async def my_command_function(ctx: HybridContext):
+    await ctx.send("Hello World")
+```
+
+Suggesting you are using the default mention settings for your bot, you should be able to run this command by `@BotPing my_command`.
+
+As you can see, the only difference between hybrid commands and slash commands, from a developer perspective, is that they use `HybridContext`, which attempts
+to seamlessly allow using the same context for slash and prefixed commands. You can always get the underlying context via `inner_context`, though.
+
+Of course, keep in mind that support two different types of commands is hard - some features may not get represented well in prefixed commands, and autocomplete is not possible at all.
