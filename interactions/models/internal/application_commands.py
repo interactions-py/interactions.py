@@ -1363,7 +1363,7 @@ def application_commands_to_dict(  # noqa: C901
 
             if any(str(c.description) not in (str(base_description), "No Description Set") for c in cmd_list):
                 client.logger.warning(
-                    f"Conflicting descriptions found in `{cmd_list[0].name}` subcommands; `{str(base_description)}` will be used"
+                    f"Conflicting descriptions found in `{cmd_list[0].name}` subcommands; `{base_description!s}` will be used"
                 )
             if any(c.default_member_permissions != cmd_list[0].default_member_permissions for c in cmd_list):
                 raise ValueError(f"Conflicting `default_member_permissions` values found in `{cmd_list[0].name}`")
