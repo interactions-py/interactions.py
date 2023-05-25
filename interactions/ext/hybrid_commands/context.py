@@ -169,7 +169,7 @@ class HybridContext(BaseContext, SendMixin):
 
     async def defer(self, ephemeral: bool = False) -> None:
         """
-        Either defers the response (if used in an interaction) or triggers a _typing indicator for 10 seconds (if used for messages).
+        Either defers the response (if used in an interaction) or triggers a typing indicator for 10 seconds (if used for messages).
 
         Args:
             ephemeral: Should the response be ephemeral? Only applies to responses for interactions.
