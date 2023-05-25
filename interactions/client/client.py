@@ -1801,7 +1801,7 @@ class Client(
                     elif autocomplete := self._global_autocompletes.get(str(auto_opt.name)):
                         callback = autocomplete
                     else:
-                        raise ValueError(f"Autocomplete callback for {str(auto_opt.name)} not found")
+                        raise ValueError(f"Autocomplete callback for {auto_opt.name!s} not found")
 
                     await self.__dispatch_interaction(
                         ctx=ctx,

@@ -497,7 +497,7 @@ class Message(BaseMessage):
             _m = client.cache.place_message_data(ref_message_data)
             data["referenced_message_id"] = _m.id
         elif msg_reference := data.get("message_reference"):
-            data["referenced_message_id"] = msg_reference["message_id"]
+            data["referenced_message_id"] = msg_reference.get("message_id")
 
         if "interaction" in data:
             data["interaction"] = MessageInteraction.from_dict(data["interaction"], client)
