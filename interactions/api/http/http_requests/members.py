@@ -109,9 +109,10 @@ class MemberRequests(CanRequest):
             "roles": roles,
             "mute": mute,
             "deaf": deaf,
-            "channel_id": int(channel_id) if channel_id else None,
         }
         payload = dict_filter_none(payload)
+        if channel_id is not MISSING:
+            payload["channel_id"] = channel_id
 
         if not isinstance(nickname, Missing):
             payload["nick"] = nickname
