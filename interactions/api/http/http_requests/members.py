@@ -80,7 +80,7 @@ class MemberRequests(CanRequest):
         roles: list["Snowflake_Type"] | None = None,
         mute: bool | None = None,
         deaf: bool | None = None,
-        channel_id: "Snowflake_Type | None" = None,
+        channel_id: "Snowflake_Type | MISSING" = MISSING,
         communication_disabled_until: str | datetime | Timestamp | None | Missing = MISSING,
         reason: str | None = None,
     ) -> discord_typings.GuildMemberData:
