@@ -348,8 +348,9 @@ class MessageableMixin(SendMixin):
         messages_data = await self._client.http.get_channel_messages(
             self.id, limit, around=around, before=before, after=after
         )
-        for m in messages_data:
-            m["guild_id"] = self._guild_id
+        if isinstance(self, GuildChannel):
+            for m in messages_data:
+                m["guild_id"] = self._guild_id
 
         return [self._client.cache.place_message_data(m) for m in messages_data]
 
