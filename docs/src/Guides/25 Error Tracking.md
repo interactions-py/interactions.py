@@ -4,6 +4,13 @@ So, you've finally got your bot running on a server somewhere.  Chances are, you
 
 You're going to want to have some way of tracking if errors occur.
 
+# Sending inline tracebacks
+
+By default, if a command throws an uncaught exception, it'll send the traceback to the user.  This is very useful when in development, but doesn't help you once you've gone public, and might not be in the same servers as your errors.  Non-technical users may also find it confusing to see trackbacks instead of user-friendly error messages.
+
+If you wish to turn this off, create your client with `Client(..., send_command_tracebacks=False)`
+
+
 # The simple and dirty method
 
 !!! Please don't actually do this.

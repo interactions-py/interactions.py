@@ -23,7 +23,7 @@ from interactions.models.discord.snowflake import (
     to_optional_snowflake,
     SnowflakeObject,
 )
-from interactions.models.discord.thread import ThreadTag
+from interactions.models.discord.thread import DefaultReaction, ThreadTag
 from interactions.models.misc.context_manager import Typing
 from interactions.models.misc.iterator import AsyncIterator
 from .enums import (
@@ -348,8 +348,9 @@ class MessageableMixin(SendMixin):
         messages_data = await self._client.http.get_channel_messages(
             self.id, limit, around=around, before=before, after=after
         )
-        for m in messages_data:
-            m["guild_id"] = self._guild_id
+        if isinstance(self, GuildChannel):
+            for m in messages_data:
+                m["guild_id"] = self._guild_id
 
         return [self._client.cache.place_message_data(m) for m in messages_data]
 
@@ -2387,6 +2388,8 @@ class GuildStageVoice(GuildVoice):
 class GuildForum(GuildChannel):
     available_tags: List[ThreadTag] = attrs.field(repr=False, factory=list)
     """A list of tags available to assign to threads"""
+    default_reaction_emoji: Optional[DefaultReaction] = attrs.field(repr=False, default=None)
+    """The default emoji to react with for posts"""
     last_message_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
     # TODO: Implement "template" once the API supports them
 
