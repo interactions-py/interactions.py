@@ -11,7 +11,7 @@ from interactions.client.utils.attr_converters import list_converter
 from interactions.client.utils.attr_converters import optional
 from interactions.client.utils.serializer import dict_filter_none, no_export_meta
 from interactions.models.discord.base import ClientObject
-from interactions.models.discord.snowflake import SnowflakeObject, to_snowflake
+from interactions.models.discord.snowflake import SnowflakeObject, to_snowflake, to_snowflake_list
 
 if TYPE_CHECKING:
     from interactions.client import Client
@@ -185,7 +185,7 @@ class CustomEmoji(PartialEmoji, ClientObject):
         data_payload = dict_filter_none(
             {
                 "name": name,
-                "roles": roles,
+                "roles": to_snowflake_list(roles) if roles else None,
             }
         )
 
