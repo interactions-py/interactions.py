@@ -91,12 +91,13 @@ def setup(
     bot: Client,
     token: str = None,
     filter: Optional[Callable[[dict[str, Any], dict[str, Any]], Optional[dict[str, Any]]]] = None,
+    sentry_args: dict[str, Any] = None,
 ) -> None:
     if not token:
         bot.logger.error("Cannot enable sentry integration, no token provided")
         return
     if filter is None:
         filter = default_sentry_filter
-    sentry_sdk.init(token, before_send=filter)
+    sentry_sdk.init(token, before_send=filter, **sentry_args)
     Task.on_error_sentry_hook = HookedTask.on_error_sentry_hook  # type: ignore
     SentryExtension(bot)
