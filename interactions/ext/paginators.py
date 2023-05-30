@@ -380,6 +380,7 @@ class Paginator:
         Args:
             ctx: The context to reply this paginator with
             **kwargs: Additional options to pass to `reply`.
+
         Returns:
             The resulting message
         """
