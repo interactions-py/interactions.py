@@ -1,7 +1,7 @@
 # This code shows a very brief and small example of how to create a bot with our library.
 # This example does not cover all the features of the library, but it is enough to get you started.
 # In order to learn more about how to use the library, please head over to our documentation:
-# https://interactionspy.readthedocs.io/en/latest/
+# https://interactions-py.github.io/interactions.py/
 
 # The first thing you need to do is import the library.
 import interactions
@@ -10,7 +10,11 @@ import interactions
 # When you make a bot, we refer to it as the "client."
 # The client is the main object that interacts with the Gateway, what talks to Discord.
 # The client is also the main object that interacts with the API, what makes requests with Discord.
-client = interactions.Client()
+# The client can also have "intents" that are what the bot recieves,
+# in this case the default ones and message content (a privilaged intent that needs
+# to be enabled in the developer portal)
+intents = interactions.Intents.DEFAULT | interactions.Intents.MESSAGE_CONTENT
+client = interactions.Client(intents=intents)
 
 
 # With our client established, let's have the library inform us when the client is ready.
@@ -25,18 +29,21 @@ async def on_ready():
     print(f"Our latency is {round(client.latency)} ms.")
 
 
+# We can either pass in the event name or make the function name be the event name.
 @interactions.listen("on_message_create")
-async def name_this_however_you_want(message: interactions.Message):
+async def name_this_however_you_want(message_create: interactions.events.MessageCreate):
     # Whenever we specify any other event type that isn't "READY," the function underneath
     # the decorator will most likely have an argument required. This argument is the data
     # that is being supplied back to us developers, which we call a data model.
 
     # In this example, we're listening to messages being created. This means we can expect
-    # a "message" argument to be passed to the function, which will be the data model of such.
+    # a "message_create" argument to be passed to the function, which will contain the
+    # data model for the message
 
     # We can use the data model to access the data we need.
     # Keep in mind that you can only access the message content if your bot has the MESSAGE_CONTENT intent.
     # You can find more information on this in the migration section of the quickstart guide.
+    message: interactions.Message = message_create.message
     print(f"We've received a message from {message.author.username}. The message is: {message.content}.")
 
 
@@ -66,5 +73,6 @@ async def hello_world(ctx: interactions.SlashContext):
 #   object on line 13.
 # - we are not setting a presence.
 # - we are not automatically sharding, and registering the connection under 1 shard.
-# - we are using default intents, which are Gateway intents excluding privileged ones.
+# - we are using default intents, which are Gateway intents excluding privileged ones
+# - and the privilaged message content intent.
 client.start("Your token here.")
