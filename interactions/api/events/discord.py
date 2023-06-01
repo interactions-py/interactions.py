@@ -29,6 +29,7 @@ import interactions.models
 from interactions.api.events.base import GuildEvent, BaseEvent
 from interactions.client.const import Absent
 from interactions.client.utils.attr_utils import docs
+from interactions.models.discord.snowflake import to_snowflake
 
 __all__ = (
     "ApplicationCommandPermissionsUpdate",
@@ -291,6 +292,9 @@ class GuildUpdate(BaseEvent):
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class GuildLeft(BaseEvent):
     """Dispatched when a guild is left."""
+
+    guild_id: "Snowflake_Type" = attrs.field(repr=True, converter=to_snowflake)
+    """The ID of the guild"""
 
     guild: "Guild" = attrs.field(repr=True)
     """The guild this event is dispatched from"""
