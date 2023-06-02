@@ -12,7 +12,7 @@ import interactions.models as models
 from interactions.client.const import MISSING, PREMIUM_GUILD_LIMITS, Absent
 from interactions.client.errors import EventLocationNotProvided, NotFound
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_converters import optional, timestamp_converter
+from interactions.client.utils.attr_converters import optional, list_converter, timestamp_converter
 from interactions.client.utils.attr_utils import docs
 from interactions.client.utils.deserialise_app_cmds import deserialize_app_cmds
 from interactions.client.utils.serializer import no_export_meta, to_image_data
@@ -368,7 +368,7 @@ class Guild(BaseGuild):
     @property
     def roles(self) -> List["models.Role"]:
         """Returns a list of roles associated with this guild."""
-        return [self._client.cache.get_role(r_id) for r_id in self._role_ids]
+        return sorted([self._client.cache.get_role(r_id) for r_id in self._role_ids], reverse=True)
 
     @property
     def me(self) -> "models.Member":
@@ -1019,6 +1019,8 @@ class Guild(BaseGuild):
         category: Union[Snowflake_Type, "models.GuildCategory"] = None,
         nsfw: bool = False,
         rate_limit_per_user: int = 0,
+        default_reaction_emoji: Absent[Union[dict, "models.PartialEmoji", "models.DefaultReaction", str]] = MISSING,
+        available_tags: Absent["list[dict | models.ThreadTag] | dict | models.ThreadTag"] = MISSING,
         layout: ForumLayoutType = ForumLayoutType.NOT_SET,
         reason: Absent[Optional[str]] = MISSING,
     ) -> "models.GuildForum":
@@ -1033,6 +1035,8 @@ class Guild(BaseGuild):
             category: The category this forum channel should be within
             nsfw: Should this forum be marked nsfw
             rate_limit_per_user: The time users must wait between sending messages
+            default_reaction_emoji: The default emoji to react with when creating a thread
+            available_tags: The available tags for this forum channel
             layout: The layout of the forum channel
             reason: The reason for creating this channel
 
@@ -1049,6 +1053,8 @@ class Guild(BaseGuild):
             category=category,
             nsfw=nsfw,
             rate_limit_per_user=rate_limit_per_user,
+            default_reaction_emoji=models.process_default_reaction(default_reaction_emoji),
+            available_tags=list_converter(models.process_thread_tag)(available_tags) if available_tags else MISSING,
             default_forum_layout=layout,
             reason=reason,
         )
@@ -1465,7 +1471,7 @@ class Guild(BaseGuild):
         if name:
             payload["name"] = name
 
-        if permissions:
+        if permissions is not MISSING and permissions is not None:
             payload["permissions"] = str(int(permissions))
 
         if colour := colour or color:

@@ -55,8 +55,8 @@ class GuildRequests(CanRequest):
             a guild object
 
         """
-        params = {"guild_id": guild_id, "with_counts": int(with_counts)}
-        result = await self.request(Route("GET", "/guilds/{guild_id}"), params=params)
+        params = {"with_counts": int(with_counts)}
+        result = await self.request(Route("GET", "/guilds/{guild_id}", guild_id=guild_id), params=params)
         return cast(discord_typings.GuildData, result)
 
     async def get_guild_preview(self, guild_id: "Snowflake_Type") -> discord_typings.GuildPreviewData:

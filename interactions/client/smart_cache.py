@@ -202,9 +202,7 @@ class GlobalCache:
         """
         return self.member_cache.get((to_optional_snowflake(guild_id), to_optional_snowflake(user_id)))
 
-    def place_member_data(
-        self, guild_id: "Snowflake_Type", data: discord_typings.resources.guild.GuildMemberData
-    ) -> Member:
+    def place_member_data(self, guild_id: "Snowflake_Type", data: discord_typings.GuildMemberData) -> Member:
         """
         Take json data representing a User, process it, and cache it.
 

@@ -160,7 +160,7 @@ from .snowflake import (
 from .stage_instance import StageInstance
 from .sticker import Sticker, StickerItem, StickerPack
 from .team import Team, TeamMember
-from .thread import ThreadList, ThreadMember, ThreadTag
+from .thread import ThreadList, ThreadMember, ThreadTag, DefaultReaction, process_thread_tag, process_default_reaction
 from .timestamp import Timestamp, TimestampStyles
 from .user import BaseUser, Member, User, ClientUser
 from .voice_state import VoiceRegion, VoiceState
@@ -211,6 +211,7 @@ __all__ = (
     "ComponentType",
     "CustomEmoji",
     "DefaultNotificationLevel",
+    "DefaultReaction",
     "DM",
     "DMChannel",
     "DMGroup",
@@ -284,12 +285,14 @@ __all__ = (
     "process_color",
     "process_colour",
     "process_components",
+    "process_default_reaction",
     "process_embeds",
     "process_emoji",
     "process_emoji_req_format",
     "process_message_payload",
     "process_message_reference",
     "process_permission_overwrites",
+    "process_thread_tag",
     "Reaction",
     "ReactionUsers",
     "Role",

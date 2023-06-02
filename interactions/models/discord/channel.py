@@ -23,7 +23,7 @@ from interactions.models.discord.snowflake import (
     to_optional_snowflake,
     SnowflakeObject,
 )
-from interactions.models.discord.thread import ThreadTag
+from interactions.models.discord.thread import DefaultReaction, ThreadTag
 from interactions.models.misc.context_manager import Typing
 from interactions.models.misc.iterator import AsyncIterator
 from .enums import (
@@ -348,8 +348,9 @@ class MessageableMixin(SendMixin):
         messages_data = await self._client.http.get_channel_messages(
             self.id, limit, around=around, before=before, after=after
         )
-        for m in messages_data:
-            m["guild_id"] = self._guild_id
+        if isinstance(self, GuildChannel):
+            for m in messages_data:
+                m["guild_id"] = self._guild_id
 
         return [self._client.cache.place_message_data(m) for m in messages_data]
 
@@ -404,11 +405,12 @@ class MessageableMixin(SendMixin):
         search_limit: int = 100,
         predicate: Callable[["models.Message"], bool] = MISSING,
         avoid_loading_msg: bool = True,
+        return_messages: bool = False,
         before: Optional[Snowflake_Type] = MISSING,
         after: Optional[Snowflake_Type] = MISSING,
         around: Optional[Snowflake_Type] = MISSING,
         reason: Absent[Optional[str]] = MISSING,
-    ) -> int:
+    ) -> int | List["models.Message"]:
         """
         Bulk delete messages within a channel. If a `predicate` is provided, it will be used to determine which messages to delete, otherwise all messages will be deleted within the `deletion_limit`.
 
@@ -424,6 +426,7 @@ class MessageableMixin(SendMixin):
             search_limit: How many messages to search through
             predicate: A function that returns True or False, and takes a message as an argument
             avoid_loading_msg: Should the bot attempt to avoid deleting its own loading messages (recommended enabled)
+            return_messages: Should the bot return the messages that were deleted
             before: Search messages before this ID
             after: Search messages after this ID
             around: Search messages around this ID
@@ -461,13 +464,13 @@ class MessageableMixin(SendMixin):
                 # message is too old to be purged
                 continue
 
-            to_delete.append(message.id)
+            to_delete.append(message)
 
-        count = len(to_delete)
+        out = to_delete.copy()
         while len(to_delete):
-            iteration = [to_delete.pop() for i in range(min(100, len(to_delete)))]
+            iteration = [to_delete.pop().id for i in range(min(100, len(to_delete)))]
             await self.delete_messages(iteration, reason=reason)
-        return count
+        return out if return_messages else len(out)
 
     async def trigger_typing(self) -> None:
         """Trigger a typing animation in this channel."""
@@ -2385,6 +2388,8 @@ class GuildStageVoice(GuildVoice):
 class GuildForum(GuildChannel):
     available_tags: List[ThreadTag] = attrs.field(repr=False, factory=list)
     """A list of tags available to assign to threads"""
+    default_reaction_emoji: Optional[DefaultReaction] = attrs.field(repr=False, default=None)
+    """The default emoji to react with for posts"""
     last_message_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
     # TODO: Implement "template" once the API supports them
 

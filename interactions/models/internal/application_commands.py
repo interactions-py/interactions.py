@@ -96,6 +96,11 @@ def desc_validator(_: Any, attr: Attribute, value: str) -> None:
         raise ValueError(f"Description must be between 1 and {SLASH_CMD_MAX_DESC_LENGTH} characters long")
 
 
+def custom_ids_validator(*custom_id: str | re.Pattern) -> None:
+    if not (all(isinstance(i, re.Pattern) for i in custom_id) or all(isinstance(i, str) for i in custom_id)):
+        raise ValueError("All custom IDs be either a string or a regex pattern, not a mix of both.")
+
+
 @attrs.define(
     eq=False,
     order=False,
@@ -1145,17 +1150,20 @@ def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable]
         return ComponentCommand(name=f"ComponentCallback::{custom_id}", callback=func, listeners=custom_id)
 
     custom_id = _unpack_helper(custom_id)
-    if not (all(isinstance(i, re.Pattern) for i in custom_id) or all(isinstance(i, str) for i in custom_id)):
-        raise ValueError("All custom IDs be either a string or a regex pattern, not a mix of both.")
+    custom_ids_validator(*custom_id)
     return wrapper
 
 
-def modal_callback(*custom_id: str) -> Callable[[AsyncCallable], ModalCommand]:
+def modal_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], ModalCommand]:
     """
     Register a coroutine as a modal callback.
 
     Modal callbacks work the same way as commands, just using modals as a way of invoking, instead of messages.
     Your callback will be given a single argument, `ModalContext`
+
+    Note:
+        This can optionally take a regex pattern, which will be used to match against the custom ID of the modal
+
 
     Args:
         *custom_id: The custom ID of the modal to wait for
@@ -1168,6 +1176,7 @@ def modal_callback(*custom_id: str) -> Callable[[AsyncCallable], ModalCommand]:
         return ModalCommand(name=f"ModalCallback::{custom_id}", callback=func, listeners=custom_id)
 
     custom_id = _unpack_helper(custom_id)
+    custom_ids_validator(*custom_id)
     return wrapper
 
 
@@ -1354,7 +1363,7 @@ def application_commands_to_dict(  # noqa: C901
 
             if any(str(c.description) not in (str(base_description), "No Description Set") for c in cmd_list):
                 client.logger.warning(
-                    f"Conflicting descriptions found in `{cmd_list[0].name}` subcommands; `{str(base_description)}` will be used"
+                    f"Conflicting descriptions found in `{cmd_list[0].name}` subcommands; `{base_description!s}` will be used"
                 )
             if any(c.default_member_permissions != cmd_list[0].default_member_permissions for c in cmd_list):
                 raise ValueError(f"Conflicting `default_member_permissions` values found in `{cmd_list[0].name}`")

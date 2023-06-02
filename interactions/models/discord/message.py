@@ -18,7 +18,7 @@ import attrs
 
 import interactions.models as models
 from interactions.client.const import GUILD_WELCOME_MESSAGES, MISSING, Absent
-from interactions.client.errors import ThreadOutsideOfGuild
+from interactions.client.errors import ThreadOutsideOfGuild, NotFound
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.attr_converters import timestamp_converter
@@ -400,7 +400,11 @@ class Message(BaseMessage):
         """
         if self._referenced_message_id is None:
             return None
-        return await self._client.cache.fetch_message(self._channel_id, self._referenced_message_id, force=force)
+
+        try:
+            return await self._client.cache.fetch_message(self._channel_id, self._referenced_message_id, force=force)
+        except NotFound:
+            return None
 
     def get_referenced_message(self) -> Optional["Message"]:
         """
@@ -492,6 +496,8 @@ class Message(BaseMessage):
                 ref_message_data["guild_id"] = data.get("guild_id")
             _m = client.cache.place_message_data(ref_message_data)
             data["referenced_message_id"] = _m.id
+        elif msg_reference := data.get("message_reference"):
+            data["referenced_message_id"] = msg_reference.get("message_id")
 
         if "interaction" in data:
             data["interaction"] = MessageInteraction.from_dict(data["interaction"], client)
