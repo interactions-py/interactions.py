@@ -110,4 +110,4 @@ Congratulations! You now have a basic understanding of this library.
 If you have any questions check out our other guides, or join the
 --8<-- "discord_inv.md"
 
-For more examples, check out the [examples page](/Guides/90 Example)
+For more examples, check out the [examples page](/interactions.py/Guides/90 Example)

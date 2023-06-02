@@ -519,4 +519,4 @@ There also is `on_command` which you can overwrite too. That fires on every inte
 
 If your bot is complex enough, you might find yourself wanting to use custom models in your commands.
 
-To do this, you'll want to use a string option, and define a converter. Information on how to use converters can be found [on the converter page](/Guides/08 Converters).
+To do this, you'll want to use a string option, and define a converter. Information on how to use converters can be found [on the converter page](/interactions.py/Guides/08 Converters/).
