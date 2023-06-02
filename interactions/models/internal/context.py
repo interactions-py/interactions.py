@@ -403,7 +403,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
     async def _send_http_request(
         self, message_payload: dict, files: typing.Iterable["UPLOADABLE_TYPE"] | None = None
     ) -> dict:
-        if const.has_client_feature("FOLLOWUP_INTERACTIONS_FOR_IMAGES") and not self.deferred:
+        if const.has_client_feature("FOLLOWUP_INTERACTIONS_FOR_IMAGES") and not self.deferred and not self.responded:
             # experimental bypass for discords broken image proxy
             if embeds := message_payload.get("embeds", {}):
                 if any(e.get("image") for e in embeds) or any(e.get("thumbnail") for e in embeds):

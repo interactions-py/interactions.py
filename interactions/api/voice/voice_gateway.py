@@ -280,6 +280,8 @@ class VoiceGateway(WebsocketClient):
             except socket.error as e:
                 self.logger.warning(f"Ending Keep Alive due to {e}")
                 return
+            except AttributeError:
+                return
             except Exception as e:
                 self.logger.debug("Keep Alive Error: ", exc_info=e)
         self.logger.debug("Ending UDP Keep Alive")

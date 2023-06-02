@@ -4,10 +4,11 @@ import attrs
 
 import interactions.models as models
 from interactions.client.const import MISSING
+from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.mixins.send import SendMixin
 from interactions.client.utils.attr_converters import optional
 from interactions.client.utils.attr_converters import timestamp_converter
-from interactions.models.discord.emoji import PartialEmoji
+from interactions.models.discord.emoji import PartialEmoji, process_emoji
 from interactions.models.discord.snowflake import to_snowflake
 from interactions.models.discord.timestamp import Timestamp
 from .base import DiscordObject, ClientObject
@@ -25,6 +26,9 @@ __all__ = (
     "ThreadMember",
     "ThreadList",
     "ThreadTag",
+    "DefaultReaction",
+    "process_thread_tag",
+    "process_default_reaction",
 )
 
 
@@ -122,10 +126,45 @@ class ThreadTag(DiscordObject):
     name: str = attrs.field(
         repr=False,
     )
-    emoji_id: "Snowflake_Type" = attrs.field(repr=False, default=None)
+    moderated: bool = attrs.field(repr=False)
+    emoji_id: "Snowflake_Type | None" = attrs.field(repr=False, default=None)
     emoji_name: str | None = attrs.field(repr=False, default=None)
 
     _parent_channel_id: "Snowflake_Type" = attrs.field(repr=False, default=MISSING)
+
+    @classmethod
+    def create(
+        cls,
+        name: str,
+        *,
+        moderated: bool = False,
+        emoji: Union["models.PartialEmoji", dict, str, None] = None,
+    ) -> "ThreadTag":
+        """
+        Create a new thread tag - this is useful if you're making a new forum
+
+        !!! warning
+            This does not create the tag on Discord, it only creates a local object
+            Do not expect the tag to contain valid values or for its methods to work
+
+        Args:
+            name: The name for this tag
+            moderated: Whether this tag is moderated
+            emoji: The emoji for this tag
+
+        Returns:
+            This object
+        """
+        if emoji := models.process_emoji(emoji):
+            return cls(
+                client=None,
+                moderated=moderated,
+                id=0,
+                name=name,
+                emoji_id=emoji.get("id"),
+                emoji_name=emoji.get("name"),
+            )
+        return cls(client=None, moderated=moderated, id=0, name=name)
 
     @property
     def parent_channel(self) -> "GuildForum":
@@ -170,3 +209,66 @@ class ThreadTag(DiscordObject):
         """Delete this tag."""
         data = await self._client.http.delete_tag(self._parent_channel_id, self.id)
         self._client.cache.place_channel_data(data)
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class DefaultReaction(DictSerializationMixin):
+    """Represents a default reaction for a forum."""
+
+    emoji_id: "Snowflake_Type | None" = attrs.field(default=None)
+    emoji_name: str | None = attrs.field(default=None)
+
+    @classmethod
+    def from_emoji(cls, emoji: PartialEmoji) -> "DefaultReaction":
+        """Create a default reaction from an emoji."""
+        if emoji.id:
+            return cls(emoji_id=emoji.id)
+        return cls(emoji_name=emoji.name)
+
+
+def process_thread_tag(tag: Optional[dict | ThreadTag]) -> Optional[dict]:
+    """
+    Processes the tag parameter into the dictionary format required by the API.
+
+    Args:
+        tag: The tag to process
+
+    Returns:
+        formatted dictionary for discrd
+    """
+    if not tag:
+        return tag
+
+    if isinstance(tag, ThreadTag):
+        return tag.to_dict()
+
+    if isinstance(tag, dict):
+        return tag
+
+    raise ValueError(f"Invalid tag: {tag}")
+
+
+def process_default_reaction(reaction: Optional[dict | DefaultReaction | PartialEmoji | str]) -> Optional[dict]:
+    """
+    Processes the reaction parameter into the dictionary format required by the API.
+
+    Args:
+        reaction: The reaction to process.
+
+    Returns:
+        formatted dictionary for discrd
+    """
+    if not reaction:
+        return reaction
+
+    if isinstance(reaction, dict):
+        return reaction
+
+    if not isinstance(reaction, DefaultReaction):
+        emoji = process_emoji(reaction)
+        if emoji_id := emoji.get("id"):
+            reaction = DefaultReaction(emoji_id=emoji_id)
+        else:
+            reaction = DefaultReaction(emoji_name=emoji["name"])
+
+    return reaction.to_dict()

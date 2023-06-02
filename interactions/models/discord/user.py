@@ -627,6 +627,10 @@ class Member(DiscordObject, _SendDMMixin):
         """
         await self._client.http.modify_guild_member(self._guild_id, self.id, channel_id=channel_id)
 
+    async def disconnect(self) -> None:
+        """Disconnects the member from the voice channel."""
+        await self._client.http.modify_guild_member(self._guild_id, self.id, channel_id=None)
+
     async def edit(
         self,
         *,

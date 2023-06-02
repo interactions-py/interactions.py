@@ -253,7 +253,7 @@ def _greedy_parse(greedy: Greedy, param: inspect.Parameter) -> Any:
         args = typing.get_args(arg)
 
         if len(args) > 2 or NoneType not in args:
-            raise ValueError(f"Greedy[{repr(arg)}] is invalid.")
+            raise ValueError(f"Greedy[{arg!r}] is invalid.")
 
         arg = args[0]
         default = None
@@ -317,7 +317,7 @@ async def _greedy_convert(
         if param.default:
             greedy_args = param.default  # im sorry, typehinters
         else:
-            raise BadArgument(f"Failed to find any arguments for {repr(param.type)}.")
+            raise BadArgument(f"Failed to find any arguments for {param.type!r}.")
 
     return greedy_args, broke_off
 
