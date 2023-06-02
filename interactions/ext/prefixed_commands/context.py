@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
 from typing_extensions import Self
 
@@ -80,7 +80,7 @@ class PrefixedContext(BaseContext, SendMixin):
         content: Optional[str] = None,
         embeds: Optional[Union[Iterable[Union[Embed, dict]], Union[Embed, dict]]] = None,
         embed: Optional[Union[Embed, dict]] = None,
-        **kwargs: dict,
+        **kwargs: Any,
     ) -> Message:
         """
         Reply to the context's message. Takes all the same attributes as `send`.
