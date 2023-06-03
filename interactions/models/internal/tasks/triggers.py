@@ -129,17 +129,12 @@ class OrTrigger(BaseTrigger):
     def __or__(self, other: "BaseTrigger") -> "OrTrigger":
         self.triggers.append(other)
         return self
-    
+
     def _set_current_trigger(self) -> BaseTrigger | None:
-        self.current_trigger = (
-            self.triggers[0]
-            if len(self.triggers) == 1
-            else min(self.triggers, key=self._get_delta)
-        )
+        self.current_trigger = self.triggers[0] if len(self.triggers) == 1 else min(self.triggers, key=self._get_delta)
         return self.current_trigger
 
     def next_fire(self) -> datetime | None:
-        if not self._set_current_trigger(): 
+        if not self._set_current_trigger():
             return None
         return self.current_trigger.next_fire()
-    
