@@ -135,6 +135,4 @@ class OrTrigger(BaseTrigger):
         return self.current_trigger
 
     def next_fire(self) -> datetime | None:
-        if not self._set_current_trigger():
-            return None
-        return self.current_trigger.next_fire()
+        return self.current_trigger.next_fire() if self._set_current_trigger() else None
