@@ -95,6 +95,10 @@ class HybridContext(BaseContext, SendMixin):
     @classmethod
     def from_slash_context(cls, ctx: SlashContext) -> Self:
         self = cls(ctx.client)
+        self.guild_id = ctx.guild_id
+        self.channel_id = ctx.channel_id
+        self.author_id = ctx.author_id
+        self.message_id = ctx.message_id
         self.prefix = "/"
         self.app_permissions = ctx.app_permissions
         self.deferred = ctx.deferred
@@ -119,6 +123,11 @@ class HybridContext(BaseContext, SendMixin):
             app_permissions = Permissions(0b1111100110001000000)
 
         self = cls(ctx.client)
+        self.guild_id = ctx.guild_id
+        self.channel_id = ctx.channel_id
+        self.author_id = ctx.author_id
+        self.message_id = ctx.message_id
+        self._message = ctx.message
         self.prefix = ctx.prefix
         self.app_permissions = app_permissions
         self._command_name = ctx.command.qualified_name
