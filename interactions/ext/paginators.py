@@ -352,7 +352,7 @@ class Paginator:
             "components": [c.to_dict() for c in self.create_components()],
         }
 
-    async def send(self, ctx: InteractionContext, **kwargs) -> Message:
+    async def send(self, ctx: BaseContext, **kwargs) -> Message:
         """
         Send this paginator.
 
