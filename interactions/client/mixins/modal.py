@@ -9,7 +9,7 @@ __all__ = ("ModalMixin",)
 
 
 class ModalMixin:
-    client: "interactions.Client"
+    client: "interactions.client.client.Client"
     """The client that created this context."""
     responded: bool
     """Whether this context has been responded to."""

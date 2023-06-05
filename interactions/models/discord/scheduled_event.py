@@ -15,7 +15,7 @@ from .base import DiscordObject
 from .enums import ScheduledEventPrivacyLevel, ScheduledEventType, ScheduledEventStatus
 
 if TYPE_CHECKING:
-    from interactions.client import Client
+    from interactions.client.client import Client
     from interactions.models.discord.channel import GuildStageVoice, GuildVoice
     from interactions.models.discord.guild import Guild
     from interactions.models.discord.user import Member
