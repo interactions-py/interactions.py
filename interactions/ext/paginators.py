@@ -13,6 +13,7 @@ from interactions import (
     ButtonStyle,
     spread_to_rows,
     ComponentCommand,
+    BaseContext,
     Message,
     MISSING,
     Snowflake_Type,
