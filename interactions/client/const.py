@@ -283,8 +283,3 @@ except AssertionError as e:
     raise RuntimeError(
         f"NON_RESUMABLE_WEBSOCKET_CLOSE_CODES contains codes that are not in RECOVERABLE_WEBSOCKET_CLOSE_CODES: {diff}"
     ) from e
-
-if "discord" in sys.modules:
-    get_logger().error(
-        "`import discord` import detected.  Interactions.py is a completely separate library, and is not compatible with d.py models.  Please see https://interactions-py.github.io/interactions.py/Guides/100%20Migration%20From%20D.py/ for how to fix your code."
-    )
