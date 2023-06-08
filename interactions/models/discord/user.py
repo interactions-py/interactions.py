@@ -65,7 +65,7 @@ class BaseUser(DiscordObject, _SendDMMixin):
             if data["avatar"]:
                 data["avatar"] = Asset.from_path_hash(client, f"avatars/{data['id']}/{{}}", data["avatar"])
             elif data["discriminator"] == "0":
-                data["avatar"] = Asset(client, f"{Asset.BASE}/embed/avatars/{(int(data['id']) >> 22) % 5}")
+                data["avatar"] = Asset(client, f"{Asset.BASE}/embed/avatars/{(int(data['id']) >> 22) % 6}")
             else:
                 data["avatar"] = Asset(client, f"{Asset.BASE}/embed/avatars/{int(data['discriminator']) % 5}")
         return data
