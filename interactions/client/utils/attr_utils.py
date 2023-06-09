@@ -36,12 +36,12 @@ def docs(doc_string: str) -> Dict[str, str]:
     return {"docs": doc_string}
 
 
-def str_validator(self: Any, attribute: attrs.Attribute, value: Any) -> None:
+def str_validator(cls: Any, attribute: attrs.Attribute, value: Any) -> None:
     """
     Validates that the value is a string. Helps convert and ives a warning if it isn't.
 
     Args:
-        self: The instance of the class.
+        cls: The instance of the class.
         attribute: The attr attribute being validated.
         value: The value being validated.
 
@@ -49,7 +49,7 @@ def str_validator(self: Any, attribute: attrs.Attribute, value: Any) -> None:
     if not isinstance(value, str):
         if value is MISSING:
             return
-        setattr(self, attribute.name, str(value))
+        setattr(cls, attribute.name, str(value))
         get_logger().warning(
             f"Value of {attribute.name} has been automatically converted to a string. Please use strings in future.\n"
             "Note: Discord will always return value as a string"
