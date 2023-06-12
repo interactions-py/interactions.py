@@ -16,7 +16,7 @@ try:
     import sentry_sdk
 except ModuleNotFoundError:
     get_logger().error(
-        "sentry-sdk not installed, cannot enable sentry integration.  Install with `pip install interactions[sentry]`"
+        "sentry-sdk not installed, cannot enable sentry integration.  Install with `pip install discord-py-interactions[sentry]`"
     )
     raise
 
