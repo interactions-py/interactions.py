@@ -68,9 +68,11 @@ class FakeUserMixin(FakeBaseUserMixin):
     public_flags: UserFlags
     premium_type: PremiumType
     banner: Optional["Asset"]
+    avatar_decoration: Optional["Asset"]
     accent_color: Optional["Color"]
     activities: list[Activity]
     status: Absent[Status]
+    _fetched: bool
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: Client) -> Dict[str, Any]: ...
     @property
@@ -148,6 +150,7 @@ class Member(FakeUserMixin):
         reason: Absent[str] = ...,
     ) -> dict: ...
     async def move(self, channel_id: Snowflake_Type) -> None: ...
+    async def disconnect(self) -> None: ...
     async def edit(
         self,
         *,
