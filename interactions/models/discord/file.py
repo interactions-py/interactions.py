@@ -32,7 +32,7 @@ class File:
             else:
                 self.file_name = Path(self.file).name
 
-    def open_file(self) -> BinaryIO:
+    def open_file(self) -> BinaryIO | IOBase:
         """
         Opens the file.
 
@@ -55,7 +55,7 @@ class File:
 UPLOADABLE_TYPE = Union[File, IOBase, BinaryIO, Path, str]
 
 
-def open_file(file: UPLOADABLE_TYPE) -> BinaryIO:
+def open_file(file: UPLOADABLE_TYPE) -> BinaryIO | IOBase:
     """
     Opens the file.
 
