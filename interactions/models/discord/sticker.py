@@ -135,6 +135,11 @@ class Sticker(StickerItem):
 
         await self._client.http.delete_guild_sticker(self._guild_id, self.id, reason)
 
+    @property
+    def url(self) -> str:
+        """CDN url for the sticker."""
+        return f"https://media.discordapp.net/stickers/{self.id}.webp"
+
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class StickerPack(DiscordObject):
