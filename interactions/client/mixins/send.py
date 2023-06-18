@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
 import interactions.models as models
+import interactions.models.discord
 from interactions.models.discord.enums import MessageFlags
 
 if TYPE_CHECKING:
@@ -81,6 +82,18 @@ class SendMixin:
             if isinstance(flags, int):
                 flags = MessageFlags(flags)
             flags = flags | MessageFlags.SILENT
+
+        if (
+            files
+            and (
+                isinstance(files, Iterable)
+                and any(isinstance(file, interactions.models.discord.message.Attachment) for file in files)
+            )
+            or isinstance(files, interactions.models.discord.message.Attachment)
+        ):
+            raise ValueError(
+                "Attachments are not files. Attachments only contain metadata about the file, not the file itself - to send an attachment, you need to download it first. Check Attachment.url"
+            )
 
         message_payload = models.discord.message.process_message_payload(
             content=content,
