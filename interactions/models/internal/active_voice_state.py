@@ -267,7 +267,7 @@ class ActiveVoiceState(VoiceState):
         Returns:
             dict[snowflake, BytesIO]: The recorded audio
         """
-        if not self.recorder or not self.recorder.recording:
+        if not self.recorder or not self.recorder.recording or not self.recorder.audio:
             raise RuntimeError("No recorder is running!")
         await self.recorder.stop_recording()
 

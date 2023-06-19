@@ -775,6 +775,8 @@ class BaseChannel(DiscordObject):
     """The name of the channel (1-100 characters)"""
     type: Union[ChannelType, int] = attrs.field(repr=True, converter=ChannelType)
     """The channel topic (0-1024 characters)"""
+    permissions: Optional[Permissions] = attrs.field(repr=False, default=None, converter=optional_c(Permissions))
+    """Calculated permissions for the bot in this channel, only given when using channels as an option with slash commands"""
 
     @classmethod
     def from_dict_factory(cls, data: dict, client: "Client") -> "TYPE_ALL_CHANNEL":

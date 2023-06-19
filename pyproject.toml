@@ -84,7 +84,6 @@ skip = ["__init__.py"]
 
 [tool.mypy]
 ignore_missing_imports = true
-plugins = "naff.ext.mypy"
 
 [tool.pyright]
 useLibraryCodeForTypes = true

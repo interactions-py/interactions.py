@@ -352,18 +352,19 @@ class Paginator:
             "components": [c.to_dict() for c in self.create_components()],
         }
 
-    async def send(self, ctx: BaseContext) -> Message:
+    async def send(self, ctx: BaseContext, **kwargs) -> Message:
         """
         Send this paginator.
 
         Args:
             ctx: The context to send this paginator with
+            **kwargs: Additional options to pass to `send`.
 
         Returns:
             The resulting message
 
         """
-        self._message = await ctx.send(**self.to_dict())
+        self._message = await ctx.send(**self.to_dict(), **kwargs)
         self._author_id = ctx.author.id
 
         if self.timeout_interval > 1:
@@ -372,16 +373,18 @@ class Paginator:
 
         return self._message
 
-    async def reply(self, ctx: "PrefixedContext") -> Message:
+    async def reply(self, ctx: "PrefixedContext", **kwargs) -> Message:
         """
         Reply this paginator to ctx.
 
         Args:
             ctx: The context to reply this paginator with
+            **kwargs: Additional options to pass to `reply`.
+
         Returns:
             The resulting message
         """
-        self._message = await ctx.reply(**self.to_dict())
+        self._message = await ctx.reply(**self.to_dict(), **kwargs)
         self._author_id = ctx.author.id
 
         if self.timeout_interval > 1:

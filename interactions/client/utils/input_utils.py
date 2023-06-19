@@ -35,7 +35,7 @@ elif importlib.util.find_spec("msgspec"):
 
     json_mode = "msgspec"
 else:
-    import json
+    import json  # type: ignore
 
 get_logger().debug(f"Using {json_mode} for JSON encoding and decoding.")
 
