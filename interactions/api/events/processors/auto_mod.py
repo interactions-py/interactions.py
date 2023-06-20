@@ -14,7 +14,7 @@ class AutoModEvents(EventMixinTemplate):
     @Processor.define()
     async def _raw_auto_moderation_action_execution(self, event: "RawGatewayEvent") -> None:
         action = AutoModerationAction.from_dict(event.data.copy(), self)
-        channel = self.get_channel(event.data["channel_id"])
+        channel = self.get_channel(event.data.get("channel_id"))
         guild = self.get_guild(event.data["guild_id"])
         self.dispatch(events.AutoModExec(action, channel, guild))
 
