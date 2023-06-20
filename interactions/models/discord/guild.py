@@ -348,7 +348,8 @@ class Guild(BaseGuild):
     @property
     def members(self) -> List["models.Member"]:
         """Returns a list of all members within this guild."""
-        return [self._client.cache.get_member(self.id, m_id) for m_id in self._member_ids]
+        members = (self._client.cache.get_member(self.id, m_id) for m_id in self._member_ids)
+        return [m for m in members if m]
 
     @property
     def premium_subscribers(self) -> List["models.Member"]:
