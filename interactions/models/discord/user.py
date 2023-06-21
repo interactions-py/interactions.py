@@ -311,6 +311,12 @@ class Member(DiscordObject, _SendDMMixin):
         converter=optional_c(timestamp_converter),
         metadata=docs("When a member's timeout will expire, `None` or a time in the past if the user is not timed out"),
     )
+    permissions: Optional[Permissions] = attrs.field(
+        repr=False,
+        default=None,
+        converter=optional_c(Permissions),
+        metadata=docs("Calculated permissions for the member, only given in interactions"),
+    )
 
     _guild_id: "Snowflake_Type" = attrs.field(repr=True, metadata=docs("The ID of the guild"))
     _role_ids: List["Snowflake_Type"] = attrs.field(

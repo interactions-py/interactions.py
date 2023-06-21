@@ -107,6 +107,7 @@ class Member(FakeUserMixin):
     pending: Optional[bool]
     guild_avatar: Asset
     communication_disabled_until: Optional["Timestamp"]
+    permissions: Optional[Permissions]
     _guild_id: Snowflake_Type
     _role_ids: List["Snowflake_Type"]
     _user_ref: frozenset
