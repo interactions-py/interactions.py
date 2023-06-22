@@ -187,9 +187,10 @@ class MessageInteraction(DiscordObject):
         data["user_id"] = client.cache.place_user_data(user_data).id
         return data
 
-    async def user(self) -> "models.User":
+    @property
+    def user(self) -> "models.User":
         """Get the user associated with this interaction."""
-        return await self.get_user(self._user_id)
+        return self.client.get_user(self._user_id)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
