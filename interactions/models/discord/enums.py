@@ -611,6 +611,8 @@ class ChannelType(CursedIntEnum):
     """Voice channel for hosting events with an audience"""
     GUILD_FORUM = 15
     """A Forum channel"""
+    MEDIA_CHANNEL = 16
+    """Channel that can only contain threads, similar to `GUILD_FORUM` channels"""
 
     @property
     def guild(self) -> bool:
@@ -794,6 +796,8 @@ class ChannelFlags(DiscordIntFlag):
     """ Thread is pinned to the top of its parent forum channel """
     CLYDE_THREAD = 1 << 8
     """This thread was created by Clyde"""
+    HIDE_MEDIA_DOWNLOAD_OPTIONS = 1 << 15
+    """when set hides the embedded media download options. Available only for media channels"""
 
     # Special members
     NONE = 0
