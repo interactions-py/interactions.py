@@ -109,16 +109,16 @@ plugins:
       handlers:
         python:
           selection:
-            inherited_members: true
+            inherited_members: True
             filters:
               - "!^_"
           rendering:
             members_order: source
             show_bases: True
             show_root_toc_entry: False
-            group_by_category: False
+            group_by_category: True
             heading_level: 3
-            show_if_no_docstring: False # temporary, this will be reverted to False once we're done with docs
+            show_if_no_docstring: True
   - minify:
       minify_html: true
   # keep this at the bottom of the plugins list - if you are building without insiders, comment it out
