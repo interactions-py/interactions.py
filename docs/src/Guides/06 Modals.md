@@ -15,7 +15,7 @@ Modals are one of the ways you can respond to interactions. They are intended fo
 
 Modals are valid responses to Slash Commands and Components.
 You **cannot** respond to a modal with a modal.
-Use `ctx.send_modal()` to send a modal.
+Use `ctx.send(modal=modal)` to send a modal.
 
 ```python
 from interactions import slash_command, SlashContext, Modal, ShortText, ParagraphText
@@ -27,7 +27,7 @@ async def my_command_function(ctx: SlashContext):
         ParagraphText(label="Long Input Text", custom_id="long_text"),
         title="My Modal",
     )
-    await ctx.send_modal(modal=my_modal)
+    await ctx.send(modal=my_modal)
     ...
 ```
 
@@ -82,7 +82,7 @@ async def my_command_function(ctx: SlashContext):
     )
 
 
-    await ctx.send_modal(modal=my_modal)
+    await ctx.send(modal=my_modal)
 ...
 ```
 
