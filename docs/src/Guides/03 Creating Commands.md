@@ -521,7 +521,7 @@ If your bot is complex enough, you might find yourself wanting to use custom mod
 
 To do this, you'll want to use a string option, and define a converter. Information on how to use converters can be found [on the converter page](/Guides/08 Converters).
 
-## I Want To Make A Prefixed Command Too
+## I Want To Make A Prefixed/Text Command Too
 
 You're in luck! You can use a hybrid command, which is a slash command that also gets converted to an equivalent prefixed command under the hood.
 
