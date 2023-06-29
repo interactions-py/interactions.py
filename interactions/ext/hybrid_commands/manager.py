@@ -71,7 +71,11 @@ class HybridManager:
 
     @listen("on_callback_added")
     async def add_hybrid_command(self, event: CallbackAdded):
-        if not isinstance(event.callback, HybridSlashCommand) or not event.callback.callback:
+        if (
+            not isinstance(event.callback, HybridSlashCommand)
+            or not event.callback.callback
+            or event.callback._dummy_base
+        ):
             return
 
         cmd = event.callback

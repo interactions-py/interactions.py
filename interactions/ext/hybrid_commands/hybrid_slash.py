@@ -28,6 +28,7 @@ from interactions import (
     Permissions,
 )
 from interactions.client.const import AsyncCallable, GLOBAL_SCOPE
+from interactions.client.utils.serializer import no_export_meta
 from interactions.client.utils.misc_utils import maybe_coroutine, get_object_name
 from interactions.client.errors import BadArgument
 from interactions.ext.prefixed_commands import PrefixedCommand, PrefixedContext
@@ -232,24 +233,25 @@ def type_from_option(option_type: OptionType | int) -> Converter:
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class HybridSlashCommand(SlashCommand):
+    _dummy_base: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
+
     async def __call__(self, context: SlashContext, *args, **kwargs) -> None:
         new_ctx = context.client.hybrid.hybrid_context.from_slash_context(context)
         await super().__call__(new_ctx, *args, **kwargs)
 
     def group(
-        self,
-        name: str = None,
-        description: str = "No Description Set",
-        inherit_checks: bool = True,
+        self, name: str = None, description: str = "No Description Set", inherit_checks: bool = True
     ) -> "HybridSlashCommand":
+        self._dummy_base = True
         return HybridSlashCommand(
             name=self.name,
             description=self.description,
             group_name=name,
             group_description=description,
             scopes=self.scopes,
+            default_member_permissions=self.default_member_permissions,
             dm_permission=self.dm_permission,
-            checks=self.checks if inherit_checks else [],
+            checks=self.checks.copy() if inherit_checks else [],
         )
 
     def subcommand(
@@ -261,7 +263,7 @@ class HybridSlashCommand(SlashCommand):
         options: List[Union[SlashCommandOption, dict]] = None,
         nsfw: bool = False,
         inherit_checks: bool = True,
-    ) -> Callable[[AsyncCallable], "HybridSlashCommand"]:
+    ) -> Callable[..., "HybridSlashCommand"]:
         def wrapper(call: AsyncCallable) -> "HybridSlashCommand":
             nonlocal sub_cmd_name, sub_cmd_description
 
@@ -273,6 +275,7 @@ class HybridSlashCommand(SlashCommand):
             if sub_cmd_name is MISSING:
                 sub_cmd_name = call.__name__
 
+            self._dummy_base = True
             return HybridSlashCommand(
                 name=self.name,
                 description=self.description,
@@ -286,7 +289,7 @@ class HybridSlashCommand(SlashCommand):
                 callback=call,
                 scopes=self.scopes,
                 nsfw=nsfw,
-                checks=self.checks if inherit_checks else [],
+                checks=self.checks.copy() if inherit_checks else [],
             )
 
         return wrapper
