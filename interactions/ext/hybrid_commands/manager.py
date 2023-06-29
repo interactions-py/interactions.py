@@ -107,6 +107,9 @@ class HybridManager:
                     base.add_command(group)
                 base = group
 
+            # since this is added *after* the base command has been added to the bot, we need to run
+            # this function ourselves
+            prefixed_transform._parse_parameters()
             base.add_command(prefixed_transform)
         else:
             self.client.prefixed.add_command(prefixed_transform)
