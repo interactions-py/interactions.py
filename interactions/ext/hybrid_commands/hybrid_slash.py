@@ -234,6 +234,7 @@ def type_from_option(option_type: OptionType | int) -> Converter:
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class HybridSlashCommand(SlashCommand):
     _dummy_base: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
+    _silence_autocomplete_errors: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
 
     async def __call__(self, context: SlashContext, *args, **kwargs) -> None:
         new_ctx = context.client.hybrid.hybrid_context.from_slash_context(context)
@@ -263,6 +264,7 @@ class HybridSlashCommand(SlashCommand):
         options: List[Union[SlashCommandOption, dict]] = None,
         nsfw: bool = False,
         inherit_checks: bool = True,
+        silence_autocomplete_errors: bool = True,
     ) -> Callable[..., "HybridSlashCommand"]:
         def wrapper(call: AsyncCallable) -> "HybridSlashCommand":
             nonlocal sub_cmd_name, sub_cmd_description
@@ -290,6 +292,7 @@ class HybridSlashCommand(SlashCommand):
                 scopes=self.scopes,
                 nsfw=nsfw,
                 checks=self.checks.copy() if inherit_checks else [],
+                silence_autocomplete_errors=silence_autocomplete_errors,
             )
 
         return wrapper
@@ -302,7 +305,7 @@ class _HybridToPrefixedCommand(PrefixedCommand):
         await super().__call__(new_ctx, *args, **kwargs)
 
 
-def slash_to_prefixed(cmd: SlashCommand) -> _HybridToPrefixedCommand:  # noqa: C901  there's nothing i can do
+def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # noqa: C901  there's nothing i can do
     prefixed_cmd = _HybridToPrefixedCommand(
         name=str(cmd.sub_cmd_name) if cmd.is_subcommand else str(cmd.name),
         aliases=list(_values_wrapper(cmd.sub_cmd_name.to_locale_dict()))
@@ -338,9 +341,9 @@ def slash_to_prefixed(cmd: SlashCommand) -> _HybridToPrefixedCommand:  # noqa: C
             # makes my life easier
             option = SlashCommandOption(**option)
 
-        if option.autocomplete:
+        if option.autocomplete and not cmd._silence_autocomplete_errors:
             # there isn't much we can do here
-            raise ValueError("Cannot use autocomplete in hybrid commands.")
+            raise ValueError("Autocomplete is unsupported in hybrid commands.")
 
         name = str(option.name)
         annotation = inspect.Parameter.empty
@@ -420,6 +423,7 @@ def hybrid_slash_command(
     sub_cmd_description: str | LocalisedDesc = "No Description Set",
     group_description: str | LocalisedDesc = "No Description Set",
     nsfw: bool = False,
+    silence_autocomplete_errors: bool = False,
 ) -> Callable[[AsyncCallable], HybridSlashCommand]:
     """
     A decorator to declare a coroutine as a hybrid slash command.
@@ -447,6 +451,7 @@ def hybrid_slash_command(
         group_name: 1-32 character name of the group
         group_description: 1-100 character description of the group
         nsfw: This command should only work in NSFW channels
+        silence_autocomplete_errors: Should autocomplete errors be silenced. Don't use this unless you know what you're doing.
 
     Returns:
         HybridSlashCommand Object
@@ -485,6 +490,7 @@ def hybrid_slash_command(
             callback=func,
             options=options,
             nsfw=nsfw,
+            silence_autocomplete_errors=silence_autocomplete_errors,
         )
 
         return cmd
@@ -507,6 +513,7 @@ def hybrid_slash_subcommand(
     scopes: List["Snowflake_Type"] = None,
     options: List[dict] = None,
     nsfw: bool = False,
+    silence_autocomplete_errors: bool = False,
 ) -> Callable[[AsyncCallable], HybridSlashCommand]:
     """
     A decorator specifically tailored for creating hybrid slash subcommands.
@@ -525,6 +532,7 @@ def hybrid_slash_subcommand(
         scopes: The scopes of which this command is available, defaults to GLOBAL_SCOPE
         options: The options for this command
         nsfw: This command should only work in NSFW channels
+        silence_autocomplete_errors: Should autocomplete errors be silenced. Don't use this unless you know what you're doing.
 
     Returns:
         A HybridSlashCommand object
@@ -556,6 +564,7 @@ def hybrid_slash_subcommand(
             callback=func,
             options=options,
             nsfw=nsfw,
+            silence_autocomplete_errors=silence_autocomplete_errors,
         )
         return cmd
 
