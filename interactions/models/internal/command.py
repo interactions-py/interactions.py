@@ -22,9 +22,12 @@ from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils.attr_utils import docs
 from interactions.client.utils.misc_utils import get_parameters, get_object_name, maybe_coroutine
 from interactions.client.utils.serializer import no_export_meta
+from interactions.models.discord.embed import Embed
 from interactions.models.internal.callback import CallbackObject
 from interactions.models.internal.cooldowns import Cooldown, Buckets, MaxConcurrency, CooldownSystem
 from interactions.models.internal.protocols import Converter
+from interactions.client.mixins.send import SendMixin
+
 
 if TYPE_CHECKING:
     from interactions.models.internal.extension import Extension
@@ -122,7 +125,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
 
         try:
             if await self._can_run(context):
-                if self.pre_run_callback is not None:
+                if self.pre_run_callback is not None:  # pragma: no branch
                     await self.call_with_binding(self.pre_run_callback, context, *args, **kwargs)
 
                 if self.extension is not None and self.extension.extension_prerun:
@@ -131,7 +134,7 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
 
                 await self.call_callback(self.callback, context)
 
-                if self.post_run_callback is not None:
+                if self.post_run_callback is not None:  # pragma: no branch
                     await self.call_with_binding(self.post_run_callback, context, *args, **kwargs)
 
                 if self.extension is not None and self.extension.extension_postrun:
@@ -195,7 +198,11 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
         return (annotation, getattr(annotation, name, None))
 
     async def call_callback(self, callback: Callable, context: "BaseContext") -> None:
-        await self.call_with_binding(callback, context, **context.kwargs)  # type: ignore
+        val = await self.call_with_binding(callback, context, **context.kwargs)  # type: ignore
+        if isinstance(val, str) and isinstance(context, SendMixin):
+            await context.send(val)
+        elif isinstance(val, Embed) and isinstance(context, SendMixin):
+            await context.send(embed=val)
 
     async def _can_run(self, context: "BaseContext") -> bool:
         """

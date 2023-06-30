@@ -9,6 +9,7 @@ To create an interaction, simply define an asynchronous function and use the `@s
 
 Interactions need to be responded to within 3 seconds. To do this, use `await ctx.send()`.
 If your code needs more time, don't worry. You can use `await ctx.defer()` to increase the time until you need to respond to the command to 15 minutes.
+For very simple commands, you can instead simply return a string
 ```python
 from interactions import slash_command, SlashContext
 
@@ -25,6 +26,11 @@ async def my_long_command_function(ctx: SlashContext):
     await asyncio.sleep(600)
 
     await ctx.send("Hello World")
+
+@slash_command(name="my_simple_command", description="My third command :)")
+async def my_command_function(ctx: SlashContext):
+    return "Hello World"
+
 ```
 ???+ note
     Command names must be lowercase and can only contain `-` and `_` as special symbols and must not contain spaces.
