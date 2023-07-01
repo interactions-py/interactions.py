@@ -233,6 +233,7 @@ def type_from_option(option_type: OptionType | int) -> Converter:
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class HybridSlashCommand(SlashCommand):
+    aliases: list[str] = attrs.field(repr=False, factory=list, metadata=no_export_meta)
     _dummy_base: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
     _silence_autocomplete_errors: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
 
@@ -241,7 +242,11 @@ class HybridSlashCommand(SlashCommand):
         await super().__call__(new_ctx, *args, **kwargs)
 
     def group(
-        self, name: str = None, description: str = "No Description Set", inherit_checks: bool = True
+        self,
+        name: str = None,
+        description: str = "No Description Set",
+        inherit_checks: bool = True,
+        aliases: list[str] | None = None,
     ) -> "HybridSlashCommand":
         self._dummy_base = True
         return HybridSlashCommand(
@@ -253,6 +258,7 @@ class HybridSlashCommand(SlashCommand):
             default_member_permissions=self.default_member_permissions,
             dm_permission=self.dm_permission,
             checks=self.checks.copy() if inherit_checks else [],
+            aliases=aliases or [],
         )
 
     def subcommand(
@@ -264,6 +270,7 @@ class HybridSlashCommand(SlashCommand):
         options: List[Union[SlashCommandOption, dict]] = None,
         nsfw: bool = False,
         inherit_checks: bool = True,
+        aliases: list[str] | None = None,
         silence_autocomplete_errors: bool = True,
     ) -> Callable[..., "HybridSlashCommand"]:
         def wrapper(call: AsyncCallable) -> "HybridSlashCommand":
@@ -292,6 +299,7 @@ class HybridSlashCommand(SlashCommand):
                 scopes=self.scopes,
                 nsfw=nsfw,
                 checks=self.checks.copy() if inherit_checks else [],
+                aliases=aliases or [],
                 silence_autocomplete_errors=silence_autocomplete_errors,
             )
 
@@ -320,6 +328,8 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
         post_run_callback=cmd.post_run_callback,
         error_callback=cmd.error_callback,
     )
+    if cmd.aliases:
+        prefixed_cmd.aliases.extend(cmd.aliases)
 
     if not cmd.dm_permission:
         prefixed_cmd.add_check(guild_only())
@@ -419,6 +429,7 @@ def base_subcommand_generator(
 def hybrid_slash_command(
     name: Absent[str | LocalisedName] = MISSING,
     *,
+    aliases: Optional[list[str]] = None,
     description: Absent[str | LocalisedDesc] = MISSING,
     scopes: Absent[list["Snowflake_Type"]] = MISSING,
     options: Optional[list[Union[SlashCommandOption, dict]]] = None,
@@ -447,6 +458,7 @@ def hybrid_slash_command(
 
     Args:
         name: 1-32 character name of the command, defaults to the name of the coroutine.
+        aliases: Aliases for the prefixed command varient of the command. Has no effect on the slash command.
         description: 1-100 character description of the command
         scopes: The scope this command exists within
         options: The parameters for the command, max 25
@@ -496,6 +508,7 @@ def hybrid_slash_command(
             callback=func,
             options=options,
             nsfw=nsfw,
+            aliases=aliases or [],
             silence_autocomplete_errors=silence_autocomplete_errors,
         )
 
@@ -509,6 +522,7 @@ def hybrid_slash_subcommand(
     *,
     subcommand_group: Optional[str | LocalisedName] = None,
     name: Absent[str | LocalisedName] = MISSING,
+    aliases: Optional[list[str]] = None,
     description: Absent[str | LocalisedDesc] = MISSING,
     base_description: Optional[str | LocalisedDesc] = None,
     base_desc: Optional[str | LocalisedDesc] = None,
@@ -528,6 +542,7 @@ def hybrid_slash_subcommand(
         base: The name of the base command
         subcommand_group: The name of the subcommand group, if any.
         name: The name of the subcommand, defaults to the name of the coroutine.
+        aliases: Aliases for the prefixed command varient of the subcommand. Has no effect on the slash command.
         description: The description of the subcommand
         base_description: The description of the base command
         base_desc: An alias of `base_description`
@@ -570,6 +585,7 @@ def hybrid_slash_subcommand(
             callback=func,
             options=options,
             nsfw=nsfw,
+            aliases=aliases or [],
             silence_autocomplete_errors=silence_autocomplete_errors,
         )
         return cmd
