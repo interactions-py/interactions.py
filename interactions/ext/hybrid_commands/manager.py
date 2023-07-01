@@ -89,7 +89,7 @@ class HybridManager:
             if not (base := self.client.prefixed.commands.get(str(cmd.name))):
                 base = base_subcommand_generator(
                     str(cmd.name),
-                    list(_values_wrapper(cmd.name.to_locale_dict())),
+                    list(_values_wrapper(cmd.name.to_locale_dict())) + cmd.aliases,
                     str(cmd.name),
                     group=False,
                 )
@@ -100,7 +100,7 @@ class HybridManager:
                 if not (group := base.subcommands.get(str(cmd.group_name))):
                     group = base_subcommand_generator(
                         str(cmd.group_name),
-                        list(_values_wrapper(cmd.group_name.to_locale_dict())),
+                        list(_values_wrapper(cmd.group_name.to_locale_dict())) + cmd.aliases,
                         str(cmd.group_name),
                         group=True,
                     )
