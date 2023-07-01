@@ -378,7 +378,7 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
 
         actual_param = inspect.Parameter(
             name=name,
-            kind=inspect.Parameter.KEYWORD_ONLY,
+            kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
             default=default,
             annotation=annotation,
         )
