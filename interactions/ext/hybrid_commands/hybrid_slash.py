@@ -348,8 +348,10 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
         name = str(option.name)
         annotation = inspect.Parameter.empty
         default = inspect.Parameter.empty
+        kind = inspect.Parameter.POSITIONAL_ONLY if cmd._uses_arg else inspect.Parameter.POSITIONAL_OR_KEYWORD
 
         if slash_param := cmd.parameters.get(name):
+            kind = slash_param.kind
             if slash_param.converter:
                 annotation = slash_param.converter
             if slash_param.default is not MISSING:
@@ -378,7 +380,7 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
 
         actual_param = inspect.Parameter(
             name=name,
-            kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            kind=kind,
             default=default,
             annotation=annotation,
         )
