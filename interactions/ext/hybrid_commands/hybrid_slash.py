@@ -352,6 +352,10 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
 
         if slash_param := cmd.parameters.get(name):
             kind = slash_param.kind
+
+            if kind == inspect.Parameter.KEYWORD_ONLY:  # work around prefixed cmd parsing
+                kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
+
             if slash_param.converter:
                 annotation = slash_param.converter
             if slash_param.default is not MISSING:
