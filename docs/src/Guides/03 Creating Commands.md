@@ -260,20 +260,23 @@ from interactions import AutocompleteContext
 
 @my_command.autocomplete("string_option")
 async def autocomplete(self, ctx: AutocompleteContext):
-    # make sure this is done within three seconds
+    string_option_input = ctx.input_text  # can be empty
+    # you can use ctx.kwargs.get("name") for other options - note they can be empty too
+
+    # make sure you respond within three seconds
     await ctx.send(
         choices=[
             {
-                "name": f"{ctx.input_text}a",
-                "value": f"{ctx.input_text}a",
+                "name": f"{string_option_input}a",
+                "value": f"{string_option_input}a",
             },
             {
-                "name": f"{ctx.input_text}b",
-                "value": f"{ctx.input_text}b",
+                "name": f"{string_option_input}b",
+                "value": f"{string_option_input}b",
             },
             {
-                "name": f"{ctx.input_text}c",
-                "value": f"{ctx.input_text}c",
+                "name": f"{string_option_input}c",
+                "value": f"{string_option_input}c",
             },
         ]
     )
