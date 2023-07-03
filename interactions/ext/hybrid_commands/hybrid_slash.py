@@ -142,9 +142,9 @@ class StringLengthConverter(Converter[str]):
 
     async def convert(self, ctx: BaseContext, argument: str) -> str:
         if self.min_length and len(argument) < self.min_length:
-            raise BadArgument(f'The string "{argument}" is shorter than' f" {self.min_length} character(s).")
+            raise BadArgument(f'The string "{argument}" is shorter than {self.min_length} character(s).')
         elif self.max_length and len(argument) > self.max_length:  # noqa: RET506
-            raise BadArgument(f'The string "{argument}" is longer than' f" {self.max_length} character(s).")
+            raise BadArgument(f'The string "{argument}" is longer than {self.max_length} character(s).')
 
         return argument
 
