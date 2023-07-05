@@ -18,7 +18,7 @@ from typing import (
 import attrs
 from typing_extensions import Self
 
-from interactions.client.const import MISSING
+from interactions.client.const import MISSING, T
 from interactions.client.errors import BadArgument
 from interactions.client.utils.input_utils import _quotes
 from interactions.client.utils.misc_utils import get_object_name, maybe_coroutine
@@ -506,6 +506,10 @@ class PrefixedCommand(BaseCommand):
                 cmd_param.consume_rest = True
                 finished_params = True
                 anno = typing.get_args(anno)[0]
+
+                if anno == T:
+                    # someone forgot to typehint
+                    anno = inspect._empty
 
             if typing.get_origin(anno) == Annotated:
                 anno = _get_from_anno_type(anno)
