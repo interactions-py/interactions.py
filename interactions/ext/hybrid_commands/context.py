@@ -311,6 +311,7 @@ class HybridContext(BaseContext, SendMixin):
             tts=tts,
             flags=flags,
             delete_after=delete_after,
+            pass_self_into_delete=bool(self._slash_ctx),
             **kwargs,
         )
 
