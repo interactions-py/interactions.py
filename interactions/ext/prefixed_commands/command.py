@@ -467,7 +467,7 @@ class PrefixedCommand(BaseCommand):
         """Return whether this command is a subcommand or not."""
         return bool(self.parent)
 
-    def _parse_parameters(self) -> None:  # noqa: C901
+    def _parse_parameters(self) -> None:    # noqa: C901
         """
         Parses the parameters that this command has into a form i.py can use.
 
@@ -526,7 +526,9 @@ class PrefixedCommand(BaseCommand):
                     raise ValueError("Variable arguments cannot have default values or be Optional.")
                 cmd_param.variable = True
                 finished_params = True
-                anno = typing.get_args(anno)[0]
+
+                # use empty if the typehint is just "tuple"
+                anno = typing.get_args(anno)[0] if typing.get_args(anno) else inspect._empty
 
             if typing.get_origin(anno) in {Union, UnionType}:
                 cmd_param.union = True
