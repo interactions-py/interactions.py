@@ -111,5 +111,8 @@ class SendMixin:
         if message_data:
             message = self.client.cache.place_message_data(message_data)
             if delete_after:
-                await message.delete(delay=delete_after)
+                if kwargs.get("pass_self_into_delete"):  # hack to pass in interaction/hybrid context
+                    await message.delete(delay=delete_after, context=self)
+                else:
+                    await message.delete(delay=delete_after)
             return message
