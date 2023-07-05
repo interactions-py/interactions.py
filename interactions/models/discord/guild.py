@@ -1476,7 +1476,7 @@ class Guild(BaseGuild):
             payload["permissions"] = str(int(permissions))
 
         if colour := colour or color:
-            payload["color"] = colour.value
+            payload["color"] = colour if isinstance(colour, int) else colour.value
 
         if hoist:
             payload["hoist"] = True
