@@ -290,7 +290,7 @@ class HybridContext(BaseContext, SendMixin):
             New message object that was sent.
         """
         flags = MessageFlags(flags or 0)
-        if ephemeral and not self._slash_ctx:
+        if ephemeral and self._slash_ctx:
             flags |= MessageFlags.EPHEMERAL
             self.ephemeral = True
         if suppress_embeds:
