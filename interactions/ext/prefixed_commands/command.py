@@ -467,7 +467,7 @@ class PrefixedCommand(BaseCommand):
         """Return whether this command is a subcommand or not."""
         return bool(self.parent)
 
-    def _parse_parameters(self) -> None:    # noqa: C901
+    def _parse_parameters(self) -> None:  # noqa: C901
         """
         Parses the parameters that this command has into a form i.py can use.
 
