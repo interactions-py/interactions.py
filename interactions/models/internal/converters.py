@@ -1,8 +1,8 @@
 import re
 import typing
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Annotated
 
-from interactions.client.const import T, T_co
+from interactions.client.const import T, T_co, Sentinel
 from interactions.client.errors import BadArgument
 from interactions.client.errors import Forbidden, HTTPException
 from interactions.models.discord.channel import (
@@ -66,6 +66,7 @@ __all__ = (
     "CustomEmojiConverter",
     "MessageConverter",
     "Greedy",
+    "ConsumeRest",
     "MODEL_TO_CONVERTER",
 )
 
@@ -571,6 +572,15 @@ class CustomEmojiConverter(IDConverter[CustomEmoji]):
 class Greedy(List[T]):
     """A special marker class to mark an argument in a prefixed command to repeatedly convert until it fails to convert an argument."""
 
+
+class ConsumeRestMarker(Sentinel):
+    pass
+
+
+CONSUME_REST_MARKER = ConsumeRestMarker()
+
+ConsumeRest = Annotated[T, CONSUME_REST_MARKER]
+"""A special marker type alias to mark an argument in a prefixed command to consume the rest of the arguments."""
 
 MODEL_TO_CONVERTER: dict[type, type[Converter]] = {
     SnowflakeObject: SnowflakeConverter,

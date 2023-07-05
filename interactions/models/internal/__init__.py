@@ -58,6 +58,7 @@ from .context import (
 from .converters import (
     BaseChannelConverter,
     ChannelConverter,
+    ConsumeRest,
     CustomEmojiConverter,
     DMChannelConverter,
     DMConverter,
@@ -124,6 +125,7 @@ __all__ = (
     "context_menu",
     "user_context_menu",
     "message_context_menu",
+    "ConsumeRest",
     "ContextMenu",
     "ContextMenuContext",
     "Converter",

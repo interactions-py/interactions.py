@@ -1,11 +1,12 @@
 import asyncio
 import inspect
-from typing import Any, Callable, List, Optional, Union, TYPE_CHECKING, Awaitable
+from typing import Any, Callable, List, Optional, Union, TYPE_CHECKING, Awaitable, Annotated, get_origin, get_args
 
 import attrs
 from interactions import (
     BaseContext,
     Converter,
+    ConsumeRest,
     NoArgumentConverter,
     Attachment,
     SlashCommandChoice,
@@ -32,7 +33,7 @@ from interactions.client.utils.serializer import no_export_meta
 from interactions.client.utils.misc_utils import maybe_coroutine, get_object_name
 from interactions.client.errors import BadArgument
 from interactions.ext.prefixed_commands import PrefixedCommand, PrefixedContext
-from interactions.models.internal.converters import _LiteralConverter
+from interactions.models.internal.converters import _LiteralConverter, CONSUME_REST_MARKER
 from interactions.models.internal.checks import guild_only
 
 if TYPE_CHECKING:
@@ -360,11 +361,23 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
         default = inspect.Parameter.empty
         kind = inspect.Parameter.POSITIONAL_ONLY if cmd._uses_arg else inspect.Parameter.POSITIONAL_OR_KEYWORD
 
+        consume_rest: bool = False
+
         if slash_param := cmd.parameters.get(name):
             kind = slash_param.kind
 
             if kind == inspect.Parameter.KEYWORD_ONLY:  # work around prefixed cmd parsing
                 kind = inspect.Parameter.POSITIONAL_OR_KEYWORD
+
+            # here come the hacks - these allow ConsumeRest (the class) to be passed through
+            if get_origin(slash_param.type) == Annotated:
+                args = get_args(slash_param.type)
+                # ComsumeRest[str] or Annotated[ConsumeRest[str], Converter] support
+                # by all means, the second isn't allowed in prefixed commands, but we'll ignore that for converter support for slash cmds
+                if args[1] is CONSUME_REST_MARKER or (
+                    args[0] == Annotated and get_args(args[0])[1] is CONSUME_REST_MARKER
+                ):
+                    consume_rest = True
 
             if slash_param.converter:
                 annotation = slash_param.converter
@@ -391,6 +404,9 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
 
         if not option.required and default == inspect.Parameter.empty:
             default = None
+
+        if consume_rest:
+            annotation = ConsumeRest[annotation]
 
         actual_param = inspect.Parameter(
             name=name,
