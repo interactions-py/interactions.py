@@ -2737,5 +2737,5 @@ TYPE_CHANNEL_MAPPING = {
     ChannelType.DM: DM,
     ChannelType.GROUP_DM: DMGroup,
     ChannelType.GUILD_FORUM: GuildForum,
-    ChannelType.MEDIA_CHANNEL: GuildMedia,
+    ChannelType.GUILD_MEDIA: GuildMedia,
 }
