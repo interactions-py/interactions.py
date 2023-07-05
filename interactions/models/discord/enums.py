@@ -611,7 +611,7 @@ class ChannelType(CursedIntEnum):
     """Voice channel for hosting events with an audience"""
     GUILD_FORUM = 15
     """A Forum channel"""
-    MEDIA_CHANNEL = 16
+    GUILD_MEDIA = 16
     """Channel that can only contain threads, similar to `GUILD_FORUM` channels"""
 
     @property

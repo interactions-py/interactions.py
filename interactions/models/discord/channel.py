@@ -2641,7 +2641,7 @@ class GuildForum(GuildChannel):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class GuildMediaChannel(GuildForum):
+class GuildMedia(GuildForum):
     ...
 
 
@@ -2699,7 +2699,7 @@ TYPE_GUILD_CHANNEL = Union[
     GuildVoice,
     GuildStageVoice,
     GuildForum,
-    GuildMediaChannel,
+    GuildMedia,
     GuildPublicThread,
     GuildForumPost,
     GuildPrivateThread,
@@ -2737,5 +2737,5 @@ TYPE_CHANNEL_MAPPING = {
     ChannelType.DM: DM,
     ChannelType.GROUP_DM: DMGroup,
     ChannelType.GUILD_FORUM: GuildForum,
-    ChannelType.MEDIA_CHANNEL: GuildMediaChannel,
+    ChannelType.MEDIA_CHANNEL: GuildMedia,
 }
