@@ -495,6 +495,25 @@ async def my_command_function(ctx: SlashContext, integer_option: int):
 
 The same principle can be used to reuse autocomplete options.
 
+## Simplified Error Handling
+
+If you want error handling for all commands, you can override `Client` and define your own.
+Any error from interactions will trigger `CommandError`. That includes context menus.
+
+In this example, we are logging the error and responding to the interaction if not done so yet:
+```python
+import logger
+from interactions.api.events import CommandError
+
+@listen(CommandError, disable_default_listeners=True)  # tell the dispatcher that this replaces the default listener
+async def on_command_error(self, event: CommandError):
+    logger.error(event.error)
+    if not event.ctx.responded:
+        await event.ctx.send("Something went wrong.")
+```
+
+There also is `CommandCompletion` which you can overwrite too. That fires on every interactions usage.
+
 ## I Need A Custom Parameter Type
 
 If your bot is complex enough, you might find yourself wanting to use custom models in your commands.
