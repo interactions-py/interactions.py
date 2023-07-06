@@ -497,7 +497,7 @@ The same principle can be used to reuse autocomplete options.
 
 ## Simplified Error Handling
 
-If you want error handling for all commands, you can override `Client` and define your own.
+If you want error handling for all commands, you can override the default error listener and define your own.
 Any error from interactions will trigger `CommandError`. That includes context menus.
 
 In this example, we are logging the error and responding to the interaction if not done so yet:
