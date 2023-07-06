@@ -91,6 +91,8 @@ This will show up in discord as `/base group command`. There are more ways to ad
 
 === ":three: Class Definition"
     ```python
+    from interactions import SlashCommand
+
     base = SlashCommand(name="base", description="My command base")
     group = base.group(name="group", description="My command group")
 
@@ -125,7 +127,7 @@ Now that you know all the options you have for options, you can opt into adding 
 
 You do that by using the `@slash_option()` decorator and passing the option name as a function parameter:
 ```python
-from interactions import OptionType
+from interactions import OptionType, slash_option
 
 @slash_command(name="my_command", ...)
 @slash_option(
@@ -492,28 +494,6 @@ async def my_command_function(ctx: SlashContext, integer_option: int):
 ```
 
 The same principle can be used to reuse autocomplete options.
-
-## Simplified Error Handling
-
-If you want error handling for all commands, you can override `Client` and define your own.
-Any error from interactions will trigger `on_command_error`. That includes context menus.
-
-In this example, we are logging the error and responding to the interaction if not done so yet:
-```python
-from interactions import Client
-from interactions.api.events import CommandError
-
-class CustomClient(Client):
-    @listen(disable_default_listeners=True)  # tell the dispatcher that this replaces the default listener
-    async def on_command_error(self, event: CommandError):
-        logger.error(event.error)
-        if not event.ctx.responded:
-            await event.ctx.send("Something went wrong.")
-
-client = CustomErrorClient(...)
-```
-
-There also is `on_command` which you can overwrite too. That fires on every interactions usage.
 
 ## I Need A Custom Parameter Type
 
