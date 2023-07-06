@@ -502,12 +502,12 @@ Any error from interactions will trigger `CommandError`. That includes context m
 
 In this example, we are logging the error and responding to the interaction if not done so yet:
 ```python
-import logger
+import traceback
 from interactions.api.events import CommandError
 
 @listen(CommandError, disable_default_listeners=True)  # tell the dispatcher that this replaces the default listener
 async def on_command_error(self, event: CommandError):
-    logger.error(event.error)
+    traceback.print_exception(event.error)
     if not event.ctx.responded:
         await event.ctx.send("Something went wrong.")
 ```
