@@ -18,6 +18,6 @@
     { .annotate }
 
     1.  This connects the bot to the author's voice channel if we are not already connected
-    2.  Check out the [Voice Support Guide](/Guides/22 Voice.html) for more info on audio playback
+    2.  Check out the [Voice Support Guide](interactions.py/Guides/23 Voice/) for more info on audio playback
 
 ::: interactions.models.internal.active_voice_state

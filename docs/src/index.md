@@ -4,8 +4,6 @@ hide:
   - toc
   - feedback
 ---
-!!! danger "Remember"
-    These docs are not completed. Please do not panic if something is missing or inaccurate.
 
 We hope this documentation is helpful for you, but don't just ++ctrl+c++ and ++ctrl+v++.
 
