@@ -22,22 +22,22 @@ There are two ways of setting them. We'll use the `GUILDS` and `GUILD_INVITES` i
     bot = Client(intents=Intents.new(guilds=True, guild_invites=True))
     ```
 
-Some intents are deemed to have sensitive content by Discord and so have extra restrictions on them - these are called **privileged intents.** As of right now, these include *message content, guild members, and presences.* These require extra steps to enable them for your bot:
+Some intents are deemed to have sensitive content by Discord and so have extra restrictions on them - these are called **privileged intents.** At the time of writing, these include *message content, guild members, and presences.* These require extra steps to enable them for your bot:
 
 1. Go to the [Discord developer portal](https://discord.com/developers/applications/).
 2. Select your application.
 3. In the "Bot" tab, go to the "Privileged Gateway Intents" category and scroll down to the privileged intents you want.
 4. Enable the toggle.
-    - **If your bot is verified or in more than 100 servers, you need to apply for the intent through Discord in order to toggle it.**
+    - **If your bot is verified or in more than 100 servers, you need to apply for the intent through Discord in order to toggle it.** This may take a couple of weeks.
 
-Then, you can specify it in your bot just like the other intents.
+Then, you can specify it in your bot just like the other intents. If you encounter any errors during this process, [referring to the intents page on Discord's documentation](https://discord.com/developers/docs/topics/gateway#gateway-intents) may help.
 
 !!! danger
     `Intents.ALL` is a shortcut provided by interactions.py to enable *every single intents, including privileged intents.* This is very useful while testing bots, **but this shortcut is an incredibly bad idea to use when actually running your bots for use.** As well as adding more strain on the bot (as discussed earlier with normal intents), this is just a bad idea privacy wise: your bot likely does not need to know that much data.
 
 For more information, please visit the API reference about Intents [at this page](/interactions.py/API Reference/API Reference/models/Discord/enums/#interactions.models.discord.enums.Intents).
 
-## Event Listening
+## Subscribing to Events
 
 After your intents have been properly configured, you can start to listen to events. Say, if you wanted to listen to channels being created in a guild the bot can see, then all you would have to do is this:
 
@@ -46,11 +46,11 @@ from interactions import listen
 from interactions.api.events import ChannelCreate
 
 @listen(ChannelCreate)
-async def channel_create_handler(event: ChannelCreate):
+async def an_event_handler(event: ChannelCreate):
     print(f"Channel created with name: {event.channel.name}")
 ```
 
-As you can see, the `listen` statement marks a function to receieve (or, well, listen to) a specific event - we specify which event to receive by passing in the *event object*, which an object that contains all information about an event. Whenever that events happens in Discord, it triggers our function to run, passing the event object into it. Here, we get the channel that the event contains and send out its name to the terminal.
+As you can see, the `listen` statement marks a function to receive (or, well, listen/subscribe to) a specific event - we specify which event to receive by passing in the *event object*, which an object that contains all information about an event. Whenever that events happens in Discord, it triggers our function to run, passing the event object into it. Here, we get the channel that the event contains and send out its name to the terminal.
 
 ???+ note "Difference from other Python Discord libraries"
     If you come from some other Python Discord libraries, or even come from older versions of interactions.py, you might have noticed how the above example uses an *event object* - IE a `ChannelCreate` object - instead of passing the associated object with that event - IE a `Channel` (or similar) object - into the function. This is intentional - by using event objects, we have greater control of what information we can give to you.
@@ -61,32 +61,32 @@ As you can see, the `listen` statement marks a function to receieve (or, well, l
 While the above is the recommended format for listening to events (as you can be sure that you specified the right event), there are other methods for specifying what event you're listening to:
 
 ???+ warning "Event name format for some methods"
-    You may notice how some of these methods require the event name to be `on_all_in_this_case`. The casing itself is called *snake case* - it uses underscores to indicate either a literal space or a gap between words, and exclusively uses lowercase otherwise. To transform an event object, which is in camel case (more specifically, Pascal case), to snake case, first take a look at the letters that are capital, make them lowercase, and add an underscore before those letters *unless it's the first letter of the name of the object*.
+    You may notice how some of these methods require the event name to be `all_in_this_case`. The casing itself is called *snake case* - it uses underscores to indicate either a literal space or a gap between words, and exclusively uses lowercase otherwise. To transform an event object, which is in camel case (more specifically, Pascal case), to snake case, first take a look at the letters that are capital, make them lowercase, and add an underscore before those letters *unless it's the first letter of the name of the object*.
 
     For example, looking at **C**hannel**C**reate, we can see two capital letters. Making them lowercase makes it **c**hannel**c**reate, and then adding an underscore before them makes them **c**hannel**_c**reate (notice how the first letter does *not* have a lowercase before them).
 
-    **However, there is one more step after this.** The methods that use the snake case spelling *also* require using `on_` before them - for example, our ChannelCreate is `on_channel_create`, not just `channel_create`. This matches the behavior of other Python Discord libraries.
+    You *can* add an `on_` prefixed before the modified event name too. For example, you could use both `on_channel_create` and `channel_create`, depending on your preference.
 
     If you're confused by any of this, stay away from methods that use this type of name formatting.
 
 === ":one: Type Annotation"
     ```python
     @listen()
-    async def channel_create_handler(event: ChannelCreate):
+    async def an_event_handler(event: ChannelCreate):
         ...
     ```
 
 === ":two: String in `listen`"
     ```python
-    @listen("on_channel_create")
-    async def channel_create_handler(event):
+    @listen("channel_create")
+    async def an_event_handler(event):
         ...
     ```
 
 === ":three: Function name"
     ```python
     @listen()
-    async def on_channel_create(event):
+    async def channel_create(event):
         ...
     ```
 
@@ -94,7 +94,7 @@ While the above is the recommended format for listening to events (as you can be
 
 ### No Argument Events
 
-Some events may have no information to pass - the information is the event itself. This happens a lot with the internal events - events that are specific to interactions.py, not Discord.
+Some events may have no information to pass - the information is the event itself. This happens with some of the internal events - events that are specific to interactions.py, not Discord.
 
 Whenever this happens, you can specify the event to simply not pass anything into the function, as can be seen with the startup event:
 
@@ -106,7 +106,7 @@ async def startup_func():
     ...
 ```
 
-Using a parameter for these objects still works, though.
+If you forget, the library will just pass an empty object to avoid errors.
 
 ### Disabling Default Listeners
 

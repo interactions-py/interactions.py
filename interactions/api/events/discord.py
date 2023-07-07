@@ -1,6 +1,9 @@
 """
 These are events dispatched by Discord. This is intended as a reference so you know what data to expect for each event.
 
+???+ info "Usage"
+    These are just the event objects - to listen/subscribe to these events, take a look at our [events guide](/interactions.py/Guides/10 Events).
+
 !!! warning
     While all of these events are documented, not all of them are used, currently.
 
