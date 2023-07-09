@@ -1,8 +1,19 @@
 """
 These are events dispatched by the client. This is intended as a reference so you know what data to expect for each event.
 
-???+ info "Usage"
-    These are just the event objects - to listen/subscribe to these events, take a look at our [events guide](/interactions.py/Guides/10 Events).
+???+ hint "Example Usage"
+    To listen to an event, use the `listen` decorator:
+
+    ```python
+    from interactions import listen
+    from interactions.api.events import ChannelCreate  # or any other event
+
+    @listen(ChannelCreate)
+    async def an_event_handler(event: ChannelCreate):
+        print(f"Channel created with name: {event.channel.name}")
+    ```
+
+    For more information, including other ways to listen to events, see [the events guide](/interactions.py/Guides/10 Events).
 
 !!! warning
     While all of these events are documented, not all of them are used, currently.
