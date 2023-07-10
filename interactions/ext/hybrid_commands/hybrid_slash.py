@@ -13,7 +13,6 @@ from interactions import (
     BaseChannelConverter,
     ChannelType,
     BaseChannel,
-    BaseCommand,
     MemberConverter,
     UserConverter,
     RoleConverter,
@@ -177,7 +176,7 @@ class ChainConverter(Converter):
     def __init__(
         self,
         first_converter: Converter,
-        second_converter: type[Converter] | Converter,
+        second_converter: Callable,
         name_of_cmd: str,
     ) -> None:
         self.first_converter = first_converter
@@ -186,16 +185,14 @@ class ChainConverter(Converter):
 
     async def convert(self, ctx: BaseContext, arg: str) -> Any:
         first = await self.first_converter.convert(ctx, arg)
-        return await maybe_coroutine(
-            BaseCommand._get_converter_function(self.second_converter, self.name_of_cmd)(ctx, first)
-        )
+        return await maybe_coroutine(self.second_converter, ctx, first)
 
 
 class ChainNoArgConverter(NoArgumentConverter):
     def __init__(
         self,
         first_converter: NoArgumentConverter,
-        second_converter: type[Converter] | Converter,
+        second_converter: Callable,
         name_of_cmd: str,
     ) -> None:
         self.first_converter = first_converter
@@ -204,9 +201,7 @@ class ChainNoArgConverter(NoArgumentConverter):
 
     async def convert(self, ctx: "HybridContext", _: Any) -> Any:
         first = await self.first_converter.convert(ctx, _)
-        return await maybe_coroutine(
-            BaseCommand._get_converter_function(self.second_converter, self.name_of_cmd)(ctx, first)
-        )
+        return await maybe_coroutine(self.second_converter, ctx, first)
 
 
 def type_from_option(option_type: OptionType | int) -> Converter:
