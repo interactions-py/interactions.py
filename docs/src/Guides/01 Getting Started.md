@@ -50,6 +50,9 @@ Now let's get the library installed.
 
 ### Basic bot
 
+!!! note
+    This is a very basic bot. For a more detailed example/template bot that demonstrates many parts of interactions.py, see [the boilerplate repository.](https://github.com/interactions-py/boilerplate)
+
 Now let's get a basic bot going, for your code, you'll want something like this:
 
 ```python
