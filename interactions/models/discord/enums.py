@@ -611,6 +611,8 @@ class ChannelType(CursedIntEnum):
     """Voice channel for hosting events with an audience"""
     GUILD_FORUM = 15
     """A Forum channel"""
+    GUILD_MEDIA = 16
+    """Channel that can only contain threads, similar to `GUILD_FORUM` channels"""
 
     @property
     def guild(self) -> bool:
@@ -794,6 +796,8 @@ class ChannelFlags(DiscordIntFlag):
     """ Thread is pinned to the top of its parent forum channel """
     CLYDE_THREAD = 1 << 8
     """This thread was created by Clyde"""
+    HIDE_MEDIA_DOWNLOAD_OPTIONS = 1 << 15
+    """when set hides the embedded media download options. Available only for media channels"""
 
     # Special members
     NONE = 0
@@ -968,6 +972,7 @@ class AuditLogEventType(CursedIntEnum):
     AUTO_MODERATION_BLOCK_MESSAGE = 143
     AUTO_MODERATION_FLAG_TO_CHANNEL = 144
     AUTO_MODERATION_USER_COMMUNICATION_DISABLED = 145
+    AUTO_MODERATION_QUARANTINE = 146
     CREATOR_MONETIZATION_REQUEST_CREATED = 150
     CREATOR_MONETIZATION_TERMS_ACCEPTED = 151
     ROLE_PROMPT_CREATE = 160

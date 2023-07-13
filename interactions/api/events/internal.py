@@ -1,21 +1,20 @@
 """
 These are events dispatched by the client. This is intended as a reference so you know what data to expect for each event.
 
-??? Hint "Example Usage:"
-    The event classes outlined here are in `CamelCase` to comply with Class naming convention, however the event names
-    are actually in `lower_case_with_underscores` so your listeners should be named as following:
+???+ hint "Example Usage"
+    To listen to an event, use the `listen` decorator:
 
     ```python
-    @listen()
-    def on_ready():
-        # ready events pass no data, so dont have params
-        print("Im ready!")
+    from interactions import listen
+    from interactions.api.events import ChannelCreate  # or any other event
 
-    @listen()
-    def on_guild_join(event):
-        # guild_create events pass a guild object, expect a single param
-        print(f"{event.guild.name} created")
+    @listen(ChannelCreate)
+    async def an_event_handler(event: ChannelCreate):
+        print(f"Channel created with name: {event.channel.name}")
     ```
+
+    For more information, including other ways to listen to events, see [the events guide](/interactions.py/Guides/10 Events).
+
 !!! warning
     While all of these events are documented, not all of them are used, currently.
 

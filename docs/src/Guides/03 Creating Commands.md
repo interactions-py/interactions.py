@@ -91,6 +91,8 @@ This will show up in discord as `/base group command`. There are more ways to ad
 
 === ":three: Class Definition"
     ```python
+    from interactions import SlashCommand
+
     base = SlashCommand(name="base", description="My command base")
     group = base.group(name="group", description="My command group")
 
@@ -125,7 +127,7 @@ Now that you know all the options you have for options, you can opt into adding 
 
 You do that by using the `@slash_option()` decorator and passing the option name as a function parameter:
 ```python
-from interactions import OptionType
+from interactions import OptionType, slash_option
 
 @slash_command(name="my_command", ...)
 @slash_option(
@@ -260,20 +262,23 @@ from interactions import AutocompleteContext
 
 @my_command.autocomplete("string_option")
 async def autocomplete(self, ctx: AutocompleteContext):
-    # make sure this is done within three seconds
+    string_option_input = ctx.input_text  # can be empty
+    # you can use ctx.kwargs.get("name") for other options - note they can be empty too
+
+    # make sure you respond within three seconds
     await ctx.send(
         choices=[
             {
-                "name": f"{ctx.input_text}a",
-                "value": f"{ctx.input_text}a",
+                "name": f"{string_option_input}a",
+                "value": f"{string_option_input}a",
             },
             {
-                "name": f"{ctx.input_text}b",
-                "value": f"{ctx.input_text}b",
+                "name": f"{string_option_input}b",
+                "value": f"{string_option_input}b",
             },
             {
-                "name": f"{ctx.input_text}c",
-                "value": f"{ctx.input_text}c",
+                "name": f"{string_option_input}c",
+                "value": f"{string_option_input}c",
             },
         ]
     )
@@ -495,28 +500,60 @@ The same principle can be used to reuse autocomplete options.
 
 ## Simplified Error Handling
 
-If you want error handling for all commands, you can override `Client` and define your own.
-Any error from interactions will trigger `on_command_error`. That includes context menus.
+If you want error handling for all commands, you can override the default error listener and define your own.
+Any error from interactions will trigger `CommandError`. That includes context menus.
 
 In this example, we are logging the error and responding to the interaction if not done so yet:
 ```python
-from interactions import Client
+import traceback
 from interactions.api.events import CommandError
 
-class CustomClient(Client):
-    @listen(disable_default_listeners=True)  # tell the dispatcher that this replaces the default listener
-    async def on_command_error(self, event: CommandError):
-        logger.error(event.error)
-        if not event.ctx.responded:
-            await event.ctx.send("Something went wrong.")
-
-client = CustomErrorClient(...)
+@listen(CommandError, disable_default_listeners=True)  # tell the dispatcher that this replaces the default listener
+async def on_command_error(self, event: CommandError):
+    traceback.print_exception(event.error)
+    if not event.ctx.responded:
+        await event.ctx.send("Something went wrong.")
 ```
 
-There also is `on_command` which you can overwrite too. That fires on every interactions usage.
+There also is `CommandCompletion` which you can overwrite too. That fires on every interactions usage.
 
 ## I Need A Custom Parameter Type
 
 If your bot is complex enough, you might find yourself wanting to use custom models in your commands.
 
-To do this, you'll want to use a string option, and define a converter. Information on how to use converters can be found [on the converter page](/interactions.py/Guides/08 Converters/).
+To do this, you'll want to use a string option, and define a converter. Information on how to use converters can be found [on the converter page](/Guides/08 Converters).
+
+## I Want To Make A Prefixed/Text Command Too
+
+You're in luck! You can use a hybrid command, which is a slash command that also gets converted to an equivalent prefixed command under the hood.
+
+Hybrid commands are their own extension, and require [prefixed commands to set up beforehand](/interactions.py/Guides/26 Prefixed Commands). After that, use the `setup` function in the `hybrid_commands` extension in your main bot file.
+
+Your setup can (but doesn't necessarily have to) look like this:
+
+```python
+import interactions
+from interactions.ext import prefixed_commands as prefixed
+from interactions.ext import hybrid_commands as hybrid
+
+bot = interactions.Client(...)  # may want to enable the message content intent
+prefixed.setup(bot)  # normal step for prefixed commands
+hybrid.setup(bot)  # note its usage AFTER prefixed commands have been set up
+```
+
+To actually make slash commands, simply replace `@slash_command` with `@hybrid_slash_command`, and `SlashContext` with `HybridContext`, like so:
+
+```python
+from interactions.ext.hybrid_commands import hybrid_slash_command, HybridContext
+
+@hybrid_slash_command(name="my_command", description="My hybrid command!")
+async def my_command_function(ctx: HybridContext):
+    await ctx.send("Hello World")
+```
+
+Suggesting you are using the default mention settings for your bot, you should be able to run this command by `@BotPing my_command`.
+
+As you can see, the only difference between hybrid commands and slash commands, from a developer perspective, is that they use `HybridContext`, which attempts
+to seamlessly allow using the same context for slash and prefixed commands. You can always get the underlying context via `inner_context`, though.
+
+Of course, keep in mind that support two different types of commands is hard - some features may not get represented well in prefixed commands, and autocomplete is not possible at all.

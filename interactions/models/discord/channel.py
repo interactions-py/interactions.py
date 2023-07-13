@@ -2640,6 +2640,11 @@ class GuildForum(GuildChannel):
         self._client.cache.place_channel_data(data)
 
 
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class GuildMedia(GuildForum):
+    ...
+
+
 def process_permission_overwrites(
     overwrites: Union[dict, PermissionOverwrite, List[Union[dict, PermissionOverwrite]]]
 ) -> List[dict]:
@@ -2694,6 +2699,7 @@ TYPE_GUILD_CHANNEL = Union[
     GuildVoice,
     GuildStageVoice,
     GuildForum,
+    GuildMedia,
     GuildPublicThread,
     GuildForumPost,
     GuildPrivateThread,
@@ -2731,4 +2737,5 @@ TYPE_CHANNEL_MAPPING = {
     ChannelType.DM: DM,
     ChannelType.GROUP_DM: DMGroup,
     ChannelType.GUILD_FORUM: GuildForum,
+    ChannelType.GUILD_MEDIA: GuildMedia,
 }

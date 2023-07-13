@@ -237,8 +237,6 @@ class BaseInteractionContext(BaseContext):
     id: Snowflake
     """The interaction ID."""
 
-    app_permissions: Permissions
-    """The permissions available to this interaction"""
     locale: str
     """The selected locale of the invoking user (https://discord.com/developers/docs/reference#locales)"""
     guild_locale: str
@@ -261,6 +259,8 @@ class BaseInteractionContext(BaseContext):
     _command_name: str
     """The command name of the interaction."""
 
+    permission_map: dict[Snowflake, Permissions]
+
     args: list[typing.Any]
     """The arguments passed to the interaction."""
     kwargs: dict[str, typing.Any]
@@ -277,7 +277,7 @@ class BaseInteractionContext(BaseContext):
         instance = cls(client=client)
         instance.token = payload["token"]
         instance.id = Snowflake(payload["id"])
-        instance.app_permissions = Permissions(payload.get("app_permissions", 0))
+        instance.permission_map = {client.app.id: Permissions(payload.get("app_permissions", 0))}
         instance.locale = payload["locale"]
         instance.guild_locale = payload.get("guild_locale", instance.locale)
         instance._context_type = payload.get("type", 0)
@@ -304,7 +304,22 @@ class BaseInteractionContext(BaseContext):
 
         instance.process_options(payload)
 
+        if member := payload.get("member"):
+            instance.permission_map[Snowflake(member["id"])] = Permissions(member["permissions"])
+
         return instance
+
+    @property
+    def app_permissions(self) -> Permissions:
+        """The permissions available to this interaction"""
+        return self.permission_map.get(self.client.app.id, Permissions(0))
+
+    @property
+    def author_permissions(self) -> Permissions:
+        """The permissions available to the author of this interaction"""
+        if self.guild_id:
+            return self.permission_map.get(self.author_id, Permissions(0))
+        return Permissions(0)
 
     @property
     def command(self) -> InteractionCommand:
@@ -523,6 +538,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             tts=tts,
             flags=flags,
             delete_after=delete_after,
+            pass_self_into_delete=True,
             **kwargs,
         )
 

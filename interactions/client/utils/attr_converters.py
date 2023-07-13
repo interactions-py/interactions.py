@@ -1,5 +1,6 @@
 import inspect
 import typing
+import interactions
 from datetime import datetime
 from typing import Callable, Union, Any
 
@@ -20,13 +21,18 @@ def timestamp_converter(value: Union[datetime, int, float, str]) -> Timestamp:
         A Timestamp object
 
     """
-    if isinstance(value, str):
-        return Timestamp.fromisoformat(value)
-    if isinstance(value, (float, int)):
-        return Timestamp.fromtimestamp(float(value))
-    if isinstance(value, datetime):
-        return Timestamp.fromdatetime(value)
-    raise TypeError("Timestamp must be one of: datetime, int, float, ISO8601 str")
+    try:
+        if isinstance(value, str):
+            return Timestamp.fromisoformat(value)
+        if isinstance(value, (float, int)):
+            return Timestamp.fromtimestamp(float(value))
+        if isinstance(value, datetime):
+            return Timestamp.fromdatetime(value)
+        raise TypeError("Timestamp must be one of: datetime, int, float, ISO8601 str")
+    except ValueError as e:
+        interactions.const.get_logger().warning("Failed to convert timestamp", exc_info=e)
+        # Should only happen if the timestamp is something stupid like 269533-01-01T00:00 - in which case we just return MISSING
+        return MISSING
 
 
 def list_converter(converter) -> Callable[[list], list]:

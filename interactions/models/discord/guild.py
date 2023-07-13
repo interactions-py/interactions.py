@@ -348,7 +348,8 @@ class Guild(BaseGuild):
     @property
     def members(self) -> List["models.Member"]:
         """Returns a list of all members within this guild."""
-        return [self._client.cache.get_member(self.id, m_id) for m_id in self._member_ids]
+        members = (self._client.cache.get_member(self.id, m_id) for m_id in self._member_ids)
+        return [m for m in members if m]
 
     @property
     def premium_subscribers(self) -> List["models.Member"]:
@@ -368,7 +369,7 @@ class Guild(BaseGuild):
     @property
     def roles(self) -> List["models.Role"]:
         """Returns a list of roles associated with this guild."""
-        return sorted([self._client.cache.get_role(r_id) for r_id in self._role_ids], reverse=True)
+        return sorted((r for r_id in self._role_ids if (r := self._client.cache.get_role(r_id))), reverse=True)
 
     @property
     def me(self) -> "models.Member":
@@ -1475,7 +1476,7 @@ class Guild(BaseGuild):
             payload["permissions"] = str(int(permissions))
 
         if colour := colour or color:
-            payload["color"] = colour.value
+            payload["color"] = colour if isinstance(colour, int) else colour.value
 
         if hoist:
             payload["hoist"] = True
