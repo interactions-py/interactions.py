@@ -75,9 +75,9 @@ class AutoShardedClient(Client):
         return next((state.start_time for state in self._connection_states), MISSING)  # type: ignore
 
     @property
-    def start_times(self) -> list[datetime]:
+    def start_times(self) -> dict[int, datetime]:
         """The start times of all shards of the bot."""
-        return [state.start_time for state in self._connection_states]  # type: ignore
+        return {state.shard_id: state.start_time for state in self._connection_states}  # type: ignore
 
     async def stop(self) -> None:
         """Shutdown the bot."""
