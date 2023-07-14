@@ -142,7 +142,6 @@ class AutoModDeleted(AutoModCreated):
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class ApplicationCommandPermissionsUpdate(BaseEvent):
-    id: "Snowflake_Type" = attrs.field(repr=False, metadata=docs("The ID of the command permissions were updated for"))
     guild_id: "Snowflake_Type" = attrs.field(
         repr=False, metadata=docs("The guild the command permissions were updated in")
     )
