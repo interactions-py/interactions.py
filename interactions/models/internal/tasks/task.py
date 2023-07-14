@@ -75,25 +75,25 @@ class Task:
         self.on_error_sentry_hook(error)
         interactions.Client.default_error_handler("Task", error)
 
-    async def __call__(self) -> None:
+    async def __call__(self, *args, **kwargs) -> None:
         try:
             if inspect.iscoroutinefunction(self.callback):
-                val = await self.callback()
+                val = await self.callback(*args, **kwargs)
             else:
-                val = self.callback()
+                val = self.callback(*args, **kwargs)
 
             if isinstance(val, BaseTrigger):
                 self.reschedule(val)
         except Exception as e:
             self.on_error(e)
 
-    def _fire(self, fire_time: datetime) -> None:
+    def _fire(self, fire_time: datetime, *args, **kwargs) -> None:
         """Called when the task is being fired."""
         self.trigger.set_last_call_time(fire_time)
-        _ = asyncio.create_task(self())
+        _ = asyncio.create_task(self(*args, **kwargs))
         self.iteration += 1
 
-    async def _task_loop(self) -> None:
+    async def _task_loop(self, *args, **kwargs) -> None:
         """The main task loop to fire the task at the specified time based on triggers configured."""
         while not self._stop.is_set():
             fire_time = self.trigger.next_fire()
@@ -106,14 +106,14 @@ class Task:
             if future in done:
                 return None
 
-            self._fire(fire_time)
+            self._fire(fire_time, *args, **kwargs)
 
-    def start(self) -> None:
+    def start(self, *args, **kwargs) -> None:
         """Start this task."""
         try:
             self.trigger.reschedule()
             self._stop.clear()
-            self.task = asyncio.create_task(self._task_loop())
+            self.task = asyncio.create_task(self._task_loop(*args, **kwargs))
         except RuntimeError:
             get_logger().error(
                 "Unable to start task without a running event loop! We recommend starting tasks within an `on_startup` event."
@@ -125,10 +125,10 @@ class Task:
         if self.task:
             self.task.cancel()
 
-    def restart(self) -> None:
+    def restart(self, *args, **kwargs) -> None:
         """Restart this task."""
         self.stop()
-        self.start()
+        self.start(*args, **kwargs)
 
     def reschedule(self, trigger: BaseTrigger) -> None:
         """
