@@ -284,6 +284,9 @@ class BaseInteractionContext(BaseContext):
         instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
 
         instance.channel_id = Snowflake(payload["channel_id"])
+        if channel := payload.get("channel"):
+            client.cache.place_channel_data(channel)
+
         if member := payload.get("member"):
             instance.author_id = Snowflake(member["user"]["id"])
             instance.guild_id = Snowflake(payload["guild_id"])
