@@ -339,6 +339,7 @@ from .models import (
     ExponentialBackoffSystem,
     LeakyBucketSystem,
     TokenBucketSystem,
+    ForumSortOrder,
 )
 from .api import events
 from . import ext
@@ -460,6 +461,7 @@ __all__ = (
     "File",
     "FlatUIColors",
     "FlatUIColours",
+    "ForumSortOrder",
     "ForumLayoutType",
     "get_components_ids",
     "get_logger",

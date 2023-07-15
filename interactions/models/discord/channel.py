@@ -36,6 +36,8 @@ from .enums import (
     StagePrivacyLevel,
     MessageFlags,
     InviteTargetType,
+    ForumSortOrder,
+    ForumLayoutType,
 )
 
 if TYPE_CHECKING:
@@ -2394,6 +2396,14 @@ class GuildForum(GuildChannel):
     """The default emoji to react with for posts"""
     last_message_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
     # TODO: Implement "template" once the API supports them
+    default_sort_order: Optional[ForumSortOrder] = attrs.field(
+        repr=False, default=None, converter=ForumSortOrder.converter
+    )
+    """the default sort order type used to order posts in GUILD_FORUM channels. Defaults to null, which indicates a preferred sort order hasn't been set by a channel admin"""
+    default_forum_layout: ForumLayoutType = attrs.field(
+        repr=False, default=ForumLayoutType.NOT_SET, converter=ForumLayoutType
+    )
+    """The default forum layout view used to display posts in GUILD_FORUM channels. Defaults to 0, which indicates a layout view has not been set by a channel admin"""
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
