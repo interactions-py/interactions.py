@@ -24,7 +24,7 @@ from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.client.utils.text_utils import mentions
-from interactions.models.discord.channel import BaseChannel
+from interactions.models.discord.channel import BaseChannel, GuildChannel
 from interactions.models.discord.emoji import process_emoji_req_format
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.embed import process_embeds
@@ -109,7 +109,7 @@ class Attachment(DiscordObject):
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class ChannelMention(DiscordObject):
-    guild_id: "Snowflake_Type" = attrs.field(
+    guild_id: "Snowflake_Type | None" = attrs.field(
         repr=False,
     )
     """id of the guild containing the channel"""
@@ -466,7 +466,7 @@ class Message(BaseMessage):
                 if channel_id not in found_ids and (channel := client.get_channel(channel_id)):
                     channel_data = {
                         "id": channel.id,
-                        "guild_id": channel._guild_id,
+                        "guild_id": channel._guild_id if isinstance(channel, GuildChannel) else None,
                         "type": channel.type,
                         "name": channel.name,
                     }
