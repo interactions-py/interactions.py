@@ -242,6 +242,8 @@ class MessageableMixin(SendMixin):
         repr=False, default=None, converter=optional_c(timestamp_converter)
     )
     """When the last pinned message was pinned. This may be None when a message is not pinned."""
+    rate_limit_per_user: int = attrs.field(repr=False, default=0)
+    """Amount of seconds a user has to wait before sending another message (0-21600)"""
 
     async def _send_http_request(
         self, message_payload: Union[dict, "FormData"], files: list["UPLOADABLE_TYPE"] | None = None
@@ -1693,8 +1695,6 @@ class GuildNews(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
 class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin, WebhookMixin):
     topic: Optional[str] = attrs.field(repr=False, default=None)
     """The channel topic (0-1024 characters)"""
-    rate_limit_per_user: int = attrs.field(repr=False, default=0)
-    """Amount of seconds a user has to wait before sending another message (0-21600)"""
 
     async def edit(
         self,
@@ -2396,6 +2396,8 @@ class GuildForum(GuildChannel):
     """The default emoji to react with for posts"""
     last_message_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
     # TODO: Implement "template" once the API supports them
+    rate_limit_per_user: int = attrs.field(repr=False, default=0)
+    """Amount of seconds a user has to wait before sending another message (0-21600)"""
     default_sort_order: Optional[ForumSortOrder] = attrs.field(
         repr=False, default=None, converter=ForumSortOrder.converter
     )
