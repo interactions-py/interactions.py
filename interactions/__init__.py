@@ -103,6 +103,7 @@ from .models import (
     ComponentCommand,
     ComponentContext,
     ComponentType,
+    ConsumeRest,
     context_menu,
     ContextMenu,
     ContextMenuContext,
@@ -338,6 +339,7 @@ from .models import (
     ExponentialBackoffSystem,
     LeakyBucketSystem,
     TokenBucketSystem,
+    ForumSortOrder,
 )
 from .api import events
 from . import ext
@@ -413,6 +415,7 @@ __all__ = (
     "ComponentCommand",
     "ComponentContext",
     "ComponentType",
+    "ConsumeRest",
     "const",
     "context_menu",
     "CONTEXT_MENU_NAME_LENGTH",
@@ -458,6 +461,7 @@ __all__ = (
     "File",
     "FlatUIColors",
     "FlatUIColours",
+    "ForumSortOrder",
     "ForumLayoutType",
     "get_components_ids",
     "get_logger",

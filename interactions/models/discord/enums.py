@@ -1,7 +1,7 @@
 from enum import Enum, EnumMeta, IntEnum, IntFlag
 from functools import reduce
 from operator import or_
-from typing import Iterator, Tuple, TypeVar, Type
+from typing import Iterator, Tuple, TypeVar, Type, Optional
 
 from interactions.client.const import get_logger
 
@@ -19,6 +19,7 @@ __all__ = (
     "DefaultNotificationLevel",
     "ExplicitContentFilterLevel",
     "ForumLayoutType",
+    "ForumSortOrder",
     "IntegrationExpireBehaviour",
     "Intents",
     "InteractionPermissionTypes",
@@ -1046,3 +1047,14 @@ class ForumLayoutType(CursedIntEnum):
     NOT_SET = 0
     LIST = 1
     GALLERY = 2
+
+
+class ForumSortOrder(CursedIntEnum):
+    """The order of a forum channel."""
+
+    LATEST_ACTIVITY = 0
+    CREATION_DATE = 1
+
+    @classmethod
+    def converter(cls, value: Optional[int]) -> "ForumSortOrder":
+        return None if value is None else cls(value)

@@ -187,6 +187,7 @@ from .discord import (
     WebhookMixin,
     WebhookTypes,
     WebSocketOPCode,
+    ForumSortOrder,
 )
 from .internal import (
     ActiveVoiceState,
@@ -210,6 +211,7 @@ from .internal import (
     context_menu,
     user_context_menu,
     message_context_menu,
+    ConsumeRest,
     ContextMenu,
     ContextMenuContext,
     Converter,
@@ -362,6 +364,7 @@ __all__ = (
     "ComponentCommand",
     "ComponentContext",
     "ComponentType",
+    "ConsumeRest",
     "context_menu",
     "ContextMenu",
     "ContextMenuContext",
@@ -396,6 +399,7 @@ __all__ = (
     "File",
     "FlatUIColors",
     "FlatUIColours",
+    "ForumSortOrder",
     "ForumLayoutType",
     "get_components_ids",
     "global_autocomplete",

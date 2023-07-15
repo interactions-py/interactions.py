@@ -100,18 +100,27 @@ async def test(ctx: PrefixedContext, arg1, arg2):
 
 ![Two Parameters](../images/PrefixedCommands/TwoParams.png "The above running with the arguments: one two")
 
-### Variable and Keyword-Only Arguments
+### Variable and Consume Rest Arguments
 
 There may be times where you wish for an argument to be able to have multiple words without wrapping them in quotes. There are two ways of approaching this.
 
 #### Variable
 
 If you wish to get a list (or more specifically, a tuple) of words for one argument, or simply want an undetermined amount of arguments for a command, then you should use a *variable* argument:
-```python
-@prefixed_command()
-async def test(ctx: PrefixedContext, *args):
-    await ctx.reply(f"{len(args)} arguments: {', '.join(args)}")
-```
+
+=== ":one: Tuple Argument"
+    ```python
+    @prefixed_command()
+    async def test(ctx: PrefixedContext, args: tuple[str, ...]):
+        await ctx.reply(f"{len(args)} arguments: {', '.join(args)}")
+    ```
+
+=== ":two: Variable Positional Argument"
+    ```python
+    @prefixed_command()
+    async def test(ctx: PrefixedContext, *args):
+        await ctx.reply(f"{len(args)} arguments: {', '.join(args)}")
+    ```
 
 The result looks something like this:
 
@@ -119,26 +128,37 @@ The result looks something like this:
 
 Notice how the quoted words are still parsed as one argument in the tuple.
 
-#### Keyword-Only
+#### Consume Rest
 
-If you simply wish to take in the rest of the user's input as an argument, you can use a keyword-only argument, like so:
-```python
-@prefixed_command()
-async def test(ctx: PrefixedContext, *, arg):
-    await ctx.reply(arg)
-```
+If you simply wish to take in the rest of the user's input as an argument, you can use a consume rest argument, like so:
+
+=== ":one: ConsumeRest Alias"
+    ```python
+    from interactions import ConsumeRest
+
+    @prefixed_command()
+    async def test(ctx: PrefixedContext, arg: ConsumeRest[str]):
+        await ctx.reply(arg)
+    ```
+
+=== ":two: Keyword-only Argument"
+    ```python
+    @prefixed_command()
+    async def test(ctx: PrefixedContext, *, arg):
+        await ctx.reply(arg)
+    ```
 
 The result looks like this:
 
-![Keyword-Only Parameter](../images/PrefixedCommands/KeywordParam.png "The above running with the arguments: hello world!")
+![Consume Rest Parameter](../images/PrefixedCommands/ConsumeRestParam.png "The above running with the arguments: hello world!")
 
 ???+ note "Quotes"
-    If a user passes quotes into a keyword-only argument, then the resulting argument will have said quotes.
+    If a user passes quotes into consume rest argument, then the resulting argument will have said quotes.
 
-    ![Keyword-Only Quotes](../images/PrefixedCommands/KeywordParamWithQuotes.png "The above running with the arguments: "hello world!"")
+    ![Consume Rest Quotes](../images/PrefixedCommands/ConsumeRestWithQuotes.png "The above running with the arguments: "hello world!"")
 
 !!! warning "Parser ambiguities"
-    Due to parser ambiguities, you can *only* have either a single variable or keyword-only/consume rest argument.
+    Due to parser ambiguities, you can *only* have either a single variable or consume rest argument.
 
 ## Typehinting and Converters
 
