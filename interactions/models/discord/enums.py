@@ -1,7 +1,7 @@
 from enum import Enum, EnumMeta, IntEnum, IntFlag
 from functools import reduce
 from operator import or_
-from typing import Iterator, Tuple, TypeVar, Type
+from typing import Iterator, Tuple, TypeVar, Type, Optional
 
 from interactions.client.const import get_logger
 
@@ -1054,3 +1054,7 @@ class ForumSortOrder(CursedIntEnum):
 
     LATEST_ACTIVITY = 0
     CREATION_DATE = 1
+
+    @classmethod
+    def converter(cls, value: Optional[int]) -> "ForumSortOrder":
+        return None if value is None else cls(value)
