@@ -187,6 +187,7 @@ from .discord import (
     WebhookMixin,
     WebhookTypes,
     WebSocketOPCode,
+    ForumSortOrder,
 )
 from .internal import (
     ActiveVoiceState,
@@ -396,6 +397,7 @@ __all__ = (
     "File",
     "FlatUIColors",
     "FlatUIColours",
+    "ForumSortOrder",
     "ForumLayoutType",
     "get_components_ids",
     "global_autocomplete",

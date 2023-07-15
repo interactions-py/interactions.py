@@ -41,6 +41,7 @@ from .enums import (
     ScheduledEventType,
     SystemChannelFlags,
     VerificationLevel,
+    ForumSortOrder,
 )
 from .snowflake import (
     Snowflake_Type,
@@ -1023,6 +1024,7 @@ class Guild(BaseGuild):
         default_reaction_emoji: Absent[Union[dict, "models.PartialEmoji", "models.DefaultReaction", str]] = MISSING,
         available_tags: Absent["list[dict | models.ThreadTag] | dict | models.ThreadTag"] = MISSING,
         layout: ForumLayoutType = ForumLayoutType.NOT_SET,
+        sort_order: Absent[ForumSortOrder] = MISSING,
         reason: Absent[Optional[str]] = MISSING,
     ) -> "models.GuildForum":
         """
@@ -1039,6 +1041,7 @@ class Guild(BaseGuild):
             default_reaction_emoji: The default emoji to react with when creating a thread
             available_tags: The available tags for this forum channel
             layout: The layout of the forum channel
+            sort_order: The sort order of the forum channel
             reason: The reason for creating this channel
 
         Returns:
@@ -1057,6 +1060,7 @@ class Guild(BaseGuild):
             default_reaction_emoji=models.process_default_reaction(default_reaction_emoji),
             available_tags=list_converter(models.process_thread_tag)(available_tags) if available_tags else MISSING,
             default_forum_layout=layout,
+            default_sort_order=sort_order,
             reason=reason,
         )
 

@@ -19,6 +19,7 @@ __all__ = (
     "DefaultNotificationLevel",
     "ExplicitContentFilterLevel",
     "ForumLayoutType",
+    "ForumSortOrder",
     "IntegrationExpireBehaviour",
     "Intents",
     "InteractionPermissionTypes",
@@ -1046,3 +1047,10 @@ class ForumLayoutType(CursedIntEnum):
     NOT_SET = 0
     LIST = 1
     GALLERY = 2
+
+
+class ForumSortOrder(CursedIntEnum):
+    """The order of a forum channel."""
+
+    LATEST_ACTIVITY = 0
+    CREATION_DATE = 1
