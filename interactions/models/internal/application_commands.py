@@ -684,7 +684,12 @@ class SlashCommand(InteractionCommand):
                 )
                 if maybe_argument_name:
                     name = option.name if isinstance(option, SlashCommandOption) else option["name"]
-                    self.parameters[maybe_argument_name]._option_name = str(name)
+                    try:
+                        self.parameters[maybe_argument_name]._option_name = str(name)
+                    except KeyError:
+                        raise TypeError(
+                            f'Argument name "{maybe_argument_name}" for "{name}" does not match any parameter in {self.resolved_name}\'s function.'
+                        ) from None
 
     def to_dict(self) -> dict:
         data = super().to_dict()
