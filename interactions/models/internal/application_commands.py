@@ -687,7 +687,7 @@ class SlashCommand(InteractionCommand):
                     try:
                         self.parameters[maybe_argument_name]._option_name = str(name)
                     except KeyError:
-                        raise TypeError(
+                        raise ValueError(
                             f'Argument name "{maybe_argument_name}" for "{name}" does not match any parameter in {self.resolved_name}\'s function.'
                         ) from None
 
