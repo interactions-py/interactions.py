@@ -351,7 +351,7 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
             # there isn't much we can do here
             raise ValueError("Autocomplete is unsupported in hybrid commands.")
 
-        name = str(option.name)
+        name = option.argument_name or str(option.name)
         annotation = inspect.Parameter.empty
         default = inspect.Parameter.empty
         kind = inspect.Parameter.POSITIONAL_ONLY if cmd._uses_arg else inspect.Parameter.POSITIONAL_OR_KEYWORD
