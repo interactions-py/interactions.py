@@ -13,170 +13,141 @@ For example, you can see the difference of a bot with and without extensions:
 ??? Hint "Examples:"
     === "Without Extensions"
         ```python
-        # File: `main.py`
-        import logging
+        from interactions import ActionRow, Button, ButtonStyle, Client, listen, slash_command
+        from interactions.api.events import Component, GuildJoin, MessageCreate, Startup
 
-        import interactions.const
-        from interactions.client import Client
-        from interactions.models.discord_objects.components import Button, ActionRow
-        from interactions.models.enums import ButtonStyle
-        from interactions.models.enums import Intents
-        from interactions.models.events import Component
-        from interactions.models.listener import listen
-        from interactions.ext import prefixed_commands
-        from interactions.ext.prefixed_commands import prefixed_command
-
-        logging.basicConfig()
-        cls_log = logging.getLogger(interactions.const.logger_name)
-        cls_log.setLevel(logging.DEBUG)
-
-        bot = Client(intents=Intents.DEFAULT, sync_interactions=True, asyncio_debug=True)
-        prefixed_commands.setup(bot)
+        bot = Client()
 
 
-        @listen()
-        async def on_ready():
-            print("Ready")
-            print(f"This bot is owned by {bot.owner}")
+        @listen(Startup)
+        async def on_startup():
+            print(f"Ready - this bot is owned by {bot.owner}")
 
 
-        @listen()
-        async def on_guild_create(event):
-            print(f"guild created : {event.guild.name}")
+        @listen(GuildJoin)
+        async def on_guild_join(event: GuildJoin):
+            print(f"Guild joined : {event.guild.name}")
 
 
-        @listen()
-        async def on_message_create(event):
-            print(f"message received: {event.message.content}")
+        @listen(MessageCreate)
+        async def on_message_create(event: MessageCreate):
+            print(f"message received: {event.message}")
 
 
         @listen()
         async def on_component(event: Component):
             ctx = event.ctx
-            await ctx.edit_origin("test")
+            await ctx.edit_origin(content="test")
 
 
-        @prefixed_command()
+        @slash_command()
         async def multiple_buttons(ctx):
             await ctx.send(
                 "2 buttons in a row",
-                components=[Button(ButtonStyle.BLURPLE, "A blurple button"), Button(ButtonStyle.RED, "A red button")],
-            )
-
-
-        @prefixed_command()
-        async def action_rows(ctx):
-            await ctx.send(
-                "2 buttons in 2 rows, using nested lists",
-                components=[[Button(ButtonStyle.BLURPLE, "A blurple button")], [Button(ButtonStyle.RED, "A red button")]],
-            )
-
-
-        @prefixed_command()
-        async def action_rows_more(ctx):
-            await ctx.send(
-                "2 buttons in 2 rows, using explicit action_rows lists",
                 components=[
-                    ActionRow(Button(ButtonStyle.BLURPLE, "A blurple button")),
-                    ActionRow(Button(ButtonStyle.RED, "A red button")),
+                    Button(style=ButtonStyle.BLURPLE, label="A blurple button"),
+                    Button(style=ButtonStyle.RED, label="A red button"),
                 ],
             )
 
 
-        bot.start("Token")
+        @slash_command()
+        async def action_rows(ctx):
+            await ctx.send(
+                "2 buttons in 2 rows, using nested lists",
+                components=[
+                    [Button(style=ButtonStyle.BLURPLE, label="A blurple button")],
+                    [Button(style=ButtonStyle.RED, label="A red button")],
+                ],
+            )
+
+
+        @slash_command()
+        async def action_rows_more(ctx):
+            await ctx.send(
+                "2 buttons in 2 rows, using explicit action_rows lists",
+                components=[
+                    ActionRow(Button(style=ButtonStyle.BLURPLE, label="A blurple button")),
+                    ActionRow(Button(style=ButtonStyle.RED, label="A red button")),
+                ],
+            )
+
+
+        bot.start("token")
         ```
 
     === "With Extensions"
         ```python
         # File: `main.py`
-        import logging
+        from interactions import Client, listen
+        from interactions.api.events import Component, GuildJoin, MessageCreate, Startup
 
-        import interactions.const
-        from interactions.client import Client
-        from interactions.models.context import ComponentContext
-        from interactions.models.enums import Intents
-        from interactions.models.events import Component
-        from interactions.models.listener import listen
-        from interactions.ext import prefixed_commands
+        bot = Client()
 
 
-        logging.basicConfig()
-        cls_log = logging.getLogger(interactions.const.logger_name)
-        cls_log.setLevel(logging.DEBUG)
-
-        bot = Client(intents=Intents.DEFAULT, sync_interactions=True, asyncio_debug=True)
-        prefixed_commands.setup(bot)
+        @listen(Startup)
+        async def on_startup():
+            print(f"Ready - this bot is owned by {bot.owner}")
 
 
-        @listen()
-        async def on_ready():
-            print("Ready")
-            print(f"This bot is owned by {bot.owner}")
+        @listen(GuildJoin)
+        async def on_guild_join(event: GuildJoin):
+            print(f"Guild joined : {event.guild.name}")
 
 
-        @listen()
-        async def on_guild_create(event):
-            print(f"guild created : {event.guild.name}")
-
-
-        @listen()
-        async def on_message_create(event):
-            print(f"message received: {event.message.content}")
+        @listen(MessageCreate)
+        async def on_message_create(event: MessageCreate):
+            print(f"message received: {event.message}")
 
 
         @listen()
         async def on_component(event: Component):
             ctx = event.ctx
-            await ctx.edit_origin("test")
+            await ctx.edit_origin(content="test")
 
 
         bot.load_extension("test_components")
-        bot.start("Token")
-
+        bot.start("token")
         ```
         ```python
 
         # File: `test_components.py`
 
-        from interactions.models.command import prefixed_command
-        from interactions.models.discord_objects.components import Button, ActionRow
-        from interactions.models.enums import ButtonStyle
-        from interactions.models.extension import Extension
-        from interactions.ext.prefixed_commands import prefixed_command
+        from interactions import ActionRow, Button, ButtonStyle, Extension, slash_command
 
 
         class ButtonExampleSkin(Extension):
-            @prefixed_command()
-            async def blurple_button(self, ctx):
-                await ctx.send("hello there", components=Button(ButtonStyle.BLURPLE, "A blurple button"))
-
-            @prefixed_command()
+            @slash_command()
             async def multiple_buttons(self, ctx):
                 await ctx.send(
                     "2 buttons in a row",
-                    components=[Button(ButtonStyle.BLURPLE, "A blurple button"), Button(ButtonStyle.RED, "A red button")],
-                )
-
-            @prefixed_command()
-            async def action_rows(self, ctx):
-                await ctx.send(
-                    "2 buttons in 2 rows, using nested lists",
-                    components=[[Button(ButtonStyle.BLURPLE, "A blurple button")], [Button(ButtonStyle.RED, "A red button")]],
-                )
-
-            @prefixed_command()
-            async def action_rows_more(self, ctx):
-                await ctx.send(
-                    "2 buttons in 2 rows, using explicit action_rows lists",
                     components=[
-                        ActionRow(Button(ButtonStyle.BLURPLE, "A blurple button")),
-                        ActionRow(Button(ButtonStyle.RED, "A red button")),
+                        Button(style=ButtonStyle.BLURPLE, label="A blurple button"),
+                        Button(style=ButtonStyle.RED, label="A red button"),
                     ],
                 )
 
 
-        def setup(bot):
-            ButtonExampleSkin(bot)
+            @slash_command()
+            async def action_rows(self, ctx):
+                await ctx.send(
+                    "2 buttons in 2 rows, using nested lists",
+                    components=[
+                        [Button(style=ButtonStyle.BLURPLE, label="A blurple button")],
+                        [Button(style=ButtonStyle.RED, label="A red button")],
+                    ],
+                )
+
+
+            @slash_command()
+            async def action_rows_more(self, ctx):
+                await ctx.send(
+                    "2 buttons in 2 rows, using explicit action_rows lists",
+                    components=[
+                        ActionRow(Button(style=ButtonStyle.BLURPLE, label="A blurple button")),
+                        ActionRow(Button(style=ButtonStyle.RED, label="A red button")),
+                    ],
+                )
         ```
 
 Sounds pretty good right? Well, let's go over how you can use them:
