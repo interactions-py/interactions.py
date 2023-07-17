@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Your code's getting pretty big and messy being in a single, huh? Wouldn't it be nice if you could organise your commands and listeners into separate files?
+Your code's getting pretty big and messy being in a single file, huh? Wouldn't it be nice if you could organise your commands and listeners into separate files?
 
 Well let me introduce you to `Extensions`!<br>
 Extensions allow you to split your commands and listeners into separate files to allow you to better organise your project.
