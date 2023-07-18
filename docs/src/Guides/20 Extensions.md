@@ -433,8 +433,8 @@ On Windows, you may need to replace the slashes with backslashes instead.
 
 ### The `setup`/`teardown` Function
 
-You may have noticed that the `Extension` in the extension file is simply just a class, with no way of loading it. interactions.py is smart enough to detect a single `Extension` subclass
-and use it when loading from a file, but if you have multiple classes in your extension file, or just want more customization when loading an extension, you'll need to use the `setup` function.
+You may have noticed that the `Extension` in the extension file is simply just a class, with no way of loading it. interactions.py is smart enough to detect `Extension` subclasses
+and use them when loading from a file, but if you want more customization when loading an extension, you'll need to use the `setup` function.
 
 The `setup` function should be *outside* of any `Extension` subclass, and takes in the bot instance, like so:
 
