@@ -396,6 +396,41 @@ class MyExtension(Extension):
 
 ## Advanced Usage
 
+### Loading All Extensions In a Folder
+
+Sometimes, you may have a lot of extensions contained in one folder. Writing them all out is both time consuming and not very scalable, so you may want an easier way to load them.
+
+If your folder with all of your extensions is "flat" (only containing Python files for extensions and no subfolders), then your best bet is to use [`pkgutil.iter_modules`](https://docs.python.org/3/library/pkgutil.html#pkgutil.iter_modules) and a for loop:
+```python
+import pkgutil
+
+# replace "exts" with your folder name
+extension_names = [m.name for m in pkgutil.iter_modules(["exts"], prefix="exts.")]
+for extension in extension_names:
+    bot.load_extension(extension)
+```
+
+`iter_modules` finds all modules (which include Python extension files) in the directories provided. By default, this *just* returns the module/import name without the folder name, so we need to add the folder name back in through the `prefix` argument.
+Note how the folder passed and the prefix are basically the same thing - the prefix just has a period at the the end.
+
+If your folder with all of your extensions is *not* flat (for example, if you have subfolders in the extension folder containing Python files for extensions), you'll likely want to use [`glob.glob`](https://docs.python.org/3/library/glob.html#glob.glob) instead:
+```python
+import glob
+
+# replace "exts" with your folder name
+ext_filenames = glob.glob("exts/**/*.py")
+extension_names = [filename.removesuffix(".py").replace("/", ".") for filename in ext_filenames]
+for extension in extension_names:
+    bot.load_extension(extension)
+```
+
+Note that `glob.glob` returns the *filenames* of all files that match the pattern we provided. To turn it into a module/import name, we need to remove the ".py" suffix and replace the slashes with periods.
+On Windows, you may need to replace the slashes with backslashes instead.
+
+???+ note "Note About Loading Extensions From a File"
+    While these are two possible ways, they are by no means the *only* ways of finding all extensions in the folder and loading them. Which method is best method depends on your use case and is purely subjective.
+
+
 ### The `setup`/`teardown` Function
 
 You may have noticed that the `Extension` in the extension file is simply just a class, with no way of loading it. interactions.py is smart enough to detect a single `Extension` subclass
