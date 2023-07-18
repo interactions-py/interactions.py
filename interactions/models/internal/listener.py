@@ -116,7 +116,7 @@ class Listener(CallbackObject):
 
 
 def listen(
-    event_name: Absent[str | BaseEvent] = MISSING,
+    event_name: Absent[str | type[BaseEvent]] = MISSING,
     *,
     delay_until_ready: bool = False,
     is_default_listener: bool = False,
