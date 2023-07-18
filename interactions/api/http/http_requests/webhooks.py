@@ -59,7 +59,9 @@ class WebhookRequests:
         """
         return await self.request(Route("GET", "/guilds/{guild_id}/webhooks", guild_id=guild_id))
 
-    async def get_webhook(self, webhook_id: "Snowflake_Type", webhook_token: str = None) -> discord_typings.WebhookData:
+    async def get_webhook(
+        self, webhook_id: "Snowflake_Type", webhook_token: str | None = None
+    ) -> discord_typings.WebhookData:
         """
         Return the new webhook object for the given id.
 
@@ -81,7 +83,7 @@ class WebhookRequests:
         name: str,
         avatar: Any,
         channel_id: "Snowflake_Type",
-        webhook_token: str = None,
+        webhook_token: str | None = None,
     ) -> discord_typings.WebhookData:
         """
         Modify a webhook.
@@ -101,7 +103,7 @@ class WebhookRequests:
             payload={"name": name, "avatar": avatar, "channel_id": channel_id},
         )
 
-    async def delete_webhook(self, webhook_id: "Snowflake_Type", webhook_token: str = None) -> None:
+    async def delete_webhook(self, webhook_id: "Snowflake_Type", webhook_token: str | None = None) -> None:
         """
         Delete a webhook.
 

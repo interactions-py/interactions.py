@@ -239,7 +239,7 @@ class HybridSlashCommand(SlashCommand):
 
     def group(
         self,
-        name: str = None,
+        name: str | None = None,
         description: str = "No Description Set",
         inherit_checks: bool = True,
         aliases: list[str] | None = None,
@@ -263,7 +263,7 @@ class HybridSlashCommand(SlashCommand):
         group_name: LocalisedName | str = None,
         sub_cmd_description: Absent[LocalisedDesc | str] = MISSING,
         group_description: Absent[LocalisedDesc | str] = MISSING,
-        options: List[Union[SlashCommandOption, dict]] = None,
+        options: List[Union[SlashCommandOption, dict]] | None = None,
         nsfw: bool = False,
         inherit_checks: bool = True,
         aliases: list[str] | None = None,
@@ -541,8 +541,8 @@ def hybrid_slash_subcommand(
     base_dm_permission: bool = True,
     subcommand_group_description: Optional[str | LocalisedDesc] = None,
     sub_group_desc: Optional[str | LocalisedDesc] = None,
-    scopes: List["Snowflake_Type"] = None,
-    options: List[dict] = None,
+    scopes: List["Snowflake_Type"] | None = None,
+    options: List[dict] | None = None,
     nsfw: bool = False,
     silence_autocomplete_errors: bool = False,
 ) -> Callable[[AsyncCallable], HybridSlashCommand]:

@@ -100,7 +100,7 @@ class UserRequests:
         channel_id: "Snowflake_Type",
         user_id: "Snowflake_Type",
         access_token: str,
-        nick: str = None,
+        nick: str | None = None,
     ) -> None:
         """
         Adds a recipient to a Group DM using their access token.
@@ -130,7 +130,7 @@ class UserRequests:
             Route("DELETE", "/channels/{channel_id}/recipients/{user_id}", channel_id=channel_id, user_id=user_id)
         )
 
-    async def modify_current_user_nick(self, guild_id: "Snowflake_Type", nickname: str = None) -> None:
+    async def modify_current_user_nick(self, guild_id: "Snowflake_Type", nickname: str | None = None) -> None:
         """
         Modifies the nickname of the current user in a guild.
 

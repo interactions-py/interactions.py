@@ -212,7 +212,7 @@ class Button(InteractiveComponent):
         style: ButtonStyle | int,
         label: str | None = None,
         emoji: "PartialEmoji | None | str" = None,
-        custom_id: str = None,
+        custom_id: str | None = None,
         url: str | None = None,
         disabled: bool = False,
     ) -> None:

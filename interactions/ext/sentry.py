@@ -89,7 +89,7 @@ class HookedTask(Task):
 
 def setup(
     bot: Client,
-    token: str = None,
+    token: str | None = None,
     filter: Optional[Callable[[dict[str, Any], dict[str, Any]], Optional[dict[str, Any]]]] = None,
     **kwargs,
 ) -> None:

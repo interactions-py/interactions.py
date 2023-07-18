@@ -81,7 +81,7 @@ class ThreadRequests:
     async def list_public_archived_threads(
         self,
         channel_id: "Snowflake_Type",
-        limit: int = None,
+        limit: int | None = None,
         before: Optional["Snowflake_Type"] = None,
     ) -> discord_typings.ListThreadsData:
         """
@@ -108,7 +108,7 @@ class ThreadRequests:
     async def list_private_archived_threads(
         self,
         channel_id: "Snowflake_Type",
-        limit: int = None,
+        limit: int | None = None,
         before: Optional["Snowflake_Type"] = None,
     ) -> discord_typings.ListThreadsData:
         """
@@ -135,7 +135,7 @@ class ThreadRequests:
     async def list_joined_private_archived_threads(
         self,
         channel_id: "Snowflake_Type",
-        limit: int = None,
+        limit: int | None = None,
         before: Optional["Snowflake_Type"] = None,
     ) -> discord_typings.ListThreadsData:
         """
@@ -229,7 +229,7 @@ class ThreadRequests:
         name: str,
         auto_archive_duration: int,
         message: dict | FormData,
-        applied_tags: List[str] = None,
+        applied_tags: List[str] | None = None,
         rate_limit_per_user: Absent[int] = MISSING,
         files: Absent["UPLOADABLE_TYPE"] = MISSING,
         reason: Absent[str] = MISSING,
