@@ -400,6 +400,7 @@ class SlashCommandOption(DictSerializationMixin):
         max_value: The maximum value permitted. The option needs to be an integer or float
         min_length: The minimum length of text a user can input. The option needs to be a string
         max_length: The maximum length of text a user can input. The option needs to be a string
+        argument_name: The name of the argument to be used in the function. If not given, assumed to be the same as the name of the option
 
     """
 
@@ -418,6 +419,7 @@ class SlashCommandOption(DictSerializationMixin):
     max_value: Optional[float] = attrs.field(repr=False, default=None)
     min_length: Optional[int] = attrs.field(repr=False, default=None)
     max_length: Optional[int] = attrs.field(repr=False, default=None)
+    argument_name: Optional[str] = attrs.field(repr=False, default=None)
 
     @type.validator
     def _type_validator(self, attribute: str, value: int) -> None:
@@ -488,6 +490,7 @@ class SlashCommandOption(DictSerializationMixin):
 
     def as_dict(self) -> dict:
         data = attrs.asdict(self)
+        data.pop("argument_name", None)
         data["name"] = str(self.name)
         data["description"] = str(self.description)
         data["choices"] = [
@@ -506,6 +509,11 @@ class SlashCommandParameter:
     kind: inspect._ParameterKind = attrs.field()
     default: typing.Any = attrs.field(default=MISSING)
     converter: typing.Optional[typing.Callable] = attrs.field(default=None)
+    _option_name: typing.Optional[str] = attrs.field(default=None)
+
+    @property
+    def option_name(self) -> str:
+        return self._option_name or self.name
 
 
 def _get_option_from_annotated(annotated: Annotated) -> SlashCommandOption | None:
@@ -601,10 +609,14 @@ class SlashCommand(InteractionCommand):
         if not self.options:
             self.options = []
 
-        option.name = name
+        if option.name is None:
+            option.name = name
+        else:
+            option.argument_name = name
+
         self.options.append(option)
 
-    def _parse_parameters(self) -> None:
+    def _parse_parameters(self) -> None:  # noqa: C901
         """
         Parses the parameters that this command has into a form i.py can use.
 
@@ -664,6 +676,20 @@ class SlashCommand(InteractionCommand):
                     our_param.converter = self._get_converter_function(converter, our_param.name)
 
             self.parameters[param.name] = our_param
+
+        if self.options:
+            for option in self.options:
+                maybe_argument_name = (
+                    option.argument_name if isinstance(option, SlashCommandOption) else option.get("argument_name")
+                )
+                if maybe_argument_name:
+                    name = option.name if isinstance(option, SlashCommandOption) else option["name"]
+                    try:
+                        self.parameters[maybe_argument_name]._option_name = str(name)
+                    except KeyError:
+                        raise ValueError(
+                            f'Argument name "{maybe_argument_name}" for "{name}" does not match any parameter in {self.resolved_name}\'s function.'
+                        ) from None
 
     def to_dict(self) -> dict:
         data = super().to_dict()
@@ -780,8 +806,8 @@ class SlashCommand(InteractionCommand):
         new_args = []
         new_kwargs = {}
 
-        for name, param in self.parameters.items():
-            value = kwargs_copy.pop(name, MISSING)
+        for param in self.parameters.values():
+            value = kwargs_copy.pop(param.option_name, MISSING)
             if value is MISSING:
                 continue
 
@@ -791,7 +817,7 @@ class SlashCommand(InteractionCommand):
             if param.kind == inspect.Parameter.POSITIONAL_ONLY:
                 new_args.append(value)
             else:
-                new_kwargs[name] = value
+                new_kwargs[param.name] = value
 
         # i do want to address one thing: what happens if you have both *args and **kwargs
         # in your argument?
@@ -1196,6 +1222,7 @@ def slash_option(
     max_value: Optional[float] = None,
     min_length: Optional[int] = None,
     max_length: Optional[int] = None,
+    argument_name: Optional[str] = None,
 ) -> Callable[[SlashCommandT], SlashCommandT]:
     r"""
     A decorator to add an option to a slash command.
@@ -1212,6 +1239,7 @@ def slash_option(
         max_value: The maximum value permitted. The option needs to be an integer or float
         min_length: The minimum length of text a user can input. The option needs to be a string
         max_length: The maximum length of text a user can input. The option needs to be a string
+        argument_name: The name of the argument to be used in the function. If not given, assumed to be the same as the name of the option
     """
 
     def wrapper(func: SlashCommandT) -> SlashCommandT:
@@ -1230,6 +1258,7 @@ def slash_option(
             max_value=max_value,
             min_length=min_length,
             max_length=max_length,
+            argument_name=argument_name,
         )
         if not hasattr(func, "options"):
             func.options = []
