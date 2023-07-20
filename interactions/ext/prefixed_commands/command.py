@@ -92,7 +92,7 @@ class PrefixedCommandParameter:
         self,
         name: str,
         default: Any = MISSING,
-        type: Type = None,
+        type: Type | None = None,
         kind: inspect._ParameterKind = inspect._ParameterKind.POSITIONAL_OR_KEYWORD,
         converters: Optional[list[Callable[["PrefixedContext", str], Any]]] = None,
         greedy: bool = False,

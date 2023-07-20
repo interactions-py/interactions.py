@@ -1111,7 +1111,7 @@ class Client(
                 dict,
             ]
         ] = None,
-        check: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] = None,
+        check: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] | None = None,
         timeout: Optional[float] = None,
     ) -> "events.Component":
         """

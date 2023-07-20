@@ -1221,7 +1221,7 @@ class Guild(BaseGuild):
         )
 
     async def delete_channel(
-        self, channel: Union["models.TYPE_GUILD_CHANNEL", Snowflake_Type], reason: str = None
+        self, channel: Union["models.TYPE_GUILD_CHANNEL", Snowflake_Type], reason: str | None = None
     ) -> None:
         """
         Delete the given channel, can handle either a snowflake or channel object.
@@ -1875,7 +1875,7 @@ class Guild(BaseGuild):
         """
         await self._client.http.remove_guild_ban(self.id, to_snowflake(user), reason=reason)
 
-    async def fetch_widget_image(self, style: str = None) -> str:
+    async def fetch_widget_image(self, style: str | None = None) -> str:
         """
         Fetch a guilds widget image.
 

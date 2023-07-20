@@ -32,7 +32,7 @@ def slash_str_option(
     description: str,
     required: bool = False,
     autocomplete: bool = False,
-    choices: List[Union["SlashCommandChoice", dict]] = None,
+    choices: List[Union["SlashCommandChoice", dict]] | None = None,
     min_length: Optional[int] = None,
     max_length: Optional[int] = None,
 ) -> Type[str]:
@@ -64,7 +64,7 @@ def slash_float_option(
     description: str,
     required: bool = False,
     autocomplete: bool = False,
-    choices: List[Union["SlashCommandChoice", dict]] = None,
+    choices: List[Union["SlashCommandChoice", dict]] | None = None,
     min_value: Optional[float] = None,
     max_value: Optional[float] = None,
 ) -> Type[float]:
@@ -96,7 +96,7 @@ def slash_int_option(
     description: str,
     required: bool = False,
     autocomplete: bool = False,
-    choices: List[Union["SlashCommandChoice", dict]] = None,
+    choices: List[Union["SlashCommandChoice", dict]] | None = None,
     min_value: Optional[float] = None,
     max_value: Optional[float] = None,
 ) -> Type[int]:
@@ -171,7 +171,7 @@ def slash_channel_option(
     description: str,
     required: bool = False,
     autocomplete: bool = False,
-    choices: List[Union["SlashCommandChoice", dict]] = None,
+    choices: List[Union["SlashCommandChoice", dict]] | None = None,
     channel_types: Optional[list[Union["ChannelType", int]]] = None,
 ) -> Type["BaseChannel"]:
     """
@@ -200,7 +200,7 @@ def slash_role_option(
     description: str,
     required: bool = False,
     autocomplete: bool = False,
-    choices: List[Union["SlashCommandChoice", dict]] = None,
+    choices: List[Union["SlashCommandChoice", dict]] | None = None,
 ) -> Type["Role"]:
     """
     Annotates an argument as a role type slash command option.
@@ -226,7 +226,7 @@ def slash_mentionable_option(
     description: str,
     required: bool = False,
     autocomplete: bool = False,
-    choices: List[Union["SlashCommandChoice", dict]] = None,
+    choices: List[Union["SlashCommandChoice", dict]] | None = None,
 ) -> Type[Union["Role", "BaseChannel", "User", "Member"]]:
     """
     Annotates an argument as a mentionable type slash command option.

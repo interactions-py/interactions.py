@@ -391,7 +391,7 @@ class MessageableMixin(SendMixin):
         else:
             await self._client.http.bulk_delete_messages(self.id, message_ids, reason)
 
-    async def delete_message(self, message: Union[Snowflake_Type, "models.Message"], reason: str = None) -> None:
+    async def delete_message(self, message: Union[Snowflake_Type, "models.Message"], reason: str | None = None) -> None:
         """
         Delete a single message from a channel.
 
@@ -565,7 +565,7 @@ class ThreadableMixin:
         invitable: Absent[bool] = MISSING,
         rate_limit_per_user: Absent[int] = MISSING,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
-        reason: Absent[str] = None,
+        reason: Absent[str] | None = None,
     ) -> "TYPE_THREAD_CHANNEL":
         """
         Creates a new thread in this channel. If a message is provided, it will be used as the initial message.
@@ -605,7 +605,7 @@ class ThreadableMixin:
         return self._client.cache.place_channel_data(thread_data)
 
     async def fetch_public_archived_threads(
-        self, limit: int = None, before: Optional["models.Timestamp"] = None
+        self, limit: int | None = None, before: Optional["models.Timestamp"] = None
     ) -> "models.ThreadList":
         """
         Get a `ThreadList` of archived **public** threads available in this channel.
@@ -625,7 +625,7 @@ class ThreadableMixin:
         return models.ThreadList.from_dict(threads_data, self._client)
 
     async def fetch_private_archived_threads(
-        self, limit: int = None, before: Optional["models.Timestamp"] = None
+        self, limit: int | None = None, before: Optional["models.Timestamp"] = None
     ) -> "models.ThreadList":
         """
         Get a `ThreadList` of archived **private** threads available in this channel.
@@ -645,7 +645,7 @@ class ThreadableMixin:
         return models.ThreadList.from_dict(threads_data, self._client)
 
     async def fetch_archived_threads(
-        self, limit: int = None, before: Optional["models.Timestamp"] = None
+        self, limit: int | None = None, before: Optional["models.Timestamp"] = None
     ) -> "models.ThreadList":
         """
         Get a `ThreadList` of archived threads available in this channel.
@@ -668,7 +668,7 @@ class ThreadableMixin:
         return models.ThreadList.from_dict(threads_data, self._client)
 
     async def fetch_joined_private_archived_threads(
-        self, limit: int = None, before: Optional["models.Timestamp"] = None
+        self, limit: int | None = None, before: Optional["models.Timestamp"] = None
     ) -> "models.ThreadList":
         """
         Get a `ThreadList` of threads the bot is a participant of in this channel.
@@ -1224,7 +1224,7 @@ class GuildChannel(BaseChannel):
         view_audit_log: bool | None = None,
         view_channel: bool | None = None,
         view_guild_insights: bool | None = None,
-        reason: str = None,
+        reason: str | None = None,
     ) -> None:
         """
         Set the Permission Overwrites for a given target.
@@ -1668,7 +1668,7 @@ class GuildNews(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         name: str,
         message: Snowflake_Type,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
-        reason: Absent[str] = None,
+        reason: Absent[str] | None = None,
     ) -> "GuildNewsThread":
         """
         Creates a new news thread in this channel.
@@ -1751,7 +1751,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         name: str,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
         rate_limit_per_user: Absent[int] = MISSING,
-        reason: Absent[str] = None,
+        reason: Absent[str] | None = None,
     ) -> "GuildPublicThread":
         """
         Creates a new public thread in this channel.
@@ -1780,7 +1780,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         invitable: Absent[bool] = MISSING,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
         rate_limit_per_user: Absent[int] = MISSING,
-        reason: Absent[str] = None,
+        reason: Absent[str] | None = None,
     ) -> "GuildPrivateThread":
         """
         Creates a new private thread in this channel.
@@ -1810,7 +1810,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         name: str,
         message: Snowflake_Type,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
-        reason: Absent[str] = None,
+        reason: Absent[str] | None = None,
     ) -> "GuildPublicThread":
         """
         Creates a new public thread in this channel.
