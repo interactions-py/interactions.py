@@ -42,7 +42,7 @@ import os
 import sys
 from collections import defaultdict
 from importlib.metadata import version as _v, PackageNotFoundError
-from typing import TypeVar, Union, Callable, Coroutine
+from typing import TypeVar, Union, Callable, Coroutine, ClassVar
 
 __all__ = (
     "__version__",
@@ -131,7 +131,7 @@ EMBED_FIELD_VALUE_LENGTH = 1024
 
 
 class Singleton(type):
-    _instances = {}
+    _instances: ClassVar[dict] = {}
 
     def __call__(self, *args, **kwargs) -> "Singleton":
         if self not in self._instances:
