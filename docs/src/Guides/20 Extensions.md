@@ -169,7 +169,7 @@ class MyExtension(Extension):
 ```
 
 ??? note "Differences from Other Python Discord Libraries"
-    If you come from another Python Discord library, you may have noticed that there's a lack of an `__init__` and `setup` function in this example.
+    If you come from another Python Discord library, you might have seen that there's no `__init__` and `setup` function in this example.
     They still do exist as functions you *can* use (as discussed later), but interactions.py will do the appropriate logic to handle extensions
     without either of the two.
 
@@ -210,8 +210,8 @@ so you don't need to worry about that.
 
 #### Accessing the Bot
 
-You may have noticed that the `self` variable is being used in the example above. This is because the bot is passed to the extension
-when it's loaded and is stored in the `self.bot` variable. This means you can access the bot from anywhere in your extension,
+When an extension is loaded, the library automatically sets the `bot` for you. With this in mind, you can access your client using `self.bot`.
+Using `self.client` also works - they are just aliases to each other.
 
 ```python
 class MyExtension(Extension):
@@ -259,7 +259,7 @@ bot = Client(...)
 bot.start("token")
 ```
 
-To load the extension, you just need to use `bot.load_extension("filename_in_import_style")` before `bot.start`. So, in this case, it would look like this:
+To load the extension, you just need to use `bot.load_extension("filename.in_import_style")` before `bot.start`. So, in this case, it would look like this:
 
 ```python
 bot = Client(...)
@@ -271,7 +271,7 @@ And that's it! Your extension is now loaded and ready to go.
 
 #### "Import Style"
 
-You may have noticed that the filename is passed to `load_extension` without the `.py` extension. This is because interactions.py actually does an
+In the example above, the filename is passed to `load_extension` without the `.py` extension. This is because interactions.py actually does an
 *import* when loading the extension, so whatever string you give it needs to be a valid Python import path. This means that if you have a file structure like this:
 
 ```
@@ -297,7 +297,7 @@ as you edit them.
 
 ### Initialization
 
-You may have some logic to do when loading a specific extension. For that, you can add the `__init__` method, which takes a `Client` instance, in your extension:
+You may want to do some logic to do when loading a specific extension. For that, you can add the `__init__` method, which takes a `Client` instance, in your extension:
 
 ```python
 class MyExtension(Extension):
@@ -308,7 +308,7 @@ class MyExtension(Extension):
 
 #### Asynchronous Initialization
 
-You may have noticed `__init__` is synchronous. This may pose problems if you're trying to do something asynchronous in it, so there are various ways of solving it.
+As usual, `__init__` is synchronous. This may pose problems if you're trying to do something asynchronous in it, so there are various ways of solving it.
 
 If you're okay with only doing the asynchronous logic as the bot is starting up (and never again), there are two methods:
 
@@ -375,7 +375,7 @@ class MyExtension(Extension):
         super().drop()  # important - this part actually does the unloading
 ```
 
-You may have noticed that `drop` is synchronous. If you need to do something asynchronous, you can create a task with `asyncio` to do it:
+The `drop` method is synchronous. If you need to do something asynchronous, you can create a task with `asyncio` to do it:
 
 ???+ note "Note about `asyncio.create_task`"
     Usually, there's always an event loop running when unloading an extension (even when the bot is shutting down), so you can use `asyncio.create_task` without any problems.
@@ -447,7 +447,7 @@ def setup(bot):
     MyExtension(bot)
 ```
 
-Notice how the `Extension` subclass is created inside the `setup` function, and does not need to do any special function to add the extension in beyond being created using the instance.
+Here, the `Extension` subclass is initialized inside the `setup` function, and does not need to do any special function to add the extension in beyond being created using the instance.
 
 A similar function can be used for cleanup, called `teardown`. It takes no arguments, and should be outside of any `Extension` subclass, like so:
 
@@ -486,7 +486,7 @@ def setup(bot, some_arg: int = 0):
 
 ## Extension-Wide Checks
 
-Sometimes, it is useful to have a check ran before running any command in an extension. Thankfully, all you need to do is use `add_ext_check`:
+Sometimes, it is useful to have a check run before running any command in an extension. Thankfully, all you need to do is use `add_ext_check`:
 
 ```python
 class MyExtension(Extension):
@@ -563,8 +563,8 @@ class MyExtension(Extension):
 ```
 
 ??? note "Error Handling Priority"
-    Command error handlers will be ran over extension error handlers, and extension error handlers will be ran over event error handlers.
-    Only one error handler will be ran.
+    Only one error handler will run. Similar to CSS, the most specific handler takes precedence.
+    This goes: command error handlers -> extension -> listeners.
 
 ### Extension Auto Defer
 
@@ -577,5 +577,5 @@ class MyExtension(Extension):
 ```
 
 ??? note "Auto Defer Handling Priority"
-    Similar to errors, command auto defers will be ran over extension auto defers, and extension auto defers will be ran over the bot auto defers.
-    Only one auto defer will be ran.
+    Similar to errors, only one auto defer will be run, and the most specific auto defer takes precendence.
+    This goes: command auto defer -> extension -> bot.
