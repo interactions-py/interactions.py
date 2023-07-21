@@ -15,7 +15,7 @@ from .base import ClientObject
 
 if TYPE_CHECKING:
     from interactions.client import Client
-    from interactions.models import TYPE_GUILD_CHANNEL
+    from interactions.models import TYPE_GUILD_CHANNEL, Guild
     from interactions.models.discord.user import User
     from interactions.models.discord.snowflake import Snowflake_Type
 
@@ -44,9 +44,9 @@ class Invite(ClientObject):
         default=None, converter=optional_c(InviteTargetType), repr=True
     )
     """the type of target for this voice channel invite"""
-    approximate_presence_count: Optional[int] = attrs.field(repr=False, default=MISSING)
+    approximate_presence_count: Optional[int] = attrs.field(repr=False, default=None)
     """approximate count of online members, returned from the `GET /invites/<code>` endpoint when `with_counts` is `True`"""
-    approximate_member_count: Optional[int] = attrs.field(repr=False, default=MISSING)
+    approximate_member_count: Optional[int] = attrs.field(repr=False, default=None)
     """approximate count of total members, returned from the `GET /invites/<code>` endpoint when `with_counts` is `True`"""
     scheduled_event: Optional["Snowflake_Type"] = attrs.field(
         default=None, converter=optional_c(to_snowflake), repr=True
@@ -57,21 +57,27 @@ class Invite(ClientObject):
     stage_instance: Optional[StageInstance] = attrs.field(repr=False, default=None)
     """stage instance data if there is a public Stage instance in the Stage channel this invite is for (deprecated)"""
     target_application: Optional[dict] = attrs.field(repr=False, default=None)
-    """the embedded application to open for this voice channel embedded application invite"""
-    guild_preview: Optional[GuildPreview] = attrs.field(repr=False, default=MISSING)
-    """the guild this invite is for"""
+    """The embedded application to open for this voice channel embedded application invite"""
+    guild_preview: Optional[GuildPreview] = attrs.field(repr=False, default=None)
+    """The guild this invite is for - not given in invite events"""
 
     # internal for props
     _channel_id: "Snowflake_Type" = attrs.field(converter=to_snowflake, repr=True)
+    _guild_id: Optional["Snowflake_Type"] = attrs.field(default=None, converter=optional_c(to_snowflake), repr=True)
     _inviter_id: Optional["Snowflake_Type"] = attrs.field(default=None, converter=optional_c(to_snowflake), repr=True)
     _target_user_id: Optional["Snowflake_Type"] = attrs.field(
         repr=False, default=None, converter=optional_c(to_snowflake)
     )
 
     @property
-    def channel(self) -> "TYPE_GUILD_CHANNEL":
-        """The channel the invite is for."""
+    def channel(self) -> "Optional[TYPE_GUILD_CHANNEL]":
+        """The cached channel the invite is for."""
         return self._client.cache.get_channel(self._channel_id)
+
+    @property
+    def guild(self) -> Optional["Guild"]:
+        """The cached guild the invite is."""
+        return self._client.cache.get_guild(self._guild_id) if self._guild_id else None
 
     @property
     def inviter(self) -> Optional["User"]:
@@ -95,15 +101,22 @@ class Invite(ClientObject):
             data["scheduled_event"] = data["target_event_id"]
 
         if channel := data.pop("channel", None):
-            # invite metadata does not contain enough info to create a channel object
+            client.cache.place_channel_data(channel)
             data["channel_id"] = channel["id"]
 
         if guild := data.pop("guild", None):
             data["guild_preview"] = GuildPreview.from_dict(guild, client)
+            data["guild_id"] = guild["id"]
+        elif guild_id := data.pop("guild_id", None):
+            data["guild_id"] = guild_id
 
         if inviter := data.pop("inviter", None):
             inviter = client.cache.place_user_data(inviter)
             data["inviter_id"] = inviter.id
+
+        if target_user := data.pop("target_user", None):
+            target_user = client.cache.place_user_data(target_user)
+            data["target_user_id"] = target_user.id
 
         return data
 
