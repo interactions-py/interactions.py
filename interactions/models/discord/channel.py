@@ -2420,7 +2420,7 @@ class GuildForum(GuildChannel):
         self,
         name: str,
         content: str | None,
-        applied_tags: Optional[List[Union["Snowflake_Type", "ThreadTag", str]]] = MISSING,
+        applied_tags: Optional[List[Union["Snowflake_Type", "ThreadTag", str]]] = None,
         *,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
         rate_limit_per_user: Absent[int] = MISSING,
@@ -2463,7 +2463,7 @@ class GuildForum(GuildChannel):
         Returns:
             A GuildForumPost object representing the created post.
         """
-        if applied_tags != MISSING:
+        if applied_tags is not None:
             processed = []
             for tag in applied_tags:
                 if isinstance(tag, ThreadTag):
@@ -2568,12 +2568,13 @@ class GuildForum(GuildChannel):
         Returns:
             A ThreadTag object representing the tag.
         """
+        value = str(value)
 
         def maybe_insensitive(string: str) -> str:
             return string.lower() if case_insensitive else string
 
         def predicate(tag: ThreadTag) -> Optional["ThreadTag"]:
-            if str(tag.id) == str(value):
+            if str(tag.id) == value:
                 return tag
             if maybe_insensitive(tag.name) == maybe_insensitive(value):
                 return tag
