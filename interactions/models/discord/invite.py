@@ -44,9 +44,9 @@ class Invite(ClientObject):
         default=None, converter=optional_c(InviteTargetType), repr=True
     )
     """The type of target for this voice channel invite"""
-    approximate_presence_count: Optional[int] = attrs.field(repr=False, default=None)
+    approximate_presence_count: Optional[int] = attrs.field(repr=False, default=MISSING)
     """Approximate count of online members, returned when fetching invites with `with_counts` set as `True`"""
-    approximate_member_count: Optional[int] = attrs.field(repr=False, default=None)
+    approximate_member_count: Optional[int] = attrs.field(repr=False, default=MISSING)
     """Approximate count of total members, returned when fetching invites with `with_counts` set as `True`"""
     scheduled_event: Optional["Snowflake_Type"] = attrs.field(
         default=None, converter=optional_c(to_snowflake), repr=True
@@ -58,7 +58,7 @@ class Invite(ClientObject):
     """Stage instance data if there is a public Stage instance in the Stage channel this invite is for (deprecated)"""
     target_application: Optional[dict] = attrs.field(repr=False, default=None)
     """The embedded application to open for this voice channel embedded application invite"""
-    guild_preview: Optional[GuildPreview] = attrs.field(repr=False, default=None)
+    guild_preview: Optional[GuildPreview] = attrs.field(repr=False, default=MISSING)
     """The guild this invite is for - not given in invite events"""
 
     # internal for props
