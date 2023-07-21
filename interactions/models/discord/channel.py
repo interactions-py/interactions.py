@@ -2420,7 +2420,7 @@ class GuildForum(GuildChannel):
         self,
         name: str,
         content: str | None,
-        applied_tags: Optional[List[Union["Snowflake_Type", "ThreadTag", str]]] = None,
+        applied_tags: Absent[List[Union["Snowflake_Type", "ThreadTag", str]]] = MISSING,
         *,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
         rate_limit_per_user: Absent[int] = MISSING,
@@ -2463,7 +2463,7 @@ class GuildForum(GuildChannel):
         Returns:
             A GuildForumPost object representing the created post.
         """
-        if applied_tags is not None:
+        if applied_tags is not MISSING:
             processed = []
             for tag in applied_tags:
                 if isinstance(tag, ThreadTag):
