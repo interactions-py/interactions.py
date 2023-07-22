@@ -70,7 +70,7 @@ class Invite(ClientObject):
     )
 
     @property
-    def channel(self) -> "Optional[TYPE_GUILD_CHANNEL]":
+    def channel(self) -> Optional["TYPE_GUILD_CHANNEL"]:
         """The cached channel the invite is for."""
         return self._client.cache.get_channel(self._channel_id)
 
