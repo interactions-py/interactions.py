@@ -275,7 +275,7 @@ class InteractionCommand(BaseCommand):
         if scope:
             cmd_id = self.get_cmd_id(scope=scope)
         else:
-            cmd_id = list(self.cmd_id.values())[0]
+            cmd_id = next(iter(self.cmd_id.values()))
 
         return f"</{self.resolved_name}:{cmd_id}>"
 

@@ -2612,7 +2612,7 @@ class GuildForum(GuildChannel):
         data = await self._client.http.create_tag(**payload)
 
         channel_data = self._client.cache.place_channel_data(data)
-        return [tag for tag in channel_data.available_tags if tag.name == name][0]
+        return next(tag for tag in channel_data.available_tags if tag.name == name)
 
     async def edit_tag(
         self,
@@ -2640,7 +2640,7 @@ class GuildForum(GuildChannel):
             data = await self._client.http.edit_tag(self.id, tag_id, name, emoji_name=emoji.name)
 
         channel_data = self._client.cache.place_channel_data(data)
-        return [tag for tag in channel_data.available_tags if tag.name == name][0]
+        return next(tag for tag in channel_data.available_tags if tag.name == name)
 
     async def delete_tag(self, tag_id: "Snowflake_Type") -> None:
         """
