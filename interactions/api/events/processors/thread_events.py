@@ -43,6 +43,7 @@ class ThreadEvents(EventMixinTemplate):
         g_id = event.data.get("guild_id")
         self.dispatch(
             events.ThreadMembersUpdate(
+                g_id,
                 event.data.get("id"),
                 event.data.get("member_count"),
                 [await self.cache.fetch_member(g_id, m["user_id"]) for m in event.data.get("added_members", [])],

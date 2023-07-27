@@ -249,7 +249,7 @@ class ThreadMemberUpdate(ThreadCreate):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
-class ThreadMembersUpdate(BaseEvent):
+class ThreadMembersUpdate(GuildEvent):
     """Dispatched when anyone is added or removed from a thread."""
 
     id: "Snowflake_Type" = attrs.field(
@@ -262,6 +262,11 @@ class ThreadMembersUpdate(BaseEvent):
     """Users added to the thread"""
     removed_member_ids: List["Snowflake_Type"] = attrs.field(repr=False, factory=list)
     """Users removed from the thread"""
+
+    @property
+    def channel(self) -> Optional["TYPE_THREAD_CHANNEL"]:
+        """The thread channel this event is dispatched from"""
+        return self.client.get_channel(self.id)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
