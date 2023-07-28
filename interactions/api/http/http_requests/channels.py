@@ -444,7 +444,12 @@ class ChannelRequests(CanRequest):
 
         """
         await self.request(
-            Route("DELETE", "/channels/{channel_id}/permissions/{overwrite_id}", channel_id=channel_id, overwrite_id=overwrite_id),
+            Route(
+                "DELETE",
+                "/channels/{channel_id}/permissions/{overwrite_id}",
+                channel_id=channel_id,
+                overwrite_id=overwrite_id,
+            ),
             reason=reason,
         )
 
