@@ -785,8 +785,8 @@ class GuildScheduledEventDelete(GuildScheduledEventCreate):
 class GuildScheduledEventUserAdd(GuildEvent):
     """Dispatched when scheduled event is created"""
 
-    scheduled_event: interactions.models.ScheduledEvent
-    """The scheduled event object"""
+    scheduled_event: Optional[interactions.models.ScheduledEvent]
+    """The scheduled event object if cached"""
     user: "User"
     """The user that has been added/removed from scheduled event"""
 
