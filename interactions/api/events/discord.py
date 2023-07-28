@@ -48,6 +48,11 @@ __all__ = (
     "GuildJoin",
     "GuildLeft",
     "GuildMembersChunk",
+    "GuildScheduledEventCreate",
+    "GuildScheduledEventUpdate",
+    "GuildScheduledEventDelete",
+    "GuildScheduledEventUserAdd",
+    "GuildScheduledEventUserRemove",
     "GuildStickersUpdate",
     "GuildAvailable",
     "GuildUnavailable",
@@ -751,3 +756,46 @@ class GuildAuditLogEntryCreate(GuildEvent):
 
     audit_log_entry: interactions.models.AuditLogEntry = attrs.field(repr=False)
     """The audit log entry object"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildScheduledEventCreate(BaseEvent):
+    """Dispatched when scheduled event is created"""
+
+    scheduled_event: interactions.models.ScheduledEvent
+    """The scheduled event object"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildScheduledEventUpdate(BaseEvent):
+    """Dispatched when scheduled event is updated"""
+
+    before: Absent[interactions.models.ScheduledEvent]
+    """The scheduled event before this event was created"""
+    after: interactions.models.ScheduledEvent
+    """The scheduled event after this event was created"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildScheduledEventDelete(GuildScheduledEventCreate):
+    """Dispatched when scheduled event is deleted"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildScheduledEventUserAdd(GuildEvent):
+    """Dispatched when scheduled event is created"""
+
+    scheduled_event: interactions.models.ScheduledEvent
+    """The scheduled event object"""
+    user: "User"
+    """The user that has been added/removed from scheduled event"""
+
+    @property
+    def member(self) -> "Member":
+        """The guild member that has been added/removed from scheduled event"""
+        return self.client.get_member(self.guild_id, self.user.id)
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildScheduledEventUserRemove(GuildScheduledEventUserAdd):
+    """Dispatched when scheduled event is removed"""

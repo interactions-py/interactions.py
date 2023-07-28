@@ -173,6 +173,12 @@ _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
     events.AutoModCreated: [Intents.AUTO_MODERATION_CONFIGURATION, Intents.AUTO_MOD],
     events.AutoModUpdated: [Intents.AUTO_MODERATION_CONFIGURATION, Intents.AUTO_MOD],
     events.AutoModDeleted: [Intents.AUTO_MODERATION_CONFIGURATION, Intents.AUTO_MOD],
+    # Intents.GUILD_SCHEDULED_EVENTS
+    events.GuildScheduledEventCreate: [Intents.GUILD_SCHEDULED_EVENTS],
+    events.GuildScheduledEventUpdate: [Intents.GUILD_SCHEDULED_EVENTS],
+    events.GuildScheduledEventDelete: [Intents.GUILD_SCHEDULED_EVENTS],
+    events.GuildScheduledEventUserAdd: [Intents.GUILD_SCHEDULED_EVENTS],
+    events.GuildScheduledEventUserRemove: [Intents.GUILD_SCHEDULED_EVENTS],
     # multiple intents
     events.ThreadMembersUpdate: [Intents.GUILDS, Intents.GUILD_MEMBERS],
     events.TypingStart: [
@@ -211,6 +217,7 @@ class Client(
     processors.MessageEvents,
     processors.ReactionEvents,
     processors.RoleEvents,
+    processors.ScheduledEvents,
     processors.StageEvents,
     processors.ThreadEvents,
     processors.UserEvents,
