@@ -930,7 +930,6 @@ class GlobalCache:
         Returns:
             The processed scheduled event
         """
-
         scheduled_event = ScheduledEvent.from_dict(data, self._client)
         self.scheduled_events_cache[scheduled_event.id] = scheduled_event
 

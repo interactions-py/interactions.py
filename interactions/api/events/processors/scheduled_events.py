@@ -1,5 +1,4 @@
 import copy
-import pprint
 from typing import TYPE_CHECKING
 
 import interactions.api.events as events
@@ -18,18 +17,14 @@ class ScheduledEvents(EventMixinTemplate):
     async def _on_raw_guild_scheduled_event_create(self, event: "RawGatewayEvent") -> None:
         scheduled_event = self.cache.place_scheduled_event_data(event.data)
 
-        self.dispatch(
-            events.GuildScheduledEventCreate(scheduled_event)
-        )
+        self.dispatch(events.GuildScheduledEventCreate(scheduled_event))
 
     @Processor.define()
     async def _on_raw_guild_scheduled_event_update(self, event: "RawGatewayEvent") -> None:
         before = copy.copy(self.cache.get_scheduled_event(event.data.get("id")))
         after = self.cache.place_scheduled_event_data(event.data)
 
-        self.dispatch(
-            events.GuildScheduledEventUpdate(before or MISSING, after)
-        )
+        self.dispatch(events.GuildScheduledEventUpdate(before or MISSING, after))
 
     @Processor.define()
     async def _on_raw_guild_scheduled_event_delete(self, event: "RawGatewayEvent") -> None:
@@ -38,9 +33,7 @@ class ScheduledEvents(EventMixinTemplate):
         scheduled_event = ScheduledEvent.from_dict(event.data, self)
         self.cache.delete_scheduled_event(event.data.get("id"))
 
-        self.dispatch(
-            events.GuildScheduledEventDelete(scheduled_event)
-        )
+        self.dispatch(events.GuildScheduledEventDelete(scheduled_event))
 
     @Processor.define()
     async def _on_raw_guild_scheduled_event_user_add(self, event: "RawGatewayEvent") -> None:
