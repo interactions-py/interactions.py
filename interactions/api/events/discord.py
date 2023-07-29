@@ -762,7 +762,7 @@ class GuildAuditLogEntryCreate(GuildEvent):
 class GuildScheduledEventCreate(BaseEvent):
     """Dispatched when scheduled event is created"""
 
-    scheduled_event: interactions.models.ScheduledEvent = attrs.field(repr=False)
+    scheduled_event: interactions.models.ScheduledEvent = attrs.field(repr=True)
     """The scheduled event object"""
 
 
@@ -770,9 +770,9 @@ class GuildScheduledEventCreate(BaseEvent):
 class GuildScheduledEventUpdate(BaseEvent):
     """Dispatched when scheduled event is updated"""
 
-    before: Absent[interactions.models.ScheduledEvent] = attrs.field(repr=False)
+    before: Absent[interactions.models.ScheduledEvent] = attrs.field(repr=True)
     """The scheduled event before this event was created"""
-    after: interactions.models.ScheduledEvent = attrs.field(repr=False)
+    after: interactions.models.ScheduledEvent = attrs.field(repr=True)
     """The scheduled event after this event was created"""
 
 
