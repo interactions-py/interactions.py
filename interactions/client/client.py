@@ -2293,6 +2293,25 @@ class Client(
         except NotFound:
             return None
 
+    def get_scheduled_event(
+        self,
+        scheduled_event_id: "Snowflake_Type",
+    ) -> Optional["ScheduledEvent"]:
+        """
+        Get a scheduled event by id.
+
+        !!! note
+            This method is an alias for the cache which will return a cached object.
+
+        Args:
+            scheduled_event_id: The ID of the scheduled event to get
+
+        Returns:
+            The scheduled event if found, otherwise None
+
+        """
+        return self.cache.get_scheduled_event(scheduled_event_id)
+
     async def fetch_custom_emoji(
         self, emoji_id: "Snowflake_Type", guild_id: "Snowflake_Type", *, force: bool = False
     ) -> Optional[CustomEmoji]:
