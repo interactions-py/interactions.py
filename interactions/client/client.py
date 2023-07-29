@@ -2289,7 +2289,7 @@ class Client(
         """
         try:
             scheduled_event_data = await self.http.get_scheduled_event(guild_id, scheduled_event_id, with_user_count)
-            return ScheduledEvent.from_dict(scheduled_event_data, self)
+            return self.cache.place_scheduled_event_data(scheduled_event_data)
         except NotFound:
             return None
 

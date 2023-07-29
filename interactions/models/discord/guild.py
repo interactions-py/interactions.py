@@ -1253,7 +1253,7 @@ class Guild(BaseGuild):
 
         """
         scheduled_events_data = await self._client.http.list_schedules_events(self.id, with_user_count)
-        return models.ScheduledEvent.from_list(scheduled_events_data, self._client)
+        return [self._client.cache.place_scheduled_event_data(data) for data in scheduled_events_data]
 
     async def fetch_scheduled_event(
         self, scheduled_event_id: Snowflake_Type, with_user_count: bool = False
@@ -1275,7 +1275,7 @@ class Guild(BaseGuild):
             )
         except NotFound:
             return None
-        return models.ScheduledEvent.from_dict(scheduled_event_data, self._client)
+        return self._client.cache.place_scheduled_event_data(scheduled_event_data)
 
     async def create_scheduled_event(
         self,
@@ -1339,7 +1339,7 @@ class Guild(BaseGuild):
         }
 
         scheduled_event_data = await self._client.http.create_scheduled_event(self.id, payload, reason)
-        return models.ScheduledEvent.from_dict(scheduled_event_data, self._client)
+        return self._client.cache.place_scheduled_event_data(scheduled_event_data)
 
     async def create_custom_sticker(
         self,

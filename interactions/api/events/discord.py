@@ -793,7 +793,7 @@ class GuildScheduledEventUserAdd(GuildEvent):
     @property
     def scheduled_event(self) -> Optional[interactions.models.ScheduledEvent]:
         """The scheduled event object if cached"""
-        return self.client.cache.get_scheduled_event(self.scheduled_event_id)
+        return self.client.get_scheduled_event(self.scheduled_event_id)
 
     @property
     def user(self) -> Optional["User"]:
