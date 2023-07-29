@@ -762,7 +762,7 @@ class GuildAuditLogEntryCreate(GuildEvent):
 class GuildScheduledEventCreate(BaseEvent):
     """Dispatched when scheduled event is created"""
 
-    scheduled_event: interactions.models.ScheduledEvent
+    scheduled_event: interactions.models.ScheduledEvent = attrs.field(repr=False)
     """The scheduled event object"""
 
 
@@ -770,9 +770,9 @@ class GuildScheduledEventCreate(BaseEvent):
 class GuildScheduledEventUpdate(BaseEvent):
     """Dispatched when scheduled event is updated"""
 
-    before: Absent[interactions.models.ScheduledEvent]
+    before: Absent[interactions.models.ScheduledEvent] = attrs.field(repr=False)
     """The scheduled event before this event was created"""
-    after: interactions.models.ScheduledEvent
+    after: interactions.models.ScheduledEvent = attrs.field(repr=False)
     """The scheduled event after this event was created"""
 
 
@@ -785,14 +785,24 @@ class GuildScheduledEventDelete(GuildScheduledEventCreate):
 class GuildScheduledEventUserAdd(GuildEvent):
     """Dispatched when scheduled event is created"""
 
-    scheduled_event: Optional[interactions.models.ScheduledEvent]
-    """The scheduled event object if cached"""
-    user: "User"
-    """The user that has been added/removed from scheduled event"""
+    scheduled_event_id: "Snowflake_Type" = attrs.field(repr=True)
+    """The ID of the scheduled event"""
+    user_id: "Snowflake_Type" = attrs.field(repr=True)
+    """The ID of the user that has been added/removed from scheduled event"""
 
     @property
-    def member(self) -> "Member":
-        """The guild member that has been added/removed from scheduled event"""
+    def scheduled_event(self) -> Optional[interactions.models.ScheduledEvent]:
+        """The scheduled event object if cached"""
+        return self.client.cache.get_scheduled_event(self.scheduled_event_id)
+
+    @property
+    def user(self) -> Optional["User"]:
+        """The user that has been added/removed from scheduled event if cached"""
+        return self.client.get_user(self.user_id)
+
+    @property
+    def member(self) -> Optional["Member"]:
+        """The guild member that has been added/removed from scheduled event if cached"""
         return self.client.get_member(self.guild_id, self.user.id)
 
 
