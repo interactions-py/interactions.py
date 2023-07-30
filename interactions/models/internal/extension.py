@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import inspect
 import typing
 from typing import Awaitable, Dict, List, TYPE_CHECKING, Callable, Coroutine, Optional
@@ -128,6 +129,11 @@ class Extension:
             else:
                 raise TypeError("async_start is a reserved method and must be a coroutine")
 
+        instance.load(*args, **kwargs)
+        with contextlib.suppress(asyncio.CancelledError):
+            asyncio.get_running_loop()  # guard condition
+            _ = asyncio.create_task(instance.a_load(*args, **kwargs))
+
         bot.dispatch(events.ExtensionLoad(extension=instance))
         return instance
 
@@ -144,6 +150,14 @@ class Extension:
     def listeners(self) -> List["Listener"]:
         """Get the listeners from this Extension."""
         return self._listeners
+
+    def load(self, *args, **kwargs):
+        """Run on extension load"""
+        ...
+
+    async def a_load(self, *args, **kwargs):
+        """Run on extension load, if there is a valid event loop"""
+        ...
 
     def drop(self) -> None:
         """Called when this Extension is being removed."""
