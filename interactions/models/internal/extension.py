@@ -151,7 +151,7 @@ class Extension:
         """Get the listeners from this Extension."""
         return self._listeners
 
-    def load(self, *args, **kwargs):
+    def load(self, *args, **kwargs) -> Callable[[], ...]:
         """Run on extension load"""
         ...
 
