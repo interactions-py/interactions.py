@@ -155,7 +155,7 @@ class Extension:
         """Run on extension load"""
         ...
 
-    async def a_load(self, *args, **kwargs):
+    async def async_load(self, *args, **kwargs) -> Callable[[], ...]:
         """Run on extension load, if there is a valid event loop"""
         ...
 
