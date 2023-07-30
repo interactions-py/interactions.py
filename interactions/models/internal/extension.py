@@ -132,7 +132,7 @@ class Extension:
         instance.load(*args, **kwargs)
         with contextlib.suppress(asyncio.CancelledError):
             asyncio.get_running_loop()  # guard condition
-            _ = asyncio.create_task(instance.a_load(*args, **kwargs))
+            _ = asyncio.create_task(instance.async_load(*args, **kwargs))
 
         bot.dispatch(events.ExtensionLoad(extension=instance))
         return instance
