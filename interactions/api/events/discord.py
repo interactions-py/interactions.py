@@ -114,6 +114,7 @@ if TYPE_CHECKING:
     from interactions.models.discord.auto_mod import AutoModerationAction, AutoModRule
     from interactions.models.discord.reaction import Reaction
     from interactions.models.discord.app_perms import ApplicationCommandPermission
+    from interactions.models.discord.scheduled_event import ScheduledEvent
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -762,7 +763,7 @@ class GuildAuditLogEntryCreate(GuildEvent):
 class GuildScheduledEventCreate(BaseEvent):
     """Dispatched when scheduled event is created"""
 
-    scheduled_event: interactions.models.ScheduledEvent = attrs.field(repr=True)
+    scheduled_event: "ScheduledEvent" = attrs.field(repr=True)
     """The scheduled event object"""
 
 
@@ -770,9 +771,9 @@ class GuildScheduledEventCreate(BaseEvent):
 class GuildScheduledEventUpdate(BaseEvent):
     """Dispatched when scheduled event is updated"""
 
-    before: Absent[interactions.models.ScheduledEvent] = attrs.field(repr=True)
+    before: Absent["ScheduledEvent"] = attrs.field(repr=True)
     """The scheduled event before this event was created"""
-    after: interactions.models.ScheduledEvent = attrs.field(repr=True)
+    after: "ScheduledEvent" = attrs.field(repr=True)
     """The scheduled event after this event was created"""
 
 
@@ -791,7 +792,7 @@ class GuildScheduledEventUserAdd(GuildEvent):
     """The ID of the user that has been added/removed from scheduled event"""
 
     @property
-    def scheduled_event(self) -> Optional[interactions.models.ScheduledEvent]:
+    def scheduled_event(self) -> Optional["ScheduledEvent"]:
         """The scheduled event object if cached"""
         return self.client.get_scheduled_event(self.scheduled_event_id)
 
