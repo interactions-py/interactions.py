@@ -48,6 +48,11 @@ __all__ = (
     "GuildJoin",
     "GuildLeft",
     "GuildMembersChunk",
+    "GuildScheduledEventCreate",
+    "GuildScheduledEventUpdate",
+    "GuildScheduledEventDelete",
+    "GuildScheduledEventUserAdd",
+    "GuildScheduledEventUserRemove",
     "GuildStickersUpdate",
     "GuildAvailable",
     "GuildUnavailable",
@@ -109,6 +114,7 @@ if TYPE_CHECKING:
     from interactions.models.discord.auto_mod import AutoModerationAction, AutoModRule
     from interactions.models.discord.reaction import Reaction
     from interactions.models.discord.app_perms import ApplicationCommandPermission
+    from interactions.models.discord.scheduled_event import ScheduledEvent
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -756,3 +762,56 @@ class GuildAuditLogEntryCreate(GuildEvent):
 
     audit_log_entry: interactions.models.AuditLogEntry = attrs.field(repr=False)
     """The audit log entry object"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildScheduledEventCreate(BaseEvent):
+    """Dispatched when scheduled event is created"""
+
+    scheduled_event: "ScheduledEvent" = attrs.field(repr=True)
+    """The scheduled event object"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildScheduledEventUpdate(BaseEvent):
+    """Dispatched when scheduled event is updated"""
+
+    before: Absent["ScheduledEvent"] = attrs.field(repr=True)
+    """The scheduled event before this event was created"""
+    after: "ScheduledEvent" = attrs.field(repr=True)
+    """The scheduled event after this event was created"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildScheduledEventDelete(GuildScheduledEventCreate):
+    """Dispatched when scheduled event is deleted"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildScheduledEventUserAdd(GuildEvent):
+    """Dispatched when scheduled event is created"""
+
+    scheduled_event_id: "Snowflake_Type" = attrs.field(repr=True)
+    """The ID of the scheduled event"""
+    user_id: "Snowflake_Type" = attrs.field(repr=True)
+    """The ID of the user that has been added/removed from scheduled event"""
+
+    @property
+    def scheduled_event(self) -> Optional["ScheduledEvent"]:
+        """The scheduled event object if cached"""
+        return self.client.get_scheduled_event(self.scheduled_event_id)
+
+    @property
+    def user(self) -> Optional["User"]:
+        """The user that has been added/removed from scheduled event if cached"""
+        return self.client.get_user(self.user_id)
+
+    @property
+    def member(self) -> Optional["Member"]:
+        """The guild member that has been added/removed from scheduled event if cached"""
+        return self.client.get_member(self.guild_id, self.user.id)
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class GuildScheduledEventUserRemove(GuildScheduledEventUserAdd):
+    """Dispatched when scheduled event is removed"""
