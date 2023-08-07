@@ -1190,7 +1190,9 @@ def modal_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], Mo
     Your callback will be given a single argument, `ModalContext`
 
     Note:
-        This can optionally take a regex pattern, which will be used to match against the custom ID of the modal
+        This can optionally take a regex pattern, which will be used to match against the custom ID of the modal.
+
+        If you do not supply a `custom_id`, the name of the coroutine will be used instead.
 
 
     Args:
