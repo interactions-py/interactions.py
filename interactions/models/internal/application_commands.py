@@ -1170,6 +1170,8 @@ def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable]
     """
 
     def wrapper(func: AsyncCallable) -> ComponentCommand:
+        custom_id = custom_id or [func.__name__]  # noqa: F823
+
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
@@ -1196,6 +1198,8 @@ def modal_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], Mo
     """
 
     def wrapper(func: AsyncCallable) -> ModalCommand:
+        custom_id = custom_id or [func.__name__]  # noqa: F823
+
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
