@@ -1162,7 +1162,9 @@ def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable]
     Your callback will be given a single argument, `ComponentContext`
 
     Note:
-        This can optionally take a regex pattern, which will be used to match against the custom ID of the component
+        This can optionally take a regex pattern, which will be used to match against the custom ID of the component.
+
+        If you do not supply a `custom_id`, the name of the coroutine will be used instead.
 
     Args:
         *custom_id: The custom ID of the component to wait for
@@ -1170,6 +1172,8 @@ def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable]
     """
 
     def wrapper(func: AsyncCallable) -> ComponentCommand:
+        custom_id = custom_id or [func.__name__]  # noqa: F823
+
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
@@ -1188,7 +1192,9 @@ def modal_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], Mo
     Your callback will be given a single argument, `ModalContext`
 
     Note:
-        This can optionally take a regex pattern, which will be used to match against the custom ID of the modal
+        This can optionally take a regex pattern, which will be used to match against the custom ID of the modal.
+
+        If you do not supply a `custom_id`, the name of the coroutine will be used instead.
 
 
     Args:
@@ -1196,6 +1202,8 @@ def modal_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], Mo
     """
 
     def wrapper(func: AsyncCallable) -> ModalCommand:
+        custom_id = custom_id or [func.__name__]  # noqa: F823
+
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
