@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "interactions.py"
-version = "5.9.0"
+version = "5.9.1"
 description = "Easy, simple, scalable and modular: a Python API wrapper for interactions."
 authors = [
     "LordOfPolls <dev@lordofpolls.com>",
