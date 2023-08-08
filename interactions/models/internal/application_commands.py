@@ -1170,17 +1170,20 @@ def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable]
         *custom_id: The custom ID of the component to wait for
 
     """
+    resolved_custom_id: tuple[str | re.Pattern, ...] | list[str] = []
 
     def wrapper(func: AsyncCallable) -> ComponentCommand:
-        custom_id = custom_id or [func.__name__]  # noqa: F823
+        resolved_custom_id = custom_id or [func.__name__]
 
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
-        return ComponentCommand(name=f"ComponentCallback::{custom_id}", callback=func, listeners=custom_id)
+        return ComponentCommand(
+            name=f"ComponentCallback::{resolved_custom_id}", callback=func, listeners=resolved_custom_id
+        )
 
-    custom_id = _unpack_helper(custom_id)
-    custom_ids_validator(*custom_id)
+    custom_id = _unpack_helper(resolved_custom_id)
+    custom_ids_validator(*resolved_custom_id)
     return wrapper
 
 
@@ -1200,17 +1203,18 @@ def modal_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], Mo
     Args:
         *custom_id: The custom ID of the modal to wait for
     """
+    resolved_custom_id: tuple[str | re.Pattern, ...] | list[str] = []
 
     def wrapper(func: AsyncCallable) -> ModalCommand:
-        custom_id = custom_id or [func.__name__]  # noqa: F823
+        resolved_custom_id = custom_id or [func.__name__]
 
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
-        return ModalCommand(name=f"ModalCallback::{custom_id}", callback=func, listeners=custom_id)
+        return ModalCommand(name=f"ModalCallback::{resolved_custom_id}", callback=func, listeners=resolved_custom_id)
 
-    custom_id = _unpack_helper(custom_id)
-    custom_ids_validator(*custom_id)
+    custom_id = _unpack_helper(resolved_custom_id)
+    custom_ids_validator(*resolved_custom_id)
     return wrapper
 
 
