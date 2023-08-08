@@ -13,10 +13,10 @@ For example, you can see the difference of a bot with and without extensions:
 ??? Hint "Examples:"
     === "Without Extensions"
         ```python
-        from interactions import ActionRow, Button, ButtonStyle, Client, listen, slash_command
+        from interactions import ActionRow, Button, ButtonStyle, Client, Intents, listen, slash_command
         from interactions.api.events import Component, GuildJoin, MessageCreate, Startup
 
-        bot = Client()
+        bot = Client(intents=Intents.DEFAULT | Intents.MESSAGE_CONTENT)
 
 
         @listen(Startup)
@@ -79,10 +79,10 @@ For example, you can see the difference of a bot with and without extensions:
     === "With Extensions"
         ```python
         # File: `main.py`
-        from interactions import Client, listen
+        from interactions import Client, Intents, listen
         from interactions.api.events import Component, GuildJoin, MessageCreate, Startup
 
-        bot = Client()
+        bot = Client(intents=Intents.DEFAULT | Intents.MESSAGE_CONTENT)
 
 
         @listen(Startup)
