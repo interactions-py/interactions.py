@@ -22,8 +22,8 @@ client = interactions.Client(intents=intents)
 # You can provide the name of the event, prefixed by an "on_", or by telling the event decorator what event it is.
 @interactions.listen()
 async def on_ready():
-    # We can use the client "me" attribute to get information about the bot.
-    print(f"We're online! We've logged in as {client.me.name}.")
+    # We can use the client "app" attribute to get information about the bot.
+    print(f"We're online! We've logged in as {client.app.name}.")
 
     # We're also able to use property methods to gather additional data.
     print(f"Our latency is {round(client.latency)} ms.")
