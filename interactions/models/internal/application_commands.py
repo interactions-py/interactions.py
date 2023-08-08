@@ -275,7 +275,7 @@ class InteractionCommand(BaseCommand):
         if scope:
             cmd_id = self.get_cmd_id(scope=scope)
         else:
-            cmd_id = list(self.cmd_id.values())[0]
+            cmd_id = next(iter(self.cmd_id.values()))
 
         return f"</{self.resolved_name}:{cmd_id}>"
 
@@ -400,6 +400,7 @@ class SlashCommandOption(DictSerializationMixin):
         max_value: The maximum value permitted. The option needs to be an integer or float
         min_length: The minimum length of text a user can input. The option needs to be a string
         max_length: The maximum length of text a user can input. The option needs to be a string
+        argument_name: The name of the argument to be used in the function. If not given, assumed to be the same as the name of the option
 
     """
 
@@ -418,6 +419,7 @@ class SlashCommandOption(DictSerializationMixin):
     max_value: Optional[float] = attrs.field(repr=False, default=None)
     min_length: Optional[int] = attrs.field(repr=False, default=None)
     max_length: Optional[int] = attrs.field(repr=False, default=None)
+    argument_name: Optional[str] = attrs.field(repr=False, default=None)
 
     @type.validator
     def _type_validator(self, attribute: str, value: int) -> None:
@@ -488,6 +490,7 @@ class SlashCommandOption(DictSerializationMixin):
 
     def as_dict(self) -> dict:
         data = attrs.asdict(self)
+        data.pop("argument_name", None)
         data["name"] = str(self.name)
         data["description"] = str(self.description)
         data["choices"] = [
@@ -506,6 +509,11 @@ class SlashCommandParameter:
     kind: inspect._ParameterKind = attrs.field()
     default: typing.Any = attrs.field(default=MISSING)
     converter: typing.Optional[typing.Callable] = attrs.field(default=None)
+    _option_name: typing.Optional[str] = attrs.field(default=None)
+
+    @property
+    def option_name(self) -> str:
+        return self._option_name or self.name
 
 
 def _get_option_from_annotated(annotated: Annotated) -> SlashCommandOption | None:
@@ -601,10 +609,14 @@ class SlashCommand(InteractionCommand):
         if not self.options:
             self.options = []
 
-        option.name = name
+        if option.name is None:
+            option.name = name
+        else:
+            option.argument_name = name
+
         self.options.append(option)
 
-    def _parse_parameters(self) -> None:
+    def _parse_parameters(self) -> None:  # noqa: C901
         """
         Parses the parameters that this command has into a form i.py can use.
 
@@ -665,6 +677,20 @@ class SlashCommand(InteractionCommand):
 
             self.parameters[param.name] = our_param
 
+        if self.options:
+            for option in self.options:
+                maybe_argument_name = (
+                    option.argument_name if isinstance(option, SlashCommandOption) else option.get("argument_name")
+                )
+                if maybe_argument_name:
+                    name = option.name if isinstance(option, SlashCommandOption) else option["name"]
+                    try:
+                        self.parameters[maybe_argument_name]._option_name = str(name)
+                    except KeyError:
+                        raise ValueError(
+                            f'Argument name "{maybe_argument_name}" for "{name}" does not match any parameter in {self.resolved_name}\'s function.'
+                        ) from None
+
     def to_dict(self) -> dict:
         data = super().to_dict()
 
@@ -717,7 +743,7 @@ class SlashCommand(InteractionCommand):
         return wrapper
 
     def group(
-        self, name: str = None, description: str = "No Description Set", inherit_checks: bool = True
+        self, name: str | None = None, description: str = "No Description Set", inherit_checks: bool = True
     ) -> "SlashCommand":
         return SlashCommand(
             name=self.name,
@@ -736,7 +762,7 @@ class SlashCommand(InteractionCommand):
         group_name: LocalisedName | str = None,
         sub_cmd_description: Absent[LocalisedDesc | str] = MISSING,
         group_description: Absent[LocalisedDesc | str] = MISSING,
-        options: List[Union[SlashCommandOption, Dict]] = None,
+        options: List[Union[SlashCommandOption, Dict]] | None = None,
         nsfw: bool = False,
         inherit_checks: bool = True,
     ) -> Callable[..., "SlashCommand"]:
@@ -780,8 +806,8 @@ class SlashCommand(InteractionCommand):
         new_args = []
         new_kwargs = {}
 
-        for name, param in self.parameters.items():
-            value = kwargs_copy.pop(name, MISSING)
+        for param in self.parameters.values():
+            value = kwargs_copy.pop(param.option_name, MISSING)
             if value is MISSING:
                 continue
 
@@ -791,7 +817,7 @@ class SlashCommand(InteractionCommand):
             if param.kind == inspect.Parameter.POSITIONAL_ONLY:
                 new_args.append(value)
             else:
-                new_kwargs[name] = value
+                new_kwargs[param.name] = value
 
         # i do want to address one thing: what happens if you have both *args and **kwargs
         # in your argument?
@@ -961,8 +987,8 @@ def subcommand(
     base_dm_permission: bool = True,
     subcommand_group_description: Optional[str | LocalisedDesc] = None,
     sub_group_desc: Optional[str | LocalisedDesc] = None,
-    scopes: List["Snowflake_Type"] = None,
-    options: List[dict] = None,
+    scopes: List["Snowflake_Type"] | None = None,
+    options: List[dict] | None = None,
     nsfw: bool = False,
 ) -> Callable[[AsyncCallable], SlashCommand]:
     """
@@ -1136,7 +1162,9 @@ def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable]
     Your callback will be given a single argument, `ComponentContext`
 
     Note:
-        This can optionally take a regex pattern, which will be used to match against the custom ID of the component
+        This can optionally take a regex pattern, which will be used to match against the custom ID of the component.
+
+        If you do not supply a `custom_id`, the name of the coroutine will be used instead.
 
     Args:
         *custom_id: The custom ID of the component to wait for
@@ -1144,6 +1172,8 @@ def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable]
     """
 
     def wrapper(func: AsyncCallable) -> ComponentCommand:
+        custom_id = custom_id or [func.__name__]  # noqa: F823
+
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
@@ -1162,7 +1192,9 @@ def modal_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], Mo
     Your callback will be given a single argument, `ModalContext`
 
     Note:
-        This can optionally take a regex pattern, which will be used to match against the custom ID of the modal
+        This can optionally take a regex pattern, which will be used to match against the custom ID of the modal.
+
+        If you do not supply a `custom_id`, the name of the coroutine will be used instead.
 
 
     Args:
@@ -1170,6 +1202,8 @@ def modal_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], Mo
     """
 
     def wrapper(func: AsyncCallable) -> ModalCommand:
+        custom_id = custom_id or [func.__name__]  # noqa: F823
+
         if not asyncio.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
@@ -1190,12 +1224,13 @@ def slash_option(
     opt_type: Union[OptionType, int],
     required: bool = False,
     autocomplete: bool = False,
-    choices: List[Union[SlashCommandChoice, dict]] = None,
+    choices: List[Union[SlashCommandChoice, dict]] | None = None,
     channel_types: Optional[list[Union[ChannelType, int]]] = None,
     min_value: Optional[float] = None,
     max_value: Optional[float] = None,
     min_length: Optional[int] = None,
     max_length: Optional[int] = None,
+    argument_name: Optional[str] = None,
 ) -> Callable[[SlashCommandT], SlashCommandT]:
     r"""
     A decorator to add an option to a slash command.
@@ -1212,6 +1247,7 @@ def slash_option(
         max_value: The maximum value permitted. The option needs to be an integer or float
         min_length: The minimum length of text a user can input. The option needs to be a string
         max_length: The maximum length of text a user can input. The option needs to be a string
+        argument_name: The name of the argument to be used in the function. If not given, assumed to be the same as the name of the option
     """
 
     def wrapper(func: SlashCommandT) -> SlashCommandT:
@@ -1230,6 +1266,7 @@ def slash_option(
             max_value=max_value,
             min_length=min_length,
             max_length=max_length,
+            argument_name=argument_name,
         )
         if not hasattr(func, "options"):
             func.options = []

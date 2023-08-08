@@ -15,7 +15,12 @@ logging.basicConfig()
 cls_log = logging.getLogger("MyLogger")
 cls_log.setLevel(logging.DEBUG)
 
-bot = Client(intents=Intents.DEFAULT, sync_interactions=True, asyncio_debug=True, logger=cls_log)
+bot = Client(
+    intents=Intents.DEFAULT | Intents.MESSAGE_CONTENT,
+    sync_interactions=True,
+    asyncio_debug=True,
+    logger=cls_log
+)
 prefixed_commands.setup(bot)
 
 
@@ -30,6 +35,8 @@ async def on_guild_create(event):
     print(f"guild created : {event.guild.name}")
 
 
+# Message content is a privileged intent.
+# Ensure you have message content enabled in the Developer Portal for this to work.
 @listen()
 async def on_message_create(event):
     print(f"message received: {event.message.content}")

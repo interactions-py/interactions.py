@@ -29,7 +29,7 @@ log = logging.getLogger(logger_name)
 
 
 class Recorder(threading.Thread):
-    def __init__(self, v_state, loop, *, output_dir: str = None) -> None:
+    def __init__(self, v_state, loop, *, output_dir: str | None = None) -> None:
         super().__init__()
         self.daemon = True
 

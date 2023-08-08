@@ -114,6 +114,7 @@ from .enums import (
     VerificationLevel,
     VideoQualityMode,
     WebSocketOPCode,
+    ForumSortOrder,
 )
 from .file import File, open_file, UPLOADABLE_TYPE
 from .guild import (
@@ -226,6 +227,7 @@ __all__ = (
     "File",
     "FlatUIColors",
     "FlatUIColours",
+    "ForumSortOrder",
     "ForumLayoutType",
     "get_components_ids",
     "Guild",

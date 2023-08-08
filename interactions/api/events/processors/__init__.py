@@ -5,6 +5,7 @@ from .member_events import MemberEvents
 from .message_events import MessageEvents
 from .reaction_events import ReactionEvents
 from .role_events import RoleEvents
+from .scheduled_events import ScheduledEvents
 from .stage_events import StageEvents
 from .thread_events import ThreadEvents
 from .user_events import UserEvents
@@ -20,6 +21,7 @@ __all__ = (
     "MessageEvents",
     "ReactionEvents",
     "RoleEvents",
+    "ScheduledEvents",
     "StageEvents",
     "ThreadEvents",
     "UserEvents",
