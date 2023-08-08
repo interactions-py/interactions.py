@@ -11,6 +11,7 @@ from .annotations import (
 )
 from .callback import CallbackObject
 from .active_voice_state import ActiveVoiceState
+from .auto_defer import AutoDefer  # purposely out of order to make sure auto_defer comes out as the deco
 from .application_commands import (
     application_commands_to_dict,
     auto_defer,
@@ -41,7 +42,6 @@ from .application_commands import (
     subcommand,
     sync_needed,
 )
-from .auto_defer import AutoDefer
 from .checks import dm_only, guild_only, has_any_role, has_id, has_role, is_owner
 from .command import BaseCommand, check, cooldown, max_concurrency
 from .context import (
@@ -58,6 +58,7 @@ from .context import (
 from .converters import (
     BaseChannelConverter,
     ChannelConverter,
+    ConsumeRest,
     CustomEmojiConverter,
     DMChannelConverter,
     DMConverter,
@@ -124,6 +125,7 @@ __all__ = (
     "context_menu",
     "user_context_menu",
     "message_context_menu",
+    "ConsumeRest",
     "ContextMenu",
     "ContextMenuContext",
     "Converter",

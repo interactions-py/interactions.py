@@ -1,5 +1,6 @@
 import asyncio
 import time
+from datetime import datetime
 from collections import defaultdict
 from typing import TYPE_CHECKING, Optional
 
@@ -67,6 +68,16 @@ class AutoShardedClient(Client):
             {shard_id: latency}
         """
         return {state.shard_id: state.latency for state in self._connection_states}
+
+    @property
+    def start_time(self) -> datetime:
+        """The start time of the first shard of the bot."""
+        return next((state.start_time for state in self._connection_states), MISSING)  # type: ignore
+
+    @property
+    def start_times(self) -> dict[int, datetime]:
+        """The start times of all shards of the bot, keyed by each shard ID."""
+        return {state.shard_id: state.start_time for state in self._connection_states}  # type: ignore
 
     async def stop(self) -> None:
         """Shutdown the bot."""

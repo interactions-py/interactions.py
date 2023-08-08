@@ -173,6 +173,12 @@ _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
     events.AutoModCreated: [Intents.AUTO_MODERATION_CONFIGURATION, Intents.AUTO_MOD],
     events.AutoModUpdated: [Intents.AUTO_MODERATION_CONFIGURATION, Intents.AUTO_MOD],
     events.AutoModDeleted: [Intents.AUTO_MODERATION_CONFIGURATION, Intents.AUTO_MOD],
+    # Intents.GUILD_SCHEDULED_EVENTS
+    events.GuildScheduledEventCreate: [Intents.GUILD_SCHEDULED_EVENTS],
+    events.GuildScheduledEventUpdate: [Intents.GUILD_SCHEDULED_EVENTS],
+    events.GuildScheduledEventDelete: [Intents.GUILD_SCHEDULED_EVENTS],
+    events.GuildScheduledEventUserAdd: [Intents.GUILD_SCHEDULED_EVENTS],
+    events.GuildScheduledEventUserRemove: [Intents.GUILD_SCHEDULED_EVENTS],
     # multiple intents
     events.ThreadMembersUpdate: [Intents.GUILDS, Intents.GUILD_MEMBERS],
     events.TypingStart: [
@@ -211,6 +217,7 @@ class Client(
     processors.MessageEvents,
     processors.ReactionEvents,
     processors.RoleEvents,
+    processors.ScheduledEvents,
     processors.StageEvents,
     processors.ThreadEvents,
     processors.UserEvents,
@@ -1111,7 +1118,7 @@ class Client(
                 dict,
             ]
         ] = None,
-        check: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] = None,
+        check: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] | None = None,
         timeout: Optional[float] = None,
     ) -> "events.Component":
         """
@@ -2282,9 +2289,28 @@ class Client(
         """
         try:
             scheduled_event_data = await self.http.get_scheduled_event(guild_id, scheduled_event_id, with_user_count)
-            return ScheduledEvent.from_dict(scheduled_event_data, self)
+            return self.cache.place_scheduled_event_data(scheduled_event_data)
         except NotFound:
             return None
+
+    def get_scheduled_event(
+        self,
+        scheduled_event_id: "Snowflake_Type",
+    ) -> Optional["ScheduledEvent"]:
+        """
+        Get a scheduled event by id.
+
+        !!! note
+            This method is an alias for the cache which will return a cached object.
+
+        Args:
+            scheduled_event_id: The ID of the scheduled event to get
+
+        Returns:
+            The scheduled event if found, otherwise None
+
+        """
+        return self.cache.get_scheduled_event(scheduled_event_id)
 
     async def fetch_custom_emoji(
         self, emoji_id: "Snowflake_Type", guild_id: "Snowflake_Type", *, force: bool = False

@@ -118,6 +118,8 @@ class HybridContext(BaseContext, SendMixin):
             app_permissions = ctx.channel.permissions_for(ctx.guild.me)  # type: ignore
         elif ctx.channel.type in {10, 11, 12}:  # it's a thread
             app_permissions = ctx.channel.parent_channel.permissions_for(ctx.guild.me)  # type: ignore
+        else:
+            app_permissions = Permissions(0)
 
         self = cls(ctx.client)
         self.guild_id = ctx.guild_id

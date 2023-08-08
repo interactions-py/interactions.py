@@ -284,6 +284,9 @@ class BaseInteractionContext(BaseContext):
         instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
 
         instance.channel_id = Snowflake(payload["channel_id"])
+        if channel := payload.get("channel"):
+            client.cache.place_channel_data(channel)
+
         if member := payload.get("member"):
             instance.author_id = Snowflake(member["user"]["id"])
             instance.guild_id = Snowflake(payload["guild_id"])
@@ -544,18 +547,20 @@ class InteractionContext(BaseInteractionContext, SendMixin):
 
     respond = send
 
-    async def delete(self, message: "Snowflake_Type") -> None:
+    async def delete(self, message: "Snowflake_Type" = "@original") -> None:
         """
         Delete a message sent in response to this interaction.
 
         Args:
-            message: The message to delete
+            message: The message to delete. Defaults to @original which represents the initial response message.
         """
-        await self.client.http.delete_interaction_message(self.client.app.id, self.token, to_snowflake(message))
+        await self.client.http.delete_interaction_message(
+            self.client.app.id, self.token, to_snowflake(message) if message != "@original" else message
+        )
 
     async def edit(
         self,
-        message: "Snowflake_Type",
+        message: "Snowflake_Type" = "@original",
         *,
         content: typing.Optional[str] = None,
         embeds: typing.Optional[
@@ -591,7 +596,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             payload=message_payload,
             application_id=self.client.app.id,
             token=self.token,
-            message_id=to_snowflake(message),
+            message_id=to_snowflake(message) if message != "@original" else message,
             files=files,
         )
         if message_data:

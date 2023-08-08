@@ -62,12 +62,6 @@ These guides are meant to help you get started with the library and offer a poin
 
     Damn, your code is getting pretty messy now, huh? Wouldn't it be nice if you could organise your commands and listeners into separate files?
 
--   [__:material-cog-transfer: Advanced Extensions__](21 Advanced Extension Usage.md)
-
-    ---
-
-    You have learned how to create interactions and how to keep your code clean with extensions. This guide show you how to elevate your extensions to the next level.
-
 -   [__:material-music: Voice Support__](23 Voice.md)
 
     ---

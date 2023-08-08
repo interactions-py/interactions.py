@@ -4,6 +4,7 @@ from typing_extensions import Self
 
 from interactions.client.client import Client
 from interactions.client.mixins.send import SendMixin
+from interactions.models.discord.channel import TYPE_MESSAGEABLE_CHANNEL
 from interactions.models.discord.embed import Embed
 from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.message import Message
@@ -61,6 +62,11 @@ class PrefixedContext(BaseContext, SendMixin):
     def message(self) -> Message:
         """The message that invoked this context."""
         return self._message
+
+    @property
+    def channel(self) -> TYPE_MESSAGEABLE_CHANNEL:
+        """The channel this context was invoked in."""
+        return self.message.channel
 
     @property
     def invoke_target(self) -> str:

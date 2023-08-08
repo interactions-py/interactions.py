@@ -1,4 +1,4 @@
-from typing import Dict, Any, TYPE_CHECKING, Callable, Coroutine, List, Optional, SupportsInt, Union
+from typing import Dict, Any, TYPE_CHECKING, Callable, Coroutine, ClassVar, List, Optional, SupportsInt, Union
 
 import aiohttp
 
@@ -201,7 +201,7 @@ class WebSocketClosed(LibraryException):
     """The websocket was closed."""
 
     code: int = 0
-    codes: Dict[int, str] = {
+    codes: ClassVar[Dict[int, str]] = {
         1000: "Normal Closure",
         4000: "Unknown Error",
         4001: "Unknown OpCode",
@@ -228,7 +228,7 @@ class VoiceWebSocketClosed(LibraryException):
     """The voice websocket was closed."""
 
     code: int = 0
-    codes: Dict[int, str] = {
+    codes: ClassVar[Dict[int, str]] = {
         1000: "Normal Closure",
         4000: "Unknown Error",
         4001: "Unknown OpCode",

@@ -41,6 +41,7 @@ from .enums import (
     ScheduledEventType,
     SystemChannelFlags,
     VerificationLevel,
+    ForumSortOrder,
 )
 from .snowflake import (
     Snowflake_Type,
@@ -1023,6 +1024,7 @@ class Guild(BaseGuild):
         default_reaction_emoji: Absent[Union[dict, "models.PartialEmoji", "models.DefaultReaction", str]] = MISSING,
         available_tags: Absent["list[dict | models.ThreadTag] | dict | models.ThreadTag"] = MISSING,
         layout: ForumLayoutType = ForumLayoutType.NOT_SET,
+        sort_order: Absent[ForumSortOrder] = MISSING,
         reason: Absent[Optional[str]] = MISSING,
     ) -> "models.GuildForum":
         """
@@ -1039,6 +1041,7 @@ class Guild(BaseGuild):
             default_reaction_emoji: The default emoji to react with when creating a thread
             available_tags: The available tags for this forum channel
             layout: The layout of the forum channel
+            sort_order: The sort order of the forum channel
             reason: The reason for creating this channel
 
         Returns:
@@ -1057,6 +1060,7 @@ class Guild(BaseGuild):
             default_reaction_emoji=models.process_default_reaction(default_reaction_emoji),
             available_tags=list_converter(models.process_thread_tag)(available_tags) if available_tags else MISSING,
             default_forum_layout=layout,
+            default_sort_order=sort_order,
             reason=reason,
         )
 
@@ -1217,7 +1221,7 @@ class Guild(BaseGuild):
         )
 
     async def delete_channel(
-        self, channel: Union["models.TYPE_GUILD_CHANNEL", Snowflake_Type], reason: str = None
+        self, channel: Union["models.TYPE_GUILD_CHANNEL", Snowflake_Type], reason: str | None = None
     ) -> None:
         """
         Delete the given channel, can handle either a snowflake or channel object.
@@ -1249,7 +1253,7 @@ class Guild(BaseGuild):
 
         """
         scheduled_events_data = await self._client.http.list_schedules_events(self.id, with_user_count)
-        return models.ScheduledEvent.from_list(scheduled_events_data, self._client)
+        return [self._client.cache.place_scheduled_event_data(data) for data in scheduled_events_data]
 
     async def fetch_scheduled_event(
         self, scheduled_event_id: Snowflake_Type, with_user_count: bool = False
@@ -1271,7 +1275,7 @@ class Guild(BaseGuild):
             )
         except NotFound:
             return None
-        return models.ScheduledEvent.from_dict(scheduled_event_data, self._client)
+        return self._client.cache.place_scheduled_event_data(scheduled_event_data)
 
     async def create_scheduled_event(
         self,
@@ -1335,7 +1339,7 @@ class Guild(BaseGuild):
         }
 
         scheduled_event_data = await self._client.http.create_scheduled_event(self.id, payload, reason)
-        return models.ScheduledEvent.from_dict(scheduled_event_data, self._client)
+        return self._client.cache.place_scheduled_event_data(scheduled_event_data)
 
     async def create_custom_sticker(
         self,
@@ -1871,7 +1875,7 @@ class Guild(BaseGuild):
         """
         await self._client.http.remove_guild_ban(self.id, to_snowflake(user), reason=reason)
 
-    async def fetch_widget_image(self, style: str = None) -> str:
+    async def fetch_widget_image(self, style: str | None = None) -> str:
         """
         Fetch a guilds widget image.
 

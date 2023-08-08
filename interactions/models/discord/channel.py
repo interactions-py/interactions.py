@@ -36,6 +36,8 @@ from .enums import (
     StagePrivacyLevel,
     MessageFlags,
     InviteTargetType,
+    ForumSortOrder,
+    ForumLayoutType,
 )
 
 if TYPE_CHECKING:
@@ -240,6 +242,8 @@ class MessageableMixin(SendMixin):
         repr=False, default=None, converter=optional_c(timestamp_converter)
     )
     """When the last pinned message was pinned. This may be None when a message is not pinned."""
+    rate_limit_per_user: int = attrs.field(repr=False, default=0)
+    """Amount of seconds a user has to wait before sending another message (0-21600)"""
 
     async def _send_http_request(
         self, message_payload: Union[dict, "FormData"], files: list["UPLOADABLE_TYPE"] | None = None
@@ -387,7 +391,7 @@ class MessageableMixin(SendMixin):
         else:
             await self._client.http.bulk_delete_messages(self.id, message_ids, reason)
 
-    async def delete_message(self, message: Union[Snowflake_Type, "models.Message"], reason: str = None) -> None:
+    async def delete_message(self, message: Union[Snowflake_Type, "models.Message"], reason: str | None = None) -> None:
         """
         Delete a single message from a channel.
 
@@ -561,7 +565,7 @@ class ThreadableMixin:
         invitable: Absent[bool] = MISSING,
         rate_limit_per_user: Absent[int] = MISSING,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
-        reason: Absent[str] = None,
+        reason: Absent[str] | None = None,
     ) -> "TYPE_THREAD_CHANNEL":
         """
         Creates a new thread in this channel. If a message is provided, it will be used as the initial message.
@@ -601,7 +605,7 @@ class ThreadableMixin:
         return self._client.cache.place_channel_data(thread_data)
 
     async def fetch_public_archived_threads(
-        self, limit: int = None, before: Optional["models.Timestamp"] = None
+        self, limit: int | None = None, before: Optional["models.Timestamp"] = None
     ) -> "models.ThreadList":
         """
         Get a `ThreadList` of archived **public** threads available in this channel.
@@ -621,7 +625,7 @@ class ThreadableMixin:
         return models.ThreadList.from_dict(threads_data, self._client)
 
     async def fetch_private_archived_threads(
-        self, limit: int = None, before: Optional["models.Timestamp"] = None
+        self, limit: int | None = None, before: Optional["models.Timestamp"] = None
     ) -> "models.ThreadList":
         """
         Get a `ThreadList` of archived **private** threads available in this channel.
@@ -641,7 +645,7 @@ class ThreadableMixin:
         return models.ThreadList.from_dict(threads_data, self._client)
 
     async def fetch_archived_threads(
-        self, limit: int = None, before: Optional["models.Timestamp"] = None
+        self, limit: int | None = None, before: Optional["models.Timestamp"] = None
     ) -> "models.ThreadList":
         """
         Get a `ThreadList` of archived threads available in this channel.
@@ -664,7 +668,7 @@ class ThreadableMixin:
         return models.ThreadList.from_dict(threads_data, self._client)
 
     async def fetch_joined_private_archived_threads(
-        self, limit: int = None, before: Optional["models.Timestamp"] = None
+        self, limit: int | None = None, before: Optional["models.Timestamp"] = None
     ) -> "models.ThreadList":
         """
         Get a `ThreadList` of threads the bot is a participant of in this channel.
@@ -1220,7 +1224,7 @@ class GuildChannel(BaseChannel):
         view_audit_log: bool | None = None,
         view_channel: bool | None = None,
         view_guild_insights: bool | None = None,
-        reason: str = None,
+        reason: str | None = None,
     ) -> None:
         """
         Set the Permission Overwrites for a given target.
@@ -1664,7 +1668,7 @@ class GuildNews(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         name: str,
         message: Snowflake_Type,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
-        reason: Absent[str] = None,
+        reason: Absent[str] | None = None,
     ) -> "GuildNewsThread":
         """
         Creates a new news thread in this channel.
@@ -1691,8 +1695,6 @@ class GuildNews(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
 class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin, WebhookMixin):
     topic: Optional[str] = attrs.field(repr=False, default=None)
     """The channel topic (0-1024 characters)"""
-    rate_limit_per_user: int = attrs.field(repr=False, default=0)
-    """Amount of seconds a user has to wait before sending another message (0-21600)"""
 
     async def edit(
         self,
@@ -1749,7 +1751,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         name: str,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
         rate_limit_per_user: Absent[int] = MISSING,
-        reason: Absent[str] = None,
+        reason: Absent[str] | None = None,
     ) -> "GuildPublicThread":
         """
         Creates a new public thread in this channel.
@@ -1778,7 +1780,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         invitable: Absent[bool] = MISSING,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
         rate_limit_per_user: Absent[int] = MISSING,
-        reason: Absent[str] = None,
+        reason: Absent[str] | None = None,
     ) -> "GuildPrivateThread":
         """
         Creates a new private thread in this channel.
@@ -1808,7 +1810,7 @@ class GuildText(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin,
         name: str,
         message: Snowflake_Type,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
-        reason: Absent[str] = None,
+        reason: Absent[str] | None = None,
     ) -> "GuildPublicThread":
         """
         Creates a new public thread in this channel.
@@ -2394,6 +2396,16 @@ class GuildForum(GuildChannel):
     """The default emoji to react with for posts"""
     last_message_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
     # TODO: Implement "template" once the API supports them
+    rate_limit_per_user: int = attrs.field(repr=False, default=0)
+    """Amount of seconds a user has to wait before sending another message (0-21600)"""
+    default_sort_order: Optional[ForumSortOrder] = attrs.field(
+        repr=False, default=None, converter=ForumSortOrder.converter
+    )
+    """the default sort order type used to order posts in GUILD_FORUM channels. Defaults to null, which indicates a preferred sort order hasn't been set by a channel admin"""
+    default_forum_layout: ForumLayoutType = attrs.field(
+        repr=False, default=ForumLayoutType.NOT_SET, converter=ForumLayoutType
+    )
+    """The default forum layout view used to display posts in GUILD_FORUM channels. Defaults to 0, which indicates a layout view has not been set by a channel admin"""
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
@@ -2408,7 +2420,7 @@ class GuildForum(GuildChannel):
         self,
         name: str,
         content: str | None,
-        applied_tags: Optional[List[Union["Snowflake_Type", "ThreadTag", str]]] = MISSING,
+        applied_tags: Absent[List[Union["Snowflake_Type", "ThreadTag", str]]] = MISSING,
         *,
         auto_archive_duration: AutoArchiveDuration = AutoArchiveDuration.ONE_DAY,
         rate_limit_per_user: Absent[int] = MISSING,
@@ -2451,7 +2463,7 @@ class GuildForum(GuildChannel):
         Returns:
             A GuildForumPost object representing the created post.
         """
-        if applied_tags != MISSING:
+        if applied_tags is not MISSING:
             processed = []
             for tag in applied_tags:
                 if isinstance(tag, ThreadTag):
@@ -2556,12 +2568,13 @@ class GuildForum(GuildChannel):
         Returns:
             A ThreadTag object representing the tag.
         """
+        value = str(value)
 
         def maybe_insensitive(string: str) -> str:
             return string.lower() if case_insensitive else string
 
         def predicate(tag: ThreadTag) -> Optional["ThreadTag"]:
-            if str(tag.id) == str(value):
+            if str(tag.id) == value:
                 return tag
             if maybe_insensitive(tag.name) == maybe_insensitive(value):
                 return tag
@@ -2599,7 +2612,7 @@ class GuildForum(GuildChannel):
         data = await self._client.http.create_tag(**payload)
 
         channel_data = self._client.cache.place_channel_data(data)
-        return [tag for tag in channel_data.available_tags if tag.name == name][0]
+        return next(tag for tag in channel_data.available_tags if tag.name == name)
 
     async def edit_tag(
         self,
@@ -2627,7 +2640,7 @@ class GuildForum(GuildChannel):
             data = await self._client.http.edit_tag(self.id, tag_id, name, emoji_name=emoji.name)
 
         channel_data = self._client.cache.place_channel_data(data)
-        return [tag for tag in channel_data.available_tags if tag.name == name][0]
+        return next(tag for tag in channel_data.available_tags if tag.name == name)
 
     async def delete_tag(self, tag_id: "Snowflake_Type") -> None:
         """

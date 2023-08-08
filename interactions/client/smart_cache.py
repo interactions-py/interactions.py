@@ -16,6 +16,7 @@ from interactions.models.discord.message import Message
 from interactions.models.discord.role import Role
 from interactions.models.discord.snowflake import to_snowflake, to_optional_snowflake
 from interactions.models.discord.user import Member, User
+from interactions.models.discord.scheduled_event import ScheduledEvent
 from interactions.models.internal.active_voice_state import ActiveVoiceState
 
 __all__ = ("GlobalCache", "create_cache")
@@ -70,6 +71,7 @@ class GlobalCache:
     member_cache: dict = attrs.field(repr=False, factory=dict)  # key: (guild_id, user_id)
     channel_cache: dict = attrs.field(repr=False, factory=dict)  # key: channel_id
     guild_cache: dict = attrs.field(repr=False, factory=dict)  # key: guild_id
+    scheduled_events_cache: dict = attrs.field(repr=False, factory=dict)  # key: guild_scheduled_event_id
 
     # Expiring discord objects cache
     message_cache: TTLCache = attrs.field(repr=False, factory=TTLCache)  # key: (channel_id, message_id)
@@ -903,3 +905,43 @@ class GlobalCache:
             self.emoji_cache.pop(to_snowflake(emoji_id), None)
 
     # endregion Emoji cache
+
+    # region ScheduledEvents cache
+
+    def get_scheduled_event(self, scheduled_event_id: "Snowflake_Type") -> Optional["ScheduledEvent"]:
+        """
+        Get a scheduled event based on the scheduled event ID.
+
+        Args:
+            scheduled_event_id: The ID of the scheduled event
+
+        Returns:
+            The ScheduledEvent if found
+        """
+        return self.scheduled_events_cache.get(to_snowflake(scheduled_event_id))
+
+    def place_scheduled_event_data(self, data: discord_typings.GuildScheduledEventData) -> "ScheduledEvent":
+        """
+        Take json data representing a scheduled event, process it, and cache it.
+
+        Args:
+            data: json representation of the scheduled event
+
+        Returns:
+            The processed scheduled event
+        """
+        scheduled_event = ScheduledEvent.from_dict(data, self._client)
+        self.scheduled_events_cache[scheduled_event.id] = scheduled_event
+
+        return scheduled_event
+
+    def delete_scheduled_event(self, scheduled_event_id: "Snowflake_Type") -> None:
+        """
+        Delete a scheduled event from the cache.
+
+        Args:
+            scheduled_event_id: The ID of the scheduled event
+        """
+        self.scheduled_events_cache.pop(to_snowflake(scheduled_event_id), None)
+
+    # endregion ScheduledEvents cache
