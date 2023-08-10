@@ -78,7 +78,7 @@ class Activity(DictSerializationMixin):
     details: Optional[str] = attrs.field(repr=False, default=None)
     """What the player is currently doing"""
     state: Optional[str] = attrs.field(repr=False, default=None)
-    """User's current party status, or text used for a custom status is type is set as custom"""
+    """The user's current party status, or text used for a custom status if type is set as CUSTOM"""
     emoji: Optional[PartialEmoji] = attrs.field(repr=False, default=None, converter=optional(PartialEmoji.from_dict))
     """The emoji used for a custom status"""
     party: Optional[ActivityParty] = attrs.field(repr=False, default=None, converter=optional(ActivityParty.from_dict))
@@ -109,7 +109,7 @@ class Activity(DictSerializationMixin):
             name: The new activity's name
             type: Type of activity to create
             url: Stream link for the activity
-            state: Current party status, or text used for a custom status is type is set as custom
+            state: Current party status, or text used for a custom status if type is set as CUSTOM
 
         Returns:
             The new activity object
