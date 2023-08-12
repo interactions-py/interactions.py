@@ -1,9 +1,11 @@
 import asyncio
 import contextlib
 import functools
+import glob
 import importlib.util
 import inspect
 import logging
+import os
 import re
 import sys
 import time
@@ -2001,6 +2003,21 @@ class Client(
 
         module = importlib.import_module(module_name, package)
         self.__load_module(module, module_name, **load_kwargs)
+    
+    def load_extensions(
+        self,
+        package: str,
+        recursive: bool = False,
+    ) -> None:
+        # If recursive then include subdirectories ('**')
+        # otherwise just the package specified by the user.
+        pattern = os.path.join(package, "**" if recursive else "", "*.py")
+
+        # Find all files matching the pattern, and convert slashes to dots.
+        extensions = [f.replace(os.path.sep, ".").replace(".py", "") for f in glob.glob(pattern, recursive=True)]
+
+        for ext in extensions:
+            self.load_extension(ext)
 
     def unload_extension(
         self, name: str, package: str | None = None, force: bool = False, **unload_kwargs: Any
