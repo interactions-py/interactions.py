@@ -2009,6 +2009,16 @@ class Client(
         package: str,
         recursive: bool = False,
     ) -> None:
+        """
+        Load multiple extensions at once.
+
+        Removes the need of manually looping through the package
+        and loading the extensions.
+
+        Args:
+            package: The package the extensions are in.
+            recursive: Whether to load extensions from the subdirectories within the package.
+        """
         # If recursive then include subdirectories ('**')
         # otherwise just the package specified by the user.
         pattern = os.path.join(package, "**" if recursive else "", "*.py")
