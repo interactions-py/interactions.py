@@ -6,7 +6,6 @@ import importlib.util
 import inspect
 import logging
 import os
-import pathlib
 import re
 import sys
 import time
@@ -2004,7 +2003,7 @@ class Client(
 
         module = importlib.import_module(module_name, package)
         self.__load_module(module, module_name, **load_kwargs)
-    
+
     def load_extensions(
         self,
         package: str,
@@ -2020,16 +2019,12 @@ class Client(
             package: The package the extensions are in.
             recursive: Whether to load extensions from the subdirectories within the package.
         """
-        
         # If recursive then include subdirectories ('**')
         # otherwise just the package specified by the user.
-        pattern = os.path.join(package, '**' if recursive else '', '*.py')
+        pattern = os.path.join(package, "**" if recursive else "", "*.py")
 
-        # Find all files matching the pattern, and convert slashes to dots. 
-        extensions = [
-            f.replace(os.path.sep, '.').replace('.py', '')
-            for f in glob.glob(pattern, recursive=True)
-        ]
+        # Find all files matching the pattern, and convert slashes to dots.
+        extensions = [f.replace(os.path.sep, ".").replace(".py", "") for f in glob.glob(pattern, recursive=True)]
 
         for ext in extensions:
             self.load_extension(ext)
