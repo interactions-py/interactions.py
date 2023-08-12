@@ -2026,7 +2026,10 @@ class Client(
         pattern = os.path.join(package, '**' if recursive else '', '*.py')
 
         # Find all files matching the pattern, and convert slashes to dots. 
-        extensions = [f.replace(os.path.sep, '.').replace('.py', '') for f in glob.glob(pattern, recursive=True)]
+        extensions = [
+            f.replace(os.path.sep, '.').replace('.py', '')
+            for f in glob.glob(pattern, recursive=True)
+        ]
 
         for ext in extensions:
             self.load_extension(ext)
