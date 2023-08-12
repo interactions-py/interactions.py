@@ -2003,7 +2003,7 @@ class Client(
 
         module = importlib.import_module(module_name, package)
         self.__load_module(module, module_name, **load_kwargs)
-    
+
     def load_extensions(
         self,
         package: str,
