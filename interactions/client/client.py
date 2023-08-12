@@ -2003,10 +2003,10 @@ class Client(
 
         module = importlib.import_module(module_name, package)
         self.__load_module(module, module_name, **load_kwargs)
-    
+
     def load_extensions(
         self,
-        package: str,
+        *packages: str,
         recursive: bool = False,
     ) -> None:
         """
@@ -2016,18 +2016,23 @@ class Client(
         and loading the extensions.
 
         Args:
-            package: The package the extensions are in.
+            *packages: The package(s) where the extensions are located.
             recursive: Whether to load extensions from the subdirectories within the package.
         """
-        # If recursive then include subdirectories ('**')
-        # otherwise just the package specified by the user.
-        pattern = os.path.join(package, "**" if recursive else "", "*.py")
+        if not packages:
+            raise ValueError("You must specify at least one package.")
 
-        # Find all files matching the pattern, and convert slashes to dots.
-        extensions = [f.replace(os.path.sep, ".").replace(".py", "") for f in glob.glob(pattern, recursive=True)]
+        for package in packages:
+            # If recursive then include subdirectories ('**')
+            # otherwise just the package specified by the user.
+            pattern = os.path.join(package, "**" if recursive else "", "*.py")
 
-        for ext in extensions:
-            self.load_extension(ext)
+            # Find all files matching the pattern, and convert slashes to dots.
+            extensions = [f.replace(os.path.sep, ".").replace(".py", "") for f in glob.glob(pattern, recursive=True)]
+
+            for ext in extensions:
+                print(ext)
+                self.load_extension(ext)
 
     def unload_extension(
         self, name: str, package: str | None = None, force: bool = False, **unload_kwargs: Any
