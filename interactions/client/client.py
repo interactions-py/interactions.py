@@ -2031,7 +2031,6 @@ class Client(
             extensions = [f.replace(os.path.sep, ".").replace(".py", "") for f in glob.glob(pattern, recursive=True)]
 
             for ext in extensions:
-                print(ext)
                 self.load_extension(ext)
 
     def unload_extension(
