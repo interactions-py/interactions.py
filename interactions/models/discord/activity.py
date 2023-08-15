@@ -78,7 +78,7 @@ class Activity(DictSerializationMixin):
     details: Optional[str] = attrs.field(repr=False, default=None)
     """What the player is currently doing"""
     state: Optional[str] = attrs.field(repr=False, default=None)
-    """The user's current party status"""
+    """The user's current party status, or text used for a custom status if type is set as CUSTOM"""
     emoji: Optional[PartialEmoji] = attrs.field(repr=False, default=None, converter=optional(PartialEmoji.from_dict))
     """The emoji used for a custom status"""
     party: Optional[ActivityParty] = attrs.field(repr=False, default=None, converter=optional(ActivityParty.from_dict))
@@ -99,7 +99,9 @@ class Activity(DictSerializationMixin):
     """The custom buttons shown in the Rich Presence (max 2)"""
 
     @classmethod
-    def create(cls, name: str, type: ActivityType = ActivityType.GAME, url: Optional[str] = None) -> "Activity":
+    def create(
+        cls, name: str, type: ActivityType = ActivityType.GAME, url: Optional[str] = None, state: Optional[str] = None
+    ) -> "Activity":
         """
         Creates an activity object for the bot.
 
@@ -107,12 +109,13 @@ class Activity(DictSerializationMixin):
             name: The new activity's name
             type: Type of activity to create
             url: Stream link for the activity
+            state: Current party status, or text used for a custom status if type is set as CUSTOM
 
         Returns:
             The new activity object
 
         """
-        return cls(name=name, type=type, url=url)
+        return cls(name=name, type=type, url=url, state=state)
 
     def to_dict(self) -> dict:
-        return dict_filter_none({"name": self.name, "type": self.type, "url": self.url})
+        return dict_filter_none({"name": self.name, "type": self.type, "state": self.state, "url": self.url})
