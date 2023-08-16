@@ -14,7 +14,7 @@ class VoiceEvents(EventMixinTemplate):
     @Processor.define()
     async def _on_raw_voice_state_update(self, event: "RawGatewayEvent") -> None:
         after = await self.cache.place_voice_state_data(event.data)
-        is_bot = event.data['member']['user']['bot']
+        is_bot = event.data["member"]["user"]["bot"]
 
         if is_bot:
             before_bot_guild_voice_state = self.cache.get_bot_voice_state(event.data["guild_id"])
