@@ -289,7 +289,6 @@ class ActiveVoiceState(VoiceState):
 
     async def _voice_state_update(
         self,
-        before: Optional[VoiceState],
         after: Optional[VoiceState],
         data: Optional[VoiceStateData],
     ) -> None:
@@ -297,7 +296,6 @@ class ActiveVoiceState(VoiceState):
         An internal receiver for voice server state events.
 
         Args:
-            before: The previous voice state
             after: The current voice state
             data: Raw data from gateway
         """
