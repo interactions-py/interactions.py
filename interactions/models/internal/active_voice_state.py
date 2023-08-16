@@ -289,6 +289,7 @@ class ActiveVoiceState(VoiceState):
 
     async def _voice_state_update(
         self,
+        before: Optional[VoiceState],
         after: Optional[VoiceState],
         data: Optional[VoiceStateData],
     ) -> None:

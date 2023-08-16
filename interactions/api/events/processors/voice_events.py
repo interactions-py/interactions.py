@@ -14,18 +14,17 @@ class VoiceEvents(EventMixinTemplate):
     @Processor.define()
     async def _on_raw_voice_state_update(self, event: "RawGatewayEvent") -> None:
         after = await self.cache.place_voice_state_data(event.data)
-        is_bot = event.data["member"]["user"]["bot"]
 
-        if is_bot:
-            before_bot_guild_voice_state = self.cache.get_bot_voice_state(event.data["guild_id"])
-            self.dispatch(events.VoiceStateUpdate(before_bot_guild_voice_state, after))
-            if vc := before_bot_guild_voice_state:
+        if str(event.data["user_id"]) == str(self.user.id):
+            # User is the bot itself
+            before = self.cache.get_bot_voice_state(event.data["guild_id"])
+            if vc := before:
                 # noinspection PyProtectedMember
-                await vc._voice_state_update(after, event.data)
-            return
+                await vc._voice_state_update(before, after, event.data)
+        else:
+            # User is not the bot
+            before = copy.copy(self.cache.get_voice_state(event.data["user_id"])) or None
 
-        # Following code is for updates to non-bot users
-        before = copy.copy(self.cache.get_voice_state(event.data["user_id"])) or None
         self.dispatch(events.VoiceStateUpdate(before, after))
 
         if before and after:
