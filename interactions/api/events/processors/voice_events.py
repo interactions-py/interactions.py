@@ -17,7 +17,9 @@ class VoiceEvents(EventMixinTemplate):
         is_bot = event.data['member']['user']['bot']
 
         if is_bot:
-            if vc := self.cache.get_bot_voice_state(event.data["guild_id"]):
+            before_bot_guild_voice_state = self.cache.get_bot_voice_state(event.data["guild_id"])
+            self.dispatch(events.VoiceStateUpdate(before_bot_guild_voice_state, after))
+            if vc := before_bot_guild_voice_state:
                 # noinspection PyProtectedMember
                 await vc._voice_state_update(after, event.data)
             return
