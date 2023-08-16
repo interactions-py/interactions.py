@@ -747,12 +747,13 @@ class GlobalCache:
         """
         return self.voice_state_cache.get(to_optional_snowflake(user_id))
 
-    async def place_voice_state_data(self, data: discord_typings.VoiceStateData, update_cache = True) -> Optional[VoiceState]:
+    async def place_voice_state_data(self, data: discord_typings.VoiceStateData, update_cache=True) -> Optional[VoiceState]:
         """
         Take json data representing a VoiceState, process it, and cache it.
 
         Args:
             data: json representation of the VoiceState
+            update_cache: Bool for updating cache or not
 
         Returns:
             The processed VoiceState object
