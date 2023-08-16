@@ -297,6 +297,7 @@ class ActiveVoiceState(VoiceState):
         An internal receiver for voice server state events.
 
         Args:
+            before: The previous voice state
             after: The current voice state
             data: Raw data from gateway
         """
