@@ -747,7 +747,7 @@ class GlobalCache:
         """
         return self.voice_state_cache.get(to_optional_snowflake(user_id))
 
-    async def place_voice_state_data(self, data: discord_typings.VoiceStateData) -> Optional[VoiceState]:
+    async def place_voice_state_data(self, data: discord_typings.VoiceStateData, update_cache = True) -> Optional[VoiceState]:
         """
         Take json data representing a VoiceState, process it, and cache it.
 
@@ -768,7 +768,7 @@ class GlobalCache:
         # check if the channel_id is None
         # if that is the case, the user disconnected, and we can delete them from the cache
         if not data["channel_id"]:
-            if user_id in self.voice_state_cache:
+            if update_cache and user_id in self.voice_state_cache:
                 self.voice_state_cache.pop(user_id)
             voice_state = None
 
@@ -780,7 +780,8 @@ class GlobalCache:
             new_channel._voice_member_ids.append(user_id)
 
             voice_state = VoiceState.from_dict(data, self._client)
-            self.voice_state_cache[user_id] = voice_state
+            if update_cache:
+                self.voice_state_cache[user_id] = voice_state
 
         return voice_state
 
