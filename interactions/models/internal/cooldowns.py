@@ -47,15 +47,15 @@ class Buckets(IntEnum):
         if self is Buckets.USER:
             return context.author.id
         if self is Buckets.GUILD:
-            return context.guild_id if context.guild else context.author.id
+            return context.guild_id or context.author.id
         if self is Buckets.CHANNEL:
             return context.channel.id
         if self is Buckets.MEMBER:
-            return (context.guild_id, context.author.id) if context.guild else context.author.id
+            return (context.guild_id, context.author.id) if context.guild_id else context.author.id
         if self is Buckets.CATEGORY:
             return await context.channel.parent_id if context.channel.parent else context.channel.id
         if self is Buckets.ROLE:
-            return context.author.top_role.id if context.guild else context.channel.id
+            return context.author.top_role.id if context.guild_id else context.channel.id
         return context.author.id
 
     def __call__(self, context: "BaseContext") -> Any:
