@@ -218,7 +218,7 @@ class HTTPClient(
         connector: BaseConnector | None = None,
         logger: Logger = MISSING,
         show_ratelimit_tracebacks: bool = False,
-        proxy: tuple[str, BasicAuth] | None = None,
+        proxy: tuple[str | None, BasicAuth | None] | None = None,
     ) -> None:
         self.connector: BaseConnector | None = connector
         self.__session: ClientSession | None = None
@@ -233,7 +233,7 @@ class HTTPClient(
         self.user_agent: str = (
             f"DiscordBot ({__repo_url__} {__version__} Python/{__py_version__}) aiohttp/{aiohttp.__version__}"
         )
-        self.proxy: tuple[str, BasicAuth] | None = proxy
+        self.proxy: tuple[str | None, BasicAuth | None] | None = proxy
         self.__proxy_validated: bool = False
 
         if logger is MISSING:
