@@ -348,8 +348,9 @@ class Client(
         if isinstance(proxy_auth, tuple):
             proxy_auth = BasicAuth(*proxy_auth)
 
+        proxy = (proxy_url, proxy_auth) if proxy_url or proxy_auth else None
         self.http: HTTPClient = HTTPClient(
-            logger=self.logger, show_ratelimit_tracebacks=show_ratelimit_tracebacks, proxy=(proxy_url, proxy_auth)
+            logger=self.logger, show_ratelimit_tracebacks=show_ratelimit_tracebacks, proxy=proxy
         )
         """The HTTP client to use when interacting with discord endpoints"""
 
