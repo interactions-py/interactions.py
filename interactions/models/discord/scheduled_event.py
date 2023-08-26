@@ -49,7 +49,7 @@ class ScheduledEvent(DiscordObject):
     """The id of an entity associated with a guild scheduled event"""
     entity_metadata: Optional[Dict[str, Any]] = attrs.field(repr=False, default=MISSING)  # TODO make this
     """The metadata associated with the entity_type"""
-    user_count: int = attrs.field(repr=False, default=MISSING)
+    user_count: Absent[int] = attrs.field(repr=False, default=MISSING)  # TODO make this optional and None in 6.0
     """Amount of users subscribed to the scheduled event"""
     cover: Asset | None = attrs.field(repr=False, default=None)
     """The cover image of this event"""

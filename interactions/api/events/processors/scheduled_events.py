@@ -37,14 +37,16 @@ class ScheduledEvents(EventMixinTemplate):
 
     @Processor.define()
     async def _on_raw_guild_scheduled_event_user_add(self, event: "RawGatewayEvent") -> None:
-        scheduled_event = self.cache.get_scheduled_event(event.data.get("guild_scheduled_event_id"))
-        user = self.cache.get_user(event.data.get("user_id"))
-
-        self.dispatch(events.GuildScheduledEventUserAdd(event.data.get("guild_id"), scheduled_event, user))
+        self.dispatch(
+            events.GuildScheduledEventUserAdd(
+                event.data["guild_id"], event.data["guild_scheduled_event_id"], event.data["user_id"]
+            )
+        )
 
     @Processor.define()
     async def _on_raw_guild_scheduled_event_user_remove(self, event: "RawGatewayEvent") -> None:
-        scheduled_event = self.cache.get_scheduled_event(event.data.get("guild_scheduled_event_id"))
-        user = self.cache.get_user(event.data.get("user_id"))
-
-        self.dispatch(events.GuildScheduledEventUserRemove(event.data.get("guild_id"), scheduled_event, user))
+        self.dispatch(
+            events.GuildScheduledEventUserRemove(
+                event.data["guild_id"], event.data["guild_scheduled_event_id"], event.data["user_id"]
+            )
+        )
