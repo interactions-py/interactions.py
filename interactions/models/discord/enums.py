@@ -1,7 +1,7 @@
 from enum import Enum, EnumMeta, IntEnum, IntFlag
 from functools import reduce
 from operator import or_
-from typing import Iterator, Tuple, TypeVar, Type, Optional
+from typing import Iterator, Optional, Tuple, Type, TypeVar
 
 from interactions.client.const import get_logger
 
@@ -991,7 +991,6 @@ class AuditLogEventType(CursedIntEnum):
 
 class AutoModTriggerType(CursedIntEnum):
     KEYWORD = 1
-    HARMFUL_LINK = 2
     SPAM = 3
     KEYWORD_PRESET = 4
     MENTION_SPAM = 5
@@ -1010,10 +1009,10 @@ class AutoModEvent(CursedIntEnum):
     MEMBER_UPDATE = 2
 
 
-class AutoModLanuguageType(Enum):
-    PROFANITY = "PROFANITY"
-    SEXUAL = "SEXUAL_CONTENT"
-    INSULTS_AND_SLURS = "SLURS"
+class KeywordPresetType(CursedIntEnum):
+    PROFANITY = 1
+    SEXUAL_CONTENT = 2
+    SLURS = 3
 
 
 class MemberFlags(DiscordIntFlag):
