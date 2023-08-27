@@ -12,7 +12,11 @@ import interactions.models as models
 from interactions.client.const import MISSING, PREMIUM_GUILD_LIMITS, Absent
 from interactions.client.errors import EventLocationNotProvided, NotFound
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.attr_converters import optional, list_converter, timestamp_converter
+from interactions.client.utils.attr_converters import (
+    list_converter,
+    optional,
+    timestamp_converter,
+)
 from interactions.client.utils.attr_utils import docs
 from interactions.client.utils.deserialise_app_cmds import deserialize_app_cmds
 from interactions.client.utils.serializer import no_export_meta, to_image_data
@@ -33,6 +37,7 @@ from .enums import (
     DefaultNotificationLevel,
     ExplicitContentFilterLevel,
     ForumLayoutType,
+    ForumSortOrder,
     IntegrationExpireBehaviour,
     MFALevel,
     NSFWLevel,
@@ -41,7 +46,6 @@ from .enums import (
     ScheduledEventType,
     SystemChannelFlags,
     VerificationLevel,
-    ForumSortOrder,
 )
 from .snowflake import (
     Snowflake_Type,
@@ -1398,6 +1402,17 @@ class Guild(BaseGuild):
         except NotFound:
             return None
         return models.Sticker.from_dict(sticker_data, self._client)
+
+    async def fetch_all_webhooks(self) -> List["models.Webhook"]:
+        """
+        Fetches all the webhooks for this guild.
+
+        Returns:
+            A list of webhook objects.
+
+        """
+        webhooks_data = await self._client.http.get_guild_webhooks(self.id)
+        return models.Webhook.from_list(webhooks_data, self._client)
 
     async def fetch_active_threads(self) -> "models.ThreadList":
         """
