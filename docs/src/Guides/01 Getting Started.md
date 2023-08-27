@@ -56,12 +56,13 @@ Now let's get the library installed.
 Now let's get a basic bot going, for your code, you'll want something like this:
 
 ```python
-from interactions import Client, Intents, listen
+from interactions import Client, listen
 
-bot = Client(intents=Intents.DEFAULT)
-# intents are what events we want to receive from discord, `DEFAULT` is usually fine
+bot = Client(
+    token="Put your token here"
+)
 
-@listen()  # this decorator tells snek that it needs to listen for the corresponding event, and run this coroutine
+@listen()  # listen for the corresponding event, and run this coroutine
 async def on_ready():
     # This event is called when the bot is ready to respond to commands
     print("Ready")
@@ -74,7 +75,7 @@ async def on_message_create(event):
     print(f"message received: {event.message.content}")
 
 
-bot.start("Put your token here")
+bot.start()
 ```
 
 Congratulations! You now have a basic understanding of this library.
