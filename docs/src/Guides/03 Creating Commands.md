@@ -27,7 +27,7 @@ async def my_long_command_function(ctx: SlashContext):
     await ctx.send("Hello World")
 ```
 ???+ note
-    Command names must be lowercase and can only contain `-` and `_` as special symbols and must not contain spaces.
+    Command names must be lowercase and can only contain `-` and `_`. Do not use other symbols or spaces.
 
 When testing, it is recommended to use non-global commands, as they sync instantly.
 For that, you can either define `scopes` in every command or set `debug_scope` in the bot instantiation which sets the scope automatically for all commands.
@@ -154,6 +154,9 @@ Always make sure to define all required options first, this is a Discord require
 async def my_command_function(ctx: SlashContext, integer_option: int = 5):
     await ctx.send(f"You input {integer_option}")
 ```
+
+???+ note
+    Option names must be lowercase and can only contain `-` and `_`. Do not use other symbols or spaces.
 
 For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.slash_option).
 
