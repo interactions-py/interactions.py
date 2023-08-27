@@ -105,6 +105,12 @@ def _keyword_converter(filter: str | list[str]) -> list[str]:
 class KeywordTrigger(BaseTrigger):
     """A trigger that checks if content contains words from a user defined list of keywords"""
 
+    type: AutoModTriggerType = attrs.field(
+        default=AutoModTriggerType.KEYWORD,
+        converter=AutoModTriggerType,
+        repr=True,
+        metadata=docs("The type of trigger"),
+    )
     keyword_filter: list[str] = attrs.field(
         factory=list,
         repr=True,
@@ -141,6 +147,12 @@ class HarmfulLinkFilter(BaseTrigger):
 class KeywordPresetTrigger(BaseTrigger):
     """A trigger that checks if content contains words from internal pre-defined wordsets"""
 
+    type: AutoModTriggerType = attrs.field(
+        default=AutoModTriggerType.KEYWORD_PRESET,
+        converter=AutoModTriggerType,
+        repr=True,
+        metadata=docs("The type of trigger"),
+    )
     keyword_lists: list[AutoModLanuguageType] = attrs.field(
         factory=list,
         converter=list_converter(AutoModLanuguageType),
@@ -194,6 +206,7 @@ class SpamTrigger(BaseTrigger):
 class BlockMessage(BaseAction):
     """Blocks the content of a message according to the rule"""
 
+    type: AutoModAction = attrs.field(repr=False, default=AutoModAction.BLOCK_MESSAGE, converter=AutoModAction)
     custom_message: Optional[str] = attrs.field(repr=True, default=None)
 
 
@@ -202,6 +215,7 @@ class AlertMessage(BaseAction):
     """logs user content to a specified channel"""
 
     channel_id: "Snowflake_Type" = attrs.field(repr=True)
+    type: AutoModAction = attrs.field(repr=False, default=AutoModAction.ALERT_MESSAGE, converter=AutoModAction)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -209,6 +223,7 @@ class TimeoutUser(BaseAction):
     """timeout user for a specified duration"""
 
     duration_seconds: int = attrs.field(repr=True, default=60)
+    type: AutoModAction = attrs.field(repr=False, default=AutoModAction.TIMEOUT_USER, converter=AutoModAction)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
