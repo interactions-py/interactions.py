@@ -10,7 +10,7 @@ To create an interaction, simply define an asynchronous function and use the `@s
 Interactions need to be responded to within 3 seconds. To do this, use `await ctx.send()`.
 If your code needs more time, don't worry. You can use `await ctx.defer()` to increase the time until you need to respond to the command to 15 minutes.
 
-Add this code to the [Basic bot](/Guides/01 Getting Started/#basic-bot).
+Add this code to the [Basic bot](/interactions.py/Guides/01 Getting Started/#basic-bot).
 ```python
 from interactions import slash_command, SlashContext
 
@@ -296,6 +296,38 @@ async def autocomplete(self, ctx: AutocompleteContext):
     )
 ```
 
+## An example `/kick` command
+
+Let's use some of the above features to create a real-world command that kicks a member out of the guild. Remember to add this code to the [Basic bot](/interactions.py/Guides/01 Getting Started/#basic-bot).
+
+```python
+from interactions import SlashContext, Permissions, Embed, Color
+from interactions import slash_command, slash_option
+
+@slash_command(name='kick', description='Kicks a user')
+@slash_option(name="user",
+              description="The user that you want to kick",
+              required=True,
+              opt_type=interactions.OptionType.USER)
+@slash_option(name="reason",
+              description="The reason for the kick",
+              required=False,
+              opt_type=interactions.OptionType.STRING)
+async def kick(ctx: SlashContext, user, reason=None):
+    if ctx.member.has_permission(Permissions.KICK_MEMBERS):
+        await ctx.guild.kick(user, reason)
+        await ctx.send(f'{user.mention} has been kicked')
+    else:
+        await ctx.send('Message outside of embed',
+                    embed=Embed(title="Command failed",
+                                description="You don't have permission to kick members",
+                                color=Color("#ff0000")))
+```
+
+To dive a bit deeper read the docs on [SlashContent](/interactions.py/API Reference/API Reference/models/Internal/context/#interactions.models.internal.context.SlashContext) from where we can access the `.guild` model and the `.member` model.
+
+In the same fashion read the docs on the [guild model](/interactions.py/API Reference/API Reference/models/Discord/guild/#interactions.models.discord.guild.Guild) where we find the actual [`.kick`](/API Reference/API Reference/models/Discord/guild/#interactions.models.discord.guild.Guild.kick) method.
+
 ## But I Don't Like Decorators
 
 You are in luck. There are currently four different ways to create interactions, one does not need any decorators at all.
@@ -533,7 +565,7 @@ There also is `CommandCompletion` which you can overwrite too. That fires on eve
 
 If your bot is complex enough, you might find yourself wanting to use custom models in your commands.
 
-To do this, you'll want to use a string option, and define a converter. Information on how to use converters can be found [on the converter page](/Guides/08 Converters).
+To do this, you'll want to use a string option, and define a converter. Information on how to use converters can be found [on the converter page](/interactions.py/Guides/08 Converters).
 
 ## I Want To Make A Prefixed/Text Command Too
 
