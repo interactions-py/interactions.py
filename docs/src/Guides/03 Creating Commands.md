@@ -9,6 +9,8 @@ To create an interaction, simply define an asynchronous function and use the `@s
 
 Interactions need to be responded to within 3 seconds. To do this, use `await ctx.send()`.
 If your code needs more time, don't worry. You can use `await ctx.defer()` to increase the time until you need to respond to the command to 15 minutes.
+
+Add this code to the [Basic bot](/Guides/01 Getting Started/#basic-bot).
 ```python
 from interactions import slash_command, SlashContext
 
@@ -18,22 +20,29 @@ async def my_command_function(ctx: SlashContext):
 
 @slash_command(name="my_long_command", description="My second command :)")
 async def my_long_command_function(ctx: SlashContext):
-    # need to defer it, otherwise, it fails
+    # request a time extension since we won't respond in 3 seconds
     await ctx.defer()
 
-    # do stuff for a bit
-    await asyncio.sleep(600)
+    # put your time consuming code here
+    await asyncio.sleep(10)  # we just sleep for 10 seconds here
 
     await ctx.send("Hello World")
 ```
 ???+ note
     Command names must be lowercase and can only contain `-` and `_`. Do not use other symbols or spaces.
 
-When testing, it is recommended to use non-global commands, as they sync instantly.
-For that, you can either define `scopes` in every command or set `debug_scope` in the bot instantiation which sets the scope automatically for all commands.
+All bot commands must be synced to all guilds (also called servers) that have the bot installed. This happens automatically but can take a lot of time. When developing, it is recommended to sync only to specific guilds as this happens instantly and testing is faster.
 
-You can define non-global commands by passing a list of guild ids to `scopes` in the interaction creation.
+To specify guilds you can either define `scopes` (a list of guild ids) in every command or set a `debug_scope` (just one guild id) in the bot instantiation which sets the scope automatically for all commands.
+
 ```python
+# set one guild for all commands
+bot = Client(
+    token="Put your token here",
+    debug_scope=870046872864165888
+)
+
+# or set guilds just for this command
 @slash_command(name="my_command", description="My first command :)", scopes=[870046872864165888])
 async def my_command_function(ctx: SlashContext):
     await ctx.send("Hello World")
