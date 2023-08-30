@@ -361,13 +361,13 @@ There are currently four different ways to define interactions, one does not nee
 
 ## Restrict commands using permissions
 
-It is possible to disable interactions (slash commands as well as context menus) for users that do not have a set of permissions. 
+It is possible to disable interactions (slash commands as well as context menus) for users that do not have a set of permissions.
 
 This functionality works for **permissions**, not to confuse with roles. If you want to restrict some command if the user does not have a certain role, this cannot be done on the bot side. However, it can be done on the Discord server side, in the Server Settings > Integrations page.
 
 !!!warning Administrators
     Remember that administrators of a Discord server have all permissions and therefore will always see the commands.
-    
+
     If you do not want admins to be able to overwrite your permissions, or the permissions are not flexible enough for you, you should use [checks][checks].
 
 In this example, we will limit access to the command to members with the `MANAGE_EVENTS` and `MANAGE_THREADS` permissions.
