@@ -274,3 +274,7 @@ When responding to a component you need to satisfy Discord either by responding 
     This is useful if you have a lot of components with similar custom_ids, and you want to handle them all in the same callback.
 
     Please do bare in mind that using regex patterns can be a bit slower than using strings, especially if you have a lot of components.
+
+???+ note
+    As explained previously, the main difference between a Button and a Select Menu is that you can retrieve a list of options that were chosen by the user for a Select Menu.
+    In this case, this list of options can be found in `ctx.values`.
