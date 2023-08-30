@@ -26,7 +26,7 @@ if TYPE_CHECKING:
         User,
     )
 
-__all__ = ("AutoModerationAction", "AutoModRule")
+__all__ = ("AutoModerationAction", "AutoModRule", "TYPE_ALL_ACTION", "TYPE_ALL_TRIGGER")
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
