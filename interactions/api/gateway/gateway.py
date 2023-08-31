@@ -172,7 +172,7 @@ class GatewayClient(WebsocketClient):
     async def dispatch_opcode(self, data, op: OPCODE) -> None:
         match op:
             case OPCODE.HEARTBEAT:
-                self.state.wrapped_logger(logging.DEBUG, "Received heartbeat request from gateway")
+                self.state.wrapped_logger(logging.DEBUG, "❤ Received heartbeat request from gateway")
                 return await self.send_heartbeat()
 
             case OPCODE.HEARTBEAT_ACK:
@@ -181,10 +181,10 @@ class GatewayClient(WebsocketClient):
                 if self._last_heartbeat != 0 and self._latency[-1] >= 15:
                     self.state.wrapped_logger(
                         logging.WARNING,
-                        f"High Latency! shard ID {self.shard[0]} heartbeat took {self._latency[-1]:.1f}s to be acknowledged!",
+                        f"❤ High Latency! shard ID {self.shard[0]} heartbeat took {self._latency[-1]:.1f}s to be acknowledged!",
                     )
                 else:
-                    self.state.wrapped_logger(logging.DEBUG, "Received heartbeat acknowledgement from gateway")
+                    self.state.wrapped_logger(logging.DEBUG, "❤ Received heartbeat acknowledgement from gateway")
 
                 return self._acknowledged.set()
 
