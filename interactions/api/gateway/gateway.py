@@ -1,5 +1,6 @@
 """Outlines the interaction between interactions and Discord's Gateway API."""
 import asyncio
+import logging
 import sys
 import time
 import zlib
@@ -171,31 +172,32 @@ class GatewayClient(WebsocketClient):
     async def dispatch_opcode(self, data, op: OPCODE) -> None:
         match op:
             case OPCODE.HEARTBEAT:
-                self.logger.debug("Received heartbeat request from gateway")
+                self.state.wrapped_logger(logging.DEBUG, "Received heartbeat request from gateway")
                 return await self.send_heartbeat()
 
             case OPCODE.HEARTBEAT_ACK:
                 self._latency.append(time.perf_counter() - self._last_heartbeat)
 
                 if self._last_heartbeat != 0 and self._latency[-1] >= 15:
-                    self.logger.warning(
-                        f"High Latency! shard ID {self.shard[0]} heartbeat took {self._latency[-1]:.1f}s to be acknowledged!"
+                    self.state.wrapped_logger(
+                        logging.WARNING,
+                        f"High Latency! shard ID {self.shard[0]} heartbeat took {self._latency[-1]:.1f}s to be acknowledged!",
                     )
                 else:
-                    self.logger.debug(f"❤ Heartbeat acknowledged after {self._latency[-1]:.5f} seconds")
+                    self.state.wrapped_logger(logging.DEBUG, "Received heartbeat acknowledgement from gateway")
 
                 return self._acknowledged.set()
 
             case OPCODE.RECONNECT:
-                self.logger.debug("Gateway requested reconnect. Reconnecting...")
+                self.state.wrapped_logger(logging.DEBUG, "Gateway requested reconnect. Reconnecting...")
                 return await self.reconnect(resume=True, url=self.ws_resume_url)
 
             case OPCODE.INVALIDATE_SESSION:
-                self.logger.warning("Gateway has invalidated session! Reconnecting...")
+                self.state.wrapped_logger(logging.WARNING, "Gateway invalidated session. Reconnecting...")
                 return await self.reconnect()
 
             case _:
-                return self.logger.debug(f"Unhandled OPCODE: {op} = {OPCODE(op).name}")
+                return self.state.wrapped_logger(logging.DEBUG, f"Unhandled OPCODE: {op} = {OPCODE(op).name}")
 
     async def dispatch_event(self, data, seq, event) -> None:
         match event:
@@ -207,12 +209,14 @@ class GatewayClient(WebsocketClient):
                 self.ws_resume_url = (
                     f"{data['resume_gateway_url']}?encoding=json&v={__api_version__}&compress=zlib-stream"
                 )
-                self.logger.info(f"Shard {self.shard[0]} has connected to gateway!")
-                self.logger.debug(f"Session ID: {self.session_id} Trace: {self._trace}")
+                self.state.wrapped_logger(logging.INFO, "Gateway connection established")
+                self.state.wrapped_logger(logging.DEBUG, f"Session ID: {self.session_id} Trace: {self._trace}")
                 return self.state.client.dispatch(events.WebsocketReady(data))
 
             case "RESUMED":
-                self.logger.info(f"Successfully resumed connection! Session_ID: {self.session_id}")
+                self.state.wrapped_logger(
+                    logging.INFO, f"Successfully resumed connection! Session_ID: {self.session_id}"
+                )
                 self.state.client.dispatch(events.Resume())
                 return None
 
@@ -228,9 +232,11 @@ class GatewayClient(WebsocketClient):
                             processor(events.RawGatewayEvent(data.copy(), override_name=event_name))
                         )
                     except Exception as ex:
-                        self.logger.error(f"Failed to run event processor for {event_name}: {ex}")
+                        self.state.wrapped_logger(
+                            logging.ERROR, f"Failed to run event processor for {event_name}: {ex}"
+                        )
                 else:
-                    self.logger.debug(f"No processor for `{event_name}`")
+                    self.state.wrapped_logger(logging.DEBUG, f"No processor for `{event_name}`")
 
         self.state.client.dispatch(events.RawGatewayEvent(data.copy(), override_name="raw_gateway_event"))
         self.state.client.dispatch(events.RawGatewayEvent(data.copy(), override_name=f"raw_{event.lower()}"))
@@ -263,8 +269,8 @@ class GatewayClient(WebsocketClient):
         serialized = FastJson.dumps(payload)
         await self.ws.send_str(serialized)
 
-        self.logger.debug(
-            f"Shard ID {self.shard[0]} has identified itself to Gateway, requesting intents: {self.state.intents}!"
+        self.state.wrapped_logger(
+            logging.DEBUG, f"Identification payload sent to gateway, requesting intents: {self.state.intents}"
         )
 
     async def reconnect(self, *, resume: bool = False, code: int = 1012, url: str | None = None) -> None:
@@ -289,11 +295,11 @@ class GatewayClient(WebsocketClient):
         serialized = FastJson.dumps(payload)
         await self.ws.send_str(serialized)
 
-        self.logger.debug(f"{self.shard[0]} is attempting to resume a connection")
+        self.state.wrapped_logger(logging.DEBUG, f"Resume payload sent to gateway, session ID: {self.session_id}")
 
     async def send_heartbeat(self) -> None:
         await self.send_json({"op": OPCODE.HEARTBEAT, "d": self.sequence}, bypass=True)
-        self.logger.debug(f"❤ Shard {self.shard[0]} is sending a Heartbeat")
+        self.state.wrapped_logger(logging.DEBUG, "❤ Gateway is sending a Heartbeat")
 
     async def change_presence(self, activity=None, status: Status = Status.ONLINE, since=None) -> None:
         """Update the bot's presence status."""

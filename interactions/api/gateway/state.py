@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import traceback
 from datetime import datetime
 from logging import Logger
@@ -72,7 +73,7 @@ class ConnectionState:
         """Connect to the Discord Gateway."""
         self.gateway_url = await self.client.http.get_gateway()
 
-        self.logger.debug(f"Starting Shard ID {self.shard_id}")
+        self.wrapped_logger(logging.INFO, "Starting Shard")
         self.start_time = datetime.now()
         self._shard_task = asyncio.create_task(self._ws_connect())
 
@@ -84,7 +85,7 @@ class ConnectionState:
 
     async def stop(self) -> None:
         """Disconnect from the Discord Gateway."""
-        self.logger.debug(f"Shutting down shard ID {self.shard_id}")
+        self.wrapped_logger(logging.INFO, "Stopping Shard")
         if self.gateway is not None:
             self.gateway.close()
             self.gateway = None
@@ -102,7 +103,7 @@ class ConnectionState:
 
     async def _ws_connect(self) -> None:
         """Connect to the Discord Gateway."""
-        self.logger.info(f"Shard {self.shard_id} is attempting to connect to gateway...")
+        self.wrapped_logger(logging.INFO, "Shard is attempting to connect to gateway...")
         try:
             async with GatewayClient(self, (self.shard_id, self.client.total_shards)) as self.gateway:
                 try:
@@ -127,7 +128,18 @@ class ConnectionState:
 
         except Exception as e:
             self.client.dispatch(events.Disconnect())
-            self.logger.error("".join(traceback.format_exception(type(e), e, e.__traceback__)))
+            self.wrapped_logger("".join(traceback.format_exception(type(e), e, e.__traceback__)))
+
+    def wrapped_logger(self, level: int, message: str, **kwargs) -> None:
+        """
+        A logging wrapper that adds shard information to the message.
+
+        Args:
+            level: The logging level
+            message: The message to log
+            **kwargs: Any additional keyword arguments that Logger.log accepts
+        """
+        self.logger.log(level, f"Shard ID {self.shard_id} | {message}", **kwargs)
 
     async def change_presence(
         self,
@@ -157,7 +169,9 @@ class ConnectionState:
 
             if activity.type == ActivityType.STREAMING:
                 if not activity.url:
-                    self.logger.warning("Streaming activity cannot be set without a valid URL attribute")
+                    self.wrapped_logger(
+                        logging.WARNING, "Streaming activity cannot be set without a valid URL attribute"
+                    )
             elif activity.type not in [
                 ActivityType.GAME,
                 ActivityType.STREAMING,
@@ -165,7 +179,9 @@ class ConnectionState:
                 ActivityType.WATCHING,
                 ActivityType.COMPETING,
             ]:
-                self.logger.warning(f"Activity type `{ActivityType(activity.type).name}` may not be enabled for bots")
+                self.wrapped_logger(
+                    logging.WARNING, f"Activity type `{ActivityType(activity.type).name}` may not be enabled for bots"
+                )
         if status:
             if not isinstance(status, Status):
                 try:
@@ -175,7 +191,7 @@ class ConnectionState:
         elif self.client.status:
             status = self.client.status
         else:
-            self.logger.warning("Status must be set to a valid status type, defaulting to online")
+            self.wrapped_logger(logging.WARNING, "Status must be set to a valid status type, defaulting to online")
             status = Status.ONLINE
 
         self.client._status = status
