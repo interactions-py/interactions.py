@@ -237,7 +237,7 @@ async def my_command_function(ctx: SlashContext, integer_option: int):
 
 For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.SlashCommandChoice).
 
-## Autocompleting Choices
+## Autocomplete / More than 25 choices needed
 
 If you have more than 25 choices the user can choose from, or you want to give a dynamic list of choices depending on what the user is currently typing, then you will need autocomplete options.
 The downside is that you need to supply the choices on request, making this a bit more tricky to set up.
