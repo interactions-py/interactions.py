@@ -2,7 +2,7 @@ from .activity import Activity, ActivityAssets, ActivityParty, ActivitySecrets, 
 from .app_perms import ApplicationCommandPermission
 from .application import Application
 from .asset import Asset
-from .auto_mod import AutoModerationAction, AutoModRule
+from .auto_mod import AutoModerationAction, AutoModRule, TYPE_ALL_ACTION, TYPE_ALL_TRIGGER
 from .channel import (
     BaseChannel,
     ChannelHistory,
@@ -337,7 +337,9 @@ __all__ = (
     "to_optional_snowflake",
     "to_snowflake",
     "to_snowflake_list",
+    "TYPE_ALL_ACTION",
     "TYPE_ALL_CHANNEL",
+    "TYPE_ALL_TRIGGER",
     "TYPE_CHANNEL_MAPPING",
     "TYPE_COMPONENT_MAPPING",
     "TYPE_DM_CHANNEL",

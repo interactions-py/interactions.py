@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
 
 from interactions.models.discord.auto_mod import AutoModerationAction, AutoModRule
-from ._template import EventMixinTemplate, Processor
+
 from ... import events
+from ._template import EventMixinTemplate, Processor
 
 if TYPE_CHECKING:
     from interactions.api.events import RawGatewayEvent
@@ -25,13 +26,13 @@ class AutoModEvents(EventMixinTemplate):
         self.dispatch(events.AutoModCreated(guild, rule))
 
     @Processor.define()
-    async def raw_auto_moderation_rule_delete(self, event: "RawGatewayEvent") -> None:
+    async def raw_auto_moderation_rule_update(self, event: "RawGatewayEvent") -> None:
         rule = AutoModRule.from_dict(event.data, self)
         guild = self.get_guild(event.data["guild_id"])
         self.dispatch(events.AutoModUpdated(guild, rule))
 
     @Processor.define()
-    async def raw_auto_moderation_rule_update(self, event: "RawGatewayEvent") -> None:
+    async def raw_auto_moderation_rule_delete(self, event: "RawGatewayEvent") -> None:
         rule = AutoModRule.from_dict(event.data, self)
         guild = self.get_guild(event.data["guild_id"])
         self.dispatch(events.AutoModDeleted(guild, rule))

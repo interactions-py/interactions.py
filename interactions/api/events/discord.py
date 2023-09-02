@@ -132,6 +132,8 @@ class AutoModExec(BaseEvent):
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class AutoModCreated(BaseEvent):
+    """Dispatched when an auto mod rule is created"""
+
     guild: "Guild" = attrs.field(repr=False, metadata=docs("The guild the rule was modified in"))
     rule: "AutoModRule" = attrs.field(repr=False, metadata=docs("The rule that was modified"))
 
