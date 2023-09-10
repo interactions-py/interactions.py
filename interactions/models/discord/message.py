@@ -8,41 +8,47 @@ from typing import (
     AsyncGenerator,
     Dict,
     List,
+    Mapping,
     Optional,
     Sequence,
     Union,
-    Mapping,
 )
 
 import attrs
 
 import interactions.models as models
 from interactions.client.const import GUILD_WELCOME_MESSAGES, MISSING, Absent
-from interactions.client.errors import ThreadOutsideOfGuild, NotFound
+from interactions.client.errors import NotFound, ThreadOutsideOfGuild
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.attr_converters import timestamp_converter
 from interactions.client.utils.serializer import dict_filter_none
 from interactions.client.utils.text_utils import mentions
 from interactions.models.discord.channel import BaseChannel, GuildChannel
+from interactions.models.discord.embed import process_embeds
 from interactions.models.discord.emoji import process_emoji_req_format
 from interactions.models.discord.file import UPLOADABLE_TYPE
-from interactions.models.discord.embed import process_embeds
+
 from .base import DiscordObject
 from .enums import (
+    AutoArchiveDuration,
     ChannelType,
     InteractionType,
     MentionType,
     MessageActivityType,
     MessageFlags,
     MessageType,
-    AutoArchiveDuration,
 )
-from .snowflake import to_snowflake, Snowflake_Type, to_snowflake_list, to_optional_snowflake
+from .snowflake import (
+    Snowflake_Type,
+    to_optional_snowflake,
+    to_snowflake,
+    to_snowflake_list,
+)
 
 if TYPE_CHECKING:
-    from interactions.client import Client
     from interactions import InteractionContext
+    from interactions.client import Client
 
 __all__ = (
     "Attachment",
@@ -365,10 +371,13 @@ class Message(BaseMessage):
     _referenced_message_id: Optional["Snowflake_Type"] = attrs.field(repr=False, default=None)
 
     @property
-    async def mention_users(self) -> AsyncGenerator["models.Member", None]:
+    async def mention_users(self) -> AsyncGenerator[Union["models.Member", "models.User"], None]:
         """A generator of users mentioned in this message"""
         for u_id in self._mention_ids:
-            yield await self._client.cache.fetch_member(self._guild_id, u_id)
+            if self._guild_id:
+                yield await self._client.cache.fetch_member(self._guild_id, u_id)
+            else:
+                yield await self._client.cache.fetch_user(u_id)
 
     @property
     async def mention_roles(self) -> AsyncGenerator["models.Role", None]:

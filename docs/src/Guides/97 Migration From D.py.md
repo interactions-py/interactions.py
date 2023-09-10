@@ -1,4 +1,4 @@
-# Migration From discord.py
+# Migrating from discord.py
 
 1. interactions.py requires python 3.10 (as compared to dpy's 3.5), you may need to upgrade python.
      - If you see `ERROR: Could not find a version that satisfies the requirement discord-py-interactions (from versions: none)` when trying to `pip install discord-py-interactions`, this is your problem.

@@ -20,12 +20,12 @@ These are events dispatched by Discord. This is intended as a reference so you k
 
 """
 
-from typing import TYPE_CHECKING, List, Sequence, Union, Optional
+from typing import TYPE_CHECKING, List, Optional, Sequence, Union
 
 import attrs
 
 import interactions.models
-from interactions.api.events.base import GuildEvent, BaseEvent
+from interactions.api.events.base import BaseEvent, GuildEvent
 from interactions.client.const import Absent
 from interactions.client.utils.attr_utils import docs
 from interactions.models.discord.snowflake import to_snowflake
@@ -99,22 +99,26 @@ __all__ = (
 
 
 if TYPE_CHECKING:
-    from interactions.models.discord.guild import Guild, GuildIntegration
-    from interactions.models.discord.channel import BaseChannel, TYPE_THREAD_CHANNEL, VoiceChannel
-    from interactions.models.discord.message import Message
-    from interactions.models.discord.timestamp import Timestamp
-    from interactions.models.discord.user import Member, User, BaseUser
-    from interactions.models.discord.snowflake import Snowflake_Type
     from interactions.models.discord.activity import Activity
-    from interactions.models.discord.emoji import CustomEmoji, PartialEmoji
-    from interactions.models.discord.role import Role
-    from interactions.models.discord.sticker import Sticker
-    from interactions.models.discord.voice_state import VoiceState
-    from interactions.models.discord.stage_instance import StageInstance
-    from interactions.models.discord.auto_mod import AutoModerationAction, AutoModRule
-    from interactions.models.discord.reaction import Reaction
     from interactions.models.discord.app_perms import ApplicationCommandPermission
+    from interactions.models.discord.auto_mod import AutoModerationAction, AutoModRule
+    from interactions.models.discord.channel import (
+        TYPE_ALL_CHANNEL,
+        TYPE_THREAD_CHANNEL,
+        VoiceChannel,
+    )
+    from interactions.models.discord.emoji import CustomEmoji, PartialEmoji
+    from interactions.models.discord.guild import Guild, GuildIntegration
+    from interactions.models.discord.message import Message
+    from interactions.models.discord.reaction import Reaction
+    from interactions.models.discord.role import Role
     from interactions.models.discord.scheduled_event import ScheduledEvent
+    from interactions.models.discord.snowflake import Snowflake_Type
+    from interactions.models.discord.stage_instance import StageInstance
+    from interactions.models.discord.sticker import Sticker
+    from interactions.models.discord.timestamp import Timestamp
+    from interactions.models.discord.user import BaseUser, Member, User
+    from interactions.models.discord.voice_state import VoiceState
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -122,12 +126,14 @@ class AutoModExec(BaseEvent):
     """Dispatched when an auto modation action is executed"""
 
     execution: "AutoModerationAction" = attrs.field(repr=False, metadata=docs("The executed auto mod action"))
-    channel: "BaseChannel" = attrs.field(repr=False, metadata=docs("The channel the action was executed in"))
+    channel: "TYPE_ALL_CHANNEL" = attrs.field(repr=False, metadata=docs("The channel the action was executed in"))
     guild: "Guild" = attrs.field(repr=False, metadata=docs("The guild the action was executed in"))
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class AutoModCreated(BaseEvent):
+    """Dispatched when an auto mod rule is created"""
+
     guild: "Guild" = attrs.field(repr=False, metadata=docs("The guild the rule was modified in"))
     rule: "AutoModRule" = attrs.field(repr=False, metadata=docs("The rule that was modified"))
 
@@ -164,18 +170,18 @@ class ApplicationCommandPermissionsUpdate(BaseEvent):
 class ChannelCreate(BaseEvent):
     """Dispatched when a channel is created."""
 
-    channel: "BaseChannel" = attrs.field(repr=False, metadata=docs("The channel this event is dispatched from"))
+    channel: "TYPE_ALL_CHANNEL" = attrs.field(repr=False, metadata=docs("The channel this event is dispatched from"))
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class ChannelUpdate(BaseEvent):
     """Dispatched when a channel is updated."""
 
-    before: "BaseChannel" = attrs.field(
+    before: "TYPE_ALL_CHANNEL" = attrs.field(
         repr=False,
     )
     """Channel before this event. MISSING if it was not cached before"""
-    after: "BaseChannel" = attrs.field(
+    after: "TYPE_ALL_CHANNEL" = attrs.field(
         repr=False,
     )
     """Channel after this event"""
@@ -226,7 +232,7 @@ class ThreadListSync(BaseEvent):
         repr=False,
     )
     """The parent channel ids whose threads are being synced. If omitted, then threads were synced for the entire guild. This array may contain channel_ids that have no active threads as well, so you know to clear that data."""
-    threads: List["BaseChannel"] = attrs.field(
+    threads: List["TYPE_ALL_CHANNEL"] = attrs.field(
         repr=False,
     )
     """all active threads in the given channels that the current user can access"""
@@ -618,7 +624,7 @@ class TypingStart(BaseEvent):
         repr=False,
     )
     """The user who started typing"""
-    channel: "BaseChannel" = attrs.field(
+    channel: "TYPE_ALL_CHANNEL" = attrs.field(
         repr=False,
     )
     """The channel typing is in"""
