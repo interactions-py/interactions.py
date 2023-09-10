@@ -12,13 +12,13 @@ There are two ways of setting them. We'll use the `GUILDS` and `GUILD_INVITES` i
 
 === ":one: Directly through `Intents`"
     ```python
-    from interactions import Intents
+    from interactions import Client, Intents
     bot = Client(intents=Intents.GUILDS | Intents.GUILD_INVITES)
     ```
 
 === ":two: `Intents.new`"
     ```python
-    from interactions import Intents
+    from interactions import Client, Intents
     bot = Client(intents=Intents.new(guilds=True, guild_invites=True))
     ```
 
@@ -33,7 +33,7 @@ Some intents are deemed to have sensitive content by Discord and so have extra r
 Then, you can specify it in your bot just like the other intents. If you encounter any errors during this process, [referring to the intents page on Discord's documentation](https://discord.com/developers/docs/topics/gateway#gateway-intents) may help.
 
 !!! danger
-    `Intents.ALL` is a shortcut provided by interactions.py to enable *every single intents, including privileged intents.* This is very useful while testing bots, **but this shortcut is an incredibly bad idea to use when actually running your bots for use.** As well as adding more strain on the bot (as discussed earlier with normal intents), this is just a bad idea privacy wise: your bot likely does not need to know that much data.
+    `Intents.ALL` is a shortcut provided by interactions.py to enable *every single intent, including privileged intents.* This is very useful while testing bots, **but this shortcut is an incredibly bad idea to use when actually running your bots for use.** As well as adding more strain on the bot (as discussed earlier with normal intents), this is just a bad idea privacy wise: your bot likely does not need to know that much data.
 
 For more information, please visit the API reference about Intents [at this page](/interactions.py/API Reference/API Reference/models/Discord/enums/#interactions.models.discord.enums.Intents).
 
@@ -50,7 +50,7 @@ async def an_event_handler(event: ChannelCreate):
     print(f"Channel created with name: {event.channel.name}")
 ```
 
-As you can see, the `listen` statement marks a function to receive (or, well, listen/subscribe to) a specific event - we specify which event to receive by passing in the *event object*, which an object that contains all information about an event. Whenever that events happens in Discord, it triggers our function to run, passing the event object into it. Here, we get the channel that the event contains and send out its name to the terminal.
+As you can see, the `listen` statement marks a function to receive (or, well, listen/subscribe to) a specific event - we specify which event to receive by passing in the *event object*, which is an object that contains all information about an event. Whenever that events happens in Discord, it triggers our function to run, passing the event object into it. Here, we get the channel that the event contains and send out its name to the terminal.
 
 ???+ note "Difference from other Python Discord libraries"
     If you come from some other Python Discord libraries, or even come from older versions of interactions.py, you might have noticed how the above example uses an *event object* - IE a `ChannelCreate` object - instead of passing the associated object with that event - IE a `Channel` (or similar) object - into the function. This is intentional - by using event objects, we have greater control of what information we can give to you.
@@ -110,7 +110,7 @@ If you forget, the library will just pass an empty object to avoid errors.
 
 ### Disabling Default Listeners
 
-Some internal events, like `ModalCompletion`, have default listeners that perform niceties like logging the command/interaction logged. You may not want this, however, and may want to completely override this behavior without subclassiung `Client`. If so, you can acheive it through `disable_default_listeners`:
+Some internal events, like `ModalCompletion`, have default listeners that perform niceties like logging the command/interaction logged. You may not want this, however, and may want to completely override this behavior without subclassing `Client`. If so, you can achieve it through `disable_default_listeners`:
 
 ```python
 from interactions.api.events import ModalCompletion
