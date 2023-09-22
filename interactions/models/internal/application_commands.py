@@ -609,8 +609,8 @@ class SlashCommand(InteractionCommand):
         if not self.options:
             self.options = []
 
-        if option.name is None:
-            option.name = name
+        if option.name.default is None:
+            option.name = LocalisedName.converter(name)
         else:
             option.argument_name = name
 
