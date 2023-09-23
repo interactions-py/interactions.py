@@ -33,6 +33,8 @@ __all__ = (
     "spread_to_rows",
     "get_components_ids",
     "TYPE_COMPONENT_MAPPING",
+    "SelectDefaultValues",
+    "DefaultableSelectMenu",
 )
 
 
