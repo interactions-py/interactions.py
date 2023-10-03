@@ -6,7 +6,6 @@ from typing import Callable, Iterable, List, Optional, Any, Union, TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.client.const import T
-from interactions.client.errors import BadArgument
 from interactions.models.discord.enums import ComponentType
 
 if TYPE_CHECKING:
@@ -277,7 +276,7 @@ def get_mime_type_for_image(data: bytes):
   elif data.startswith(b"RIFF") and data[8:12] == b"WEBP":
     return "image/webp"
   else:
-    raise BadArgument("Unsupported image type given")
+    raise ValueError("Unrecognized image type")
 
 
 def bytes_to_base64_data(data: bytes) -> str:
