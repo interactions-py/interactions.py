@@ -5,8 +5,7 @@ import attrs
 from interactions.client.const import MISSING, T, Missing
 from interactions.client.utils import nulled_boolean_get
 from interactions.client.utils.attr_converters import optional as optional_c
-from interactions.client.utils.misc_utils import bytes_to_base64_data
-from interactions.client.utils.serializer import dict_filter
+from interactions.client.utils.serializer import dict_filter, to_image_data
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.color import COLOR_TYPES, Color, process_color
 from interactions.models.discord.emoji import PartialEmoji
@@ -215,6 +214,9 @@ class Role(DiscordObject):
         """
         color = process_color(color)
 
+        if icon and unicode_emoji:
+            raise ValueError("Cannot pass both icon and unicode_emoji")
+
         payload = dict_filter(
             {
                 "name": name,
@@ -222,18 +224,10 @@ class Role(DiscordObject):
                 "color": color,
                 "hoist": hoist,
                 "mentionable": mentionable,
+                "icon": to_image_data(icon) if icon else None,
+                "unicode_emoji": unicode_emoji,
             }
         )
-        if not unicode_emoji:
-            if icon is None:
-                payload["icon"] = None
-            else:
-                payload["icon"] = bytes_to_base64_data(icon)
-                payload["unicode_emoji"] = None
-
-        else:
-            payload["unicode_emoji"] = unicode_emoji
-            payload["icon"] = None
 
         r_data = await self._client.http.modify_guild_role(self._guild_id, self.id, payload)
         r_data = dict(r_data)  # to convert typed dict to regular dict
