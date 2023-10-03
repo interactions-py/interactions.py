@@ -266,21 +266,22 @@ def nulled_boolean_get(data: dict[str, Any], key: str) -> bool:
     return False
 
 
-def get_mime_type_for_image(data: bytes):
-  if data.startswith(b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"):
-    return "image/png"
-  elif data[0:3] == b"\xff\xd8\xff" or data[6:10] in (b"JFIF", b"Exif"):
-    return "image/jpeg"
-  elif data.startswith((b"\x47\x49\x46\x38\x37\x61", b"\x47\x49\x46\x38\x39\x61")):
-    return "image/gif"
-  elif data.startswith(b"RIFF") and data[8:12] == b"WEBP":
-    return "image/webp"
-  else:
-    raise ValueError("Unrecognized image type")
+def get_mime_type_for_image(data: bytes) -> str:
+    if data.startswith(b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"):
+        result = "image/png"
+    elif data[0:3] == b"\xff\xd8\xff" or data[6:10] in (b"JFIF", b"Exif"):
+        result = "image/jpeg"
+    elif data.startswith((b"\x47\x49\x46\x38\x37\x61", b"\x47\x49\x46\x38\x39\x61")):
+        result = "image/gif"
+    elif data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+        result = "image/webp"
+    else:
+        raise ValueError("Unrecognized image type")
+    return result if result else ""
 
 
 def bytes_to_base64_data(data: bytes) -> str:
-  fmt = "data:{mime};base64,{data}"
-  mime = get_mime_type_for_image(data)
-  b64 = b64encode(data).decode("ascii")
-  return fmt.format(mime=mime, data=b64)
+    fmt = "data:{mime};base64,{data}"
+    mime = get_mime_type_for_image(data)
+    b64 = b64encode(data).decode("ascii")
+    return fmt.format(mime=mime, data=b64) if fmt else None
