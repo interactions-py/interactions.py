@@ -235,7 +235,6 @@ class Role(DiscordObject):
             payload["unicode_emoji"] = unicode_emoji
             payload["icon"] = None
 
-
         r_data = await self._client.http.modify_guild_role(self._guild_id, self.id, payload)
         r_data = dict(r_data)  # to convert typed dict to regular dict
         r_data["guild_id"] = self._guild_id
