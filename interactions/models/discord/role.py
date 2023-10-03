@@ -187,8 +187,8 @@ class Role(DiscordObject):
         color: Color | COLOR_TYPES | None = None,
         hoist: bool | None = None,
         mentionable: bool | None = None,
-      icon: bytes | None = None,
-      unicode_emoji: str | None = None,
+        icon: bytes | None = None,
+        unicode_emoji: str | None = None,
     ) -> "Role":
         """
         Edit this role, all arguments are optional.
