@@ -1,10 +1,12 @@
 import functools
 import inspect
 import re
+from base64 import b64encode
 from typing import Callable, Iterable, List, Optional, Any, Union, TYPE_CHECKING
 
 import interactions.api.events as events
 from interactions.client.const import T
+from interactions.client.errors import BadArgument
 from interactions.models.discord.enums import ComponentType
 
 if TYPE_CHECKING:
@@ -263,3 +265,23 @@ def nulled_boolean_get(data: dict[str, Any], key: str) -> bool:
     if key in data:
         return True if data[key] is None else bool(data[key])
     return False
+
+
+def get_mime_type_for_image(data: bytes):
+  if data.startswith(b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"):
+    return "image/png"
+  elif data[0:3] == b"\xff\xd8\xff" or data[6:10] in (b"JFIF", b"Exif"):
+    return "image/jpeg"
+  elif data.startswith((b"\x47\x49\x46\x38\x37\x61", b"\x47\x49\x46\x38\x39\x61")):
+    return "image/gif"
+  elif data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+    return "image/webp"
+  else:
+    raise BadArgument("Unsupported image type given")
+
+
+def bytes_to_base64_data(data: bytes) -> str:
+  fmt = "data:{mime};base64,{data}"
+  mime = get_mime_type_for_image(data)
+  b64 = b64encode(data).decode("ascii")
+  return fmt.format(mime=mime, data=b64)

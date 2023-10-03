@@ -2,10 +2,10 @@ from functools import partial, total_ordering
 from typing import Any, TYPE_CHECKING
 
 import attrs
-
 from interactions.client.const import MISSING, T, Missing
 from interactions.client.utils import nulled_boolean_get
 from interactions.client.utils.attr_converters import optional as optional_c
+from interactions.client.utils.misc_utils import bytes_to_base64_data
 from interactions.client.utils.serializer import dict_filter
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.color import COLOR_TYPES, Color, process_color
@@ -187,6 +187,8 @@ class Role(DiscordObject):
         color: Color | COLOR_TYPES | None = None,
         hoist: bool | None = None,
         mentionable: bool | None = None,
+      icon: bytes | None = None,
+      unicode_emoji: str | None = None,
     ) -> "Role":
         """
         Edit this role, all arguments are optional.
@@ -197,6 +199,15 @@ class Role(DiscordObject):
             color: The color of the role
             hoist: whether the role should be displayed separately in the sidebar
             mentionable: whether the role should be mentionable
+            icon: Optional[:class:`bytes`]
+                A :term:`py:bytes-like object` representing the icon. Only PNG/JPEG/WebP is supported.
+                If this argument is passed, ``unicode_emoji`` is set to None.
+                Only available to guilds that contain ``ROLE_ICONS`` in :attr:`Guild.features`.
+                Could be ``None`` to denote removal of the icon.
+            unicode_emoji: Optional[:class:`str`]
+                The role's unicode emoji. If this argument is passed, ``icon`` is set to None.
+                Only available to guilds that contain ``ROLE_ICONS`` in :attr:`Guild.features`.
+
 
         Returns:
             Role with updated information
@@ -213,6 +224,17 @@ class Role(DiscordObject):
                 "mentionable": mentionable,
             }
         )
+        if not unicode_emoji:
+            if icon is None:
+                payload["icon"] = None
+            else:
+                payload["icon"] = bytes_to_base64_data(icon)
+                payload["unicode_emoji"] = None
+
+        else:
+            payload["unicode_emoji"] = unicode_emoji
+            payload["icon"] = None
+
 
         r_data = await self._client.http.modify_guild_role(self._guild_id, self.id, payload)
         r_data = dict(r_data)  # to convert typed dict to regular dict
