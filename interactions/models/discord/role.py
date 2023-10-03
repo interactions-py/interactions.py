@@ -198,15 +198,8 @@ class Role(DiscordObject):
             color: The color of the role
             hoist: whether the role should be displayed separately in the sidebar
             mentionable: whether the role should be mentionable
-            icon: Optional[:class:`bytes`]
-                A :term:`py:bytes-like object` representing the icon. Only PNG/JPEG/WebP is supported.
-                If this argument is passed, ``unicode_emoji`` is set to None.
-                Only available to guilds that contain ``ROLE_ICONS`` in :attr:`Guild.features`.
-                Could be ``None`` to denote removal of the icon.
-            unicode_emoji: Optional[:class:`str`]
-                The role's unicode emoji. If this argument is passed, ``icon`` is set to None.
-                Only available to guilds that contain ``ROLE_ICONS`` in :attr:`Guild.features`.
-
+            icon: (Guild Level 2+) Bytes-like object representing the icon; supports PNG, JPEG and WebP
+            unicode_emoji: (Guild Level 2+) Unicode emoji for the role; can't be used with icon
 
         Returns:
             Role with updated information
@@ -216,6 +209,8 @@ class Role(DiscordObject):
 
         if icon and unicode_emoji:
             raise ValueError("Cannot pass both icon and unicode_emoji")
+        if icon:
+            icon = to_image_data(icon)
 
         payload = dict_filter(
             {
@@ -224,7 +219,7 @@ class Role(DiscordObject):
                 "color": color,
                 "hoist": hoist,
                 "mentionable": mentionable,
-                "icon": to_image_data(icon) if icon else None,
+                "icon": icon,
                 "unicode_emoji": unicode_emoji,
             }
         )
