@@ -7,6 +7,7 @@ from interactions.client.utils import nulled_boolean_get
 from interactions.client.utils.attr_converters import optional as optional_c
 from interactions.client.utils.serializer import dict_filter, to_image_data
 from interactions.models.discord.asset import Asset
+from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.color import COLOR_TYPES, Color, process_color
 from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.enums import Permissions
@@ -186,7 +187,7 @@ class Role(DiscordObject):
         color: Color | COLOR_TYPES | None = None,
         hoist: bool | None = None,
         mentionable: bool | None = None,
-        icon: bytes | None = None,
+        icon: bytes | UPLOADABLE_TYPE | None = None,
         unicode_emoji: str | None = None,
     ) -> "Role":
         """
