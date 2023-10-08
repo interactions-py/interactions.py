@@ -335,7 +335,7 @@ class BaseSelectMenu(InteractiveComponent):
 
 
 @attrs.define(eq=False, order=False, hash=False, slots=False)
-class SelectDefaultValues(DictSerializationMixin):
+class SelectDefaultValues(DiscordObject):
     id: Snowflake
     """ID of a user, role, or channel"""
     type: str
