@@ -535,7 +535,7 @@ def _is_optional(anno: typing.Any) -> bool:
 
 
 def _remove_optional(t: OptionType | type) -> Any:
-    non_optional_args: tuple[type] = tuple(a for a in typing.get_args(t) if a is not types.NoneType)  # noqa
+    non_optional_args: tuple[type] = tuple(a for a in typing.get_args(t) if a is not types.NoneType)
     if len(non_optional_args) == 1:
         return non_optional_args[0]
     return typing.Union[non_optional_args]  # type: ignore
