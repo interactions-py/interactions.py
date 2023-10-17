@@ -27,9 +27,7 @@ elif importlib.util.find_spec("msgspec"):
 
     def enc_hook(obj: Any) -> int:
         # msgspec doesnt support IntFlags or interactions.Snowflakes
-        if isinstance(obj, IntFlag):
-            return int(obj)
-        if isinstance(obj, Snowflake):
+        if isinstance(obj, (IntFlag, Snowflake)):
             return int(obj)
         raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
