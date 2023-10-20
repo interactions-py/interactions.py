@@ -340,6 +340,8 @@ class PremiumType(CursedIntEnum):
     """Using Nitro Classic"""
     NITRO = 2
     """Full Nitro membership"""
+    NITRO_BASIC = 3
+    """Basic Nitro membership"""
 
 
 class MessageType(CursedIntEnum):
