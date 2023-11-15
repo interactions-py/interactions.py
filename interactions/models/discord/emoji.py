@@ -209,7 +209,7 @@ class CustomEmoji(PartialEmoji, ClientObject):
     @property
     def url(self) -> str:
         """CDN url for the emoji."""
-        return f"https://cdn.discordapp.net/emojis/{self.id}.{'gif' if self.animated else 'png'}"
+        return f"https://cdn.discordapp.com/emojis/{self.id}.{'gif' if self.animated else 'png'}"
 
 
 def process_emoji_req_format(emoji: Optional[Union[PartialEmoji, dict, str]]) -> Optional[str]:
