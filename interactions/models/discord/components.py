@@ -1,14 +1,21 @@
 import contextlib
 import uuid
 from abc import abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Union, TYPE_CHECKING
 
+import attrs
 import discord_typings
 
+import interactions.models.discord as d_models
+from interactions.models.discord.snowflake import Snowflake
 from interactions.client.const import ACTION_ROW_MAX_ITEMS, MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
+from interactions.models.discord.base import DiscordObject
 from interactions.models.discord.emoji import PartialEmoji, process_emoji
 from interactions.models.discord.enums import ButtonStyle, ChannelType, ComponentType
+
+if TYPE_CHECKING:
+    import interactions.models.discord
 
 __all__ = (
     "BaseComponent",
@@ -26,6 +33,8 @@ __all__ = (
     "spread_to_rows",
     "get_components_ids",
     "TYPE_COMPONENT_MAPPING",
+    "SelectDefaultValues",
+    "DefaultableSelectMenu",
 )
 
 
@@ -325,6 +334,87 @@ class BaseSelectMenu(InteractiveComponent):
         }
 
 
+@attrs.define(eq=False, order=False, hash=False, slots=False)
+class SelectDefaultValues(DiscordObject):
+    id: Snowflake
+    """ID of a user, role, or channel"""
+    type: str
+    """Type of value that id represents. Either "user", "role", or "channel"""
+
+    @classmethod
+    def from_object(cls, obj: DiscordObject) -> "SelectDefaultValues":
+        """Create a default value from a discord object."""
+        match obj:
+            case d_models.User():
+                return cls(id=obj.id, type="user")
+            case d_models.Member():
+                return cls(id=obj.id, type="user")
+            case d_models.BaseChannel():
+                return cls(id=obj.id, type="channel")
+            case d_models.Role():
+                return cls(id=obj.id, type="role")
+            case _:
+                raise TypeError(
+                    f"Cannot convert {obj} of type {type(obj)} to a SelectDefaultValues - Expected User, Channel, Member, or Role"
+                )
+
+
+class DefaultableSelectMenu(BaseSelectMenu):
+    default_values: list[
+        Union[
+            "interactions.models.discord.BaseUser",
+            "interactions.models.discord.Role",
+            "interactions.models.discord.BaseChannel",
+            "interactions.models.discord.Member",
+            SelectDefaultValues,
+        ]
+    ] | None = None
+
+    def __init__(
+        self,
+        defaults: list[
+            Union[
+                "interactions.models.discord.BaseUser",
+                "interactions.models.discord.Role",
+                "interactions.models.discord.BaseChannel",
+                "interactions.models.discord.Member",
+                SelectDefaultValues,
+            ]
+        ]
+        | None = None,
+        **kwargs,
+    ) -> None:
+        super().__init__(**kwargs)
+        self.default_values = defaults
+
+    def add_default_value(
+        self,
+        value: Union[
+            "interactions.models.discord.BaseUser",
+            "interactions.models.discord.Role",
+            "interactions.models.discord.BaseChannel",
+            "interactions.models.discord.Member",
+            SelectDefaultValues,
+        ],
+    ) -> None:
+        if self.default_values is None:
+            self.default_values = []
+        self.default_values.append(value)
+
+    def to_dict(self) -> discord_typings.SelectMenuComponentData:
+        data = super().to_dict()
+        if self.default_values is not None:
+            data["default_values"] = [  # type: ignore # waiting on discord typings to update
+                value.to_dict()
+                if isinstance(value, SelectDefaultValues)
+                else SelectDefaultValues.from_object(value).to_dict()
+                for value in self.default_values
+            ]
+
+        # Discord handles the type checking, no need to do it here
+        return data
+
+
 class StringSelectOption(BaseComponent):
     """
     Represents a select option.
@@ -461,7 +551,7 @@ class StringSelectMenu(BaseSelectMenu):
         }
 
 
-class UserSelectMenu(BaseSelectMenu):
+class UserSelectMenu(DefaultableSelectMenu):
     """
     Represents a user select component.
 
@@ -481,6 +571,16 @@ class UserSelectMenu(BaseSelectMenu):
         min_values: int = 1,
         max_values: int = 1,
         custom_id: str | None = None,
+        default_values: list[
+            Union[
+                "interactions.models.discord.BaseUser",
+                "interactions.models.discord.Role",
+                "interactions.models.discord.BaseChannel",
+                "interactions.models.discord.Member",
+                SelectDefaultValues,
+            ],
+        ]
+        | None = None,
         disabled: bool = False,
     ) -> None:
         super().__init__(
@@ -489,12 +589,13 @@ class UserSelectMenu(BaseSelectMenu):
             max_values=max_values,
             custom_id=custom_id,
             disabled=disabled,
+            defaults=default_values,
         )
 
         self.type: ComponentType = ComponentType.USER_SELECT
 
 
-class RoleSelectMenu(BaseSelectMenu):
+class RoleSelectMenu(DefaultableSelectMenu):
     """
     Represents a user select component.
 
@@ -515,6 +616,16 @@ class RoleSelectMenu(BaseSelectMenu):
         max_values: int = 1,
         custom_id: str | None = None,
         disabled: bool = False,
+        default_values: list[
+            Union[
+                "interactions.models.discord.BaseUser",
+                "interactions.models.discord.Role",
+                "interactions.models.discord.BaseChannel",
+                "interactions.models.discord.Member",
+                SelectDefaultValues,
+            ],
+        ]
+        | None = None,
     ) -> None:
         super().__init__(
             placeholder=placeholder,
@@ -522,12 +633,13 @@ class RoleSelectMenu(BaseSelectMenu):
             max_values=max_values,
             custom_id=custom_id,
             disabled=disabled,
+            defaults=default_values,
         )
 
         self.type: ComponentType = ComponentType.ROLE_SELECT
 
 
-class MentionableSelectMenu(BaseSelectMenu):
+class MentionableSelectMenu(DefaultableSelectMenu):
     def __init__(
         self,
         *,
@@ -536,6 +648,16 @@ class MentionableSelectMenu(BaseSelectMenu):
         max_values: int = 1,
         custom_id: str | None = None,
         disabled: bool = False,
+        default_values: list[
+            Union[
+                "interactions.models.discord.BaseUser",
+                "interactions.models.discord.Role",
+                "interactions.models.discord.BaseChannel",
+                "interactions.models.discord.Member",
+                SelectDefaultValues,
+            ],
+        ]
+        | None = None,
     ) -> None:
         super().__init__(
             placeholder=placeholder,
@@ -543,12 +665,13 @@ class MentionableSelectMenu(BaseSelectMenu):
             max_values=max_values,
             custom_id=custom_id,
             disabled=disabled,
+            defaults=default_values,
         )
 
         self.type: ComponentType = ComponentType.MENTIONABLE_SELECT
 
 
-class ChannelSelectMenu(BaseSelectMenu):
+class ChannelSelectMenu(DefaultableSelectMenu):
     def __init__(
         self,
         *,
@@ -558,6 +681,16 @@ class ChannelSelectMenu(BaseSelectMenu):
         max_values: int = 1,
         custom_id: str | None = None,
         disabled: bool = False,
+        default_values: list[
+            Union[
+                "interactions.models.discord.BaseUser",
+                "interactions.models.discord.Role",
+                "interactions.models.discord.BaseChannel",
+                "interactions.models.discord.Member",
+                SelectDefaultValues,
+            ],
+        ]
+        | None = None,
     ) -> None:
         super().__init__(
             placeholder=placeholder,
@@ -565,6 +698,7 @@ class ChannelSelectMenu(BaseSelectMenu):
             max_values=max_values,
             custom_id=custom_id,
             disabled=disabled,
+            defaults=default_values,
         )
 
         self.channel_types: list[ChannelType] | None = channel_types or []
