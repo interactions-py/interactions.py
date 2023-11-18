@@ -263,7 +263,7 @@ In there, you have three seconds to return whatever choices you want to the user
 from interactions import AutocompleteContext
 
 @my_command_function.autocomplete("string_option")
-async def autocomplete(self, ctx: AutocompleteContext):
+async def autocomplete(ctx: AutocompleteContext):
     string_option_input = ctx.input_text  # can be empty
     # you can use ctx.kwargs.get("name") to get the current state of other options - note they can be empty too
 
@@ -507,7 +507,7 @@ import traceback
 from interactions.api.events import CommandError
 
 @listen(CommandError, disable_default_listeners=True)  # tell the dispatcher that this replaces the default listener
-async def on_command_error(self, event: CommandError):
+async def on_command_error(event: CommandError):
     traceback.print_exception(event.error)
     if not event.ctx.responded:
         await event.ctx.send("Something went wrong.")
