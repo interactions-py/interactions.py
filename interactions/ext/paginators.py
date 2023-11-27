@@ -245,11 +245,13 @@ class Paginator:
         pages = []
         page = ""
         for entry in content:
+            if len(entry) > page_size:
+                continue
             if len(page) + len(f"\n{entry}") <= page_size:
                 page += f"{entry}\n"
             else:
                 pages.append(Page(page, prefix=prefix, suffix=suffix))
-                page = ""
+                page = "f{entry}\n"
         if page != "":
             pages.append(Page(page, prefix=prefix, suffix=suffix))
         return cls(client, pages=pages, timeout_interval=timeout)
