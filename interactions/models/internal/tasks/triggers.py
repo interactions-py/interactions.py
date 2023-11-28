@@ -105,9 +105,9 @@ class TimeTrigger(BaseTrigger):
         )
         if target.tzinfo == timezone.utc:
             target = target.astimezone(now.tzinfo)
-            target = target.replace(tzinfo=None)
+            target = target.replace(year=now.year, month=now.month, day=now.day, tzinfo=None)
 
-        while target <= self.last_call_time:
+        if target <= self.last_call_time:
             target += timedelta(days=1)
         return target
 
