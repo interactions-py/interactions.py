@@ -107,7 +107,7 @@ class TimeTrigger(BaseTrigger):
             target = target.astimezone(now.tzinfo)
             target = target.replace(tzinfo=None)
 
-        if target <= self.last_call_time:
+        while target <= self.last_call_time:
             target += timedelta(days=1)
         return target
 
