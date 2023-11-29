@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Migrating from 4.X
 
 Version 5.X (and beyond) is a major rewrite of interactions.py compared to 4.X, though there have been major improvements to compensate for the change. 5.X was designed to be more stable and flexible, solving many of the bugs and UX issues 4.X had while also adding additional features you may like.

@@ -3,6 +3,8 @@ hide:
   - navigation
   - toc
   - feedback
+search:
+  exclude: true
 ---
 
 We hope this documentation is helpful for you, but don't just ++ctrl+c++ and ++ctrl+v++.

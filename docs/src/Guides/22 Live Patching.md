@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Live Patching
 
 interactions.py has a few built-in extensions that add some features, primarily for debugging. One of these extensions that you can enable separately is to add [`jurigged`](https://github.com/breuleux/jurigged) for live patching of code.

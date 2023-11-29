@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Slash Commands
 
 So you want to make a slash command (or interaction, as they are officially called), but don't know how to get started?

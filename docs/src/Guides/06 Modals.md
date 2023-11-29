@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Modals
 
 Modals are basically popups which a user can use to send text information to your bot. As of the writing of this guide, you can use two components in a modal:

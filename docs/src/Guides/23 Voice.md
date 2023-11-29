@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Voice Support
 
 So you want to start playing some 🎵tunes🎶 in voice channels? Well let's get that going for you.

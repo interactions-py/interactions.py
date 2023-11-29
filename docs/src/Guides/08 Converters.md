@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Converters
 
 If your bot is complex enough, you might find yourself wanting to use custom models in your commands. Converters are classes that allow you to do just that, and can be used in both slash and prefixed commands.

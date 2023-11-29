@@ -1,3 +1,8 @@
+---
+search:
+  exclude: true
+---
+
 # Models
 
 Within these pages, you will find a list of all available models within interactions.py.

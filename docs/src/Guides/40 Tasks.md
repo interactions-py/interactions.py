@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Tasks
 
 Tasks are background processes that can be used to asynchronously run code with a specified trigger.

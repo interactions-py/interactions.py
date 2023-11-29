@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Context Menus
 
 Context menus are interactions under the hood. Defining them is very similar.
