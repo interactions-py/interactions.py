@@ -521,13 +521,16 @@ If your bot is complex enough, you might find yourself wanting to use custom mod
 
 To do this, you'll want to use a string option, and define a converter. Information on how to use converters can be found [on the converter page](../08 Converters).
 
-## Prefixed/Text Commands
+## Hybrid Commands
 
-To use prefixed commands, instead of typing `/my_command`, you will need to type instead `!my_command`, provided that the prefix you set is `!`.
+!!! note
+    Prefixed commands, called by Discord as "text commands" and sometimes called "message commands" (not to be confused with Context Menu Message Commands), are commands that are triggered when a user sends a normal message with a designated "prefix" in front of them (ie `!my_command`).
+
+    interactions.py contains an extension for making these commands, which you can [read about here](/interactions.py/Guides/26 Prefixed Commands).
 
 Hybrid commands are are slash commands that also get converted to an equivalent prefixed command under the hood. They are their own extension, and require [prefixed commands to be set up beforehand](/interactions.py/Guides/26 Prefixed Commands). After that, use the `setup` function in the `hybrid_commands` extension in your main bot file.
 
-Your setup can (but doesn't necessarily have to) look like this:
+Your setup should look similar to this:
 
 ```python
 import interactions
@@ -549,7 +552,7 @@ async def my_command_function(ctx: HybridContext):
     await ctx.send("Hello World")
 ```
 
-Suggesting you are using the default mention settings for your bot, you should be able to run this command by `@BotPing my_command`.
+Suggesting you are using the default mention settings for your bot, you should be able to run this command by typing out `@BotPing my_command` or using the slash command `/my_command`. Both will work largely equivalently.
 
 As you can see, the only difference between hybrid commands and slash commands, from a developer perspective, is that they use `HybridContext`, which attempts
 to seamlessly allow using the same context for slash and prefixed commands. You can always get the underlying context via `inner_context`, though.
