@@ -2466,8 +2466,8 @@ class Client(
         Returns a string that would mention the interaction specified.
 
         Args:
-            name (str): The name of the interaction.
-            scope (int, optional): The scope of the interaction. Defaults to 0, the global scope.
+            name: The name of the interaction.
+            scope: The scope of the interaction. Defaults to 0, the global scope.
 
         Returns:
             str: The interaction's mention in the specified scope.
