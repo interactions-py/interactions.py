@@ -2461,6 +2461,19 @@ class Client(
         """
         return self._connection_state.get_voice_state(guild_id)
 
+    def mention_command(self, name: str, scope: int = 0) -> str:
+        """
+        Returns a string that would mention the interaction specified.
+
+        Args:
+            name (str): The name of the interaction.
+            scope (int, optional): The scope of the interaction. Defaults to 0, the global scope.
+
+        Returns:
+            str: The interaction's mention in the specified scope.
+        """
+        return self.interactions_by_scope[scope][name].mention(scope)
+
     async def change_presence(
         self,
         status: Optional[Union[str, Status]] = Status.ONLINE,
