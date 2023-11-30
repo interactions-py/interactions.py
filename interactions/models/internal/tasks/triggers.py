@@ -105,7 +105,11 @@ class TimeTrigger(BaseTrigger):
         )
         if target.tzinfo == timezone.utc:
             target = target.astimezone(now.tzinfo)
-            target = target.replace(tzinfo=None)
+            # target can fall behind or go forward a day, but all we need is the time itself
+            # to be converted
+            # to ensure it's on the same day as "now" and not break the next if statement,
+            # we can just replace the date with now's date
+            target = target.replace(year=now.year, month=now.month, day=now.day, tzinfo=None)
 
         if target <= self.last_call_time:
             target += timedelta(days=1)
