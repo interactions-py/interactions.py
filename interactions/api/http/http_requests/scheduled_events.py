@@ -58,11 +58,11 @@ class ScheduledEventsRequests:
         return await self.request(
             Route(
                 "GET",
-                "/guilds/{guild_id}/scheduled-events/{scheduled_event_id}",
+                "/guilds/{guild_id}/scheduled-events/{scheduled_event_id}?with_user_count={with_user_count}",
                 guild_id=guild_id,
                 scheduled_event_id=scheduled_event_id,
+                with_user_count=with_user_count,
             ),
-            params={"with_user_count": with_user_count},
         )
 
     async def create_scheduled_event(
