@@ -1808,9 +1808,7 @@ class Client(
                 if auto_opt := getattr(ctx, "focussed_option", None):
                     if autocomplete := ctx.command.autocomplete_callbacks.get(str(auto_opt.name)):
                         if ctx.command.has_binding:
-                            callback = CallbackObject()
-                            callback.callback = autocomplete
-                            callback._binding = ctx.command._binding
+                            callback = functools.partial(ctx.command.call_with_binding, autocomplete)
                         else:
                             callback = autocomplete
                     elif autocomplete := self._global_autocompletes.get(str(auto_opt.name)):
