@@ -128,7 +128,7 @@ class ConnectionState:
 
         except Exception as e:
             self.client.dispatch(events.Disconnect())
-            self.wrapped_logger("".join(traceback.format_exception(type(e), e, e.__traceback__)))
+            self.wrapped_logger(logging.ERROR, "".join(traceback.format_exception(type(e), e, e.__traceback__)))
 
     def wrapped_logger(self, level: int, message: str, **kwargs) -> None:
         """
