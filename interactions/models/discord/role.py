@@ -2,12 +2,12 @@ from functools import partial, total_ordering
 from typing import Any, TYPE_CHECKING
 
 import attrs
-
 from interactions.client.const import MISSING, T, Missing
 from interactions.client.utils import nulled_boolean_get
 from interactions.client.utils.attr_converters import optional as optional_c
-from interactions.client.utils.serializer import dict_filter
+from interactions.client.utils.serializer import dict_filter, to_image_data
 from interactions.models.discord.asset import Asset
+from interactions.models.discord.file import UPLOADABLE_TYPE
 from interactions.models.discord.color import COLOR_TYPES, Color, process_color
 from interactions.models.discord.emoji import PartialEmoji
 from interactions.models.discord.enums import Permissions
@@ -187,6 +187,8 @@ class Role(DiscordObject):
         color: Color | COLOR_TYPES | None = None,
         hoist: bool | None = None,
         mentionable: bool | None = None,
+        icon: bytes | UPLOADABLE_TYPE | None = None,
+        unicode_emoji: str | None = None,
     ) -> "Role":
         """
         Edit this role, all arguments are optional.
@@ -197,12 +199,19 @@ class Role(DiscordObject):
             color: The color of the role
             hoist: whether the role should be displayed separately in the sidebar
             mentionable: whether the role should be mentionable
+            icon: (Guild Level 2+) Bytes-like object representing the icon; supports PNG, JPEG and WebP
+            unicode_emoji: (Guild Level 2+) Unicode emoji for the role; can't be used with icon
 
         Returns:
             Role with updated information
 
         """
         color = process_color(color)
+
+        if icon and unicode_emoji:
+            raise ValueError("Cannot pass both icon and unicode_emoji")
+        if icon:
+            icon = to_image_data(icon)
 
         payload = dict_filter(
             {
@@ -211,6 +220,8 @@ class Role(DiscordObject):
                 "color": color,
                 "hoist": hoist,
                 "mentionable": mentionable,
+                "icon": icon,
+                "unicode_emoji": unicode_emoji,
             }
         )
 

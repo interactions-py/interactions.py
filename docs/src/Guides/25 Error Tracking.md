@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Error Tracking
 
 So, you've finally got your bot running on a server somewhere.  Chances are, you're not checking the console output 24/7, looking for exceptions.

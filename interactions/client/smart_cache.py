@@ -924,6 +924,38 @@ class GlobalCache:
         """
         return self.scheduled_events_cache.get(to_snowflake(scheduled_event_id))
 
+    async def fetch_scheduled_event(
+        self,
+        guild_id: "Snowflake_Type",
+        scheduled_event_id: "Snowflake_Type",
+        with_user_count: bool = False,
+        *,
+        force: bool = False,
+    ) -> "ScheduledEvent":
+        """
+        Fetch a scheduled event based on the guild and its own ID.
+
+        Args:
+            guild_id: The ID of the guild this event belongs to
+            scheduled_event_id: The ID of the event
+            with_user_count: Whether to include the user count in the response.
+            force: If the cache should be ignored, and the event should be fetched from the API
+
+        Returns:
+            The scheduled event if found
+        """
+        if not force:
+            if scheduled_event := self.get_scheduled_event(scheduled_event_id):
+                if int(scheduled_event._guild_id) == int(guild_id) and (
+                    not with_user_count or scheduled_event.user_count is not MISSING
+                ):
+                    return scheduled_event
+
+        scheduled_event_data = await self._client.http.get_scheduled_event(
+            guild_id, scheduled_event_id, with_user_count=with_user_count
+        )
+        return self.place_scheduled_event_data(scheduled_event_data)
+
     def place_scheduled_event_data(self, data: discord_typings.GuildScheduledEventData) -> "ScheduledEvent":
         """
         Take json data representing a scheduled event, process it, and cache it.

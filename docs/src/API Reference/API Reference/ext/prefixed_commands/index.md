@@ -1,3 +1,8 @@
+---
+search:
+  exclude: true
+---
+
 # Prefixed Commands Index
 
 - [Command](command)

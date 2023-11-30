@@ -1,3 +1,8 @@
+---
+search:
+  exclude: true
+---
+
 Let's be honest; reading API documentation is a bit of a pain.
 These guides are meant to help you get started with the library and offer a point of reference.
 

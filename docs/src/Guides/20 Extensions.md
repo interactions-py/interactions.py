@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Extensions
 
 ## Introduction

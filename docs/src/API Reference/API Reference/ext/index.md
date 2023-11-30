@@ -1,3 +1,8 @@
+---
+search:
+  exclude: true
+---
+
 # Ext Index
 
 These files contain useful features that help you develop a bot

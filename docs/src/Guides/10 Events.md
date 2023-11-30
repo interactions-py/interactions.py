@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Events
 
 Events (in interactions.py) are pieces of information that are sent whenever something happens in Discord or in the library itself - this includes channel updates, message sending, the bot starting up, and more.

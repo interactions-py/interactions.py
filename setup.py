@@ -64,7 +64,7 @@ setup(
     ],
     project_urls={
         "Discord": "https://discord.gg/KkgMBVuEkx",
-        "Documentation": "https://naff-docs.readthedocs.io/en/latest/",  # TODO: replace
+        "Documentation": "https://interactions-py.github.io/interactions.py/",
     },
     extras_require=extras_require,
 )

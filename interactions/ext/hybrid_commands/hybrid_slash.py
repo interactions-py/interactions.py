@@ -327,6 +327,10 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
     if cmd.aliases:
         prefixed_cmd.aliases.extend(cmd.aliases)
 
+    # copy over binding from slash command, if any
+    # can't be done in init due to how _binding works
+    prefixed_cmd._binding = cmd._binding
+
     if not cmd.dm_permission:
         prefixed_cmd.add_check(guild_only())
 

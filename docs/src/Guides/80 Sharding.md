@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Sharding
 
 Oh damn, your bot is getting pretty big, huh? Well I guess its time we discuss sharding.

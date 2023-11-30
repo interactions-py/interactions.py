@@ -1,3 +1,8 @@
+---
+search:
+  exclude: true
+---
+
 # Hybrid Commands Index
 
 - [Context](context)

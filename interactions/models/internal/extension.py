@@ -22,7 +22,7 @@ __all__ = ("Extension",)
 
 class Extension:
     """
-    A class that allows you to separate your commands and listeners into separate files. Skins require an entrypoint in the same file called `setup`, this function allows client to load the Extension.
+    A class that allows you to separate your commands and listeners into separate files. Extensions require an entrypoint in the same file called `setup`, this function allows client to load the Extension.
 
     ??? Hint "Example Usage:"
         ```python

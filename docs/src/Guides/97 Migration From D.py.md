@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Migrating from discord.py
 
 1. interactions.py requires python 3.10 (as compared to dpy's 3.5), you may need to upgrade python.

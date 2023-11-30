@@ -1259,27 +1259,45 @@ class Guild(BaseGuild):
         scheduled_events_data = await self._client.http.list_schedules_events(self.id, with_user_count)
         return [self._client.cache.place_scheduled_event_data(data) for data in scheduled_events_data]
 
+    def get_scheduled_event(self, scheduled_event_id: Snowflake_Type) -> Optional["models.ScheduledEvent"]:
+        """
+        Gets a scheduled event from the cache by id.
+
+        Args:
+            scheduled_event_id: The id of the scheduled event.
+
+        Returns:
+            The scheduled event. If the event does not exist, returns None.
+
+        """
+        event = self._client.cache.get_scheduled_event(scheduled_event_id)
+        return None if event and int(event._guild_id) != self.id else event
+
     async def fetch_scheduled_event(
-        self, scheduled_event_id: Snowflake_Type, with_user_count: bool = False
+        self,
+        scheduled_event_id: Snowflake_Type,
+        with_user_count: bool = False,
+        *,
+        force: bool = False,
     ) -> Optional["models.ScheduledEvent"]:
         """
-        Get a scheduled event by id.
+        Fetches a scheduled event by id.
 
         Args:
             scheduled_event_id: The id of the scheduled event.
             with_user_count: Whether to include the user count in the response.
+            force: If the cache should be ignored, and the event should be fetched from the API
 
         Returns:
             The scheduled event. If the event does not exist, returns None.
 
         """
         try:
-            scheduled_event_data = await self._client.http.get_scheduled_event(
-                self.id, scheduled_event_id, with_user_count
+            return await self._client.cache.fetch_scheduled_event(
+                self.id, scheduled_event_id, with_user_count=with_user_count, force=force
             )
         except NotFound:
             return None
-        return self._client.cache.place_scheduled_event_data(scheduled_event_data)
 
     async def create_scheduled_event(
         self,

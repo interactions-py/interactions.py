@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Components
 
 Components (Buttons, Select Menus and soon Text Input Fields) can be added to any message by passing them to the `components` argument in any `.send()` method.

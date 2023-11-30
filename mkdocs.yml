@@ -121,11 +121,12 @@ plugins:
             show_if_no_docstring: True
   - minify:
       minify_html: true
-  # keep this at the bottom of the plugins list - if you are building without insiders, comment it out
-  - privacy:
-      # Downloads all external resources and stores them locally
-      externals: bundle
+
+  - group:
       enabled: !ENV [ DEPLOY, False ]
+      plugins:
+        - privacy:
+            externals: bundle
 
 
 markdown_extensions:
@@ -141,8 +142,8 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.keys
   - pymdownx.saneheaders
   - pymdownx.smartsymbols
