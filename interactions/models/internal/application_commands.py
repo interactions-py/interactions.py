@@ -844,7 +844,9 @@ class ComponentCommand(InteractionCommand):
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class ModalCommand(ComponentCommand):
-    ...
+    async def call_callback(self, callback: Callable, context: "BaseContext") -> None:
+        # default call_callback passes kwargs, we dont want to do that here
+        await self.call_with_binding(callback, context)  # type: ignore
 
 
 def _unpack_helper(iterable: typing.Iterable[str]) -> list[str]:
