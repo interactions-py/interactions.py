@@ -1,3 +1,8 @@
+---
+search:
+  exclude: true
+---
+
 # Internal Models Index
 
 - [Active Voice State](active_voice_state)

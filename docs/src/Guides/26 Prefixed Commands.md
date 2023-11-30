@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Creating Prefixed Commands
 
 Prefixed commands, called by Discord as "text commands" and sometimes called "message commands" (not to be confused with Context Menu Message Commands), are commands that are triggered when a user sends a normal message with a designated "prefix" in front of them.

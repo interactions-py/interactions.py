@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Introduction
 
 Ready to get your Python on and create a Discord bot? This guide's got you covered with installation options and a basic bot code example.

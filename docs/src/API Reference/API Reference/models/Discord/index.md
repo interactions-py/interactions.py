@@ -1,3 +1,8 @@
+---
+search:
+  exclude: true
+---
+
 # Discord Models Index
 
 - [Activity](activity)

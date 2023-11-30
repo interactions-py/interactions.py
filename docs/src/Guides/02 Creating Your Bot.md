@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Creating Your Bot
 
 To make a bot on Discord, you must first create an application on Discord. Thankfully, Discord has made this process very simple:

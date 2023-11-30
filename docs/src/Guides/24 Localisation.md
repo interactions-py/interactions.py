@@ -1,3 +1,8 @@
+---
+search:
+  boost: 3
+---
+
 # Localising
 
 So your bot has grown, and now you need to ~~localize~~ localise your bot. Well thank god we support localisation then, huh?
