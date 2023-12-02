@@ -141,6 +141,7 @@ class BucketLock:
 
         if self.delta < 0.005:  # the value is so small that we can assume it's 0
             self.delta = self.DEFAULT_DELTA
+            self.remaining = self.DEFAULT_REMAINING  # we can assume that we can make another request right away
 
         if self._semaphore is None or self._semaphore._value != self.limit:
             self._semaphore = asyncio.Semaphore(self.limit)
