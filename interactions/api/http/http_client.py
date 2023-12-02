@@ -139,7 +139,7 @@ class BucketLock:
         self.remaining = int(header.get("x-ratelimit-remaining", self.DEFAULT_REMAINING))
         self.delta = float(header.get("x-ratelimit-reset-after", self.DEFAULT_DELTA))
 
-        if self.delta < 0.005:  # the value is so small that we can assume it's 0
+        if self.delta < 0.005 and self.remaining == 0:  # the delta value is so small that we can assume it's 0
             self.delta = self.DEFAULT_DELTA
             self.remaining = self.DEFAULT_REMAINING  # we can assume that we can make another request right away
 
