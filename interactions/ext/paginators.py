@@ -251,7 +251,7 @@ class Paginator:
                 page += f"{entry}\n"
             else:
                 pages.append(Page(page, prefix=prefix, suffix=suffix))
-                page = "f{entry}\n"
+                page = f"{entry}\n"
         if page != "":
             pages.append(Page(page, prefix=prefix, suffix=suffix))
         return cls(client, pages=pages, timeout_interval=timeout)
