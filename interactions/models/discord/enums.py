@@ -382,6 +382,10 @@ class MessageType(CursedIntEnum):
     STAGE_SPEAKER = 29
     STAGE_TOPIC = 31
     GUILD_APPLICATION_PREMIUM_SUBSCRIPTION = 32
+    GUILD_INCIDENT_ALERT_MODE_ENABLED = 36
+    GUILD_INCIDENT_ALERT_MODE_DISABLED = 37
+    GUILD_INCIDENT_REPORT_RAID = 38
+    GUILD_INCIDENT_REPORT_FALSE_ALARM = 39
 
     @classmethod
     def deletable(cls) -> Tuple["MessageType", ...]:
@@ -407,6 +411,7 @@ class MessageType(CursedIntEnum):
             cls.STAGE_END,
             cls.STAGE_SPEAKER,
             cls.STAGE_TOPIC,
+            cls.GUILD_APPLICATION_PREMIUM_SUBSCRIPTION,
         )
 
 
