@@ -2012,6 +2012,7 @@ class Client(
         self,
         *packages: str,
         recursive: bool = False,
+        **load_kwargs: Any,
     ) -> None:
         """
         Load multiple extensions at once.
@@ -2035,7 +2036,7 @@ class Client(
             extensions = [f.replace(os.path.sep, ".").replace(".py", "") for f in glob.glob(pattern, recursive=True)]
 
             for ext in extensions:
-                self.load_extension(ext)
+                self.load_extension(ext, **load_kwargs)
 
     def unload_extension(
         self, name: str, package: str | None = None, force: bool = False, **unload_kwargs: Any
