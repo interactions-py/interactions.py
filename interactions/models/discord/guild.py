@@ -236,6 +236,8 @@ class Guild(BaseGuild):
     """A cache of all command permissions for this guild"""
     premium_progress_bar_enabled: bool = attrs.field(repr=False, default=False)
     """True if the guild has the boost progress bar enabled"""
+    safety_alerts_channel_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
+    """The id of the channel where admins and moderators of Community guilds receive safety alerts from Discord."""
 
     _owner_id: Snowflake_Type = attrs.field(repr=False, converter=to_snowflake)
     _channel_ids: Set[Snowflake_Type] = attrs.field(repr=False, factory=set)
@@ -395,6 +397,11 @@ class Guild(BaseGuild):
     def public_updates_channel(self) -> Optional["models.GuildText"]:
         """Returns the channel where server staff receive notices from Discord."""
         return self._client.cache.get_channel(self.public_updates_channel_id)
+
+    @property
+    def safety_alerts_channel(self) -> Optional["models.GuildText"]:
+        """Returns the channel where server staff receive safety alerts from Discord."""
+        return self._client.cache.get_channel(self.safety_alerts_channel_id)
 
     @property
     def emoji_limit(self) -> int:
@@ -759,6 +766,7 @@ class Guild(BaseGuild):
         banner: Absent[Optional[UPLOADABLE_TYPE]] = MISSING,
         rules_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
         public_updates_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
+        safety_alerts_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
         preferred_locale: Absent[Optional[str]] = MISSING,
         premium_progress_bar_enabled: Absent[Optional[bool]] = False,
         # ToDo: Fill in guild features. No idea how this works - https://discord.com/developers/docs/resources/guild#guild-object-guild-features
@@ -785,6 +793,7 @@ class Guild(BaseGuild):
             system_channel_flags: The new settings for the system channel.
             rules_channel: The text channel where your rules and community guidelines are displayed.
             public_updates_channel: The text channel where updates from discord should appear.
+            safety_alerts_channel: The text channel where safety alerts from discord should appear.
             preferred_locale: The new preferred locale of the guild. Must be an ISO 639 code.
             premium_progress_bar_enabled: The status of the Nitro boost bar.
             features: The enabled guild features
@@ -811,6 +820,7 @@ class Guild(BaseGuild):
             system_channel_flags=int(system_channel_flags) if system_channel_flags else MISSING,
             rules_channel_id=to_snowflake(rules_channel) if rules_channel else MISSING,
             public_updates_channel_id=to_snowflake(public_updates_channel) if public_updates_channel else MISSING,
+            safety_alerts_channel_id=to_snowflake(safety_alerts_channel) if safety_alerts_channel else MISSING,
             preferred_locale=preferred_locale,
             premium_progress_bar_enabled=premium_progress_bar_enabled if premium_progress_bar_enabled else False,
             features=features,
