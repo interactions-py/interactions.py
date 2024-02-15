@@ -271,13 +271,14 @@ class Paginator:
 
         if self.show_select_menu:
             current = self.pages[self.page_index]
+            lower_index = max(0, min(len(self.pages) - 25, self.page_index - 12))
             output.append(
                 StringSelectMenu(
                     *(
                         StringSelectOption(
                             label=f"{i+1} {p.get_summary if isinstance(p, Page) else p.title}", value=str(i)
                         )
-                        for i, p in enumerate(self.pages)
+                        for i, p in enumerate(self.pages[lower_index : lower_index + 25], start=lower_index)
                     ),
                     custom_id=f"{self._uuid}|select",
                     placeholder=f"{self.page_index+1} {current.get_summary if isinstance(current, Page) else current.title}",
