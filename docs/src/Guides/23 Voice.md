@@ -102,13 +102,14 @@ import interactions
 
 @interactions.slash_command("record", "record some audio")
 async def record(ctx: interactions.SlashContext):
+    await ctx.defer()
     voice_state = await ctx.author.voice.channel.connect()
 
     # Start recording
     await voice_state.start_recording()
     await asyncio.sleep(10)
     await voice_state.stop_recording()
-    await ctx.send(files=[interactions.File(file, file_name="user_id.mp3") for user_id, file in voice_state.recorder.output.items()])
+    await ctx.send("Here are your recordings", files=[interactions.File(file, file_name="user_id.mp3") for user_id, file in voice_state.recorder.output.items()])
 ```
 This code will connect to the author's voice channel, start recording, wait 10 seconds, stop recording, and send a file for each user that was recorded.
 
