@@ -71,7 +71,7 @@ from .components import (
 
 from .embed import Embed, EmbedAttachment, EmbedAuthor, EmbedField, EmbedFooter, EmbedProvider, process_embeds
 from .emoji import CustomEmoji, PartialEmoji, process_emoji, process_emoji_req_format
-from .entitlement import Entitlement, PartialEntitlement
+from .entitlement import Entitlement
 from .enums import (
     ActivityFlag,
     ActivityType,
@@ -283,7 +283,6 @@ __all__ = (
     "OverwriteType",
     "ParagraphText",
     "PartialEmoji",
-    "PartialEntitlement",
     "PermissionOverwrite",
     "Permissions",
     "PremiumTier",

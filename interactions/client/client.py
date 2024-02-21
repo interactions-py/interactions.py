@@ -87,7 +87,7 @@ from interactions.models import Wait
 from interactions.models.discord.color import BrandColors
 from interactions.models.discord.components import get_components_ids, BaseComponent
 from interactions.models.discord.embed import Embed
-from interactions.models.discord.entitlement import Entitlement, PartialEntitlement
+from interactions.models.discord.entitlement import Entitlement
 from interactions.models.discord.enums import (
     ComponentType,
     Intents,
@@ -2478,7 +2478,7 @@ class Client(
 
     async def create_test_entitlement(
         self, sku_id: "Snowflake_Type", owner_id: "Snowflake_Type", owner_type: int
-    ) -> PartialEntitlement:
+    ) -> Entitlement:
         """
         Create a test entitlement for the bot's application.
 
@@ -2493,7 +2493,7 @@ class Client(
         payload = {"sku_id": to_snowflake(sku_id), "owner_id": to_snowflake(owner_id), "owner_type": owner_type}
 
         entitlement_data = await self.http.create_test_entitlement(payload, self.app.id)
-        return PartialEntitlement.from_dict(entitlement_data, self)
+        return Entitlement.from_dict(entitlement_data, self)
 
     async def delete_test_entitlement(self, entitlement_id: "Snowflake_Type") -> None:
         """
