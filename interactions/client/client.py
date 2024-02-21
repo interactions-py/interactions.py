@@ -87,6 +87,7 @@ from interactions.models import Wait
 from interactions.models.discord.color import BrandColors
 from interactions.models.discord.components import get_components_ids, BaseComponent
 from interactions.models.discord.embed import Embed
+from interactions.models.discord.entitlement import Entitlement, PartialEntitlement
 from interactions.models.discord.enums import (
     ComponentType,
     Intents,
@@ -213,6 +214,7 @@ _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
 class Client(
     processors.AutoModEvents,
     processors.ChannelEvents,
+    processors.EntitlementEvents,
     processors.GuildEvents,
     processors.IntegrationEvents,
     processors.MemberEvents,
@@ -2463,6 +2465,46 @@ class Client(
 
         """
         return self._connection_state.get_voice_state(guild_id)
+
+    async def fetch_entitlements(self) -> List[Entitlement]:
+        """
+        Fetch the entitlements for the bot's application.
+
+        Returns:
+            A list of entitlements.
+        """
+        entitlements_data = await self.http.get_entitlements(self.app.id)
+        return Entitlement.from_list(entitlements_data, self)
+
+    async def create_test_entitlement(self, sku_id: "Snowflake_Type", owner_id: "Snowflake_Type", owner_type: int) -> PartialEntitlement:
+        """
+        Create a test entitlement for the bot's application.
+
+        Args:
+            sku_id: The ID of the SKU to create the entitlement for.
+            owner_id: The ID of the owner of the entitlement.
+            owner_type: The type of the owner of the entitlement. 1 for a guild subscription, 2 for a user subscription
+
+        Returns:
+            The created entitlement.
+        """
+        payload = {
+            "sku_id": to_snowflake(sku_id),
+            "owner_id": to_snowflake(owner_id),
+            "owner_type": owner_type
+        }
+
+        entitlement_data = await self.http.create_test_entitlement(payload, self.app.id)
+        return PartialEntitlement.from_dict(entitlement_data, self)
+
+    async def delete_test_entitlement(self, entitlement_id: "Snowflake_Type") -> None:
+        """
+        Delete a test entitlement for the bot's application.
+
+        Args:
+            entitlement_id: The ID of the entitlement to delete.
+        """
+        await self.http.delete_test_entitlement(to_snowflake(entitlement_id), self.app.id)
 
     def mention_command(self, name: str, scope: int = 0) -> str:
         """
