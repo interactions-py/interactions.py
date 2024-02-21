@@ -286,7 +286,7 @@ class BaseInteractionContext(BaseContext):
         instance.guild_locale = payload.get("guild_locale", instance.locale)
         instance._context_type = payload.get("type", 0)
         instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
-        instance.entitlements = [Entitlement.from_dict(ent, client) for ent in payload["entitlements"]]
+        instance.entitlements = Entitlement.from_list(payload["entitlements"], client)
 
         instance.channel_id = Snowflake(payload["channel_id"])
         if channel := payload.get("channel"):
