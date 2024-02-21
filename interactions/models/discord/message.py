@@ -925,7 +925,7 @@ def process_message_payload(
     reply_to: Optional[Union[MessageReference, Message, dict, "Snowflake_Type"]] = None,
     attachments: Optional[List[Union[Attachment, dict]]] = None,
     tts: bool = False,
-    flags: Optional[Union[int, MessageFlags]] = None,\
+    flags: Optional[Union[int, MessageFlags]] = None,
     nonce: Optional[str | int] = None,
     enforce_nonce: bool = False,
     **kwargs,
