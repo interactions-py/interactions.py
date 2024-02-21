@@ -468,6 +468,9 @@ class MessageFlags(DiscordIntFlag):  # type: ignore
     VOICE_MESSAGE = 1 << 13
     """This message is a voice message"""
 
+    SUPPRESS_NOTIFICATIONS = SILENT
+    """Alias for :attr:`SILENT`"""
+
     # Special members
     NONE = 0
     ALL = AntiFlag()
