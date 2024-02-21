@@ -640,6 +640,7 @@ class Member(DiscordObject, _SendDMMixin):
         deaf: Absent[bool] = MISSING,
         channel_id: Absent["Snowflake_Type"] = MISSING,
         communication_disabled_until: Absent[Union["Timestamp", None]] = MISSING,
+        flags: Absent[int] = MISSING,
         reason: Absent[str] = MISSING,
     ) -> None:
         """
@@ -652,6 +653,7 @@ class Member(DiscordObject, _SendDMMixin):
             deaf: Whether the user is deafened in voice channels
             channel_id: id of channel to move user to (if they are connected to voice)
             communication_disabled_until: 	when the user's timeout will expire and the user will be able to communicate in the guild again
+            flags: Represents the guild member flags
             reason: An optional reason for the audit log
         """
         await self._client.http.modify_guild_member(
@@ -663,6 +665,7 @@ class Member(DiscordObject, _SendDMMixin):
             deaf=deaf,
             channel_id=channel_id,
             communication_disabled_until=communication_disabled_until,
+            flags=flags,
             reason=reason,
         )
 
