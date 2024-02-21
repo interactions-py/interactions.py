@@ -35,7 +35,7 @@ class AutoShardedClient(Client):
         self.auto_sharding = "total_shards" not in kwargs
         super().__init__(*args, **kwargs)
 
-        self.only_shards: Optional[List[int]] = kwargs.get("only_shards", None)
+        self.shard_ids: Optional[List[int]] = kwargs.get("shard_ids", None)
 
         self._connection_state = None
 
@@ -247,8 +247,8 @@ class AutoShardedClient(Client):
 
         self.logger.debug(f"Starting bot with {self.total_shards} shard{'s' if self.total_shards != 1 else ''}")
 
-        if self.only_shards:
-            self._connection_states = [ConnectionState(self, self.intents, shard_id) for shard_id in self.only_shards]
+        if self.shard_ids:
+            self._connection_states = [ConnectionState(self, self.intents, shard_id) for shard_id in self.shard_ids]
         else:
             self._connection_states = [
                 ConnectionState(self, self.intents, shard_id) for shard_id in range(self.total_shards)
