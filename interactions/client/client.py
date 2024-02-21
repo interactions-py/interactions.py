@@ -2466,14 +2466,42 @@ class Client(
         """
         return self._connection_state.get_voice_state(guild_id)
 
-    async def fetch_entitlements(self) -> List[Entitlement]:
+    async def fetch_entitlements(
+        self,
+        *,
+        user_id: "Optional[Snowflake_Type]" = None,
+        sku_ids: "Optional[list[Snowflake_Type]]" = None,
+        before: "Optional[Snowflake_Type]" = None,
+        after: "Optional[Snowflake_Type]" = None,
+        limit: Optional[int] = 100,
+        guild_id: "Optional[Snowflake_Type]" = None,
+        exclude_ended: Optional[bool] = None,
+    ) -> List[Entitlement]:
         """
         Fetch the entitlements for the bot's application.
+
+        Args:
+            user_id: The ID of the user to filter entitlements by.
+            sku_ids: The IDs of the SKUs to filter entitlements by.
+            before: Get entitlements before this ID.
+            after: Get entitlements after this ID.
+            limit: The maximum number of entitlements to return. Maximum is 100.
+            guild_id: The ID of the guild to filter entitlements by.
+            exclude_ended: Whether to exclude ended entitlements.
 
         Returns:
             A list of entitlements.
         """
-        entitlements_data = await self.http.get_entitlements(self.app.id)
+        entitlements_data = await self.http.get_entitlements(
+            self.app.id,
+            user_id=user_id,
+            sku_ids=sku_ids,
+            before=before,
+            after=after,
+            limit=limit,
+            guild_id=guild_id,
+            exclude_ended=exclude_ended,
+        )
         return Entitlement.from_list(entitlements_data, self)
 
     async def create_test_entitlement(
