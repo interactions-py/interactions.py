@@ -214,6 +214,7 @@ class GatewayClient(WebsocketClient):
                 return self.state.client.dispatch(events.WebsocketReady(data))
 
             case "RESUMED":
+                self.state._shard_ready.set()
                 self.state.wrapped_logger(
                     logging.INFO, f"Successfully resumed connection! Session_ID: {self.session_id}"
                 )
