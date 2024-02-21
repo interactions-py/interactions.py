@@ -96,7 +96,7 @@ class PrefixedContext(BaseContext, SendMixin):
             content: Message text content.
             embeds: Embedded rich content (up to 6000 characters).
             embed: Embedded rich content (up to 6000 characters).
-            fail_if_not_exists: Whether to error if the command invocation doesn't exist.
+            fail_if_not_exists: Whether to error if the command invocation doesn't exist instead of sending as a normal (non-reply) message.
             **kwargs: Additional options to pass to `send`.
 
         Returns:
