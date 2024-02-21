@@ -2476,7 +2476,9 @@ class Client(
         entitlements_data = await self.http.get_entitlements(self.app.id)
         return Entitlement.from_list(entitlements_data, self)
 
-    async def create_test_entitlement(self, sku_id: "Snowflake_Type", owner_id: "Snowflake_Type", owner_type: int) -> PartialEntitlement:
+    async def create_test_entitlement(
+        self, sku_id: "Snowflake_Type", owner_id: "Snowflake_Type", owner_type: int
+    ) -> PartialEntitlement:
         """
         Create a test entitlement for the bot's application.
 
@@ -2488,11 +2490,7 @@ class Client(
         Returns:
             The created entitlement.
         """
-        payload = {
-            "sku_id": to_snowflake(sku_id),
-            "owner_id": to_snowflake(owner_id),
-            "owner_type": owner_type
-        }
+        payload = {"sku_id": to_snowflake(sku_id), "owner_id": to_snowflake(owner_id), "owner_type": owner_type}
 
         entitlement_data = await self.http.create_test_entitlement(payload, self.app.id)
         return PartialEntitlement.from_dict(entitlement_data, self)
