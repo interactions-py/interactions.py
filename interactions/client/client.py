@@ -2502,7 +2502,7 @@ class Client(
         Args:
             entitlement_id: The ID of the entitlement to delete.
         """
-        await self.http.delete_test_entitlement(to_snowflake(entitlement_id), self.app.id)
+        await self.http.delete_test_entitlement(self.app.id, to_snowflake(entitlement_id))
 
     def mention_command(self, name: str, scope: int = 0) -> str:
         """
