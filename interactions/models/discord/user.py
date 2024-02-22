@@ -592,6 +592,15 @@ class Member(DiscordObject, _SendDMMixin):
         """
         return all(to_snowflake(role) in self._role_ids for role in roles)
 
+    def has_any_role(self, roles: List[Union[Snowflake_Type, Role]]) -> bool:
+        """
+        Checks if the user has any of the given roles.
+
+        Args:
+            *roles: The Role(s) or role id(s) to check for
+        """
+        return any((self.has_role(to_snowflake(role)) for role in roles))
+
     async def timeout(
         self,
         communication_disabled_until: Union["Timestamp", datetime, int, float, str, None],
