@@ -420,6 +420,7 @@ class EmbedType(Enum):
     ARTICLE = "article"
     LINK = "link"
     AUTOMOD_MESSAGE = "auto_moderation_message"
+    AUTOMOD_NOTIFICATION = "auto_moderation_notification"
 
 
 class MessageActivityType(CursedIntEnum):
