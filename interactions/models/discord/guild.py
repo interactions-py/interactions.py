@@ -521,7 +521,7 @@ class Guild(BaseGuild):
         """
         return self._client.cache.get_member(self.id, self._owner_id)
 
-    async def fetch_channels(self) -> List["models.TYPE_VOICE_CHANNEL"]:
+    async def fetch_channels(self) -> List["models.TYPE_GUILD_CHANNEL"]:
         """
         Fetch this guild's channels.
 
@@ -2263,7 +2263,7 @@ class GuildWidget(DiscordObject):
         """
         return [self._client.get_channel(channel_id) for channel_id in self._channel_ids]
 
-    async def fetch_channels(self, *, force: bool = False) -> List["models.TYPE_VOICE_CHANNEL"]:
+    async def fetch_channels(self, *, force: bool = False) -> List["models.TYPE_GUILD_CHANNEL"]:
         """
         Gets voice and stage channels which are accessible by @everyone. Fetches the channels from API if they are not cached.
 
