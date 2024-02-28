@@ -528,7 +528,7 @@ class Guild(BaseGuild):
         """
         return self._client.cache.get_member(self.id, self._owner_id)
 
-    async def fetch_channels(self) -> List["models.TYPE_VOICE_CHANNEL"]:
+    async def fetch_channels(self) -> List["models.TYPE_GUILD_CHANNEL"]:
         """
         Fetch this guild's channels.
 
