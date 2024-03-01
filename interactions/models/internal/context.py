@@ -35,6 +35,7 @@ from interactions.models.discord.message import (
 )
 from interactions.models.discord.snowflake import Snowflake, Snowflake_Type, to_snowflake, to_optional_snowflake
 from interactions.models.discord.embed import Embed
+from interactions.models.discord.timestamp import Timestamp
 from interactions.models.internal.application_commands import (
     OptionType,
     CallbackType,
@@ -329,16 +330,16 @@ class BaseInteractionContext(BaseContext):
         return self.client._interaction_lookup[self._command_name]
 
     @property
-    def expires_at(self) -> typing.Optional[datetime.datetime]:
+    def expires_at(self) -> Timestamp:
         """The time at which the interaction expires."""
-        if self.responded:
+        if self.responded or self.deferred:
             return self.id.created_at + datetime.timedelta(minutes=15)
         return self.id.created_at + datetime.timedelta(seconds=3)
 
     @property
     def expired(self) -> bool:
         """Whether the interaction has expired."""
-        return datetime.datetime.utcnow() > self.expires_at
+        return Timestamp.utcnow() > self.expires_at
 
     @property
     def invoke_target(self) -> str:
