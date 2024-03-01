@@ -2,7 +2,7 @@ import asyncio
 import time
 from datetime import datetime
 from collections import defaultdict
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 import interactions.api.events as events
 from interactions.api.events import ShardConnect
@@ -34,6 +34,8 @@ class AutoShardedClient(Client):
     def __init__(self, *args, **kwargs) -> None:
         self.auto_sharding = "total_shards" not in kwargs
         super().__init__(*args, **kwargs)
+
+        self.shard_ids: Optional[List[int]] = kwargs.get("shard_ids", None)
 
         self._connection_state = None
 
@@ -244,9 +246,13 @@ class AutoShardedClient(Client):
             )
 
         self.logger.debug(f"Starting bot with {self.total_shards} shard{'s' if self.total_shards != 1 else ''}")
-        self._connection_states: list[ConnectionState] = [
-            ConnectionState(self, self.intents, shard_id) for shard_id in range(self.total_shards)
-        ]
+
+        if self.shard_ids:
+            self._connection_states = [ConnectionState(self, self.intents, shard_id) for shard_id in self.shard_ids]
+        else:
+            self._connection_states = [
+                ConnectionState(self, self.intents, shard_id) for shard_id in range(self.total_shards)
+            ]
 
     async def change_presence(
         self,
