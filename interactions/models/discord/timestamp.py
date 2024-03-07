@@ -62,7 +62,12 @@ class Timestamp(datetime):
             # May be in milliseconds instead of seconds
             timestamp = super().fromtimestamp(t / 1000, tz=tz)
 
-        return timestamp.astimezone() if timestamp.tzinfo is None else timestamp
+        try:
+            # Try to fallback to local / system tz
+            return timestamp.astimezone() if timestamp.tzinfo is None else timestamp
+        except Exception:
+            # Fallback to utc timezone if system tz not found
+            return super().fromtimestamp(t / 1000, tz=timezone.utc)
 
     @classmethod
     def fromordinal(cls, n: int) -> "Timestamp":
