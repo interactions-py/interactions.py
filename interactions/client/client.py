@@ -2491,7 +2491,7 @@ class Client(
             activity: The activity for the bot to be displayed as doing.
 
         !!! note
-            Bots may only be `playing` `streaming` `listening` `watching` or `competing`, other activity types are likely to fail.
+            Bots may only be `playing` `streaming` `listening` `watching`  `competing` or `custom`
 
         """
         await self._connection_state.change_presence(status, activity)
