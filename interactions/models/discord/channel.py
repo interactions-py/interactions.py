@@ -2389,7 +2389,7 @@ class GuildStageVoice(GuildVoice):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class GuildForum(GuildChannel):
+class GuildForum(GuildChannel, InvitableMixin):
     available_tags: List[ThreadTag] = attrs.field(repr=False, factory=list)
     """A list of tags available to assign to threads"""
     default_reaction_emoji: Optional[DefaultReaction] = attrs.field(repr=False, default=None)
