@@ -1069,3 +1069,9 @@ class ForumSortOrder(CursedIntEnum):
     @classmethod
     def converter(cls, value: Optional[int]) -> "ForumSortOrder":
         return None if value is None else cls(value)
+
+
+class EntitlementType(CursedIntEnum):
+    """The type of entitlement."""
+
+    APPLICATION_SUBSCRIPTION = 8

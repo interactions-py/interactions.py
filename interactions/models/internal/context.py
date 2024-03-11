@@ -19,6 +19,7 @@ from interactions.client.mixins.modal import ModalMixin
 
 from interactions.client.errors import HTTPException, AlreadyDeferred, AlreadyResponded
 from interactions.client.mixins.send import SendMixin
+from interactions.models.discord.entitlement import Entitlement
 from interactions.models.discord.enums import (
     Permissions,
     MessageFlags,
@@ -253,6 +254,9 @@ class BaseInteractionContext(BaseContext):
     ephemeral: bool
     """Whether the interaction response is ephemeral."""
 
+    entitlements: list[Entitlement]
+    """The entitlements of the invoking user."""
+
     _context_type: int
     """The context type of the interaction."""
     command_id: Snowflake
@@ -283,6 +287,7 @@ class BaseInteractionContext(BaseContext):
         instance.guild_locale = payload.get("guild_locale", instance.locale)
         instance._context_type = payload.get("type", 0)
         instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
+        instance.entitlements = Entitlement.from_list(payload["entitlements"], client)
 
         instance.channel_id = Snowflake(payload["channel_id"])
         if channel := payload.get("channel"):
@@ -418,6 +423,19 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         await self.client.http.post_initial_response(payload, self.id, self.token)
         self.deferred = True
         self.ephemeral = ephemeral
+
+    async def send_premium_required(self) -> None:
+        """
+        Send a premium required response.
+
+        When used, the user will be prompted to subscribe to premium to use this feature.
+        Only available for applications with monetization enabled.
+        """
+        if self.responded:
+            raise RuntimeError("Cannot send a premium required response after responding")
+
+        await self.client.http.post_initial_response({"type": 10}, self.id, self.token)
+        self.responded = True
 
     async def _send_http_request(
         self, message_payload: dict, files: typing.Iterable["UPLOADABLE_TYPE"] | None = None
