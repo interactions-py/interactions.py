@@ -1599,7 +1599,7 @@ class GuildCategory(GuildChannel):
             user_limit=user_limit,
             reason=reason,
         )
-        
+
     async def create_forum_channel(
         self,
         name: str,
@@ -1638,7 +1638,7 @@ class GuildCategory(GuildChannel):
             user_limit=user_limit,
             reason=reason,
         )
-        
+
     async def create_media_channel(
         self,
         name: str,
