@@ -50,6 +50,7 @@ class HybridManager:
         hybrid_context: The object to instantiate for Hybrid Context
         use_slash_command_msg: If enabled, will send out a message encouraging users to use the slash command \
             equivalent whenever they use the prefixed command version.
+
     """
 
     def __init__(
@@ -145,5 +146,6 @@ def setup(
 
     Returns:
         HybridManager: The class that deals with all things hybrid commands.
+
     """
     return HybridManager(client, hybrid_context=hybrid_context, use_slash_command_msg=use_slash_command_msg)

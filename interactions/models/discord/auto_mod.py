@@ -36,6 +36,7 @@ class BaseAction(DictSerializationMixin):
 
     Attributes:
         type: The type of action that was taken
+
     """
 
     type: AutoModAction = attrs.field(repr=False, converter=AutoModAction)
@@ -62,6 +63,7 @@ class BaseTrigger(DictSerializationMixin):
 
     Attributes:
         type: The type of event this trigger is for
+
     """
 
     type: AutoModTriggerType = attrs.field(
@@ -295,6 +297,7 @@ class AutoModRule(DiscordObject):
 
         Args:
             reason: The reason for deleting this rule
+
         """
         await self._client.http.delete_auto_moderation_rule(self._guild_id, self.id, reason=reason)
 
@@ -329,6 +332,7 @@ class AutoModRule(DiscordObject):
 
         Returns:
             The updated rule
+
         """
         if trigger:
             _data = trigger.to_dict()

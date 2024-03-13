@@ -410,9 +410,9 @@ class Client(
         """A dictionary of registered application commands: `{scope: [commands]}`"""
         self._interaction_lookup: dict[str, InteractionCommand] = {}
         """A dictionary of registered application commands: `{name: command}`"""
-        self.interaction_tree: Dict[
-            "Snowflake_Type", Dict[str, InteractionCommand | Dict[str, InteractionCommand]]
-        ] = {}
+        self.interaction_tree: Dict["Snowflake_Type", Dict[str, InteractionCommand | Dict[str, InteractionCommand]]] = (
+            {}
+        )
         """A dictionary of registered application commands in a tree"""
         self._component_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self._regex_component_callbacks: Dict[re.Pattern, Callable[..., Coroutine]] = {}
@@ -947,6 +947,7 @@ class Client(
 
         Args:
             token: Your bot's token
+
         """
         await self.login(token)
 
@@ -1070,6 +1071,7 @@ class Client(
 
         Returns:
             The event object.
+
         """
         event = get_event_name(event)
 
@@ -1345,6 +1347,7 @@ class Client(
 
         Args:
             command: The command to add
+
         """
         for listener in command.listeners:
             if isinstance(listener, re.Pattern):
@@ -1363,6 +1366,7 @@ class Client(
 
         Args:
             callback: The autocomplete to add
+
         """
         self._global_autocompletes[callback.option_name] = callback
 
@@ -1372,6 +1376,7 @@ class Client(
 
         Args:
             func: The command to add
+
         """
         if isinstance(func, ModalCommand):
             self.add_modal_callback(func)
@@ -1510,6 +1515,7 @@ class Client(
         Raises:
             InteractionMissingAccess: If bot is lacking the necessary access.
             Exception: If there is an error during the synchronization process.
+
         """
         s = time.perf_counter()
         _delete_cmds = self.del_unused_app_cmd if delete_commands is MISSING else delete_commands
@@ -1532,6 +1538,7 @@ class Client(
 
         Returns:
             The scopes to sync.
+
         """
         if scopes is not MISSING:
             return scopes
@@ -1552,6 +1559,7 @@ class Client(
             cmd_scope: The scope to sync.
             delete_cmds: Whether to delete commands.
             local_cmds_json: The local commands in json format.
+
         """
         sync_needed_flag = False
         sync_payload = []
@@ -1578,6 +1586,7 @@ class Client(
 
         Args:
             cmd_scope: The scope to get the commands for.
+
         """
         try:
             return await self.http.get_application_commands(self.app.id, cmd_scope)
@@ -1600,6 +1609,7 @@ class Client(
             cmd_scope: The scope to sync.
             local_cmds_json: The local commands in json format.
             delete_cmds: Whether to delete commands.
+
         """
         sync_payload = []
         sync_needed_flag = False
@@ -1633,6 +1643,7 @@ class Client(
         Args:
             sync_payload: The sync payload.
             cmd_scope: The scope to sync.
+
         """
         self.logger.info(f"Overwriting {cmd_scope} with {len(sync_payload)} application commands")
         sync_response: list[dict] = await self.http.overwrite_application_commands(self.app.id, sync_payload, cmd_scope)
@@ -1709,6 +1720,7 @@ class Client(
             scope: The scope of the command to update
             command_name: The name of the command
             command_id: The ID of the command
+
         """
         if command := self.interactions_by_scope[scope].get(command_name):
             command.cmd_id[scope] = command_id
@@ -1936,6 +1948,7 @@ class Client(
 
         Returns:
             List of Extensions
+
         """
         if name not in self.ext.keys():
             return [ext for ext in self.ext.values() if ext.extension_name == name]
@@ -1951,6 +1964,7 @@ class Client(
 
         Returns:
             A extension, if found
+
         """
         return ext[0] if (ext := self.get_extensions(name)) else None
 
@@ -2002,6 +2016,7 @@ class Client(
             name: The name of the extension.
             package: The package the extension is in
             **load_kwargs: The auto-filled mapping of the load keyword arguments
+
         """
         module_name = importlib.util.resolve_name(name, package)
         if module_name in self.__modules:
@@ -2025,6 +2040,7 @@ class Client(
         Args:
             *packages: The package(s) where the extensions are located.
             recursive: Whether to load extensions from the subdirectories within the package.
+
         """
         if not packages:
             raise ValueError("You must specify at least one package.")
@@ -2492,6 +2508,7 @@ class Client(
 
         Returns:
             A list of entitlements.
+
         """
         entitlements_data = await self.http.get_entitlements(
             self.app.id,
@@ -2518,6 +2535,7 @@ class Client(
 
         Returns:
             The created entitlement.
+
         """
         payload = {"sku_id": to_snowflake(sku_id), "owner_id": to_snowflake(owner_id), "owner_type": owner_type}
 
@@ -2530,6 +2548,7 @@ class Client(
 
         Args:
             entitlement_id: The ID of the entitlement to delete.
+
         """
         await self.http.delete_test_entitlement(self.app.id, to_snowflake(entitlement_id))
 
@@ -2543,6 +2562,7 @@ class Client(
 
         Returns:
             str: The interaction's mention in the specified scope.
+
         """
         return self.interactions_by_scope[scope][name].mention(scope)
 

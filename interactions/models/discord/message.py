@@ -443,6 +443,7 @@ class Message(BaseMessage):
 
         Returns:
             A boolean indicating whether the query could be found or not
+
         """
         return mentions(text=self.content or self.system_content, query=query, tag_as_mention=tag_as_mention)
 

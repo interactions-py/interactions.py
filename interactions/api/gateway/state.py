@@ -138,6 +138,7 @@ class ConnectionState:
             level: The logging level
             message: The message to log
             **kwargs: Any additional keyword arguments that Logger.log accepts
+
         """
         self.logger.log(level, f"Shard ID {self.shard_id} | {message}", **kwargs)
 

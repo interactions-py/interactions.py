@@ -27,6 +27,7 @@ class Converter(Protocol[T_co]):
 
         Returns:
             Any: The converted argument.
+
         """
         raise NotImplementedError("Derived classes need to implement this.")
 

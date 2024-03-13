@@ -312,9 +312,11 @@ class _HybridToPrefixedCommand(PrefixedCommand):
 def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # noqa: C901  there's nothing i can do
     prefixed_cmd = _HybridToPrefixedCommand(
         name=str(cmd.sub_cmd_name) if cmd.is_subcommand else str(cmd.name),
-        aliases=list(_values_wrapper(cmd.sub_cmd_name.to_locale_dict()))
-        if cmd.is_subcommand
-        else list(_values_wrapper(cmd.name.to_locale_dict())),
+        aliases=(
+            list(_values_wrapper(cmd.sub_cmd_name.to_locale_dict()))
+            if cmd.is_subcommand
+            else list(_values_wrapper(cmd.name.to_locale_dict()))
+        ),
         help=str(cmd.description),
         callback=cmd.callback,
         checks=cmd.checks,

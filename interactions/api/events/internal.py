@@ -19,6 +19,7 @@ These are events dispatched by the client. This is intended as a reference so yo
     While all of these events are documented, not all of them are used, currently.
 
 """
+
 import re
 import typing
 from typing import Any, Optional, TYPE_CHECKING, Type

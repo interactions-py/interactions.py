@@ -73,6 +73,7 @@ class Resolved:
         roles: A dictionary of roles resolved from the interaction.
         messages: A dictionary of messages resolved from the interaction.
         attachments: A dictionary of attachments resolved from the interaction.
+
     """
 
     def __init__(self) -> None:
@@ -410,6 +411,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
+
         """
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
@@ -537,6 +539,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
 
         Returns:
             New message object that was sent.
+
         """
         flags = MessageFlags(flags or 0)
         if ephemeral:
@@ -572,6 +575,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
 
         Args:
             message: The message to delete. Defaults to @original which represents the initial response message.
+
         """
         await self.client.http.delete_interaction_message(
             self.client.app.id, self.token, to_snowflake(message) if message != "@original" else message
@@ -654,6 +658,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
+
         """
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
@@ -661,9 +666,11 @@ class ContextMenuContext(InteractionContext, ModalMixin):
             raise AlreadyResponded("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackType.DEFERRED_UPDATE_MESSAGE
-            if edit_origin
-            else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            "type": (
+                CallbackType.DEFERRED_UPDATE_MESSAGE
+                if edit_origin
+                else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            )
         }
         if ephemeral:
             if edit_origin:
@@ -682,6 +689,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
 
         Returns:
             The target of the context menu.
+
         """
         return self.resolved.get(self.target_id)
 
@@ -744,6 +752,7 @@ class ComponentContext(InteractionContext, ModalMixin):
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
+
         """
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
@@ -751,9 +760,11 @@ class ComponentContext(InteractionContext, ModalMixin):
             raise AlreadyResponded("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackType.DEFERRED_UPDATE_MESSAGE
-            if edit_origin
-            else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            "type": (
+                CallbackType.DEFERRED_UPDATE_MESSAGE
+                if edit_origin
+                else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            )
         }
         if ephemeral:
             if edit_origin:
@@ -801,6 +812,7 @@ class ComponentContext(InteractionContext, ModalMixin):
 
         Returns:
             The message after it was edited.
+
         """
         if not self.responded and not self.deferred and (files or file):
             # Discord doesn't allow files at initial response, so we defer then edit.
@@ -878,6 +890,7 @@ class ModalContext(InteractionContext):
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a followup.
+
         """
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
@@ -885,9 +898,11 @@ class ModalContext(InteractionContext):
             raise AlreadyResponded("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackType.DEFERRED_UPDATE_MESSAGE
-            if edit_origin
-            else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            "type": (
+                CallbackType.DEFERRED_UPDATE_MESSAGE
+                if edit_origin
+                else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            )
         }
         if ephemeral:
             payload["data"] = {"flags": MessageFlags.EPHEMERAL}
@@ -935,6 +950,7 @@ class AutocompleteContext(BaseInteractionContext):
 
         Args:
             choices: 25 choices the user can pick
+
         """
         if self.focussed_option.type == OptionType.STRING:
             type_cast = str

@@ -4,6 +4,7 @@ Sets up a Sentry Logger
 And then call `bot.load_extension('interactions.ext.sentry', token=SENTRY_TOKEN)`
 Optionally takes a filter function that will be called before sending the event to Sentry.
 """
+
 import functools
 import logging
 from typing import Any, Callable, Optional

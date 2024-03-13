@@ -36,6 +36,7 @@ Attributes:
     has_feature_flag Callable[[str], bool]: A function that returns whether a feature flag is enabled.
 
 """
+
 import inspect
 import logging
 import os
@@ -183,8 +184,7 @@ class Missing(Sentinel):
         return False
 
 
-class MentionPrefix(Sentinel):
-    ...
+class MentionPrefix(Sentinel): ...
 
 
 GLOBAL_SCOPE = GlobalScope()

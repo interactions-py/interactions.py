@@ -1,4 +1,5 @@
 """This file handles the interaction with discords http endpoints."""
+
 import asyncio
 import inspect
 import os
@@ -80,6 +81,7 @@ class GlobalLock:
 
         Args:
             delta: The time to wait before resetting the calls.
+
         """
         self._reset_time = time.perf_counter() + delta
         self._calls = 0
@@ -134,6 +136,7 @@ class BucketLock:
             header: The header to ingest, containing rate limit information.
 
         Updates the bucket_hash, limit, remaining, and delta attributes with the information from the header.
+
         """
         self.bucket_hash = header.get("x-ratelimit-bucket")
         self.limit = int(header.get("x-ratelimit-limit", self.DEFAULT_LIMIT))
@@ -179,6 +182,7 @@ class BucketLock:
 
         Raises:
             RuntimeError: If the bucket is already locked.
+
         """
         if self._lock.locked():
             raise RuntimeError("Attempted to lock a bucket that is already locked.")
@@ -255,6 +259,7 @@ class HTTPClient(
 
         Returns:
             The BucketLock object for this route
+
         """
         if bucket_hash := self._endpoints.get(route.rl_bucket):
             if lock := self.ratelimit_locks.get(bucket_hash):
@@ -272,6 +277,7 @@ class HTTPClient(
             route: The route we're ingesting ratelimit for
             header: The rate limit header in question
             bucket_lock: The rate limit bucket for this route
+
         """
         bucket_lock.ingest_ratelimit_header(header)
 
@@ -294,6 +300,7 @@ class HTTPClient(
 
         Returns:
             Either a dictionary or multipart data form
+
         """
         if isinstance(payload, FormData):
             return payload
@@ -483,6 +490,7 @@ class HTTPClient(
         Args:
             log_func: The logging function to use
             message: The message to log
+
         """
         if self.show_ratelimit_traceback:
             if frame := next(

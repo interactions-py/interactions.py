@@ -62,6 +62,7 @@ class AudioWriter:
             user_id: The ID of the user
         Raises:
             RuntimeError: If audio is written after the Writer has stopped recording
+
         """
         if self._recording_complete.is_set():
             raise RuntimeError("Attempted to write audio data after Writer is no longer recording.")
@@ -129,6 +130,7 @@ class AudioWriter:
 
         Raises:
             ValueError: If a non-supported encoding is requested.
+
         """
         self._recording_complete.wait()
         if self.output_dir and self.buffer_task.is_alive():
@@ -152,6 +154,7 @@ class AudioWriter:
         Args:
             user_id: The ID of the user's stream to encode.
             encoding: The encoding to use.
+
         """
         decoder = self._recorder.get_decoder(self._recorder.get_ssrc(user_id))
         args = f"ffmpeg -f s16le -ar {decoder.sample_rate} -ac {decoder.channels} -loglevel quiet -i - -f {encoding} pipe:1".split()
@@ -180,6 +183,7 @@ class AudioWriter:
 
         Args:
             user_id: The ID of the user's stream to encode.
+
         """
         log.debug(f"Encoding audio stream for {user_id} as mp3")
         self.__ffmpeg_encode(user_id, "mp3")
@@ -190,6 +194,7 @@ class AudioWriter:
 
         Args:
             user_id: The ID of the user's stream to encode.
+
         """
         log.debug(f"Encoding audio stream for {user_id} as ogg")
         self.__ffmpeg_encode(user_id, "ogg")
@@ -200,6 +205,7 @@ class AudioWriter:
 
         Args:
             user_id: The ID of the user's stream to encode.
+
         """
         log.debug(f"Encoding audio stream for {user_id} as mka")
         self.__ffmpeg_encode(user_id, "matroska")
@@ -210,6 +216,7 @@ class AudioWriter:
 
         Args:
             user_id: The ID of the user's stream to encode.
+
         """
         log.debug(f"Encoding audio stream for {user_id} as wav")
         import wave
@@ -239,6 +246,7 @@ class AudioWriter:
 
         Args:
             user_id: The ID of the user's stream to encode.
+
         """
         log.debug(f"Encoding audio stream for {user_id} as flac")
         self.__ffmpeg_encode(user_id, "flac")
@@ -249,6 +257,7 @@ class AudioWriter:
 
         Args:
             user_id: The ID of the user's stream to encode.
+
         """
         # The audio is already in pcm format, this method is purely here to stop people asking for it.
         log.debug(f"Encoding audio stream for {user_id} as pcm")

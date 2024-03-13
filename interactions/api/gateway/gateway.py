@@ -1,4 +1,5 @@
 """Outlines the interaction between interactions and Discord's Gateway API."""
+
 import asyncio
 import logging
 import sys

@@ -181,6 +181,7 @@ class Paginator:
 
         Returns:
             A paginator system
+
         """
         return cls(client, pages=list(embeds), timeout_interval=timeout)
 
@@ -207,6 +208,7 @@ class Paginator:
 
         Returns:
             A paginator system
+
         """
         content_pages = textwrap.wrap(
             content,
@@ -241,6 +243,7 @@ class Paginator:
 
         Returns:
             A paginator system
+
         """
         pages = []
         page = ""
@@ -386,6 +389,7 @@ class Paginator:
 
         Returns:
             The resulting message
+
         """
         self._message = await ctx.reply(**self.to_dict(), **kwargs)
         self._author_id = ctx.author.id

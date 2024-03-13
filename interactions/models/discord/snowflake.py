@@ -85,6 +85,7 @@ class Snowflake(int):
         Args:
             dt: The datetime object to create the snowflake from.
             high: Set to True if you're creating a snowflake in the discord future.
+
         """
         timestamp = dt.timestamp()
         ms = int(timestamp * 1000 - DISCORD_EPOCH)

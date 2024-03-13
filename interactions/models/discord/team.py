@@ -66,5 +66,6 @@ class Team(DiscordObject):
 
         Returns:
             Boolean indicating whether the user is in the team
+
         """
         return to_snowflake(user) in [m.id for m in self.members]

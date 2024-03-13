@@ -20,6 +20,7 @@ def mentions(
 
     Returns:
         Whether the query could be found in the text
+
     """
     if isinstance(query, str):
         return query in text

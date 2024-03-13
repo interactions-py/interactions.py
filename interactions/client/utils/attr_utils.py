@@ -32,6 +32,7 @@ def docs(doc_string: str) -> Dict[str, str]:
 
     Returns:
         The processed metadata dict
+
     """
     return {"docs": doc_string}
 
@@ -68,6 +69,7 @@ def attrs_validator(
 
     Returns:
         The new fields for the attrs class
+
     """
 
     def operation(_, attributes: list[Attribute]) -> list[Attribute]:

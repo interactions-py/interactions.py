@@ -213,6 +213,7 @@ class ActiveVoiceState(VoiceState):
 
         Args:
             audio: The audio object to play
+
         """
         if self.player:
             await self.stop()
@@ -227,6 +228,7 @@ class ActiveVoiceState(VoiceState):
 
         Args:
             audio: The audio object to play
+
         """
         _ = asyncio.create_task(self.play(audio))
 
@@ -245,6 +247,7 @@ class ActiveVoiceState(VoiceState):
         Args:
             encoding: What format the audio should be encoded to.
             output_dir: The directory to save the audio to
+
         """
         if not self.recorder:
             self.recorder = Recorder(self, asyncio.get_running_loop())
@@ -266,6 +269,7 @@ class ActiveVoiceState(VoiceState):
 
         Returns:
             dict[snowflake, BytesIO]: The recorded audio
+
         """
         if not self.recorder or not self.recorder.recording or not self.recorder.audio:
             raise RuntimeError("No recorder is running!")
@@ -284,6 +288,7 @@ class ActiveVoiceState(VoiceState):
 
         Args:
             data: voice server data
+
         """
         self.ws.set_new_voice_server(data)
 
@@ -300,6 +305,7 @@ class ActiveVoiceState(VoiceState):
             before: The previous voice state
             after: The current voice state
             data: Raw data from gateway
+
         """
         if after is None:
             # bot disconnected

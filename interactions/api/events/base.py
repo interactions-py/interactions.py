@@ -59,6 +59,7 @@ class BaseEvent:
             ```
         Returns:
             A listener object.
+
         """
         listener = models.Listener.create(cls().resolved_name)(coro)
         client.add_listener(listener)

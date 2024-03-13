@@ -45,6 +45,7 @@ class CommandPermissions(ClientObject):
 
         Returns:
             Whether the command is enabled for the given scope(s).
+
         """
         bot_perms = self._guild.command_permissions.get(self._client.app.id)
 
@@ -69,6 +70,7 @@ class CommandPermissions(ClientObject):
 
         Returns:
             Whether the command is enabled for the given context.
+
         """
         everyone_role = context.guild.id
         all_channels = context.guild.id - 1  # why tf discord
@@ -86,5 +88,6 @@ class CommandPermissions(ClientObject):
 
         Args:
             permissions: The permission to set.
+
         """
         self.permissions = {perm.id: perm for perm in permissions}
