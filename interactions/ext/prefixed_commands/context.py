@@ -7,7 +7,7 @@ from interactions.client.mixins.send import SendMixin
 from interactions.models.discord.channel import TYPE_MESSAGEABLE_CHANNEL
 from interactions.models.discord.embed import Embed
 from interactions.models.discord.file import UPLOADABLE_TYPE
-from interactions.models.discord.message import Message
+from interactions.models.discord.message import Message, MessageReference
 from interactions.models.internal.context import BaseContext
 from interactions.models.misc.context_manager import Typing
 
@@ -86,6 +86,7 @@ class PrefixedContext(BaseContext, SendMixin):
         content: Optional[str] = None,
         embeds: Optional[Union[Iterable[Union[Embed, dict]], Union[Embed, dict]]] = None,
         embed: Optional[Union[Embed, dict]] = None,
+        fail_if_not_exists: bool = True,
         **kwargs: Any,
     ) -> Message:
         """
@@ -95,10 +96,12 @@ class PrefixedContext(BaseContext, SendMixin):
             content: Message text content.
             embeds: Embedded rich content (up to 6000 characters).
             embed: Embedded rich content (up to 6000 characters).
+            fail_if_not_exists: Whether to error if the command invocation doesn't exist instead of sending as a normal (non-reply) message.
             **kwargs: Additional options to pass to `send`.
 
         Returns:
             New message object.
 
         """
-        return await self.send(content=content, reply_to=self.message, embeds=embeds or embed, **kwargs)
+        ref = MessageReference.for_message(self.message, fail_if_not_exists=fail_if_not_exists)
+        return await self.send(content=content, reply_to=ref, embeds=embeds or embed, **kwargs)
