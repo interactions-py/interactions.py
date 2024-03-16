@@ -2581,13 +2581,16 @@ class GuildForum(GuildChannel, InvitableMixin):
 
         return next((tag for tag in self.available_tags if predicate(tag)), None)
 
-    async def create_tag(self, name: str, emoji: Union["models.PartialEmoji", dict, str, None] = None) -> "ThreadTag":
+    async def create_tag(
+        self, name: str, emoji: Union["models.PartialEmoji", dict, str, None] = None, moderated: bool = False
+    ) -> "ThreadTag":
         """
         Create a tag for this forum.
 
         Args:
             name: The name of the tag
             emoji: The emoji to use for the tag
+            moderated: whether this tag can only be added to or removed from threads by a member with the MANAGE_THREADS permission
 
         !!! note
             If the emoji is a custom emoji, it must be from the same guild as the channel.
@@ -2596,7 +2599,7 @@ class GuildForum(GuildChannel, InvitableMixin):
             The created tag object.
 
         """
-        payload = {"channel_id": self.id, "name": name}
+        payload = {"channel_id": self.id, "name": name, "moderated": moderated}
 
         if emoji:
             if isinstance(emoji, str):
