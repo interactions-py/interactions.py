@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 
+from croniter import croniter
+
 __all__ = ("BaseTrigger", "IntervalTrigger", "DateTrigger", "TimeTrigger", "OrTrigger")
 
 
@@ -140,3 +142,18 @@ class OrTrigger(BaseTrigger):
 
     def next_fire(self) -> datetime | None:
         return self.current_trigger.next_fire() if self._set_current_trigger() else None
+
+
+class CronTrigger(BaseTrigger):
+    """
+    Trigger the task based on a cron schedule.
+
+    Attributes:
+        cron str: The cron schedule, use https://crontab.guru for help
+    """
+
+    def __init__(self, cron: str) -> None:
+        self.cron = cron
+
+    def next_fire(self) -> datetime | None:
+        return croniter(self.cron, datetime.now()).next(datetime)
