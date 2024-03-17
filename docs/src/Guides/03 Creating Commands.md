@@ -122,7 +122,7 @@ Interactions can also have options. There are a bunch of different [types of opt
 | Option Type               | Return Type                                | Description                                                                                 |
 |---------------------------|--------------------------------------------|---------------------------------------------------------------------------------------------|
 | `OptionType.STRING`      | `str`                                      | Limit the input to a string.                                                                |
-| `OptionType.INTEGER`     | `int`                                      | Limit the input to a integer  between -2^53 and 2^53.                                                               |
+| `OptionType.INTEGER`     | `int`                                      | Limit the input to a integer between -2^53 and 2^53.                                                               |
 | `OptionType.NUMBER`      | `float`                                    | Limit the input to a float between -2^53 and 2^53.                                                                 |
 | `OptionType.BOOLEAN`     | `bool`                                     | Let the user choose either `True` or `False`.                                               |
 | `OptionType.USER`        | `Member` in guilds, else `User`            | Let the user choose a discord user from an automatically-generated list of options.         |
