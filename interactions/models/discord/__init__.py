@@ -71,6 +71,7 @@ from .components import (
 
 from .embed import Embed, EmbedAttachment, EmbedAuthor, EmbedField, EmbedFooter, EmbedProvider, process_embeds
 from .emoji import CustomEmoji, PartialEmoji, process_emoji, process_emoji_req_format
+from .entitlement import Entitlement
 from .enums import (
     ActivityFlag,
     ActivityType,
@@ -223,6 +224,7 @@ __all__ = (
     "EmbedField",
     "EmbedFooter",
     "EmbedProvider",
+    "Entitlement",
     "ExplicitContentFilterLevel",
     "File",
     "FlatUIColors",

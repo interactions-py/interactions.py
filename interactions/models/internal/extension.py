@@ -79,6 +79,10 @@ class Extension:
         instance.client = bot
 
         instance.name = cls.__name__
+
+        if instance.name in bot.ext:
+            raise ValueError(f"An extension with the name {instance.name} is already loaded!")
+
         instance.extension_checks = []
         instance.extension_prerun = []
         instance.extension_postrun = []

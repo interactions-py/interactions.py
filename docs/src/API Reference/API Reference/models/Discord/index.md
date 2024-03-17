@@ -14,6 +14,7 @@ search:
 - [Components](components)
 - [Embed](embed)
 - [Emoji](emoji)
+- [Entitlement](entitlement)
 - [Enums](enums)
 - [File](file)
 - [Guild](guild)

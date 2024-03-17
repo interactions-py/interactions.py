@@ -130,6 +130,7 @@ class GuildRequests(CanRequest):
             "system_channel_flags",
             "rules_channel_id",
             "public_updates_channel_id",
+            "safety_alerts_channel_id",
             "preferred_locale",
             "features",
             "description",

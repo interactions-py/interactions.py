@@ -382,6 +382,10 @@ class MessageType(CursedIntEnum):
     STAGE_SPEAKER = 29
     STAGE_TOPIC = 31
     GUILD_APPLICATION_PREMIUM_SUBSCRIPTION = 32
+    GUILD_INCIDENT_ALERT_MODE_ENABLED = 36
+    GUILD_INCIDENT_ALERT_MODE_DISABLED = 37
+    GUILD_INCIDENT_REPORT_RAID = 38
+    GUILD_INCIDENT_REPORT_FALSE_ALARM = 39
 
     @classmethod
     def deletable(cls) -> Tuple["MessageType", ...]:
@@ -407,6 +411,7 @@ class MessageType(CursedIntEnum):
             cls.STAGE_END,
             cls.STAGE_SPEAKER,
             cls.STAGE_TOPIC,
+            cls.GUILD_APPLICATION_PREMIUM_SUBSCRIPTION,
         )
 
 
@@ -420,6 +425,7 @@ class EmbedType(Enum):
     ARTICLE = "article"
     LINK = "link"
     AUTOMOD_MESSAGE = "auto_moderation_message"
+    AUTOMOD_NOTIFICATION = "auto_moderation_notification"
 
 
 class MessageActivityType(CursedIntEnum):
@@ -462,6 +468,9 @@ class MessageFlags(DiscordIntFlag):  # type: ignore
     """This message should not trigger push or desktop notifications"""
     VOICE_MESSAGE = 1 << 13
     """This message is a voice message"""
+
+    SUPPRESS_NOTIFICATIONS = SILENT
+    """Alias for :attr:`SILENT`"""
 
     # Special members
     NONE = 0
@@ -1060,3 +1069,9 @@ class ForumSortOrder(CursedIntEnum):
     @classmethod
     def converter(cls, value: Optional[int]) -> "ForumSortOrder":
         return None if value is None else cls(value)
+
+
+class EntitlementType(CursedIntEnum):
+    """The type of entitlement."""
+
+    APPLICATION_SUBSCRIPTION = 8

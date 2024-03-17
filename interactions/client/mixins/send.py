@@ -47,6 +47,8 @@ class SendMixin:
         silent: bool = False,
         flags: Optional[Union[int, "MessageFlags"]] = None,
         delete_after: Optional[float] = None,
+        nonce: Optional[str | int] = None,
+        enforce_nonce: bool = False,
         **kwargs: Any,
     ) -> "Message":
         """
@@ -67,6 +69,10 @@ class SendMixin:
             silent: Should this message be sent without triggering a notification.
             flags: Message flags to apply.
             delete_after: Delete message after this many seconds.
+            nonce: Used to verify a message was sent. Can be up to 25 characters.
+            enforce_nonce: If enabled and nonce is present, it will be checked for uniqueness in the past few minutes. \
+                If another message was created by the same author with the same nonce, that message will be returned \
+                and no new message will be created.
 
         Returns:
             New message object that was sent.
@@ -95,6 +101,9 @@ class SendMixin:
                 "Attachments are not files. Attachments only contain metadata about the file, not the file itself - to send an attachment, you need to download it first. Check Attachment.url"
             )
 
+        if enforce_nonce and not nonce:
+            raise ValueError("You must provide a nonce to use enforce_nonce.")
+
         message_payload = models.discord.message.process_message_payload(
             content=content,
             embeds=embeds or embed,
@@ -104,6 +113,8 @@ class SendMixin:
             reply_to=reply_to,
             tts=tts,
             flags=flags,
+            nonce=nonce,
+            enforce_nonce=enforce_nonce,
             **kwargs,
         )
 

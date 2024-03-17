@@ -178,6 +178,7 @@ class ConnectionState:
                 ActivityType.LISTENING,
                 ActivityType.WATCHING,
                 ActivityType.COMPETING,
+                ActivityType.CUSTOM,
             ]:
                 self.wrapped_logger(
                     logging.WARNING, f"Activity type `{ActivityType(activity.type).name}` may not be enabled for bots"

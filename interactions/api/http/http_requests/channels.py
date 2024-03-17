@@ -585,6 +585,7 @@ class ChannelRequests(CanRequest):
         name: str,
         emoji_id: Optional["Snowflake_Type"] = None,
         emoji_name: Optional[str] = None,
+        moderated: bool = False,
     ) -> discord_typings.ChannelData:
         """
         Create a new tag.
@@ -594,6 +595,7 @@ class ChannelRequests(CanRequest):
             name: The name of the tag
             emoji_id: The ID of the emoji to use for the tag
             emoji_name: The name of the emoji to use for the tag
+            moderated: whether this tag can only be added to or removed from threads by a member with the MANAGE_THREADS permission
 
         !!! note
             Can either have an `emoji_id` or an `emoji_name`, but not both.
@@ -603,6 +605,7 @@ class ChannelRequests(CanRequest):
             "name": name,
             "emoji_id": int(emoji_id) if emoji_id else None,
             "emoji_name": emoji_name or None,
+            "moderated": moderated,
         }
         payload = dict_filter_none(payload)
 

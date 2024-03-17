@@ -193,7 +193,7 @@ When responding to a component you need to satisfy Discord either by responding 
 
     You can also use this to check for a normal message instead of a component interaction.
 
-    For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/client/#interactions.client.client.Client.wait_for_component).
+    For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/Client/#interactions.client.Client.wait_for_component).
 
 
 === ":two: Persistent Callback: `@listen()`"

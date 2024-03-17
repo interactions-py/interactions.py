@@ -12,6 +12,7 @@ from .user_events import UserEvents
 from .voice_events import VoiceEvents
 from ._template import Processor
 from .auto_mod import AutoModEvents
+from .entitlement_events import EntitlementEvents
 
 __all__ = (
     "ChannelEvents",
@@ -28,4 +29,5 @@ __all__ = (
     "VoiceEvents",
     "Processor",
     "AutoModEvents",
+    "EntitlementEvents",
 )
