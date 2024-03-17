@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, _TzInfo
 
 from croniter import croniter
 
@@ -150,10 +150,12 @@ class CronTrigger(BaseTrigger):
 
     Attributes:
         cron str: The cron schedule, use https://crontab.guru for help
+        utc bool: Whether or not to use UTC for the time
     """
 
-    def __init__(self, cron: str) -> None:
+    def __init__(self, cron: str, tz: _TzInfo = timezone.utc) -> None:
         self.cron = cron
+        self.tz = tz
 
     def next_fire(self) -> datetime | None:
-        return croniter(self.cron, datetime.now()).next(datetime)
+        return croniter(self.cron, datetime.now(tz=self.tz)).next(datetime)
