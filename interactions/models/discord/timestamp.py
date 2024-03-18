@@ -1,5 +1,6 @@
 import time
-from datetime import datetime, timezone
+import sys
+from datetime import tzinfo, datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Optional, Union
 
@@ -56,6 +57,9 @@ class Timestamp(datetime):
 
     @classmethod
     def fromtimestamp(cls, t: float, tz=None) -> "Timestamp":
+        if sys.platform == "win32" and t < 0:
+            raise ValueError("Negative timestamps are not supported on Windows.")
+
         try:
             timestamp = super().fromtimestamp(t, tz=tz)
         except Exception:
@@ -84,6 +88,28 @@ class Timestamp(datetime):
         """Construct a timezone-aware UTC datetime from time.time()."""
         t = time.time()
         return cls.utcfromtimestamp(t)
+
+    def astimezone(self, tz: tzinfo | None = None) -> "Timestamp":
+        # workaround of https://github.com/python/cpython/issues/107078
+
+        if sys.platform != "win32":
+            return super().astimezone(tz)
+
+        # this bound is loose, but it's good enough for our purposes
+        if self.year > 1970 or (self.year == 1970 and (self.month > 1 or self.day > 1)):
+            return super().astimezone(tz)
+
+        if self.year < 1969 or self.month < 12 or self.day < 31:
+            # windows kind of breaks down for dates before unix time
+            # technically this is solvable, but it's not worth the effort
+            # also, again, this is a loose bound, but it's good enough for our purposes
+            raise ValueError("astimezone with no arguments is not supported for dates before Unix Time on Windows.")
+
+        # to work around the issue to some extent, we'll use a timestamp with a date
+        # that doesn't trigger the bug, and use the timezone from it to modify this
+        # timestamp
+        sample_datetime = Timestamp(1970, 1, 5).astimezone()
+        return self.replace(tzinfo=sample_datetime.tzinfo)
 
     def to_snowflake(self, high: bool = False) -> Union[str, "Snowflake"]:
         """
