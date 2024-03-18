@@ -684,9 +684,9 @@ class Message(BaseMessage):
                 await self._client.http.delete_message(self._channel_id, self.id)
 
         if delay:
-            _ = asyncio.create_task(_delete())
-        else:
-            return await _delete()
+            return asyncio.create_task(_delete())
+
+        return await _delete()
 
     async def reply(
         self,

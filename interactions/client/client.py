@@ -1041,7 +1041,7 @@ class Client(
 
         try:
             asyncio.get_running_loop()
-            _ = asyncio.create_task(self._process_waits(event))
+            _ = asyncio.create_task(self._process_waits(event))  # noqa: RUF006
         except RuntimeError:
             # dispatch attempt before event loop is running
             self.async_startup_tasks.append((self._process_waits, (event,), {}))
@@ -1928,7 +1928,7 @@ class Client(
                     await ctx.send(str(response))
 
             if self.post_run_callback:
-                _ = asyncio.create_task(self.post_run_callback(ctx, **callback_kwargs))
+                _ = asyncio.create_task(self.post_run_callback(ctx, **callback_kwargs))  # noqa: RUF006
         except Exception as e:
             self.dispatch(error_callback(ctx=ctx, error=e))
         finally:
@@ -2001,7 +2001,7 @@ class Client(
                     asyncio.get_running_loop()
                 except RuntimeError:
                     return
-                _ = asyncio.create_task(self.synchronise_interactions())
+                _ = asyncio.create_task(self.synchronise_interactions())  # noqa: RUF006
 
     def load_extension(
         self,
@@ -2090,7 +2090,7 @@ class Client(
                 asyncio.get_running_loop()
             except RuntimeError:
                 return
-            _ = asyncio.create_task(self.synchronise_interactions())
+            _ = asyncio.create_task(self.synchronise_interactions())  # noqa: RUF006
 
     def reload_extension(
         self,

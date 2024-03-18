@@ -196,7 +196,7 @@ class BucketLock:
             await _release()
         else:
             await self._lock.acquire()
-            _ = asyncio.create_task(_release())
+            _ = asyncio.create_task(_release())  # noqa: RUF006
 
     async def __aenter__(self) -> None:
         await self.acquire()

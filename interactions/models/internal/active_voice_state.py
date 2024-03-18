@@ -115,7 +115,7 @@ class ActiveVoiceState(VoiceState):
         """Connect to the voice gateway for this voice state"""
         self.ws = VoiceGateway(self._client._connection_state, self._voice_state.data, self._voice_server.data)
 
-        _ = asyncio.create_task(self._ws_connect())
+        _ = asyncio.create_task(self._ws_connect())  # noqa: RUF006
         await self.ws.wait_until_ready()
 
     def _guild_predicate(self, event) -> bool:
@@ -222,7 +222,7 @@ class ActiveVoiceState(VoiceState):
             self.player.play()
             await self.wait_for_stopped()
 
-    def play_no_wait(self, audio: "BaseAudio") -> None:
+    def play_no_wait(self, audio: "BaseAudio") -> asyncio.Task:
         """
         Start playing an audio object, but don't wait for playback to finish.
 
@@ -230,7 +230,7 @@ class ActiveVoiceState(VoiceState):
             audio: The audio object to play
 
         """
-        _ = asyncio.create_task(self.play(audio))
+        return asyncio.create_task(self.play(audio))
 
     def create_recorder(self) -> Recorder:
         """Create a recorder instance."""

@@ -375,7 +375,7 @@ class Paginator:
 
         if self.timeout_interval > 1:
             self._timeout_task = Timeout(self)
-            _ = asyncio.create_task(self._timeout_task())
+            _ = asyncio.create_task(self._timeout_task())  # noqa: RUF006
 
         return self._message
 
@@ -396,7 +396,7 @@ class Paginator:
 
         if self.timeout_interval > 1:
             self._timeout_task = Timeout(self)
-            _ = asyncio.create_task(self._timeout_task())
+            _ = asyncio.create_task(self._timeout_task())  # noqa: RUF006
 
         return self._message
 
