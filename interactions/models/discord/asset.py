@@ -64,6 +64,7 @@ class Asset:
 
         Returns:
             A url for this asset with the given parameters
+
         """
         if not extension:
             extension = ".gif" if self.animated else ".png"

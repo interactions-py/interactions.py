@@ -637,6 +637,7 @@ class GuildRequests(CanRequest):
 
         Returns:
             A list of channels in this guild. Does not include threads.
+
         """
         result = await self.request(Route("GET", "/guilds/{guild_id}/channels", guild_id=guild_id))
         return cast(list[discord_typings.ChannelData], result)
@@ -927,6 +928,7 @@ class GuildRequests(CanRequest):
 
         Returns:
             A list of auto moderation rules
+
         """
         result = await self.request(Route("GET", "/guilds/{guild_id}/auto-moderation/rules", guild_id=guild_id))
         return cast(list[dict], result)
@@ -943,6 +945,7 @@ class GuildRequests(CanRequest):
 
         Returns:
             The auto moderation rule
+
         """
         result = await self.request(
             Route("GET", "/guilds/{guild_id}/auto-moderation/rules/{rule_id}", guild_id=guild_id, rule_id=rule_id)
@@ -961,6 +964,7 @@ class GuildRequests(CanRequest):
 
         Returns:
             The created auto moderation rule
+
         """
         result = await self.request(
             Route("POST", "/guilds/{guild_id}/auto-moderation/rules", guild_id=guild_id), payload=payload
@@ -999,6 +1003,7 @@ class GuildRequests(CanRequest):
 
         Returns:
             The updated rule object
+
         """
         payload = {
             "name": name,
@@ -1029,6 +1034,7 @@ class GuildRequests(CanRequest):
             guild_id: The ID of the guild to delete this rule from
             rule_id: The ID of the role to delete
             reason: The reason for deleting this rule
+
         """
         result = await self.request(
             Route("DELETE", "/guilds/{guild_id}/auto-moderation/rules/{rule_id}", guild_id=guild_id, rule_id=rule_id),

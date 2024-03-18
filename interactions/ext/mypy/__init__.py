@@ -17,6 +17,7 @@ For pyproject.toml:
 plugins = "interactions.ext.mypy"
 ```
 """
+
 from functools import partial
 from typing import Callable, Optional, Type
 from mypy.plugin import Plugin, ClassDefContext

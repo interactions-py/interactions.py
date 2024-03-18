@@ -12,6 +12,7 @@ async def when_mentioned(bot: Client, _) -> list[str]:
 
     Returns:
         A list of the bot's possible mentions.
+
     """
     return [f"<@{bot.user.id}> ", f"<@!{bot.user.id}> "]  # type: ignore
 
@@ -31,6 +32,7 @@ def when_mentioned_or(
 
     Returns:
         A list of the bot's mentions plus whatever prefixes are provided.
+
     """
 
     async def _new_mention(bot: Client, _) -> list[str]:

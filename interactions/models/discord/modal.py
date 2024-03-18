@@ -162,6 +162,7 @@ class Modal:
 
         Args:
             *components: The components to add.
+
         """
         if len(components) == 1 and isinstance(components[0], (list, tuple)):
             components = components[0]

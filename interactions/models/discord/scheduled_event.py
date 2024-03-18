@@ -108,6 +108,7 @@ class ScheduledEvent(DiscordObject):
 
         Args:
             force: Whether to force fetch the channel from the API
+
         """
         if self._channel_id:
             return await self._client.cache.fetch_channel(self._channel_id, force=force)

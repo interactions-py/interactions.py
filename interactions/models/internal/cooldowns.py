@@ -72,6 +72,7 @@ class CooldownSystem:
 
     ??? tip "Example Use-case"
         This strategy is useful for scenarios where you want to limit the number of times a command can be executed within a fixed time frame, such as preventing command spamming or limiting API calls.
+
     """
 
     __slots__ = "rate", "interval", "opened", "_tokens"
@@ -100,6 +101,7 @@ class CooldownSystem:
 
         Returns:
             boolean state if the command is on cooldown or not
+
         """
         self.determine_cooldown()
 
@@ -155,6 +157,7 @@ class SlidingWindowSystem(CooldownSystem):
 
     ??? tip "Example Use-case"
         This strategy is useful for scenarios where you want to limit the rate of commands executed over a continuous time window, such as ensuring consistent usage of resources or controlling chat bot response frequency.
+
     """
 
     __slots__ = "rate", "interval", "timestamps"
@@ -176,6 +179,7 @@ class SlidingWindowSystem(CooldownSystem):
 
         Returns:
             boolean state if the command is on cooldown or not
+
         """
         self._trim()
 
@@ -237,6 +241,7 @@ class ExponentialBackoffSystem(CooldownSystem):
 
     ??? tip "Example Use-case"
         This strategy is useful for scenarios where you want to progressively slow down repeated attempts at a command, such as preventing brute force attacks or limiting retries on failed operations.
+
     """
 
     def __init__(self, rate: int, interval: float, max_interval: float, multiplier: float = 2) -> None:
@@ -263,6 +268,7 @@ class LeakyBucketSystem(CooldownSystem):
 
     ??? tip "Example Use-case"
         This strategy is useful for scenarios where you want to allow a steady flow of commands to be executed while preventing sudden bursts, such as rate limiting API calls or managing user interactions in a chatbot.
+
     """
 
     def determine_cooldown(self) -> None:
@@ -285,6 +291,7 @@ class TokenBucketSystem(CooldownSystem):
 
     ??? tip "Example Use-case"
         This strategy is useful for scenarios where you want to allow a burst of commands to be executed while limiting the overall rate, such as handling peak traffic in an API or permitting rapid user interactions in a game.
+
     """
 
     def __init__(self, rate: int, interval: float, burst_rate: int) -> None:
@@ -313,6 +320,7 @@ class Cooldown:
         rate: How many commands may be ran per interval
         interval: How many seconds to wait for a cooldown
         cooldown_system: The cooldown system to use for this cooldown
+
     """
 
     __slots__ = "bucket", "cooldown_repositories", "rate", "interval", "cooldown_system"
@@ -351,6 +359,7 @@ class Cooldown:
         Args:
             key: The key to get the cooldown system for
             create: Whether to create a new cooldown system if one does not exist
+
         """
         if key not in self.cooldown_repositories and create:
             cooldown = self.cooldown_system(self.rate, self.interval)
@@ -397,6 +406,7 @@ class Cooldown:
         Args:
             key: The key to get the cooldown system for
             create: Whether to create a new cooldown system if one does not exist
+
         """
         cooldown = self.get_cooldown_with_key(key, create=create)
         if cooldown is not None:
@@ -451,6 +461,7 @@ class Cooldown:
 
         Returns:
             True if the key existed and was reset successfully, False if the key didn't exist.
+
         """
         cooldown = self.get_cooldown_with_key(key)
         if cooldown is not None:
@@ -485,6 +496,7 @@ class MaxConcurrency:
 
         Returns:
             A semaphore object
+
         """
         key = await self.bucket(context)
 

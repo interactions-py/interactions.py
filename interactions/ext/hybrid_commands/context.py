@@ -290,6 +290,7 @@ class HybridContext(BaseContext, SendMixin):
 
         Returns:
             New message object that was sent.
+
         """
         flags = MessageFlags(flags or 0)
         if ephemeral and self._slash_ctx:
@@ -323,6 +324,7 @@ class HybridContext(BaseContext, SendMixin):
 
         Args:
             message: The message to delete
+
         """
         if self._slash_ctx:
             return await self._slash_ctx.delete(message)

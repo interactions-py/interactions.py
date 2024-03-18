@@ -249,6 +249,7 @@ class ThreadRequests:
 
         Returns:
             The created thread object
+
         """
         return await self.request(
             Route("POST", "/channels/{channel_id}/threads", channel_id=channel_id),

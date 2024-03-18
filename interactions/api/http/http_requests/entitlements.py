@@ -39,6 +39,7 @@ class EntitlementRequests(CanRequest):
 
         Returns:
             A dictionary containing the application's entitlements.
+
         """
         params: PAYLOAD_TYPE = {
             "user_id": to_optional_snowflake(user_id),
@@ -65,6 +66,7 @@ class EntitlementRequests(CanRequest):
 
         Returns:
             A dictionary containing the test entitlement.
+
         """
         return await self.request(
             Route("POST", "/applications/{application_id}/entitlements", application_id=application_id), payload=payload
@@ -77,6 +79,7 @@ class EntitlementRequests(CanRequest):
         Args:
             application_id: The ID of the application.
             entitlement_id: The ID of the entitlement.
+
         """
         await self.request(
             Route(

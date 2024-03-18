@@ -103,6 +103,7 @@ class BaseUser(DiscordObject, _SendDMMixin):
 
         Args:
             force: Whether to force a fetch from the API
+
         """
         return await self._client.cache.fetch_dm_channel(self.id, force=force)
 
@@ -655,6 +656,7 @@ class Member(DiscordObject, _SendDMMixin):
             communication_disabled_until: 	when the user's timeout will expire and the user will be able to communicate in the guild again
             flags: Represents the guild member flags
             reason: An optional reason for the audit log
+
         """
         await self._client.http.modify_guild_member(
             self._guild_id,

@@ -609,6 +609,7 @@ class Guild(BaseGuild):
         Args:
             wait: Wait for chunking to be completed before continuing
             presences: Do you need presence data for members?
+
         """
         ws = self._client.get_guild_websocket(self.id)
         await ws.request_member_chunks(self.id, limit=0, presences=presences)
@@ -805,9 +806,9 @@ class Guild(BaseGuild):
             name=name,
             description=description,
             verification_level=int(verification_level) if verification_level else MISSING,
-            default_message_notifications=int(default_message_notifications)
-            if default_message_notifications
-            else MISSING,
+            default_message_notifications=(
+                int(default_message_notifications) if default_message_notifications else MISSING
+            ),
             explicit_content_filter=int(explicit_content_filter) if explicit_content_filter else MISSING,
             afk_channel_id=to_snowflake(afk_channel) if afk_channel else MISSING,
             afk_timeout=afk_timeout,
@@ -1812,6 +1813,7 @@ class Guild(BaseGuild):
 
         Returns:
             The created rule
+
         """
         rule = AutoModRule(
             name=name,
@@ -1832,6 +1834,7 @@ class Guild(BaseGuild):
 
         Returns:
             A list of auto moderation rules
+
         """
         data = await self._client.http.get_auto_moderation_rules(self.id)
         return [AutoModRule.from_dict(d, self._client) for d in data]
@@ -1843,6 +1846,7 @@ class Guild(BaseGuild):
         Args:
             rule: The rule to delete
             reason: The reason for deleting this rule
+
         """
         await self._client.http.delete_auto_moderation_rule(self.id, to_snowflake(rule), reason=reason)
 
@@ -1879,6 +1883,7 @@ class Guild(BaseGuild):
 
         Returns:
             The updated rule
+
         """
         if trigger:
             _data = trigger.to_dict()
@@ -2050,6 +2055,7 @@ class Guild(BaseGuild):
 
         Returns:
             The gui position of the channel.
+
         """
         if not self._channel_gui_positions:
             self._calculate_gui_channel_positions()
@@ -2063,6 +2069,7 @@ class Guild(BaseGuild):
 
         Returns:
             The list of channels in this guild, sorted by their GUI position.
+
         """
         # sorting is based on this https://github.com/discord/discord-api-docs/issues/4613#issuecomment-1059997612
         sort_map = {

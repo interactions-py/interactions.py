@@ -1,4 +1,5 @@
 """Outlines the interaction between interactions and Discord's Gateway API."""
+
 import asyncio
 import logging
 import sys
@@ -161,7 +162,7 @@ class GatewayClient(WebsocketClient):
                 self.sequence = seq
 
             if op == OPCODE.DISPATCH:
-                _ = asyncio.create_task(self.dispatch_event(data, seq, event))
+                _ = asyncio.create_task(self.dispatch_event(data, seq, event))  # noqa: RUF006
                 continue
 
             # This may try to reconnect the connection so it is best to wait
@@ -229,7 +230,7 @@ class GatewayClient(WebsocketClient):
                 event_name = f"raw_{event.lower()}"
                 if processor := self.state.client.processors.get(event_name):
                     try:
-                        _ = asyncio.create_task(
+                        _ = asyncio.create_task(  # noqa: RUF006
                             processor(events.RawGatewayEvent(data.copy(), override_name=event_name))
                         )
                     except Exception as ex:

@@ -315,12 +315,10 @@ class WebsocketClient:
                 return
 
     @abstractmethod
-    async def _identify(self) -> None:
-        ...
+    async def _identify(self) -> None: ...
 
     @abstractmethod
-    async def _resume_connection(self) -> None:
-        ...
+    async def _resume_connection(self) -> None: ...
 
     @abstractmethod
     async def send_heartbeat(self) -> None:

@@ -81,6 +81,7 @@ class LocalisedField:
 
         Returns:
             The localised string, or the default value
+
         """
         if val := getattr(self, locale, None):
             # Attempt to retrieve an attribute with the specified locale
