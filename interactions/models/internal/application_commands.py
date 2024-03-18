@@ -36,7 +36,7 @@ from interactions.client.utils import optional
 from interactions.client.utils.attr_utils import attrs_validator, docs
 from interactions.client.utils.misc_utils import get_parameters, maybe_coroutine
 from interactions.client.utils.serializer import no_export_meta
-from interactions.models.discord.enums import ChannelType, CommandType, Permissions
+from interactions.models.discord.enums import ChannelType, CommandType, ContextType, IntegrationType, Permissions
 from interactions.models.discord.role import Role
 from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 from interactions.models.discord.user import BaseUser
@@ -244,6 +244,16 @@ class InteractionCommand(BaseCommand):
         metadata=docs("A system to automatically defer this command after a set duration") | no_export_meta,
     )
     nsfw: bool = attrs.field(repr=False, default=False, metadata=docs("This command should only work in NSFW channels"))
+    integration_types: Optional[list[Union[IntegrationType, int]]] = attrs.field(
+        default=[IntegrationType.GUILD_INSTALL], 
+        repr=False, 
+        metadata=docs("Installation context(s) where the command is available, only for globally-scoped commands.")
+    )
+    contexts: Optional[list[Union[ContextType, int]]] = attrs.field(
+        default=[ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL], 
+        repr=False, 
+        metadata=docs("Interaction context(s) where the command can be used, only for globally-scoped commands.")
+    )
     _application_id: "Snowflake_Type" = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
 
     def __attrs_post_init__(self) -> None:
