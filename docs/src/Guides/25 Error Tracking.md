@@ -36,7 +36,7 @@ And this is great when debugging.  But it consumes your rate limit, can run into
 
 interactions.py contains built-in support for Sentry.io, a cloud error tracking platform.
 
-To enable it, call `bot.load_extension('interactions.ext.sentry', token=SENTRY_TOKEN)` as early as possible in your startup. (Load it before your own extensions, so it can catch intitialization errors in those extensions)
+To enable it, call `bot.load_extension('interactions.ext.sentry', dsn=SENTRY_DSN)` as early as possible in your startup. Load this extension before your own extensions, so it can catch intitialization errors in those extensions. `SENTRY_DSN` is provided by your Sentry.io project and should look something like `https://...@o9253.sentry.io/1048576`.
 
 # What does this do that vanilla Sentry doesn't?
 

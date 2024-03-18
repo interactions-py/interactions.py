@@ -1,7 +1,7 @@
 """
 Sets up a Sentry Logger
 
-And then call `bot.load_extension('interactions.ext.sentry', token=SENTRY_TOKEN)`
+And then call `bot.load_extension('interactions.ext.sentry', dsn=SENTRY_DSN)`
 Optionally takes a filter function that will be called before sending the event to Sentry.
 """
 
@@ -90,15 +90,17 @@ class HookedTask(Task):
 
 def setup(
     bot: Client,
-    token: str | None = None,
+    dsn: str | None = None,
     filter: Optional[Callable[[dict[str, Any], dict[str, Any]], Optional[dict[str, Any]]]] = None,
+    token: str | None = None,
     **kwargs,
 ) -> None:
-    if not token:
-        bot.logger.error("Cannot enable sentry integration, no token provided")
+    dsn = dsn or token
+    if not dsn:
+        bot.logger.error("Cannot enable sentry integration, no Sentry DSN provided")
         return
     if filter is None:
         filter = default_sentry_filter
-    sentry_sdk.init(token, before_send=filter, **kwargs)
+    sentry_sdk.init(dsn, before_send=filter, **kwargs)
     Task.on_error_sentry_hook = HookedTask.on_error_sentry_hook  # type: ignore
     SentryExtension(bot)
