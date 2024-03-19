@@ -245,14 +245,14 @@ class InteractionCommand(BaseCommand):
     )
     nsfw: bool = attrs.field(repr=False, default=False, metadata=docs("This command should only work in NSFW channels"))
     integration_types: Optional[list[Union[IntegrationType, int]]] = attrs.field(
-        default=[IntegrationType.GUILD_INSTALL], 
-        repr=False, 
-        metadata=docs("Installation context(s) where the command is available, only for globally-scoped commands.")
+        factory=lambda: [IntegrationType.GUILD_INSTALL],
+        repr=False,
+        metadata=docs("Installation context(s) where the command is available, only for globally-scoped commands."),
     )
     contexts: Optional[list[Union[ContextType, int]]] = attrs.field(
-        default=[ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL], 
-        repr=False, 
-        metadata=docs("Interaction context(s) where the command can be used, only for globally-scoped commands.")
+        factory=lambda: [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL],
+        repr=False,
+        metadata=docs("Interaction context(s) where the command can be used, only for globally-scoped commands."),
     )
     _application_id: "Snowflake_Type" = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
 
