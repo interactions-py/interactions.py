@@ -246,12 +246,12 @@ class InteractionCommand(BaseCommand):
         metadata=docs("A system to automatically defer this command after a set duration") | no_export_meta,
     )
     nsfw: bool = attrs.field(repr=False, default=False, metadata=docs("This command should only work in NSFW channels"))
-    integration_types: Optional[list[Union[IntegrationType, int]]] = attrs.field(
+    integration_types: list[Union[IntegrationType, int]] = attrs.field(
         factory=lambda: [IntegrationType.GUILD_INSTALL],
         repr=False,
         metadata=docs("Installation context(s) where the command is available, only for globally-scoped commands."),
     )
-    contexts: Optional[list[Union[ContextType, int]]] = attrs.field(
+    contexts: list[Union[ContextType, int]] = attrs.field(
         factory=lambda: [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL],
         repr=False,
         metadata=docs("Interaction context(s) where the command can be used, only for globally-scoped commands."),
