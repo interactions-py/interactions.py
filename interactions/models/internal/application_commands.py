@@ -230,7 +230,9 @@ class InteractionCommand(BaseCommand):
         default=None,
         metadata=docs("What permissions members need to have by default to use this command"),
     )
-    dm_permission: bool = attrs.field(repr=False, default=True, metadata=docs("Whether this command is enabled in DMs"))
+    dm_permission: bool = attrs.field(
+        repr=False, default=True, metadata=docs("Whether this command is enabled in DMs") | no_export_meta
+    )
     cmd_id: Dict[str, "Snowflake_Type"] = attrs.field(
         repr=False, factory=dict, metadata=docs("The unique IDs of this commands") | no_export_meta
     )  # scope: cmd_id
@@ -264,6 +266,17 @@ class InteractionCommand(BaseCommand):
 
     def to_dict(self) -> dict:
         data = super().to_dict()
+
+        if not self.dm_permission:
+            try:
+                data["contexts"].remove(ContextType.PRIVATE_CHANNEL)
+            except ValueError:
+                pass
+
+            try:
+                data["contexts"].remove(ContextType.BOT_DM)
+            except ValueError:
+                pass
 
         if self.default_member_permissions is not None:
             data["default_member_permissions"] = str(int(self.default_member_permissions))
@@ -1468,9 +1481,10 @@ def _compare_commands(local_cmd: dict, remote_cmd: dict) -> bool:
         "name": ("name", ""),
         "description": ("description", ""),
         "default_member_permissions": ("default_member_permissions", None),
-        "dm_permission": ("dm_permission", True),
         "name_localized": ("name_localizations", None),
         "description_localized": ("description_localizations", None),
+        "integration_types": ("integration_types", [IntegrationType.GUILD_INSTALL]),
+        "contexts": ("contexts", [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL]),
     }
     if remote_cmd.get("guild_id"):
         # non-global command
