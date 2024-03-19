@@ -209,13 +209,16 @@ class MessageInteractionMetadata(DiscordObject):
     """The type of interaction"""
     authorizing_integration_owners: dict[IntegrationType, Snowflake] = attrs.field(repr=False, factory=dict)
     """IDs for installation context(s) related to an interaction."""
-    original_response_message_id: "Optional[Snowflake_Type]" = attrs.field(repr=False, default=None, converter=to_optional_snowflake)
+    original_response_message_id: "Optional[Snowflake_Type]" = attrs.field(
+        repr=False, default=None, converter=to_optional_snowflake
+    )
     """ID of the original response message, present only on follow-up messages"""
-    interacted_message_id: "Optional[Snowflake_Type]" = attrs.field(repr=False, default=None, converter=to_optional_snowflake)
+    interacted_message_id: "Optional[Snowflake_Type]" = attrs.field(
+        repr=False, default=None, converter=to_optional_snowflake
+    )
     """ID of the message that contained interactive component, present only on messages created from component interactions"""
     triggering_interaction_metadata: "Optional[MessageInteractionMetadata]" = attrs.field(repr=False, default=None)
     """Metadata for the interaction that was used to open the modal, present only on modal submit interactions"""
-
 
     _user_id: "Snowflake_Type" = attrs.field(
         repr=False,
