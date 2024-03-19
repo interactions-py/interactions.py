@@ -58,6 +58,7 @@ __all__ = (
     "MessageActivity",
     "MessageReference",
     "MessageInteraction",
+    "MessageInteractionMetadata",
     "AllowedMentions",
     "BaseMessage",
     "Message",
