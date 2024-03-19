@@ -140,9 +140,9 @@ class HybridContext(BaseContext, SendMixin):
 
         self = cls(ctx.client)
 
-        if ctx.channel.type == 1:
+        if ctx.channel.type == 1:  # dm
             self.context = ContextType.BOT_DM
-        elif ctx.channel.type == 3:
+        elif ctx.channel.type == 3:  # group dm
             self.context = ContextType.PRIVATE_CHANNEL
         else:
             self.context = ContextType.GUILD
