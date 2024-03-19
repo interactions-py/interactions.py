@@ -221,7 +221,7 @@ class InteractionCommand(BaseCommand):
         converter=LocalisedName.converter,
     )
     scopes: List["Snowflake_Type"] = attrs.field(
-        default=[GLOBAL_SCOPE],
+        factory=lambda: [GLOBAL_SCOPE],
         converter=to_snowflake_list,
         metadata=docs("The scopes of this interaction. Global or guild ids") | no_export_meta,
     )
