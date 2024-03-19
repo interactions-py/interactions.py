@@ -38,8 +38,10 @@ from .enums import (
     MessageActivityType,
     MessageFlags,
     MessageType,
+    IntegrationType,
 )
 from .snowflake import (
+    Snowflake,
     Snowflake_Type,
     to_optional_snowflake,
     to_snowflake,
@@ -186,6 +188,7 @@ class MessageInteraction(DiscordObject):
     _user_id: "Snowflake_Type" = attrs.field(
         repr=False,
     )
+    """ID of the user who triggered the interaction"""
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
@@ -197,6 +200,42 @@ class MessageInteraction(DiscordObject):
     def user(self) -> "models.User":
         """Get the user associated with this interaction."""
         return self.client.get_user(self._user_id)
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class MessageInteractionMetadata(DiscordObject):
+    type: InteractionType = attrs.field(repr=False, converter=InteractionType)
+    """The type of interaction"""
+    authorizing_integration_owners: dict[IntegrationType, Snowflake] = attrs.field(repr=False, factory=dict)
+    """IDs for installation context(s) related to an interaction."""
+    original_response_message_id: "Optional[Snowflake_Type]" = attrs.field(repr=False, default=None, converter=to_optional_snowflake)
+    """ID of the original response message, present only on follow-up messages"""
+    interacted_message_id: "Optional[Snowflake_Type]" = attrs.field(repr=False, default=None, converter=to_optional_snowflake)
+    """ID of the message that contained interactive component, present only on messages created from component interactions"""
+    triggering_interaction_metadata: "Optional[MessageInteractionMetadata]" = attrs.field(repr=False, default=None)
+    """Metadata for the interaction that was used to open the modal, present only on modal submit interactions"""
+
+
+    _user_id: "Snowflake_Type" = attrs.field(
+        repr=False,
+    )
+    """ID of the user who triggered the interaction"""
+
+    @classmethod
+    def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
+        if "authorizing_integration_owners" in data:
+            data["authorizing_integration_owners"] = {
+                IntegrationType(int(integration_type)): Snowflake(owner_id)
+                for integration_type, owner_id in data["authorizing_integration_owners"].items()
+            }
+        if "triggering_interaction_metadata" in data:
+            data["triggering_interaction_metadata"] = cls.from_dict(data["triggering_interaction_metadata"], client)
+        return data
+
+    @property
+    def user(self) -> "models.User":
+        """Get the user associated with this interaction."""
+        return self.client.get_user(self.user_id)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -360,8 +399,10 @@ class Message(BaseMessage):
     """Data showing the source of a crosspost, channel follow add, pin, or reply message"""
     flags: MessageFlags = attrs.field(repr=False, default=MessageFlags.NONE, converter=MessageFlags)
     """Message flags combined as a bitfield"""
-    interaction: Optional["MessageInteraction"] = attrs.field(repr=False, default=None)
+    interaction_metadata: Optional[MessageInteractionMetadata] = attrs.field(repr=False, default=None)
     """Sent if the message is a response to an Interaction"""
+    interaction: Optional["MessageInteraction"] = attrs.field(repr=False, default=None)
+    """(Deprecated in favor of interaction_metadata) Sent if the message is a response to an Interaction"""
     components: Optional[List["models.ActionRow"]] = attrs.field(repr=False, default=None)
     """Sent if the message contains components like buttons, action rows, or other interactive components"""
     sticker_items: Optional[List["models.StickerItem"]] = attrs.field(repr=False, default=None)
@@ -509,6 +550,9 @@ class Message(BaseMessage):
             data["referenced_message_id"] = _m.id
         elif msg_reference := data.get("message_reference"):
             data["referenced_message_id"] = msg_reference.get("message_id")
+
+        if "interaction_metadata" in data:
+            data["interaction_metadata"] = MessageInteractionMetadata.from_dict(data["interaction_metadata"], client)
 
         if "interaction" in data:
             data["interaction"] = MessageInteraction.from_dict(data["interaction"], client)
