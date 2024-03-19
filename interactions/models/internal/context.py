@@ -299,7 +299,7 @@ class BaseInteractionContext(BaseContext):
         instance.entitlements = Entitlement.from_list(payload["entitlements"], client)
         instance.context = ContextType(payload["context"]) if payload.get("context") else None
         instance.authorizing_integration_owners = {
-            IntegrationType(integration_type): Snowflake(owner_id)
+            IntegrationType(int(integration_type)): Snowflake(owner_id)
             for integration_type, owner_id in payload.get("authorizing_integration_owners", {}).items()
         }
 
