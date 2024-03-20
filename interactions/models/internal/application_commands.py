@@ -777,6 +777,8 @@ class SlashCommand(InteractionCommand):
             group_description=description,
             scopes=self.scopes,
             default_member_permissions=self.default_member_permissions,
+            integration_types=self.integration_types,
+            contexts=self.contexts,
             dm_permission=self.dm_permission,
             checks=self.checks.copy() if inherit_checks else [],
         )
@@ -810,6 +812,8 @@ class SlashCommand(InteractionCommand):
                 sub_cmd_name=sub_cmd_name,
                 sub_cmd_description=sub_cmd_description,
                 default_member_permissions=self.default_member_permissions,
+                integration_types=self.integration_types,
+                contexts=self.contexts,
                 dm_permission=self.dm_permission,
                 options=options,
                 callback=call,
@@ -1419,7 +1423,8 @@ def application_commands_to_dict(  # noqa: C901
                         if subcommand.default_member_permissions
                         else None
                     ),
-                    "dm_permission": subcommand.dm_permission,
+                    "integration_types": subcommand.integration_types,
+                    "contexts": subcommand.to_dict()["contexts"],  # silly way to handle dm_permission
                     "name_localizations": subcommand.name.to_locale_dict(),
                     "description_localizations": subcommand.description.to_locale_dict(),
                     "nsfw": subcommand.nsfw,
@@ -1472,6 +1477,10 @@ def application_commands_to_dict(  # noqa: C901
                 )
             if any(c.default_member_permissions != cmd_list[0].default_member_permissions for c in cmd_list):
                 raise ValueError(f"Conflicting `default_member_permissions` values found in `{cmd_list[0].name}`")
+            if any(c.contexts != cmd_list[0].contexts for c in cmd_list):
+                raise ValueError(f"Conflicting `contexts` values found in `{cmd_list[0].name}`")
+            if any(c.integration_types != cmd_list[0].integration_types for c in cmd_list):
+                raise ValueError(f"Conflicting `integration_types` values found in `{cmd_list[0].name}`")
             if any(c.dm_permission != cmd_list[0].dm_permission for c in cmd_list):
                 raise ValueError(f"Conflicting `dm_permission` values found in `{cmd_list[0].name}`")
             if any(c.nsfw != nsfw for c in cmd_list):
