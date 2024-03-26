@@ -239,12 +239,18 @@ class ClientUser(User):
         """The guilds the user is in."""
         return list(filter(None, (self._client.cache.get_guild(guild_id) for guild_id in self._guild_ids)))
 
-    async def edit(self, *, username: Absent[str] = MISSING, avatar: Absent[UPLOADABLE_TYPE] = MISSING) -> None:
+    async def edit(
+        self,
+        *,
+        username: Absent[str] = MISSING,
+        avatar: Absent[UPLOADABLE_TYPE] = MISSING,
+        banner: Absent[UPLOADABLE_TYPE] = MISSING,
+    ) -> None:
         """
         Edit the client's user.
 
-        You can either change the username, or avatar, or both at once.
-        `avatar` may be set to `None` to remove your bot's avatar
+        You can change the username, avatar, and banner, or any combination of the three.
+        `avatar` and `banner` may be set to `None` to remove your bot's avatar/banner
 
         ??? Hint "Example Usage:"
             ```python
@@ -258,6 +264,7 @@ class ClientUser(User):
         Args:
             username: The username you want to use
             avatar: The avatar to use. Can be a image file, path, or `bytes` (see example)
+            banner: The banner to use. Can be a image file, path, or `bytes`
 
         Raises:
             TooManyChanges: If you change the profile too many times
@@ -270,6 +277,10 @@ class ClientUser(User):
             payload["avatar"] = to_image_data(avatar)
         elif avatar is None:
             payload["avatar"] = None
+        if banner:
+            payload["banner"] = to_image_data(banner)
+        elif banner is None:
+            payload["banner"] = None
 
         try:
             resp = await self._client.http.modify_client_user(payload)

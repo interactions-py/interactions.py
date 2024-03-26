@@ -95,7 +95,13 @@ class ClientUser(User):
     def _add_guilds(self, guild_ids: Set["Snowflake_Type"]) -> None: ...
     @property
     def guilds(self) -> List["Guild"]: ...
-    async def edit(self, *, username: Absent[str] = ..., avatar: Absent[UPLOADABLE_TYPE] = ...) -> None: ...
+    async def edit(
+        self,
+        *,
+        username: Absent[str] = ...,
+        avatar: Absent[UPLOADABLE_TYPE] = ...,
+        banner: Absent[UPLOADABLE_TYPE] = ...,
+    ) -> None: ...
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class Member(FakeUserMixin):
