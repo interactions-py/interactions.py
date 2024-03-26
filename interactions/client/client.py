@@ -208,6 +208,11 @@ _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
         Intents.DIRECT_MESSAGE_REACTIONS,
         Intents.REACTIONS,
     ],
+    events.MessageReactionRemoveEmoji: [
+        Intents.GUILD_MESSAGE_REACTIONS,
+        Intents.DIRECT_MESSAGE_REACTIONS,
+        Intents.REACTIONS,
+    ],
 }
 
 
