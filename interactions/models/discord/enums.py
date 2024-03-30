@@ -32,6 +32,8 @@ __all__ = (
     "MessageType",
     "MFALevel",
     "NSFWLevel",
+    "OnboardingMode",
+    "OnboardingPromptType",
     "OverwriteType",
     "Permissions",
     "PremiumTier",
@@ -718,6 +720,22 @@ class MentionType(str, Enum):
     EVERYONE = "everyone"
     ROLES = "roles"
     USERS = "users"
+
+
+class OnboardingMode(CursedIntEnum):
+    """Defines the criteria used to satisfy Onboarding constraints that are required for enabling."""
+
+    ONBOARDING_DEFAULT = 0
+    """Counts only Default Channels towards constraints"""
+    ONBOARDING_ADVANCED = 1
+    """Counts Default Channels and Questions towards constraints"""
+
+
+class OnboardingPromptType(CursedIntEnum):
+    """Types of Onboarding prompts."""
+
+    MULTIPLE_CHOICE = 0
+    DROPDOWN = 1
 
 
 class OverwriteType(CursedIntEnum):
