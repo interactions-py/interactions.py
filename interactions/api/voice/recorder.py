@@ -217,10 +217,10 @@ class Recorder(threading.Thread):
 
         if raw_audio.ssrc not in self.user_timestamps:
             if last_timestamp := self.audio.last_timestamps.get(raw_audio.user_id, None):
-                diff = raw_audio.timestamp - last_timestamp
-                silence = int(diff * decoder.sample_rate)
+                silence = raw_audio.timestamp - last_timestamp
+                frames = int(silence * decoder.sample_rate)
                 log.debug(
-                    f"{self.state.channel.id}::{raw_audio.user_id} - User rejoined, adding {silence} silence frames ({diff} seconds)"
+                    f"{self.state.channel.id}::{raw_audio.user_id} - User rejoined, adding {frames} silence frames ({silence} seconds)"
                 )
             else:
                 silence = 0
