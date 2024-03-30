@@ -271,19 +271,22 @@ class InteractionCommand(BaseCommand):
 
         super().__attrs_post_init__()
 
+    @dm_permission.validator
+    def _dm_permission_validator(self, attribute: str, value: bool) -> None:
+        # since dm_permission is deprecated, ipy transforms it into something that isn't
+        if not value:
+            try:
+                self.contexts.remove(ContextType.PRIVATE_CHANNEL)
+            except ValueError:
+                pass
+
+            try:
+                self.contexts.remove(ContextType.BOT_DM)
+            except ValueError:
+                pass
+
     def to_dict(self) -> dict:
         data = super().to_dict()
-
-        if not self.dm_permission:
-            try:
-                data["contexts"].remove(ContextType.PRIVATE_CHANNEL)
-            except ValueError:
-                pass
-
-            try:
-                data["contexts"].remove(ContextType.BOT_DM)
-            except ValueError:
-                pass
 
         if self.default_member_permissions is not None:
             data["default_member_permissions"] = str(int(self.default_member_permissions))
@@ -1484,7 +1487,7 @@ def application_commands_to_dict(  # noqa: C901
                         else None
                     ),
                     "integration_types": subcommand.integration_types,
-                    "contexts": subcommand.to_dict()["contexts"],  # silly way to handle dm_permission
+                    "contexts": subcommand.contexts,
                     "name_localizations": subcommand.name.to_locale_dict(),
                     "description_localizations": subcommand.description.to_locale_dict(),
                     "nsfw": subcommand.nsfw,
