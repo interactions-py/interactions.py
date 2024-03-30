@@ -1587,7 +1587,7 @@ def _compare_commands(local_cmd: dict, remote_cmd: dict) -> bool:
     }
     if remote_cmd.get("guild_id"):
         # non-global command
-        del lookup["dm_permission"]
+        del lookup["contexts"]
 
     for local_name, comparison_data in lookup.items():
         remote_name, default_value = comparison_data
