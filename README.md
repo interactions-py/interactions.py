@@ -1,92 +1,142 @@
-<div align="center">
+<!-- icons start at ~64 px/2 em (66 preferred for 1/3 scaling) and decremented by the specified fractional -->
+<!-- logo does not follow this rule -->
 
-   # Interactions.py
-   <br>
+> [!WARNING]
+> This refresh is currently in development. The source can change at any time given
+> without warning. If there is a bug, question or concern, please
+> [submit an issue. →](https://github.com/interactions-py/interactions.py/issues)
 
-   ![](https://img.shields.io/pypi/v/discord-py-interactions.svg?label=Version&logo=pypi)
-   ![](https://img.shields.io/badge/Python-3.10+-1081c1?logo=python)
-   [![](https://img.shields.io/pypi/dm/discord-py-slash-command.svg?logo=python&label=Downloads)](https://pypi.org/project/discord-py-interactions/)
-
-   [![](https://img.shields.io/badge/Code%20Style-black-000000.svg)](https://github.com/psf/black)
-   [![License](https://img.shields.io/badge/License-GPL-blue)](https://github.com/interactions-py/interactions.py/blob/stable/LICENSE)
-
-   [![](https://img.shields.io/badge/Docs-latest-x?logo=readthedocs)](https://interactions-py.github.io/interactions.py/)
-   [![](https://img.shields.io/badge/Guides-latest-x?logo=readthedocs)](https://interactions-py.github.io/interactions.py/Guides/01%20Getting%20Started)
-   [![image](https://discord.com/api/guilds/789032594456576001/embed.png)](https://discord.gg/interactions)
-
+<div>
+   <img align="left" height="80" src="https://github.com/interactions-py/interactions.py/assets/111544899/d733bbfb-ddec-4911-8385-0ef4232aee41" />
+   <h1>
+      interactions.py<br/>
+      <img src="https://img.shields.io/badge/Python-3.10+-1081c1?logo=python" />
+      <img src="https://img.shields.io/badge/License-GPL-blue" />
+      <img src="https://img.shields.io/pypi/dm/discord-py-slash-command.svg?logo=python&label=Downloads" />
+      <img src="https://img.shields.io/badge/Docs-latest-x?logo=readthedocs" />
+      <img src="https://img.shields.io/badge/Guides-latest-x?logo=readthedocs" />
+      <img src="https://discord.com/api/guilds/789032594456576001/embed.png" />
+   </h1>
 </div>
 
-## A Feature-rich Discord Bot Framework for Python
+**interactions.py** is a fast, robust and simple Python API providing feature-rich language bindings for interacting with Discord.
 
-A highly extensible, easy to use, and feature complete framework for Discord.
+As our name suggests – we focus on *interactions*, including application commands and components for bot developers. This library is
+the culmination of years spent researching, designing and testing for the most intuitive; and practical ways to develop applications with them.
 
-`interactions.py` is the culmination of years of experience with Discord's APIs and bot development. This framework has been built from the ground up with community feedback and suggestions in mind. Our framework provides a modern and intuitive set of language bindings for easy interaction with Discord.
+## Design
 
-## Key Features
-interactions.py offers a wide range of features for building Python-powered Discord bots and web applications alike:
-- ✅ 100% coverage of the Discord API
-- ✅ Dynamic cache with TTL support
-- ✅ Modern and Pythonic API for easy interaction with Discord
-- ✅ Proper rate-limit handling
-- ✅ Feature parity with most other Discord API wrappers
-- ✅ Fully automated command synchronisation
+interactions.py is a relatively new and unique library, focusing on providing the essentials needed for every bot developer, all while
+offering more:
 
-In addition to core functionality, `interactions.py` provides a range of optional extensions, allowing you to further customize your bot and add new features with ease.
+<img align="left" height="44" src="https://github.com/interactions-py/interactions.py/assets/111544899/90e92b26-8215-4768-aa0e-eaaa35d43b85" />
+<ul><ul>
+    <b>Full coverage</b><br/>
+    We internally reference all of Discord's resource objects and events with pure Python language bindings and our own abstractions,
+    eliminating the need to worry about the newest features missing.
+</ul></ul>
+
+<img align="left" height="44" src="https://github.com/interactions-py/interactions.py/assets/111544899/2e579e36-686a-464e-9c59-9bf81f849d00" />
+<ul><ul>
+    <b>Smart TTL caching</b><br/>
+    Every event from a Gateway app connection, as well as application commands, fetching and accessing data to-from the API is cached
+    with a <i>time-to-live</i>, emphasising performance and avoiding memory bloat.<br/>
+    <a href="">Learn more →</a>
+</ul></ul>
+
+<img align="left" height="44" src="https://github.com/interactions-py/interactions.py/assets/111544899/8fe15f19-0c97-4996-ad57-f69601b9c534" />
+<ul><ul>
+    <b>Modern <i>async</i>/<i>await</i> API</b><br/>
+    interactions.py is a concurrently-driven library, encouraging and enabling developers to write fast, non-blocking code that executes
+    without limited control flow.
+</ul></ul>
+
+<img align="left" height="44" src="https://github.com/interactions-py/interactions.py/assets/111544899/f3e18fe1-851e-4169-baa5-fe6ca7b54224" />
+<ul><ul>
+    <b>Proper rate limiting</b><br/>
+    Applications and bots are capable of sending a large volume of requests that risk being gated-off from the API if/when too many are sent.
+    We pre-emptively, exhaustively and routinely check the scope of each route with extra safeguards to avoid rate limits.<br/>
+    <a href="">Learn more →</a>
+</ul></ul>
+
+<img align="left" height="44" src="https://github.com/interactions-py/interactions.py/assets/111544899/79f95af2-8cb8-4728-970a-bf6b7dc2d92d" />
+<ul><ul>
+    <b>Out-of-the-box feature parity</b><br/>
+    Our library architecture caters similarly to those of others', making it easier for developers to quickly pick up pace and learn the
+    workings of interactions.py. Although not recommended, we additionally support usage <i>alongside other libraries</i>.*<br/>
+    <a href="">Learn more →</a>
+</ul></ul>
+
+<img align="left" height="44" src="https://github.com/interactions-py/interactions.py/assets/111544899/841e84c5-f9d2-4dc6-b08c-edc6d00a7d89" />
+<ul><ul>
+    <b>Automated synchronisation</b><br/>
+    interactions.py takes years of experience learned from trying to synchronise application commands and applies it by using an opt-out
+    automation process, internally covered by the client detecting for any; and all changes found between your code, and the API.
+</ul></ul>
 
 ## Extensibility
 
-So the base library doesn't do what you want? No problem! With builtin extensions, you are able to extend the functionality of the library. And if none of those pique your interest, there are a myriad of other extension libraries available.
+interactions.py additionally provides bot developers with many builtin extensions to help simplify and offer more functionality
+than what's normally included:
 
-Just type `bot.load_extension("extension")`
+<ul><ul>
+    <b>Prefixed commands</b><br/>
+    <i>By popular request</i>, we've decided to bring prefixed commands to interactions.py as a <u>builtin, yet separate</u>
+    extension for those still wishing to bridge application and text-driven commands together, including <i>hybrid</i>.
+</ul></ul>
 
-<details>
-    <summary>Extensions</summary>
+<ul><ul>
+    <b>Debugging</b><br/>
+    A fully fledged suite of debugging tools and utilities to help you spend less time debugging, and more time coding.
+</ul></ul>
 
-   ### Prefixed Commands
+<ul><ul>
+    <b>Jurigged</b><br/>
+    Hot reloading brought to bot applications, automagically updating your bot without manually reloading extensions, all
+    while keeping a persistent connection.
+</ul></ul>
 
-   Prefixed commands, message commands, or legacy commands.
-   Whatever you want to call them, by default the `interactions.py` library will not handle these. But rest assured this extension will get you going
+<ul><ul>
+    <b>Sentry</b><br/>
+    Sentry brought to Discord! When a problem or issue is detected with a linked Sentry, all of your bot application's errors
+    will be sent over.
+</ul></ul>
 
-  - ✅ Automatic command registration
-  - ✅ Annotation support
+<ul><ul>
+    <b>Console</b><br/>
+    We add <code>aiomonitor</code> as a dependency to your project, provided with a CLI and portable web interface.
+</ul></ul>
 
-  ### Debug Extension
+<ul><ul>
+    <b>Pagination</b><br/>
+    "Pages" or numerous embeds containing data, a web-based UX concept pivoted by the UI of Discord's interaction components.
+</ul></ul>
 
-  A fully featured debug and utilities suite to help you get your bots made
+## Getting started
 
-  ### Jurigged
+> [!NOTE]
+> Installations will be moving *away* from `discord-py-interactions` as our PyPI name in the near-term future.
+> We suggest using the new name `interactions-py` for future bot development.
 
-  A hot reloading extension allowing you to automagically update your bot without reboots
+interactions.py can be installed via. the [pip](https://pypi.org/project/pip/) package manager:
 
-  ### Sentry
+```console
+$ pip install --upgrade discord-py-interactions
+```
 
-  Integrates Sentry.io error tracking into your bot with a single line
+Creating a bot connection within your code is straightforward, including the ability to "listen" for Discord events
+dispatched by the Gateway:
 
-  ### Console
-
-  Adds `aiomonitor` support with enables cli commands over a web interface
-
-  ### Paginators
-
-  Easily create multi-page embeds without having to implement the UX
-
-</details>
-
-## Where do I start?
-
-Getting started with `interactions.py` is easy! Simply install it via `pip` and start building your Discord application in Python:
-
-`pip install -U discord-py-interactions`
 ```python
 import interactions
 
-bot = interactions.Client()
+app = interactions.Client()
 
 @interactions.listen()
 async def on_startup():
-    print("Bot is ready!")
+    print("App is ready!")
 
-bot.start("token")
+app.start("token")
 ```
 
-With `interactions.py`, you can quickly and easily build complex Discord applications with Python. Check out our [guides](https://interactions-py.github.io/interactions.py/Guides/01%20Getting%20Started) for more information. Or join our [discord](https://discord.gg/interactions).
+With **interactions.py**, you can quickly and easily build complex Discord applications with Python. Check out our [guides](https://interactions-py.github.io/interactions.py/Guides/01%20Getting%20Started) for more information, or join our [support server. →](https://discord.gg/interactions)
