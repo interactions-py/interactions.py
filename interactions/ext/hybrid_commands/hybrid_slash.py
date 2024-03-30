@@ -50,11 +50,7 @@ def generate_contexts_check(contexts: list[ContextType | int]) -> Callable[["Hyb
     set_contexts = frozenset(contexts)
 
     async def _contexts_check(ctx: "HybridContext") -> bool:
-        if ctx.guild_id:
-            return ContextType.GUILD in set_contexts
-        if ctx.channel.type == 1 and ctx.channel.recipient.id == ctx.bot.user.id:
-            return ContextType.BOT_DM in set_contexts
-        return ContextType.PRIVATE_CHANNEL in set_contexts
+        return ctx.context in set_contexts
 
     return _contexts_check  # type: ignore
 

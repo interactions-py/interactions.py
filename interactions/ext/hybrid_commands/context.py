@@ -142,8 +142,9 @@ class HybridContext(BaseContext, SendMixin):
         self = cls(ctx.client)
 
         if ctx.channel.type == 1:  # dm
+            # note that prefixed cmds for dms cannot be used outside of bot dms
             self.context = ContextType.BOT_DM
-        elif ctx.channel.type == 3:  # group dm
+        elif ctx.channel.type == 3:  # group dm - technically not possible but just in case
             self.context = ContextType.PRIVATE_CHANNEL
         else:
             self.context = ContextType.GUILD
