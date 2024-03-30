@@ -598,6 +598,7 @@ class Member(DiscordObject, _SendDMMixin):
 
         Args:
             *roles: The Role(s) or role id(s) to check for
+
         """
         return any((self.has_role(to_snowflake(role)) for role in roles))
 
