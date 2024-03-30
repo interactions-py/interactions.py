@@ -22,6 +22,7 @@ from interactions import (
     to_snowflake,
     Attachment,
     process_message_payload,
+    TYPE_MESSAGEABLE_CHANNEL,
 )
 from interactions.models.discord.enums import ContextType
 from interactions.client.mixins.send import SendMixin
@@ -187,6 +188,14 @@ class HybridContext(BaseContext, SendMixin):
     def deferred_ephemeral(self) -> bool:
         """Whether the interaction has been deferred ephemerally."""
         return self.deferred and self.ephemeral
+
+    @property
+    def channel(self) -> "TYPE_MESSAGEABLE_CHANNEL":
+        """The channel this context was invoked in."""
+        if self._prefixed_ctx:
+            return self._prefixed_ctx.channel
+
+        return self._slash_ctx.channel
 
     @property
     def message(self) -> Message | None:
