@@ -57,12 +57,14 @@ __all__ = (
     "CallbackType",
     "component_callback",
     "ComponentCommand",
+    "contexts",
     "context_menu",
     "user_context_menu",
     "message_context_menu",
     "ContextMenu",
     "global_autocomplete",
     "GlobalAutoComplete",
+    "integration_types",
     "InteractionCommand",
     "LocalisedDesc",
     "LocalisedName",
@@ -259,8 +261,13 @@ class InteractionCommand(BaseCommand):
     _application_id: "Snowflake_Type" = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
 
     def __attrs_post_init__(self) -> None:
-        if self.callback is not None and hasattr(self.callback, "auto_defer"):
-            self.auto_defer = self.callback.auto_defer
+        if self.callback is not None:
+            if hasattr(self.callback, "auto_defer"):
+                self.auto_defer = self.callback.auto_defer
+            if hasattr(self.callback, "integration_types"):
+                self.integration_types = self.callback.integration_types
+            if hasattr(self.callback, "contexts"):
+                self.contexts = self.callback.contexts
 
         super().__attrs_post_init__()
 
@@ -1389,6 +1396,59 @@ def auto_defer(
         if hasattr(func, "cmd_id"):
             raise ValueError("auto_defer decorators must be positioned under a slash_command decorator")
         func.auto_defer = AutoDefer(enabled=enabled, ephemeral=ephemeral, time_until_defer=time_until_defer)
+        return func
+
+    return wrapper
+
+
+def integration_types(guild: bool = True, user: bool = False) -> Callable[[InterCommandT], InterCommandT]:
+    """
+    A decorator to set integration types for an application command.
+
+    Args:
+        guild: Should the command be available for guilds
+        user: Should the command be available for individual users
+
+    """
+    kwargs = locals()
+
+    def wrapper(func: InterCommandT) -> InterCommandT:
+        if hasattr(func, "cmd_id"):
+            raise ValueError("integration_types decorators must be positioned under a command decorator")
+
+        func.integration_types = []
+        for key in kwargs:
+            if kwargs[key]:
+                func.integration_types.append(IntegrationType[key.upper() + "_INSTALL"])
+
+        return func
+
+    return wrapper
+
+
+def contexts(
+    guild: bool = True, bot_dm: bool = True, private_channel: bool = True
+) -> Callable[[InterCommandT], InterCommandT]:
+    """
+    A decorator to set contexts where the command can be used for a application command.
+
+    Args:
+        guild: Should the command be available in guilds
+        bot_dm: Should the command be available in bot DMs
+        private_channel: Should the command be available in private channels
+
+    """
+    kwargs = locals()
+
+    def wrapper(func: InterCommandT) -> InterCommandT:
+        if hasattr(func, "cmd_id"):
+            raise ValueError("contexts decorators must be positioned under a command decorator")
+
+        func.contexts = []
+        for key in kwargs:
+            if kwargs[key]:
+                func.contexts.append(ContextType[key.upper()])
+
         return func
 
     return wrapper
