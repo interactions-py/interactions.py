@@ -81,3 +81,24 @@ class ReactionEvents(EventMixinTemplate):
                 await self.cache.fetch_message(event.data["channel_id"], event.data["message_id"]),
             )
         )
+
+    @Processor.define()
+    async def _on_raw_message_reaction_remove_emoji(self, event: "RawGatewayEvent") -> None:
+        emoji = PartialEmoji.from_dict(event.data.get("emoji"))
+        message = self.cache.get_message(event.data.get("channel_id"), event.data.get("message_id"))
+
+        if message:
+            for i, reaction in enumerate(message.reactions):
+                if reaction.emoji == emoji:
+                    message.reactions.pop(i)
+                    break
+        else:
+            message = await self.cache.fetch_message(event.data.get("channel_id"), event.data.get("message_id"))
+
+        self.dispatch(
+            events.MessageReactionRemoveEmoji(
+                event.data.get("guild_id"),
+                message,
+                emoji,
+            )
+        )

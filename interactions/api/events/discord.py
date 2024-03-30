@@ -75,6 +75,7 @@ __all__ = (
     "MessageReactionAdd",
     "MessageReactionRemove",
     "MessageReactionRemoveAll",
+    "MessageReactionRemoveEmoji",
     "MessageUpdate",
     "NewThreadCreate",
     "PresenceUpdate",
@@ -575,6 +576,16 @@ class MessageReactionRemoveAll(GuildEvent):
         repr=False,
     )
     """The message that was reacted to"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class MessageReactionRemoveEmoji(MessageReactionRemoveAll):
+    """Dispatched when all reactions of a specifc emoji are removed from a message."""
+
+    emoji: "PartialEmoji" = attrs.field(
+        repr=False,
+    )
+    """The emoji that was removed"""
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
