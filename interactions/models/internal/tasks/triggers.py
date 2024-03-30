@@ -151,6 +151,7 @@ class CronTrigger(BaseTrigger):
     Attributes:
         cron str: The cron schedule, use https://crontab.guru for help
         tz bool: Whether or not to use UTC for the time
+
     """
 
     def __init__(self, cron: str, tz: _TzInfo = timezone.utc) -> None:
