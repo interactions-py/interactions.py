@@ -47,7 +47,7 @@ offering more:
 <img align="left" height="44" src="https://github.com/interactions-py/interactions.py/assets/111544899/8fe15f19-0c97-4996-ad57-f69601b9c534" />
 <ul><ul>
     <b>Modern <i>async</i>/<i>await</i> API</b><br/>
-    interactions.py is a concurrently-driven library, encouraging and enabling developers to write fast, non-blocking code that executes
+    interactions.py is a concurrency-driven library, encouraging and enabling developers to write fast, non-blocking code that executes
     without limited control flow.
 </ul></ul>
 
