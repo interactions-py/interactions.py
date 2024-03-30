@@ -150,7 +150,7 @@ class CronTrigger(BaseTrigger):
 
     Attributes:
         cron str: The cron schedule, use https://crontab.guru for help
-        tz bool: Whether or not to use UTC for the time
+        tz datetime: Whether or not to use UTC for the time (uses timezone information)
 
     """
 
