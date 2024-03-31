@@ -27,10 +27,10 @@
 
 
 ## Python Compatibility
-<!-- Testing 3.11 is not strictly required, but it would be nice if you could confirm that it works. -->
+<!-- Testing 3.11 and/or 3.12 is not strictly required, but it would be nice if you could confirm that it works. -->
 - [ ] I've ensured my code works on Python `3.10.x`
 - [ ] I've ensured my code works on Python `3.11.x`
-
+- [ ] I've ensured my code works on Python `3.12.x`
 
 ## Checklist
 <!-- If you have not completed all of the following, there is a good chance your PR will not be merged. -->
