@@ -1,34 +1,45 @@
+# -*- coding: utf-8 -*-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
     - id: requirements-txt-fixer
-      name: Requirements
+      name: requirements.txt files
       types: [file]
       exclude_types: ['image']
     - id: debug-statements
-      name: Debugging
+      name: debugging statements
       language: python
       types: [file, python]
       exclude_types: ['image']
     - id: trailing-whitespace
-      name: Trailing Whitespace
+      name: trailing whitespace
       language: python
       types: [file]
       exclude_types: ['image', 'binary', 'executable']
     - id: end-of-file-fixer
-      name: EOF Newlines
+      name: file EOF markers
       language: python
       types: [file]
       exclude_types: ['image', 'binary', 'executable']
     - id: check-yaml
-      name: YAML Structure
+      name: .yaml structure
       language: python
       args: ['--unsafe']
     - id: check-toml
-      name: TOML Structure
+      name: .toml structure
     - id: check-merge-conflict
-      name: Merge Conflicts
+      name: merge conflicts
+    - id: fix-encoding-pragma
+      name: encoding pragma
+      language: python
+      types: [file]
+      exclude_types: ['image', 'binary', 'executable']
+    - id: name-tests-test
+      name: test naming convention
+      language: python
+      types: [file]
+      exclude_types: ['image', 'binary', 'executable']
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: 'v0.3.2'
     hooks:
@@ -38,19 +49,13 @@ repos:
     rev: 24.2.0
     hooks:
       - id: black
-        name: Black Formatting
         language: python
         types: [ file, python ]
-#  - repo: https://github.com/pycqa/isort
-#    rev: 5.11.4
-#    hooks:
-#      - id: isort
-#        name: isort Formatting
-#        language: python
-#        types: [file, python]
 ci:
   autoupdate_branch: "unstable"
   autofix_prs: true
   autoupdate_commit_msg: "ci: weekly check."
   autoupdate_schedule: weekly
   autofix_commit_msg: "ci: correct from checks."
+default_language_version:
+  python: python3.10
