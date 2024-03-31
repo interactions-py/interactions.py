@@ -1,5 +1,9 @@
+import typing
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta, timezone, _TzInfo
+from datetime import datetime, timedelta, timezone
+
+if typing.TYPE_CHECKING:
+    from datetime import _TzInfo
 
 from croniter import croniter
 
@@ -154,7 +158,7 @@ class CronTrigger(BaseTrigger):
 
     """
 
-    def __init__(self, cron: str, tz: _TzInfo = timezone.utc) -> None:
+    def __init__(self, cron: str, tz: "_TzInfo" = timezone.utc) -> None:
         self.cron = cron
         self.tz = tz
 
