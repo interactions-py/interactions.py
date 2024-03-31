@@ -55,7 +55,7 @@ repos:
     rev: 'v1.9.0'
     hooks:
     -   id: mypy
-        args: [--ignore-missing-imports, --strict-equality, --disallow-incomplete-defs]
+        args: [--ignore-missing-imports, --strict-equality, --disallow-incomplete-defs, --disallow-untyped-defs]
 ci:
   autoupdate_branch: "unstable"
   autofix_prs: true
