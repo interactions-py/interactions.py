@@ -794,7 +794,7 @@ class GlobalCache:
 
         if old_state := self.get_voice_state(user_id):
             # noinspection PyProtectedMember
-            if user_id in old_state.channel._voice_member_ids:
+            if old_state.channel is not None and user_id in old_state.channel._voice_member_ids:
                 # noinspection PyProtectedMember
                 old_state.channel._voice_member_ids.remove(user_id)
 
