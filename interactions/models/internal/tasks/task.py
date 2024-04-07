@@ -102,7 +102,7 @@ class Task:
                 return self.stop()
 
             future = asyncio.create_task(self._stop.wait())
-            timeout = (fire_time - datetime.now()).total_seconds()
+            timeout = (fire_time - datetime.now(tz=fire_time.tzinfo)).total_seconds()
             done, _ = await asyncio.wait([future], timeout=timeout, return_when=asyncio.FIRST_COMPLETED)
             if future in done:
                 return None
