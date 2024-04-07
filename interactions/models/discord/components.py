@@ -351,13 +351,13 @@ class SelectDefaultValues(DiscordObject):
         """Create a default value from a discord object."""
         match obj:
             case d_models.User():
-                return cls(id=obj.id, type="user")
+                return cls(client=obj._client, id=obj.id, type="user")
             case d_models.Member():
-                return cls(id=obj.id, type="user")
+                return cls(client=obj._client, id=obj.id, type="user")
             case d_models.BaseChannel():
-                return cls(id=obj.id, type="channel")
+                return cls(client=obj._client, id=obj.id, type="channel")
             case d_models.Role():
-                return cls(id=obj.id, type="role")
+                return cls(client=obj._client, id=obj.id, type="role")
             case _:
                 raise TypeError(
                     f"Cannot convert {obj} of type {type(obj)} to a SelectDefaultValues - Expected User, Channel, Member, or Role"
