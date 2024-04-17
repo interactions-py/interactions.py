@@ -1,9 +1,10 @@
 from enum import Enum, EnumMeta, IntEnum, IntFlag
 from functools import reduce
 from operator import or_
+from sys import version_info
 from typing import Iterator, Tuple, TypeVar, Type, Optional
 
-from interactions.client.const import get_logger
+from interactions.client.const import get_logger, MISSING
 
 __all__ = (
     "ActivityFlag",
@@ -101,13 +102,57 @@ class DistinctFlag(EnumMeta):
     def __iter__(cls) -> Iterator:
         yield from _distinct(super().__iter__())
 
-    def __call__(cls, value, names=None, *, module=None, qualname=None, type=None, start=1) -> "DistinctFlag":
-        # To automatically convert string values into ints (eg for permissions)
-        try:
-            int_value = int(value)
-            return super().__call__(int_value, names, module=module, qualname=qualname, type=type, start=start)
-        except (TypeError, ValueError):
-            return _return_cursed_enum(cls, value)
+    if version_info >= (3, 12, 3):
+
+        def __call__(
+            cls, value, names=MISSING, *values, module=None, qualname=None, type=None, start=1, boundary=None
+        ) -> "DistinctFlag":
+            # To automatically convert string values into ints (eg for permissions)
+            try:
+                int_value = int(value)
+
+                # due to python 3.12.3 adding a new singleton called _not_given that is not exposed in any way,
+                # we have no choice but to replicate the entirety of __call__ ourselves with our own singleton
+                # this does add more of a maintenance burden, but it's the only way to support 3.12.3
+                # see offending commit in cpython below
+                # https://github.com/python/cpython/commit/d771729679d39904768f60b3352e02f5f491966c
+
+                # for original source, see https://github.com/python/cpython/blob/main/Lib/enum.py#L688 or EnumType.__call__
+                # code was mostly taken from 3.12.3 code
+
+                if cls._member_map_:
+                    # simple value lookup if members exist
+                    if names is not MISSING:
+                        int_value = (int_value, names, *values)
+                    return cls.__new__(cls, int_value)
+                # otherwise, functional API: we're creating a new Enum type
+                if names is MISSING and type is None:
+                    # no body? no data-type? possibly wrong usage
+                    raise TypeError(
+                        f"{cls} has no members; specify `names=()` if you meant to create a new, empty, enum"
+                    )
+                return cls._create_(
+                    class_name=int_value,
+                    names=None if names is MISSING else names,
+                    module=module,
+                    qualname=qualname,
+                    type=type,
+                    start=start,
+                    boundary=boundary,
+                )
+
+            except (TypeError, ValueError):
+                return _return_cursed_enum(cls, value)
+
+    else:
+
+        def __call__(cls, value, names=None, *, module=None, qualname=None, type=None, start=1) -> "DistinctFlag":
+            # To automatically convert string values into ints (eg for permissions)
+            try:
+                int_value = int(value)
+                return super().__call__(int_value, names, module=module, qualname=qualname, type=type, start=start)
+            except (TypeError, ValueError):
+                return _return_cursed_enum(cls, value)
 
 
 class DiscordIntFlag(IntFlag, metaclass=DistinctFlag):
