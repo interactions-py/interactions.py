@@ -102,6 +102,7 @@ class DistinctFlag(EnumMeta):
     def __iter__(cls) -> Iterator:
         yield from _distinct(super().__iter__())
 
+    # TODO: cpython may fix this issue one day, so we should remove this when it's fixed or refactor this logic if it's not
     if version_info >= (3, 12, 3):
 
         def __call__(
