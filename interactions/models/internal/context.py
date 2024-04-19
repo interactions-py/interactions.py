@@ -411,8 +411,10 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         Defer the interaction.
 
         Note:
-            If using this method, whether the response is ephemeral or not will be determined by this method regardless
-            of ephemeral settings in send().
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
@@ -669,8 +671,10 @@ class ContextMenuContext(InteractionContext, ModalMixin):
         Defer the interaction.
 
         Note:
-            If using this method, whether the response is ephemeral or not will be determined by this method regardless
-            of ephemeral settings in send().
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
@@ -775,8 +779,10 @@ class ComponentContext(InteractionContext, ModalMixin):
         Defer the interaction.
 
         Note:
-            If using this method, whether the response is ephemeral or not will be determined by this method regardless
-            of ephemeral settings in send().
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
@@ -925,8 +931,10 @@ class ModalContext(InteractionContext):
         Defer the interaction.
 
         Note:
-            If using this method, whether the response is ephemeral or not will be determined by this method regardless
-            of ephemeral settings in send().
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.

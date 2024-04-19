@@ -180,8 +180,10 @@ class HybridContext(BaseContext, SendMixin):
         Either defers the response (if used in an interaction) or triggers a typing indicator for 10 seconds (if used for messages).
 
         ???+ note "Interaction Note"
-            If using this method, whether the interaction response is ephemeral or not will be determined by this
-            method regardless of ephemeral settings in send().
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the interaction response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Should the response be ephemeral? Only applies to responses for interactions.
