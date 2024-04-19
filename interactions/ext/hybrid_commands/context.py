@@ -175,16 +175,23 @@ class HybridContext(BaseContext, SendMixin):
             return DeferTyping(self._slash_ctx, self.ephemeral)
         return self.channel.typing
 
-    async def defer(self, ephemeral: bool = False) -> None:
+    async def defer(self, ephemeral: bool = False, suppress_error: bool = False) -> None:
         """
         Either defers the response (if used in an interaction) or triggers a typing indicator for 10 seconds (if used for messages).
+
+        ???+ note "Interaction Note"
+            If using this method, whether the interaction response is ephemeral or not will be determined by this
+            method regardless of ephemeral settings in send().
+
+            If used alongside auto defer, you may want to use `suppress_error` as auto defer may defer first before
+            this method is called manually.
 
         Args:
             ephemeral: Should the response be ephemeral? Only applies to responses for interactions.
 
         """
         if self._slash_ctx:
-            await self._slash_ctx.defer(ephemeral=ephemeral)
+            await self._slash_ctx.defer(ephemeral=ephemeral, suppress_error=suppress_error)
         else:
             await self.channel.trigger_typing()
 
