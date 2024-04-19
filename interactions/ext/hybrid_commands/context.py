@@ -188,6 +188,7 @@ class HybridContext(BaseContext, SendMixin):
 
         Args:
             ephemeral: Should the response be ephemeral? Only applies to responses for interactions.
+            suppress_error: Should errors on deferring be suppressed than raised.
 
         """
         if self._slash_ctx:

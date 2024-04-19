@@ -419,7 +419,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
-            suppress_errors: Should errors on deferring be suppressed than raised
+            suppress_error: Should errors on deferring be suppressed than raised.
 
         """
         if suppress_error:
@@ -681,7 +681,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
-            suppress_errors: Should errors on deferring be suppressed than raised
+            suppress_error: Should errors on deferring be suppressed than raised.
 
         """
         if suppress_error:
@@ -790,7 +790,7 @@ class ComponentContext(InteractionContext, ModalMixin):
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
-            suppress_errors: Should errors on deferring be suppressed than raised
+            suppress_error: Should errors on deferring be suppressed than raised.
 
         """
         if suppress_error:
@@ -943,7 +943,7 @@ class ModalContext(InteractionContext):
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
-            suppress_errors: Should errors on deferring be suppressed than raised
+            suppress_error: Should errors on deferring be suppressed than raised.
 
         """
         if suppress_error:
