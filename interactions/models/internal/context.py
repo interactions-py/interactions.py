@@ -938,7 +938,7 @@ class ModalContext(InteractionContext):
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
-            edit_origin: Whether to edit the original message instead of sending a new one.
+            edit_origin: Whether to edit the original message instead of sending a followup.
             suppress_error: Should errors on deferring be suppressed than raised.
 
         """
