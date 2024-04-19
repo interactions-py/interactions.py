@@ -414,9 +414,6 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             If using this method, whether the response is ephemeral or not will be determined by this method regardless
             of ephemeral settings in send().
 
-            If used alongside auto defer, you may want to use `suppress_error` as auto defer may defer first before
-            this method is called manually.
-
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             suppress_error: Should errors on deferring be suppressed than raised.
@@ -675,9 +672,6 @@ class ContextMenuContext(InteractionContext, ModalMixin):
             If using this method, whether the response is ephemeral or not will be determined by this method regardless
             of ephemeral settings in send().
 
-            If used alongside auto defer, you may want to use `suppress_error` as auto defer may defer first before
-            this method is called manually.
-
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
@@ -783,9 +777,6 @@ class ComponentContext(InteractionContext, ModalMixin):
         Note:
             If using this method, whether the response is ephemeral or not will be determined by this method regardless
             of ephemeral settings in send().
-
-            If used alongside auto defer, you may want to use `suppress_error` as auto defer may defer first before
-            this method is called manually.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
@@ -936,9 +927,6 @@ class ModalContext(InteractionContext):
         Note:
             If using this method, whether the response is ephemeral or not will be determined by this method regardless
             of ephemeral settings in send().
-
-            If used alongside auto defer, you may want to use `suppress_error` as auto defer may defer first before
-            this method is called manually.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.

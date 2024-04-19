@@ -183,9 +183,6 @@ class HybridContext(BaseContext, SendMixin):
             If using this method, whether the interaction response is ephemeral or not will be determined by this
             method regardless of ephemeral settings in send().
 
-            If used alongside auto defer, you may want to use `suppress_error` as auto defer may defer first before
-            this method is called manually.
-
         Args:
             ephemeral: Should the response be ephemeral? Only applies to responses for interactions.
             suppress_error: Should errors on deferring be suppressed than raised.
