@@ -103,9 +103,10 @@ class DistinctFlag(EnumMeta):
 
     def __call__(cls, value, names=None, *, module=None, qualname=None, type=None, start=1) -> "DistinctFlag":
         # To automatically convert string values into ints (eg for permissions)
+        kwargs = {"names": names} if names else {}
         try:
             int_value = int(value)
-            return super().__call__(int_value, names, module=module, qualname=qualname, type=type, start=start)
+            return super().__call__(int_value, module=module, qualname=qualname, type=type, start=start, **kwargs)
         except (TypeError, ValueError):
             return _return_cursed_enum(cls, value)
 
