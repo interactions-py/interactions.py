@@ -26,6 +26,7 @@ from interactions.models.discord.app_perms import (
 )
 from interactions.models.discord.auto_mod import AutoModRule, BaseAction, BaseTrigger
 from interactions.models.discord.file import UPLOADABLE_TYPE
+from interactions.models.discord.onboarding import Onboarding
 from interactions.models.misc.iterator import AsyncIterator
 
 from .base import ClientObject, DiscordObject
@@ -2034,6 +2035,16 @@ class Guild(BaseGuild):
         """
         regions_data = await self._client.http.get_guild_voice_regions(self.id)
         return models.VoiceRegion.from_list(regions_data)
+
+    async def fetch_onboarding(self) -> Onboarding:
+        """
+        Fetches the guild's onboarding settings.
+
+        Returns:
+            The guild's onboarding settings.
+
+        """
+        return Onboarding.from_dict(await self._client.http.get_guild_onboarding(self.id), self._client)
 
     @property
     def gui_sorted_channels(self) -> list["models.TYPE_GUILD_CHANNEL"]:

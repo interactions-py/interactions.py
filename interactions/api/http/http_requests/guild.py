@@ -1041,3 +1041,39 @@ class GuildRequests(CanRequest):
             reason=reason,
         )
         return cast(dict, result)
+
+    async def get_guild_onboarding(self, guild_id: "Snowflake_Type") -> discord_typings.GuildOnboardingData:
+        """
+        Get the guild's onboarding settings.
+
+        Args:
+            guild_id: The ID of the guild
+
+        Returns:
+            The guild's onboarding object
+
+        """
+        result = await self.request(Route("GET", "/guilds/{guild_id}/onboarding", guild_id=guild_id))
+        return cast(discord_typings.GuildOnboardingData, result)
+
+    async def modify_guild_onboarding(
+        self, guild_id: "Snowflake_Type", payload: dict, reason: str | None = None
+    ) -> discord_typings.GuildOnboardingData:
+        """
+        Modify the guild's onboarding settings.
+
+        Args:
+            guild_id: The ID of the guild
+            payload: A dict representing the modified Onboarding
+            reason: The reason for this action
+
+        Returns:
+            The updated onboarding object
+
+        """
+        result = await self.request(
+            Route("PUT", "/guilds/{guild_id}/onboarding", guild_id=guild_id),
+            payload=payload,
+            reason=reason,
+        )
+        return cast(discord_typings.GuildOnboardingData, result)
