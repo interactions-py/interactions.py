@@ -24,7 +24,9 @@ from interactions import (
     process_message_payload,
 )
 from interactions.client.mixins.send import SendMixin
+from interactions.client.errors import HTTPException
 from interactions.ext import prefixed_commands as prefixed
+import contextlib
 
 if TYPE_CHECKING:
     from .hybrid_slash import HybridSlashCommand
@@ -192,6 +194,9 @@ class HybridContext(BaseContext, SendMixin):
         """
         if self._slash_ctx:
             await self._slash_ctx.defer(ephemeral=ephemeral, suppress_error=suppress_error)
+        elif suppress_error:
+            with contextlib.suppress(HTTPException):
+                await self.channel.trigger_typing()
         else:
             await self.channel.trigger_typing()
 
