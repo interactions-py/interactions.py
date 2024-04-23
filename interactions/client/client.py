@@ -894,13 +894,12 @@ class Client(
             listener = Listener.create("_on_raw_guild_create")(_temp_listener)
             self.add_listener(listener)
 
-            while True:
+            while len(ready_guilds) != len(expected_guilds):
                 try:
                     await asyncio.wait_for(self._guild_event.wait(), self.guild_event_timeout)
-                    if len(ready_guilds) == len(expected_guilds):
-                        break
                 except asyncio.TimeoutError:
                     break
+                self._guild_event.clear()
 
             self.listeners["raw_guild_create"].remove(listener)
 
