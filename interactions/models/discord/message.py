@@ -234,6 +234,10 @@ class MessageInteractionMetadata(DiscordObject):
             }
         if "triggering_interaction_metadata" in data:
             data["triggering_interaction_metadata"] = cls.from_dict(data["triggering_interaction_metadata"], client)
+
+        user_data = data["user"]
+        data["user_id"] = client.cache.place_user_data(user_data).id
+
         return data
 
     @property
