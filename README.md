@@ -8,7 +8,7 @@
    [![](https://img.shields.io/pypi/dm/discord-py-slash-command.svg?logo=python&label=Downloads)](https://pypi.org/project/discord-py-interactions/)
 
    [![](https://img.shields.io/badge/Code%20Style-black-000000.svg)](https://github.com/psf/black)
-   [![License](https://img.shields.io/badge/License-GPL-blue)](https://github.com/interactions-py/interactions.py/blob/stable/LICENSE)
+   [![License](https://img.shields.io/badge/License-MIT-blue)](https://github.com/interactions-py/interactions.py/blob/stable/LICENSE)
 
    [![](https://img.shields.io/badge/Docs-latest-x?logo=readthedocs)](https://interactions-py.github.io/interactions.py/)
    [![](https://img.shields.io/badge/Guides-latest-x?logo=readthedocs)](https://interactions-py.github.io/interactions.py/Guides/01%20Getting%20Started)
