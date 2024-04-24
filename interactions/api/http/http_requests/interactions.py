@@ -117,6 +117,7 @@ class InteractionRequests(CanRequest):
 
         Returns:
             An application command object
+
         """
         if guild_id == GLOBAL_SCOPE:
             result = await self.request(

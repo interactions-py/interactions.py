@@ -1,6 +1,7 @@
 from .bot import BotRequests
 from .channels import ChannelRequests
 from .emojis import EmojiRequests
+from .entitlements import EntitlementRequests
 from .guild import GuildRequests
 from .interactions import InteractionRequests
 from .members import MemberRequests
@@ -16,6 +17,7 @@ __all__ = (
     "BotRequests",
     "ChannelRequests",
     "EmojiRequests",
+    "EntitlementRequests",
     "GuildRequests",
     "InteractionRequests",
     "MemberRequests",

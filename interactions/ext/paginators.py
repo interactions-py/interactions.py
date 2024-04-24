@@ -181,6 +181,7 @@ class Paginator:
 
         Returns:
             A paginator system
+
         """
         return cls(client, pages=list(embeds), timeout_interval=timeout)
 
@@ -207,6 +208,7 @@ class Paginator:
 
         Returns:
             A paginator system
+
         """
         content_pages = textwrap.wrap(
             content,
@@ -241,6 +243,7 @@ class Paginator:
 
         Returns:
             A paginator system
+
         """
         pages = []
         page = ""
@@ -271,13 +274,14 @@ class Paginator:
 
         if self.show_select_menu:
             current = self.pages[self.page_index]
+            lower_index = max(0, min(len(self.pages) - 25, self.page_index - 12))
             output.append(
                 StringSelectMenu(
                     *(
                         StringSelectOption(
                             label=f"{i+1} {p.get_summary if isinstance(p, Page) else p.title}", value=str(i)
                         )
-                        for i, p in enumerate(self.pages)
+                        for i, p in enumerate(self.pages[lower_index : lower_index + 25], start=lower_index)
                     ),
                     custom_id=f"{self._uuid}|select",
                     placeholder=f"{self.page_index+1} {current.get_summary if isinstance(current, Page) else current.title}",
@@ -371,7 +375,7 @@ class Paginator:
 
         if self.timeout_interval > 1:
             self._timeout_task = Timeout(self)
-            _ = asyncio.create_task(self._timeout_task())
+            _ = asyncio.create_task(self._timeout_task())  # noqa: RUF006
 
         return self._message
 
@@ -385,13 +389,14 @@ class Paginator:
 
         Returns:
             The resulting message
+
         """
         self._message = await ctx.reply(**self.to_dict(), **kwargs)
         self._author_id = ctx.author.id
 
         if self.timeout_interval > 1:
             self._timeout_task = Timeout(self)
-            _ = asyncio.create_task(self._timeout_task())
+            _ = asyncio.create_task(self._timeout_task())  # noqa: RUF006
 
         return self._message
 

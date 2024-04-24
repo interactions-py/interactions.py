@@ -26,6 +26,7 @@ from interactions.models.discord.app_perms import (
 )
 from interactions.models.discord.auto_mod import AutoModRule, BaseAction, BaseTrigger
 from interactions.models.discord.file import UPLOADABLE_TYPE
+from interactions.models.discord.onboarding import Onboarding
 from interactions.models.misc.iterator import AsyncIterator
 
 from .base import ClientObject, DiscordObject
@@ -528,7 +529,7 @@ class Guild(BaseGuild):
         """
         return self._client.cache.get_member(self.id, self._owner_id)
 
-    async def fetch_channels(self) -> List["models.TYPE_VOICE_CHANNEL"]:
+    async def fetch_channels(self) -> List["models.TYPE_GUILD_CHANNEL"]:
         """
         Fetch this guild's channels.
 
@@ -609,6 +610,7 @@ class Guild(BaseGuild):
         Args:
             wait: Wait for chunking to be completed before continuing
             presences: Do you need presence data for members?
+
         """
         ws = self._client.get_guild_websocket(self.id)
         await ws.request_member_chunks(self.id, limit=0, presences=presences)
@@ -805,9 +807,9 @@ class Guild(BaseGuild):
             name=name,
             description=description,
             verification_level=int(verification_level) if verification_level else MISSING,
-            default_message_notifications=int(default_message_notifications)
-            if default_message_notifications
-            else MISSING,
+            default_message_notifications=(
+                int(default_message_notifications) if default_message_notifications else MISSING
+            ),
             explicit_content_filter=int(explicit_content_filter) if explicit_content_filter else MISSING,
             afk_channel_id=to_snowflake(afk_channel) if afk_channel else MISSING,
             afk_timeout=afk_timeout,
@@ -1812,6 +1814,7 @@ class Guild(BaseGuild):
 
         Returns:
             The created rule
+
         """
         rule = AutoModRule(
             name=name,
@@ -1832,6 +1835,7 @@ class Guild(BaseGuild):
 
         Returns:
             A list of auto moderation rules
+
         """
         data = await self._client.http.get_auto_moderation_rules(self.id)
         return [AutoModRule.from_dict(d, self._client) for d in data]
@@ -1843,6 +1847,7 @@ class Guild(BaseGuild):
         Args:
             rule: The rule to delete
             reason: The reason for deleting this rule
+
         """
         await self._client.http.delete_auto_moderation_rule(self.id, to_snowflake(rule), reason=reason)
 
@@ -1879,6 +1884,7 @@ class Guild(BaseGuild):
 
         Returns:
             The updated rule
+
         """
         if trigger:
             _data = trigger.to_dict()
@@ -2030,6 +2036,16 @@ class Guild(BaseGuild):
         regions_data = await self._client.http.get_guild_voice_regions(self.id)
         return models.VoiceRegion.from_list(regions_data)
 
+    async def fetch_onboarding(self) -> Onboarding:
+        """
+        Fetches the guild's onboarding settings.
+
+        Returns:
+            The guild's onboarding settings.
+
+        """
+        return Onboarding.from_dict(await self._client.http.get_guild_onboarding(self.id), self._client)
+
     @property
     def gui_sorted_channels(self) -> list["models.TYPE_GUILD_CHANNEL"]:
         """Return this guilds channels sorted by their gui positions"""
@@ -2050,6 +2066,7 @@ class Guild(BaseGuild):
 
         Returns:
             The gui position of the channel.
+
         """
         if not self._channel_gui_positions:
             self._calculate_gui_channel_positions()
@@ -2063,6 +2080,7 @@ class Guild(BaseGuild):
 
         Returns:
             The list of channels in this guild, sorted by their GUI position.
+
         """
         # sorting is based on this https://github.com/discord/discord-api-docs/issues/4613#issuecomment-1059997612
         sort_map = {

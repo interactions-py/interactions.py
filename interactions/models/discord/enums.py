@@ -32,6 +32,8 @@ __all__ = (
     "MessageType",
     "MFALevel",
     "NSFWLevel",
+    "OnboardingMode",
+    "OnboardingPromptType",
     "OverwriteType",
     "Permissions",
     "PremiumTier",
@@ -103,9 +105,10 @@ class DistinctFlag(EnumMeta):
 
     def __call__(cls, value, names=None, *, module=None, qualname=None, type=None, start=1) -> "DistinctFlag":
         # To automatically convert string values into ints (eg for permissions)
+        kwargs = {"names": names} if names else {}
         try:
             int_value = int(value)
-            return super().__call__(int_value, names, module=module, qualname=qualname, type=type, start=start)
+            return super().__call__(int_value, module=module, qualname=qualname, type=type, start=start, **kwargs)
         except (TypeError, ValueError):
             return _return_cursed_enum(cls, value)
 
@@ -425,6 +428,7 @@ class EmbedType(Enum):
     ARTICLE = "article"
     LINK = "link"
     AUTOMOD_MESSAGE = "auto_moderation_message"
+    AUTOMOD_NOTIFICATION = "auto_moderation_notification"
 
 
 class MessageActivityType(CursedIntEnum):
@@ -467,6 +471,9 @@ class MessageFlags(DiscordIntFlag):  # type: ignore
     """This message should not trigger push or desktop notifications"""
     VOICE_MESSAGE = 1 << 13
     """This message is a voice message"""
+
+    SUPPRESS_NOTIFICATIONS = SILENT
+    """Alias for :attr:`SILENT`"""
 
     # Special members
     NONE = 0
@@ -714,6 +721,22 @@ class MentionType(str, Enum):
     EVERYONE = "everyone"
     ROLES = "roles"
     USERS = "users"
+
+
+class OnboardingMode(CursedIntEnum):
+    """Defines the criteria used to satisfy Onboarding constraints that are required for enabling."""
+
+    ONBOARDING_DEFAULT = 0
+    """Counts only Default Channels towards constraints"""
+    ONBOARDING_ADVANCED = 1
+    """Counts Default Channels and Questions towards constraints"""
+
+
+class OnboardingPromptType(CursedIntEnum):
+    """Types of Onboarding prompts."""
+
+    MULTIPLE_CHOICE = 0
+    DROPDOWN = 1
 
 
 class OverwriteType(CursedIntEnum):
@@ -1065,3 +1088,9 @@ class ForumSortOrder(CursedIntEnum):
     @classmethod
     def converter(cls, value: Optional[int]) -> "ForumSortOrder":
         return None if value is None else cls(value)
+
+
+class EntitlementType(CursedIntEnum):
+    """The type of entitlement."""
+
+    APPLICATION_SUBSCRIPTION = 8

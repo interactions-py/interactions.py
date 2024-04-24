@@ -32,9 +32,9 @@ async def my_long_command_function(ctx: SlashContext):
     await ctx.send("Hello World")
 ```
 ???+ note
-    Command names must be lowercase and can only contain `-` and `_` as special symbols and must not contain spaces.
+    Command names must be lowercase, can only contain `-` and `_` as special symbols, and must not contain spaces.
 
-When testing, it is recommended to use non-global commands, as they sync instantly.
+By default, commands are assumed to be global, meaning they can be used by every server the bot is in. When testing, it is recommended to use non-global commands.
 For that, you can either define `scopes` in every command or set `debug_scope` in the bot instantiation which sets the scope automatically for all commands.
 
 You can define non-global commands by passing a list of guild ids to `scopes` in the interaction creation.
@@ -64,15 +64,17 @@ async def my_command_function(ctx: SlashContext):
     await ctx.send("Hello World")
 ```
 
-This will show up in discord as `/base group command`. There are more ways to add additional subcommands:
+This will show up in discord as `/base group command`. You may also wish to drop the `group` part to have a `/base command` subcommand, which you can do by removing the `group_name` and `group_description` parameters (they are optional).
+
+There are more ways to add additional subcommands to the base/group from there:
 
 === ":one: Decorator"
     ```python
     @my_command_function.subcommand(
         group_name="group",
         group_description="My command group",
-        sub_cmd_name="sub",
-        sub_cmd_description="My subcommand",
+        sub_cmd_name="second_command",
+        sub_cmd_description="My second command",
     )
     async def my_second_command_function(ctx: SlashContext):
         await ctx.send("Hello World")
@@ -106,11 +108,12 @@ This will show up in discord as `/base group command`. There are more ways to ad
         await ctx.send("Hello World")
     ```
 
-For all of these, the "group" parts are optional, allowing you to do `/base command` instead.
+All of these would create a subcommand called `/base group second_command`.
 
 ???+ note
-    You cannot mix group subcommands and non-group subcommands into one base command - you must either use all group subcommands or normal subcommands.
+    Using subcommands makes using the base command unusable - IE, you cannot use `/base` as a normal command.
 
+    Group subcommands follow a similar logic, as by defining a group, you can no longer create normal subcommands - IE, you cannot use either `/base` or `/base command`.
 
 ## Options
 
@@ -119,13 +122,13 @@ Interactions can also have options. There are a bunch of different [types of opt
 | Option Type               | Return Type                                | Description                                                                                 |
 |---------------------------|--------------------------------------------|---------------------------------------------------------------------------------------------|
 | `OptionType.STRING`      | `str`                                      | Limit the input to a string.                                                                |
-| `OptionType.INTEGER`     | `int`                                      | Limit the input to a integer.                                                               |
-| `OptionType.NUMBER`      | `float`                                    | Limit the input to a float.                                                                 |
+| `OptionType.INTEGER`     | `int`                                      | Limit the input to an integer between -2^53 and 2^53.                                                               |
+| `OptionType.NUMBER`      | `float`                                    | Limit the input to a float between -2^53 and 2^53.                                                                 |
 | `OptionType.BOOLEAN`     | `bool`                                     | Let the user choose either `True` or `False`.                                               |
 | `OptionType.USER`        | `Member` in guilds, else `User`            | Let the user choose a discord user from an automatically-generated list of options.         |
 | `OptionType.CHANNEL`     | `GuildChannel` in guilds, else `DMChannel` | Let the user choose a discord channel from an automatically-generated list of options.      |
 | `OptionType.ROLE`        | `Role`                                     | Let the user choose a discord role from an automatically-generated list of options.         |
-| `OptionType.MENTIONABLE` | `DiscordObject`                            | Let the user chose any discord mentionable from an automatically generated list of options. |
+| `OptionType.MENTIONABLE` | `Union[Member, User, Role]`                            | Let the user chose any discord mentionable from an automatically generated list of options. |
 | `OptionType.ATTACHMENT`  | `Attachment`                               | Let the user upload an attachment.                                                          |
 
 Now that you know all the options you have for options, you can opt into adding options to your interaction.
@@ -145,19 +148,30 @@ async def my_command_function(ctx: SlashContext, integer_option: int):
     await ctx.send(f"You input {integer_option}")
 ```
 
+!!! danger "Option Names"
+    Be aware that, by default, the option `name` and the function parameter need to be the same (in this example both are `integer_option`).
+
+    If you want to use a different name for the function parameter, you can use the `argument_name` parameter in `@slash_option()`.
+
 Options can either be required or not. If an option is not required, make sure to set a default value for them.
 
 Always make sure to define all required options first, this is a Discord requirement!
 ```python
 @slash_command(name="my_command", ...)
 @slash_option(
-    name="integer_option",
-    description="Integer Option",
+    name="integer_option_1",
+    description="Integer Option 1",
+    required=True,
+    opt_type=OptionType.INTEGER
+)
+@slash_option(
+    name="integer_option_2",
+    description="Integer Option 2",
     required=False,
     opt_type=OptionType.INTEGER
 )
-async def my_command_function(ctx: SlashContext, integer_option: int = 5):
-    await ctx.send(f"You input {integer_option}")
+async def my_command_function(ctx: SlashContext, integer_option_1: int, integer_option_2: int = 5):
+    await ctx.send(f"Sum: {integer_option_1 + integer_option_2}")
 ```
 
 For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.slash_option).
@@ -212,9 +226,6 @@ async def my_command_function(ctx: SlashContext, string_option: str):
     await ctx.send(f"You input `{string_option}` which is between 5 and 10 characters long")
 ```
 
-!!! danger "Option Names"
-    Be aware that the option `name` and the function parameter need to be the same (In this example both are `integer_option`).
-
 
 ## Option Choices
 
@@ -242,7 +253,7 @@ async def my_command_function(ctx: SlashContext, integer_option: int):
 
 For more information, please visit the API reference [here](/interactions.py/API Reference/API Reference/models/Internal/application_commands/#interactions.models.internal.application_commands.SlashCommandChoice).
 
-## Autocomplete / More than 25 choices needed
+## Autocomplete / More Than 25 Choices Needed
 
 If you have more than 25 choices the user can choose from, or you want to give a dynamic list of choices depending on what the user is currently typing, then you will need autocomplete options.
 The downside is that you need to supply the choices on request, making this a bit more tricky to set up.
@@ -269,7 +280,7 @@ from interactions import AutocompleteContext
 
 @my_command_function.autocomplete("string_option")
 async def autocomplete(ctx: AutocompleteContext):
-    string_option_input = ctx.input_text  # can be empty
+    string_option_input = ctx.input_text  # can be empty/None
     # you can use ctx.kwargs.get("name") to get the current state of other options - note they can be empty too
 
     # make sure you respond within three seconds
@@ -291,9 +302,12 @@ async def autocomplete(ctx: AutocompleteContext):
     )
 ```
 
-## Command definition without decorators
+???+ note
+    Discord does not handle search narrowing for you when using autocomplete. You need to handle that yourself.
 
-There are currently four different ways to define interactions, one does not need any decorators at all.
+## Other Methods of Defining Slash Commands
+
+There are currently four different ways to define slash commands - one does not need any decorators at all.
 
 === ":one: Multiple Decorators"
 
@@ -333,10 +347,14 @@ There are currently four different ways to define interactions, one does not nee
 === ":three: Function Annotations"
 
     ```python
+    from typing import Annotation  # using Annotation is optional, but recommended
     from interactions import slash_int_option
 
     @slash_command(name="my_command", description="My first command :)")
-    async def my_command_function(ctx: SlashContext, integer_option: slash_int_option("Integer Option")):
+    async def my_command_function(
+        ctx: SlashContext,
+        integer_option: Annotation[int, slash_int_option("Integer Option")]
+    ):
         await ctx.send(f"You input {integer_option}")
     ```
 
@@ -349,7 +367,7 @@ There are currently four different ways to define interactions, one does not nee
         await ctx.send(f"You input {integer_option}")
 
     bot.add_interaction(
-        command=SlashCommand(
+        SlashCommand(
             name="my_command",
             description="My first command :)",
             options=[
@@ -359,23 +377,24 @@ There are currently four different ways to define interactions, one does not nee
                     required=True,
                     type=OptionType.INTEGER
                 )
-            ]
+            ],
+            callback=my_command_function
         )
     )
     ```
 
-## Restrict commands using permissions
+## Restrict Commands Using Permissions
 
-It is possible to disable interactions (slash commands as well as context menus) for users that do not have a set of permissions.
+It is possible to disable application commands (which include slash commands) for users that do not have a set of permissions.
 
-This functionality works for **permissions**, not to confuse with roles. If you want to restrict some command if the user does not have a certain role, this cannot be done on the bot side. However, it can be done on the Discord server side, in the Server Settings > Integrations page.
+This functionality works for **permissions**, not to confuse with roles. If you want to restrict some command if the user does not have a certain role, this cannot be done on the bot side. However, it can be done on the Discord server side (in the Server Settings > Integrations page) or through [Checks][checks] as discussed below.
 
 !!!warning Administrators
     Remember that administrators of a Discord server have all permissions and therefore will always see the commands.
 
     If you do not want admins to be able to overwrite your permissions, or the permissions are not flexible enough for you, you should use [checks][checks].
 
-In this example, we will limit access to the command to members with the `MANAGE_EVENTS` and `MANAGE_THREADS` permissions.
+In this example, we will limit access to the command to members with the `MANAGE_EVENTS` *and* `MANAGE_THREADS` permissions.
 There are two ways to define permissions.
 
 === ":one: Decorators"
@@ -427,7 +446,7 @@ There are a few pre-made checks for you to use, and you can simply create your o
     Check that the author is the owner of the bot:
 
     ```python
-    from interactions import SlashContext, check, is_owner, slash_command
+    from interactions import check, is_owner
 
     @slash_command(name="my_command")
     @check(is_owner())
@@ -439,7 +458,7 @@ There are a few pre-made checks for you to use, and you can simply create your o
     Check that the author's username starts with `a`:
 
     ```python
-    from interactions import BaseContext, SlashContext, check, slash_command
+    from interactions import check
 
     async def my_check(ctx: BaseContext):
         return ctx.author.username.startswith("a")
@@ -451,33 +470,30 @@ There are a few pre-made checks for you to use, and you can simply create your o
     ```
 
 === ":three: Reusing Checks"
-    You can reuse checks in extensions by adding them to the extension check list
+    While you can simply reuse checks by doing `@check(my_check)` for every command you wish to use the check with, you can also reuse them by making your own decorator wrapping the `@check()` decorator:
 
     ```python
-    from interactions import Extension
+    from interactions import check
 
-    class MyExtension(Extension):
-        def __init__(self, bot) -> None:
-            super().__init__(bot)
-            self.add_ext_check(is_owner())
+    def my_check():
+        async def predicate(ctx: ipy.BaseContext):
+            return ctx.author.username.startswith("a")
+
+        return check(predicate)
 
     @slash_command(name="my_command")
-    async def my_command_function(ctx: SlashContext):
-        ...
-
-    @slash_command(name="my_command2")
-    async def my_command_function2(ctx: SlashContext):
-        ...
+    @my_check()
+    async def command(ctx: SlashContext):
+        await ctx.send("Your username starts with an 'a'!", ephemeral=True)
     ```
 
-    The check will be checked for every command in the extension.
+When multiple checks are used, *all* checks must pass for the command to be executed.
 
-
-## Avoid redefining the same option everytime
+## Avoid Redefining Options
 
 If you have multiple commands that all use the same option, it might be both annoying and bad programming to redefine it multiple times.
 
-Luckily, you can simply make your own decorators that themselves call `@slash_option()`:
+Luckily, if you use the option decorator method, you can simply make your own decorators that themselves call `@slash_option()`:
 ```python
 def my_own_int_option():
     """Call with `@my_own_int_option()`"""
@@ -499,26 +515,63 @@ async def my_command_function(ctx: SlashContext, integer_option: int):
     await ctx.send(f"You input {integer_option}")
 ```
 
+If you use `SlashCommandOption` objects directly, you can also use the same principle:
+```python
+my_own_int_option = SlashCommandOption(
+    name="integer_option",
+    description="Integer Option",
+    required=True,
+    type=OptionType.INTEGER
+)
+
+@slash_command(name="my_command", options=[my_own_int_option])
+async def my_command_function(ctx: SlashContext, integer_option: int):
+    await ctx.send(f"You input {integer_option}")
+```
+
 The same principle can be used to reuse autocomplete options.
 
-## Simplified Error Handling
+## Error Handling
+
+By default, if an error occurs in a command, interactions.py will send the error to its default error listener, which will either:
+
+- Send an appropriate error message to the user, if the error is meant to be shown to the user (IE cooldown or check errors).
+- Log the error and, if `send_command_tracebacks` is enabled in your Client (which it is by default), send the error as a response to the command.
+
+To override this for a single command, you can use the `@error` decorator every command has:
+
+```python
+@slash_command(name="my_command", ...)
+async def my_command_function(ctx: SlashContext):
+    raise ValueError("Something went wrong!")
+
+@my_command_function.error
+async def on_command_error(error: Exception, ctx: SlashContext):
+    await ctx.send(f"Something went wrong: {error}")
+```
+
+???+ note
+    If you wish for an error handler for a group of commands, you may wish to check out [Extensions](20 Extensions.md), which allows you both to group commands together and add error handlers to the group.
 
 If you want error handling for all commands, you can override the default error listener and define your own.
-Any error from interactions will trigger `CommandError`. That includes context menus.
+Any error from any command will trigger `CommandError` - note that this includes errors from context menus and (if enabled) prefixed commands.
 
 In this example, we are logging the error and responding to the interaction if not done so yet:
 ```python
 import traceback
 from interactions.api.events import CommandError
 
-@listen(CommandError, disable_default_listeners=True)  # tell the dispatcher that this replaces the default listener
+@listen(CommandError, disable_default_listeners=True)
 async def on_command_error(event: CommandError):
     traceback.print_exception(event.error)
     if not event.ctx.responded:
         await event.ctx.send("Something went wrong.")
 ```
 
-There also is `CommandCompletion` which you can overwrite too. That fires on every interactions usage.
+!!! warning
+    If you override the default error listener, you will need to handle all errors yourself. This *includes* errors typically shown to the user, such as cooldowns and check errors.
+
+There also is `CommandCompletion` which you can listen into too. That fires on every interactions usage.
 
 ## Custom Parameter Type
 

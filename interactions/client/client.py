@@ -87,6 +87,7 @@ from interactions.models import Wait
 from interactions.models.discord.color import BrandColors
 from interactions.models.discord.components import get_components_ids, BaseComponent
 from interactions.models.discord.embed import Embed
+from interactions.models.discord.entitlement import Entitlement
 from interactions.models.discord.enums import (
     ComponentType,
     Intents,
@@ -207,12 +208,18 @@ _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
         Intents.DIRECT_MESSAGE_REACTIONS,
         Intents.REACTIONS,
     ],
+    events.MessageReactionRemoveEmoji: [
+        Intents.GUILD_MESSAGE_REACTIONS,
+        Intents.DIRECT_MESSAGE_REACTIONS,
+        Intents.REACTIONS,
+    ],
 }
 
 
 class Client(
     processors.AutoModEvents,
     processors.ChannelEvents,
+    processors.EntitlementEvents,
     processors.GuildEvents,
     processors.IntegrationEvents,
     processors.MemberEvents,
@@ -408,9 +415,9 @@ class Client(
         """A dictionary of registered application commands: `{scope: [commands]}`"""
         self._interaction_lookup: dict[str, InteractionCommand] = {}
         """A dictionary of registered application commands: `{name: command}`"""
-        self.interaction_tree: Dict[
-            "Snowflake_Type", Dict[str, InteractionCommand | Dict[str, InteractionCommand]]
-        ] = {}
+        self.interaction_tree: Dict["Snowflake_Type", Dict[str, InteractionCommand | Dict[str, InteractionCommand]]] = (
+            {}
+        )
         """A dictionary of registered application commands in a tree"""
         self._component_callbacks: Dict[str, Callable[..., Coroutine]] = {}
         self._regex_component_callbacks: Dict[re.Pattern, Callable[..., Coroutine]] = {}
@@ -887,13 +894,12 @@ class Client(
             listener = Listener.create("_on_raw_guild_create")(_temp_listener)
             self.add_listener(listener)
 
-            while True:
+            while len(ready_guilds) != len(expected_guilds):
                 try:
                     await asyncio.wait_for(self._guild_event.wait(), self.guild_event_timeout)
-                    if len(ready_guilds) == len(expected_guilds):
-                        break
                 except asyncio.TimeoutError:
                     break
+                self._guild_event.clear()
 
             self.listeners["raw_guild_create"].remove(listener)
 
@@ -945,6 +951,7 @@ class Client(
 
         Args:
             token: Your bot's token
+
         """
         await self.login(token)
 
@@ -1038,7 +1045,7 @@ class Client(
 
         try:
             asyncio.get_running_loop()
-            _ = asyncio.create_task(self._process_waits(event))
+            _ = asyncio.create_task(self._process_waits(event))  # noqa: RUF006
         except RuntimeError:
             # dispatch attempt before event loop is running
             self.async_startup_tasks.append((self._process_waits, (event,), {}))
@@ -1068,6 +1075,7 @@ class Client(
 
         Returns:
             The event object.
+
         """
         event = get_event_name(event)
 
@@ -1343,6 +1351,7 @@ class Client(
 
         Args:
             command: The command to add
+
         """
         # test for parameters that arent the ctx (or self)
         if command.has_binding:
@@ -1372,6 +1381,7 @@ class Client(
 
         Args:
             callback: The autocomplete to add
+
         """
         self._global_autocompletes[callback.option_name] = callback
 
@@ -1381,6 +1391,7 @@ class Client(
 
         Args:
             func: The command to add
+
         """
         if isinstance(func, ModalCommand):
             self.add_modal_callback(func)
@@ -1519,6 +1530,7 @@ class Client(
         Raises:
             InteractionMissingAccess: If bot is lacking the necessary access.
             Exception: If there is an error during the synchronization process.
+
         """
         s = time.perf_counter()
         _delete_cmds = self.del_unused_app_cmd if delete_commands is MISSING else delete_commands
@@ -1541,6 +1553,7 @@ class Client(
 
         Returns:
             The scopes to sync.
+
         """
         if scopes is not MISSING:
             return scopes
@@ -1561,6 +1574,7 @@ class Client(
             cmd_scope: The scope to sync.
             delete_cmds: Whether to delete commands.
             local_cmds_json: The local commands in json format.
+
         """
         sync_needed_flag = False
         sync_payload = []
@@ -1587,6 +1601,7 @@ class Client(
 
         Args:
             cmd_scope: The scope to get the commands for.
+
         """
         try:
             return await self.http.get_application_commands(self.app.id, cmd_scope)
@@ -1609,6 +1624,7 @@ class Client(
             cmd_scope: The scope to sync.
             local_cmds_json: The local commands in json format.
             delete_cmds: Whether to delete commands.
+
         """
         sync_payload = []
         sync_needed_flag = False
@@ -1642,6 +1658,7 @@ class Client(
         Args:
             sync_payload: The sync payload.
             cmd_scope: The scope to sync.
+
         """
         self.logger.info(f"Overwriting {cmd_scope} with {len(sync_payload)} application commands")
         sync_response: list[dict] = await self.http.overwrite_application_commands(self.app.id, sync_payload, cmd_scope)
@@ -1718,6 +1735,7 @@ class Client(
             scope: The scope of the command to update
             command_name: The name of the command
             command_id: The ID of the command
+
         """
         if command := self.interactions_by_scope[scope].get(command_name):
             command.cmd_id[scope] = command_id
@@ -1925,7 +1943,7 @@ class Client(
                     await ctx.send(str(response))
 
             if self.post_run_callback:
-                _ = asyncio.create_task(self.post_run_callback(ctx, **callback_kwargs))
+                _ = asyncio.create_task(self.post_run_callback(ctx, **callback_kwargs))  # noqa: RUF006
         except Exception as e:
             self.dispatch(error_callback(ctx=ctx, error=e))
         finally:
@@ -1945,6 +1963,7 @@ class Client(
 
         Returns:
             List of Extensions
+
         """
         if name not in self.ext.keys():
             return [ext for ext in self.ext.values() if ext.extension_name == name]
@@ -1960,6 +1979,7 @@ class Client(
 
         Returns:
             A extension, if found
+
         """
         return ext[0] if (ext := self.get_extensions(name)) else None
 
@@ -1996,7 +2016,7 @@ class Client(
                     asyncio.get_running_loop()
                 except RuntimeError:
                     return
-                _ = asyncio.create_task(self.synchronise_interactions())
+                _ = asyncio.create_task(self.synchronise_interactions())  # noqa: RUF006
 
     def load_extension(
         self,
@@ -2011,6 +2031,7 @@ class Client(
             name: The name of the extension.
             package: The package the extension is in
             **load_kwargs: The auto-filled mapping of the load keyword arguments
+
         """
         module_name = importlib.util.resolve_name(name, package)
         if module_name in self.__modules:
@@ -2023,6 +2044,7 @@ class Client(
         self,
         *packages: str,
         recursive: bool = False,
+        **load_kwargs: Any,
     ) -> None:
         """
         Load multiple extensions at once.
@@ -2033,6 +2055,7 @@ class Client(
         Args:
             *packages: The package(s) where the extensions are located.
             recursive: Whether to load extensions from the subdirectories within the package.
+
         """
         if not packages:
             raise ValueError("You must specify at least one package.")
@@ -2046,7 +2069,7 @@ class Client(
             extensions = [f.replace(os.path.sep, ".").replace(".py", "") for f in glob.glob(pattern, recursive=True)]
 
             for ext in extensions:
-                self.load_extension(ext)
+                self.load_extension(ext, **load_kwargs)
 
     def unload_extension(
         self, name: str, package: str | None = None, force: bool = False, **unload_kwargs: Any
@@ -2082,7 +2105,7 @@ class Client(
                 asyncio.get_running_loop()
             except RuntimeError:
                 return
-            _ = asyncio.create_task(self.synchronise_interactions())
+            _ = asyncio.create_task(self.synchronise_interactions())  # noqa: RUF006
 
     def reload_extension(
         self,
@@ -2475,6 +2498,75 @@ class Client(
         """
         return self._connection_state.get_voice_state(guild_id)
 
+    async def fetch_entitlements(
+        self,
+        *,
+        user_id: "Optional[Snowflake_Type]" = None,
+        sku_ids: "Optional[list[Snowflake_Type]]" = None,
+        before: "Optional[Snowflake_Type]" = None,
+        after: "Optional[Snowflake_Type]" = None,
+        limit: Optional[int] = 100,
+        guild_id: "Optional[Snowflake_Type]" = None,
+        exclude_ended: Optional[bool] = None,
+    ) -> List[Entitlement]:
+        """
+        Fetch the entitlements for the bot's application.
+
+        Args:
+            user_id: The ID of the user to filter entitlements by.
+            sku_ids: The IDs of the SKUs to filter entitlements by.
+            before: Get entitlements before this ID.
+            after: Get entitlements after this ID.
+            limit: The maximum number of entitlements to return. Maximum is 100.
+            guild_id: The ID of the guild to filter entitlements by.
+            exclude_ended: Whether to exclude ended entitlements.
+
+        Returns:
+            A list of entitlements.
+
+        """
+        entitlements_data = await self.http.get_entitlements(
+            self.app.id,
+            user_id=user_id,
+            sku_ids=sku_ids,
+            before=before,
+            after=after,
+            limit=limit,
+            guild_id=guild_id,
+            exclude_ended=exclude_ended,
+        )
+        return Entitlement.from_list(entitlements_data, self)
+
+    async def create_test_entitlement(
+        self, sku_id: "Snowflake_Type", owner_id: "Snowflake_Type", owner_type: int
+    ) -> Entitlement:
+        """
+        Create a test entitlement for the bot's application.
+
+        Args:
+            sku_id: The ID of the SKU to create the entitlement for.
+            owner_id: The ID of the owner of the entitlement.
+            owner_type: The type of the owner of the entitlement. 1 for a guild subscription, 2 for a user subscription
+
+        Returns:
+            The created entitlement.
+
+        """
+        payload = {"sku_id": to_snowflake(sku_id), "owner_id": to_snowflake(owner_id), "owner_type": owner_type}
+
+        entitlement_data = await self.http.create_test_entitlement(payload, self.app.id)
+        return Entitlement.from_dict(entitlement_data, self)
+
+    async def delete_test_entitlement(self, entitlement_id: "Snowflake_Type") -> None:
+        """
+        Delete a test entitlement for the bot's application.
+
+        Args:
+            entitlement_id: The ID of the entitlement to delete.
+
+        """
+        await self.http.delete_test_entitlement(self.app.id, to_snowflake(entitlement_id))
+
     def mention_command(self, name: str, scope: int = 0) -> str:
         """
         Returns a string that would mention the interaction specified.
@@ -2485,6 +2577,7 @@ class Client(
 
         Returns:
             str: The interaction's mention in the specified scope.
+
         """
         return self.interactions_by_scope[scope][name].mention(scope)
 
@@ -2501,7 +2594,7 @@ class Client(
             activity: The activity for the bot to be displayed as doing.
 
         !!! note
-            Bots may only be `playing` `streaming` `listening` `watching` or `competing`, other activity types are likely to fail.
+            Bots may only be `playing` `streaming` `listening` `watching`  `competing` or `custom`
 
         """
         await self._connection_state.change_presence(status, activity)

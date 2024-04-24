@@ -224,6 +224,7 @@ def get_object_name(x: Any) -> str:
 
     Returns:
         str: The name of the object.
+
     """
     try:
         return x.__name__
@@ -258,6 +259,7 @@ def nulled_boolean_get(data: dict[str, Any], key: str) -> bool:
 
     Returns:
         The boolean value of the key
+
     """
     # discord tags are weird, when they are None they are True, when they are True they are True and when they are False they are False
     if key in data:

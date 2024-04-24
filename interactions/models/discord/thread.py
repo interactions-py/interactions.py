@@ -154,6 +154,7 @@ class ThreadTag(DiscordObject):
 
         Returns:
             This object
+
         """
         if emoji := models.process_emoji(emoji):
             return cls(
@@ -183,6 +184,7 @@ class ThreadTag(DiscordObject):
 
         Returns:
             This object
+
         """
         if isinstance(emoji, str):
             emoji = PartialEmoji.from_str(emoji)
@@ -235,6 +237,7 @@ def process_thread_tag(tag: Optional[dict | ThreadTag]) -> Optional[dict]:
 
     Returns:
         formatted dictionary for discrd
+
     """
     if not tag:
         return tag
@@ -257,6 +260,7 @@ def process_default_reaction(reaction: Optional[dict | DefaultReaction | Partial
 
     Returns:
         formatted dictionary for discrd
+
     """
     if not reaction:
         return reaction

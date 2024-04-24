@@ -46,6 +46,7 @@ class PrefixedManager:
             that takes in a `Client` and `Message` object and returns either a \
             string or an iterable of strings. Defaults to `None`.
         prefixed_context: The object to instantiate for Prefixed Context
+
     """
 
     def __init__(
@@ -108,6 +109,7 @@ class PrefixedManager:
 
         Returns:
             The prefix(es) to check for.
+
         """
         return self.default_prefix  # type: ignore
 
@@ -117,6 +119,7 @@ class PrefixedManager:
 
         Args:
             command: The command to add.
+
         """
         if command.is_subcommand:
             raise ValueError("You cannot add subcommands to the client - add the base command instead.")
@@ -149,6 +152,7 @@ class PrefixedManager:
 
         Returns:
             The command object, if found.
+
         """
         if " " not in name:
             return self.commands.get(name)
@@ -197,6 +201,7 @@ class PrefixedManager:
         Returns:
             The command that was removed, if one was. If the command was not found,
             this function returns `None`.
+
         """
         command = self.get_command(name)
 
@@ -367,6 +372,7 @@ def setup(
 
     Returns:
         PrefixedManager: The class that deals with all things prefixed commands.
+
     """
     return PrefixedManager(
         client,

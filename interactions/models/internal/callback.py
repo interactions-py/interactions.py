@@ -37,6 +37,7 @@ class CallbackObject:
 
         Args:
             callback: The callback to call.
+
         """
         if self._binding:
             return await callback(self._binding, *args, **kwargs)

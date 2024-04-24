@@ -963,6 +963,7 @@ class DMGroup(DMChannel):
             name: 1-100 character channel name
             icon: An icon to use
             reason: The reason for this change
+
         """
         return await super().edit(name=name, icon=icon, reason=reason, **kwargs)
 
@@ -972,6 +973,7 @@ class DMGroup(DMChannel):
 
         Args:
             force: Whether to force a fetch from the API
+
         """
         return await self._client.cache.fetch_user(self.owner_id, force=force)
 
@@ -1153,6 +1155,7 @@ class GuildChannel(BaseChannel):
         Args:
             overwrite: The permission overwrite to apply
             reason: The reason for this change
+
         """
         await self._client.http.edit_channel_permission(
             self.id,
@@ -1273,6 +1276,7 @@ class GuildChannel(BaseChannel):
             view_channel: Allows guild members to view a channel, which includes reading messages in text channels and joining voice channels
             view_guild_insights: Allows for viewing guild insights
             reason: The reason for creating this overwrite
+
         """
         overwrite = PermissionOverwrite.for_target(target)
 
@@ -2047,6 +2051,7 @@ class GuildPublicThread(ThreadChannel):
 
         Returns:
             The edited thread channel object.
+
         """
         return await super().edit(
             name=name,
@@ -2105,6 +2110,7 @@ class GuildForumPost(GuildPublicThread):
 
         Returns:
             The edited thread channel object.
+
         """
         if applied_tags != MISSING:
             applied_tags = [str(tag.id) if isinstance(tag, ThreadTag) else str(tag) for tag in applied_tags]
@@ -2318,6 +2324,7 @@ class VoiceChannel(GuildChannel):  # May not be needed, can be directly just Gui
 
         Raises:
             VoiceNotConnected: if the bot is not connected to a voice channel
+
         """
         if self.voice_state:
             return await self.voice_state.disconnect()
@@ -2389,7 +2396,7 @@ class GuildStageVoice(GuildVoice):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class GuildForum(GuildChannel):
+class GuildForum(GuildChannel, InvitableMixin):
     available_tags: List[ThreadTag] = attrs.field(repr=False, factory=list)
     """A list of tags available to assign to threads"""
     default_reaction_emoji: Optional[DefaultReaction] = attrs.field(repr=False, default=None)
@@ -2462,6 +2469,7 @@ class GuildForum(GuildChannel):
 
         Returns:
             A GuildForumPost object representing the created post.
+
         """
         if applied_tags is not MISSING:
             processed = []
@@ -2506,6 +2514,7 @@ class GuildForum(GuildChannel):
 
         Returns:
             A list of GuildForumPost objects representing the posts.
+
         """
         # I can guarantee this endpoint will need to be converted to an async iterator eventually
         data = await self._client.http.list_active_threads(self._guild_id)
@@ -2522,6 +2531,7 @@ class GuildForum(GuildChannel):
 
         Returns:
             A list of GuildForumPost objects representing the posts.
+
         """
         out = [thread for thread in self.guild.threads if thread.parent_id == self.id]
         if exclude_archived:
@@ -2542,6 +2552,7 @@ class GuildForum(GuildChannel):
 
         Returns:
             A GuildForumPost object representing the post.
+
         """
         return await self._client.fetch_channel(id, force=force)
 
@@ -2554,6 +2565,7 @@ class GuildForum(GuildChannel):
 
         Returns:
             A GuildForumPost object representing the post.
+
         """
         return self._client.cache.get_channel(id)
 
@@ -2567,6 +2579,7 @@ class GuildForum(GuildChannel):
 
         Returns:
             A ThreadTag object representing the tag.
+
         """
         value = str(value)
 
@@ -2581,13 +2594,16 @@ class GuildForum(GuildChannel):
 
         return next((tag for tag in self.available_tags if predicate(tag)), None)
 
-    async def create_tag(self, name: str, emoji: Union["models.PartialEmoji", dict, str, None] = None) -> "ThreadTag":
+    async def create_tag(
+        self, name: str, emoji: Union["models.PartialEmoji", dict, str, None] = None, moderated: bool = False
+    ) -> "ThreadTag":
         """
         Create a tag for this forum.
 
         Args:
             name: The name of the tag
             emoji: The emoji to use for the tag
+            moderated: whether this tag can only be added to or removed from threads by a member with the MANAGE_THREADS permission
 
         !!! note
             If the emoji is a custom emoji, it must be from the same guild as the channel.
@@ -2596,7 +2612,7 @@ class GuildForum(GuildChannel):
             The created tag object.
 
         """
-        payload = {"channel_id": self.id, "name": name}
+        payload = {"channel_id": self.id, "name": name, "moderated": moderated}
 
         if emoji:
             if isinstance(emoji, str):
@@ -2628,6 +2644,7 @@ class GuildForum(GuildChannel):
             tag_id: The id of the tag to edit
             name: The name for this tag
             emoji: The emoji for this tag
+
         """
         if isinstance(emoji, str):
             emoji = PartialEmoji.from_str(emoji)
@@ -2648,14 +2665,14 @@ class GuildForum(GuildChannel):
 
         Args:
             tag_id: The ID of the tag to delete
+
         """
         data = await self._client.http.delete_tag(self.id, tag_id)
         self._client.cache.place_channel_data(data)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class GuildMedia(GuildForum):
-    ...
+class GuildMedia(GuildForum): ...
 
 
 def process_permission_overwrites(

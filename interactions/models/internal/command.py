@@ -294,6 +294,7 @@ def cooldown(
         rate: How many commands may be ran per interval
         interval: How many seconds to wait for a cooldown
         cooldown_system: The cooldown system to use
+
     """
 
     def wrapper(coro: CommandT) -> CommandT:

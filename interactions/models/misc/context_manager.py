@@ -15,6 +15,7 @@ class Typing:
 
     Args:
         channel: The channel to send the typing state to
+
     """
 
     def __init__(self, channel: "MessageableMixin") -> None:

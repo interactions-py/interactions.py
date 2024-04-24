@@ -43,6 +43,9 @@ __all__ = (
     "ChannelDelete",
     "ChannelPinsUpdate",
     "ChannelUpdate",
+    "EntitlementCreate",
+    "EntitlementDelete",
+    "EntitlementUpdate",
     "GuildAuditLogEntryCreate",
     "GuildEmojisUpdate",
     "GuildJoin",
@@ -72,6 +75,7 @@ __all__ = (
     "MessageReactionAdd",
     "MessageReactionRemove",
     "MessageReactionRemoveAll",
+    "MessageReactionRemoveEmoji",
     "MessageUpdate",
     "NewThreadCreate",
     "PresenceUpdate",
@@ -108,6 +112,7 @@ if TYPE_CHECKING:
         VoiceChannel,
     )
     from interactions.models.discord.emoji import CustomEmoji, PartialEmoji
+    from interactions.models.discord.entitlement import Entitlement
     from interactions.models.discord.guild import Guild, GuildIntegration
     from interactions.models.discord.message import Message
     from interactions.models.discord.reaction import Reaction
@@ -574,6 +579,16 @@ class MessageReactionRemoveAll(GuildEvent):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class MessageReactionRemoveEmoji(MessageReactionRemoveAll):
+    """Dispatched when all reactions of a specifc emoji are removed from a message."""
+
+    emoji: "PartialEmoji" = attrs.field(
+        repr=False,
+    )
+    """The emoji that was removed"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class PresenceUpdate(BaseEvent):
     """A user's presence has changed."""
 
@@ -821,3 +836,28 @@ class GuildScheduledEventUserAdd(GuildEvent):
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
 class GuildScheduledEventUserRemove(GuildScheduledEventUserAdd):
     """Dispatched when scheduled event is removed"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class BaseEntitlementEvent(BaseEvent):
+    entitlement: "Entitlement" = attrs.field(repr=True)
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class EntitlementCreate(BaseEntitlementEvent):
+    """Dispatched when a user subscribes to a SKU."""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class EntitlementUpdate(BaseEntitlementEvent):
+    """Dispatched when a user's subscription renews for the next billing period."""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class EntitlementDelete(BaseEntitlementEvent):
+    """
+    Dispatched when a user's entitlement is deleted.
+
+    Notably, this event is not dispatched when a user's subscription is cancelled.
+    Instead, you simply won't receive an EntitlementUpdate event for the next billing period.
+    """

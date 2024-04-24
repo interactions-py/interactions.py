@@ -34,6 +34,7 @@ def has_any_role(*roles: Snowflake_Type | Role) -> TYPE_CHECK_FUNCTION:
 
     Args:
         *roles: The Role(s) or role id(s) to check for
+
     """
 
     async def check(ctx: BaseContext) -> bool:

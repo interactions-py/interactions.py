@@ -85,6 +85,7 @@ class AudioBuffer:
 
         Args:
             data: The data to add
+
         """
         with self._lock:
             self._buffer.extend(data)
@@ -102,6 +103,7 @@ class AudioBuffer:
 
         Raises:
             ValueError: If `pad` is False and the buffer does not contain enough data.
+
         """
         with self._lock:
             view = memoryview(self._buffer)
@@ -129,6 +131,7 @@ class AudioBuffer:
 
         Raises:
             EOFError: If the buffer is empty.
+
         """
         with self._lock:
             if len(self._buffer) == 0:
@@ -170,6 +173,7 @@ class BaseAudio(ABC):
 
         Returns:
             bytes of audio
+
         """
         ...
 
@@ -304,6 +308,7 @@ class Audio(BaseAudio):
 
         Args:
             duration: The duration of audio to pre-buffer.
+
         """
         if duration:
             self.buffer_seconds = duration
@@ -322,6 +327,7 @@ class Audio(BaseAudio):
 
         Returns:
             bytes of audio
+
         """
         if not self.process:
             self._create_process()
@@ -369,6 +375,7 @@ class AudioVolume(Audio):
 
         Returns:
             bytes of audio
+
         """
         data = super().read(frame_size)
         return audioop.mul(data, 2, self._volume)
