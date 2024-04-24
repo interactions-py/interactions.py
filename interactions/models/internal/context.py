@@ -1,6 +1,7 @@
 import abc
 import datetime
 import re
+import contextlib
 import typing
 from typing_extensions import Self
 
@@ -405,14 +406,28 @@ class BaseInteractionContext(BaseContext):
 
 
 class InteractionContext(BaseInteractionContext, SendMixin):
-    async def defer(self, *, ephemeral: bool = False) -> None:
+    async def defer(self, *, ephemeral: bool = False, suppress_error: bool = False) -> None:
         """
         Defer the interaction.
 
+        Note:
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
+
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
+            suppress_error: Should errors on deferring be suppressed than raised.
 
         """
+        if suppress_error:
+            with contextlib.suppress(AlreadyDeferred, AlreadyResponded, HTTPException):
+                await self._defer(ephemeral=ephemeral)
+        else:
+            await self._defer(ephemeral=ephemeral)
+
+    async def _defer(self, *, ephemeral: bool = False) -> None:
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
         if self.responded:
@@ -651,15 +666,29 @@ class ContextMenuContext(InteractionContext, ModalMixin):
         instance.target_type = CommandType(payload["data"]["type"])
         return instance
 
-    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
+    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False, suppress_error: bool = False) -> None:
         """
         Defer the interaction.
+
+        Note:
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
+            suppress_error: Should errors on deferring be suppressed than raised.
 
         """
+        if suppress_error:
+            with contextlib.suppress(AlreadyDeferred, AlreadyResponded, HTTPException):
+                await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+        else:
+            await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+
+    async def _defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
         if self.responded:
@@ -745,15 +774,29 @@ class ComponentContext(InteractionContext, ModalMixin):
                         instance.values[i] = channel
         return instance
 
-    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
+    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False, suppress_error: bool = False) -> None:
         """
         Defer the interaction.
+
+        Note:
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
+            suppress_error: Should errors on deferring be suppressed than raised.
 
         """
+        if suppress_error:
+            with contextlib.suppress(AlreadyDeferred, AlreadyResponded, HTTPException):
+                await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+        else:
+            await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+
+    async def _defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
         if self.responded:
@@ -883,15 +926,29 @@ class ModalContext(InteractionContext):
             await self.defer(edit_origin=True)
         return await super().edit(message, **kwargs)
 
-    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
+    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False, suppress_error: bool = False) -> None:
         """
         Defer the interaction.
+
+        Note:
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a followup.
+            suppress_error: Should errors on deferring be suppressed than raised.
 
         """
+        if suppress_error:
+            with contextlib.suppress(AlreadyDeferred, AlreadyResponded, HTTPException):
+                await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+        else:
+            await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+
+    async def _defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
         if self.responded:

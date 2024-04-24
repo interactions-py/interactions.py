@@ -24,7 +24,9 @@ from interactions import (
     process_message_payload,
 )
 from interactions.client.mixins.send import SendMixin
+from interactions.client.errors import HTTPException
 from interactions.ext import prefixed_commands as prefixed
+import contextlib
 
 if TYPE_CHECKING:
     from .hybrid_slash import HybridSlashCommand
@@ -175,16 +177,26 @@ class HybridContext(BaseContext, SendMixin):
             return DeferTyping(self._slash_ctx, self.ephemeral)
         return self.channel.typing
 
-    async def defer(self, ephemeral: bool = False) -> None:
+    async def defer(self, ephemeral: bool = False, suppress_error: bool = False) -> None:
         """
         Either defers the response (if used in an interaction) or triggers a typing indicator for 10 seconds (if used for messages).
 
+        ???+ note "Interaction Note"
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the interaction response ephemeral even with
+            `send(ephemeral=False)`.
+
         Args:
             ephemeral: Should the response be ephemeral? Only applies to responses for interactions.
+            suppress_error: Should errors on deferring be suppressed than raised.
 
         """
         if self._slash_ctx:
-            await self._slash_ctx.defer(ephemeral=ephemeral)
+            await self._slash_ctx.defer(ephemeral=ephemeral, suppress_error=suppress_error)
+        elif suppress_error:
+            with contextlib.suppress(HTTPException):
+                await self.channel.trigger_typing()
         else:
             await self.channel.trigger_typing()
 
