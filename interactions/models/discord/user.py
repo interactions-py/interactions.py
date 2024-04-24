@@ -426,6 +426,11 @@ class Member(DiscordObject, _SendDMMixin):
         return self.guild_avatar or self.user.avatar
 
     @property
+    def avatar_url(self) -> str:
+        """The users avatar url."""
+        return self.display_avatar.url
+
+    @property
     def premium(self) -> bool:
         """Is this member a server booster?"""
         return self.premium_since is not None
