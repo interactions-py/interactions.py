@@ -38,6 +38,7 @@ __all__ = (
     "OnboardingPromptType",
     "OverwriteType",
     "Permissions",
+    "PollLayoutType",
     "PremiumTier",
     "PremiumType",
     "ScheduledEventPrivacyLevel",
@@ -1134,3 +1135,9 @@ class EntitlementType(CursedIntEnum):
     """Entitlement was claimed by user for free as a Nitro Subscriber"""
     APPLICATION_SUBSCRIPTION = 8
     """Entitlement was purchased as an app subscription"""
+
+
+class PollLayoutType(CursedIntEnum):
+    """The layout of a poll."""
+
+    DEFAULT = 1
