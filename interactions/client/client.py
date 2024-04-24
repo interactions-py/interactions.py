@@ -1353,6 +1353,17 @@ class Client(
             command: The command to add
 
         """
+        # test for parameters that arent the ctx (or self)
+        if command.has_binding:
+            callback = functools.partial(command.callback, None, None)
+        else:
+            callback = functools.partial(command.callback, None)
+
+        if not inspect.signature(callback).parameters:
+            # if there are none, notify the command to just pass the ctx and not kwargs
+            # TODO: just make modal callbacks not pass kwargs at all (breaking)
+            command._just_ctx = True
+
         for listener in command.listeners:
             if isinstance(listener, re.Pattern):
                 if listener in self._regex_component_callbacks.keys():

@@ -845,7 +845,13 @@ class ComponentCommand(InteractionCommand):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
-class ModalCommand(ComponentCommand): ...
+class ModalCommand(ComponentCommand):
+    _just_ctx: bool = attrs.field(repr=False, default=False)
+
+    async def call_callback(self, callback: Callable, context: "BaseContext") -> None:
+        if self._just_ctx:
+            return await self.call_with_binding(callback, context)
+        return await super().call_callback(callback, context)
 
 
 def _unpack_helper(iterable: typing.Iterable[str]) -> list[str]:
