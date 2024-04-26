@@ -48,7 +48,7 @@ setup(
     python_requires=">=3.10",
     install_requires=(Path(__file__).parent / "requirements.txt").read_text().splitlines(),
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Framework :: AsyncIO",
         "Framework :: aiohttp",
         "Intended Audience :: Developers",
