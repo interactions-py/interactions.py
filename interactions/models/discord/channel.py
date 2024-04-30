@@ -62,6 +62,7 @@ __all__ = (
     "GuildText",
     "ThreadChannel",
     "GuildForum",
+    "GuildMedia",
     "GuildNewsThread",
     "GuildPublicThread",
     "GuildForumPost",
