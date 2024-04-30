@@ -131,6 +131,7 @@ class GlobalCache:
 
         Returns:
             User object if found
+
         """
         return self.user_cache.get(to_optional_snowflake(user_id))
 
@@ -143,6 +144,7 @@ class GlobalCache:
 
         Returns:
             The processed User data
+
         """
         user_id = to_snowflake(data["id"])
 
@@ -161,6 +163,7 @@ class GlobalCache:
 
         Args:
             user_id: The user's ID
+
         """
         self.user_cache.pop(to_snowflake(user_id), None)
 
@@ -201,6 +204,7 @@ class GlobalCache:
 
         Returns:
             Member object if found
+
         """
         return self.member_cache.get((to_optional_snowflake(guild_id), to_optional_snowflake(user_id)))
 
@@ -214,6 +218,7 @@ class GlobalCache:
 
         Returns:
             The processed member
+
         """
         guild_id = to_snowflake(guild_id)
         is_user = "member" in data
@@ -243,6 +248,7 @@ class GlobalCache:
         Args:
             guild_id: The ID of the guild this user belongs to
             user_id: The ID of the user
+
         """
         user_id = to_snowflake(user_id)
         guild_id = to_snowflake(guild_id)
@@ -260,6 +266,7 @@ class GlobalCache:
         Args:
             user_id: The ID of the user
             guild_id: The ID of the guild to add
+
         """
         user_id = to_snowflake(user_id)
         guild_id = to_snowflake(guild_id)
@@ -281,6 +288,7 @@ class GlobalCache:
         Args:
             user_id: The ID of the user
             guild_id: The ID of the guild to add
+
         """
         user_id = to_snowflake(user_id)
         guild_id = to_snowflake(guild_id)
@@ -337,6 +345,7 @@ class GlobalCache:
 
         Returns:
             A list of snowflakes for the guilds the client can see the user is within
+
         """
         user_id = to_snowflake(user_id)
         guild_ids = self.user_guilds.get(user_id)
@@ -356,6 +365,7 @@ class GlobalCache:
 
         Returns:
             A list of snowflakes for the guilds the client can see the user is within
+
         """
         return list(self.user_guilds.get(to_snowflake(user_id)))
 
@@ -376,6 +386,7 @@ class GlobalCache:
 
         Returns:
             The message if found
+
         """
         channel_id = to_snowflake(channel_id)
         message_id = to_snowflake(message_id)
@@ -403,6 +414,7 @@ class GlobalCache:
 
         Returns:
             The message if found
+
         """
         return self.message_cache.get((to_optional_snowflake(channel_id), to_optional_snowflake(message_id)))
 
@@ -415,6 +427,7 @@ class GlobalCache:
 
         Returns:
             The processed message
+
         """
         channel_id = to_snowflake(data["channel_id"])
         message_id = to_snowflake(data["id"])
@@ -433,6 +446,7 @@ class GlobalCache:
         Args:
             channel_id: The ID of the channel the message is in
             message_id: The ID of the message
+
         """
         self.message_cache.pop((to_snowflake(channel_id), to_snowflake(message_id)), None)
 
@@ -449,6 +463,7 @@ class GlobalCache:
 
         Returns:
             The channel if found
+
         """
         channel_id = to_snowflake(channel_id)
         channel = self.channel_cache.get(channel_id)
@@ -470,6 +485,7 @@ class GlobalCache:
 
         Returns:
             The channel if found
+
         """
         return self.channel_cache.get(to_optional_snowflake(channel_id))
 
@@ -482,6 +498,7 @@ class GlobalCache:
 
         Returns:
             The processed channel
+
         """
         channel_id = to_snowflake(data["id"])
         channel = self.channel_cache.get(channel_id)
@@ -525,6 +542,7 @@ class GlobalCache:
         Args:
             user_id: The ID of the user
             force: If the cache should be ignored, and the channel should be fetched from the API
+
         """
         user_id = to_snowflake(user_id)
         channel_id = self.dm_channels.get(user_id)
@@ -541,6 +559,7 @@ class GlobalCache:
         Args:
             user_id: The ID of the user
             force: If the cache should be ignored, and the channel should be fetched from the API
+
         """
         user_id = to_snowflake(user_id)
         channel_id = await self.fetch_dm_channel_id(user_id, force=force)
@@ -552,6 +571,7 @@ class GlobalCache:
 
         Args:
             user_id: The ID of the user
+
         """
         user_id = to_optional_snowflake(user_id)
         channel_id = self.dm_channels.get(user_id)
@@ -563,6 +583,7 @@ class GlobalCache:
 
         Args:
             channel_id: The channel to be deleted
+
         """
         channel_id = to_snowflake(channel_id)
         channel = self.channel_cache.pop(channel_id, None)
@@ -587,6 +608,7 @@ class GlobalCache:
 
         Returns:
             The guild if found
+
         """
         guild_id = to_snowflake(guild_id)
         guild = self.guild_cache.get(guild_id)
@@ -604,6 +626,7 @@ class GlobalCache:
 
         Returns:
             The guild if found
+
         """
         return self.guild_cache.get(to_optional_snowflake(guild_id))
 
@@ -616,6 +639,7 @@ class GlobalCache:
 
         Returns:
             The processed guild
+
         """
         guild_id = to_snowflake(data["id"])
         guild: Guild = self.guild_cache.get(guild_id)
@@ -632,6 +656,7 @@ class GlobalCache:
 
         Args:
             guild_id: The ID of the guild
+
         """
         if guild := self.guild_cache.pop(to_snowflake(guild_id), None):
             # delete associated objects
@@ -664,6 +689,7 @@ class GlobalCache:
 
         Returns:
             The role if found
+
         """
         guild_id = to_snowflake(guild_id)
         role_id = to_snowflake(role_id)
@@ -682,6 +708,7 @@ class GlobalCache:
 
         Returns:
             The role if found
+
         """
         return self.role_cache.get(to_optional_snowflake(role_id))
 
@@ -699,6 +726,7 @@ class GlobalCache:
 
         Returns:
             The processed role
+
         """
         guild_id = to_snowflake(guild_id)
 
@@ -724,6 +752,7 @@ class GlobalCache:
 
         Args:
             role_id: The ID of the role
+
         """
         if role := self.role_cache.pop(to_snowflake(role_id), None):
             if guild := self.get_guild(role._guild_id):
@@ -759,12 +788,13 @@ class GlobalCache:
 
         Returns:
             The processed VoiceState object
+
         """
         user_id = to_snowflake(data["user_id"])
 
         if old_state := self.get_voice_state(user_id):
             # noinspection PyProtectedMember
-            if user_id in old_state.channel._voice_member_ids:
+            if old_state.channel is not None and user_id in old_state.channel._voice_member_ids:
                 # noinspection PyProtectedMember
                 old_state.channel._voice_member_ids.remove(user_id)
 
@@ -794,6 +824,7 @@ class GlobalCache:
 
         Args:
             user_id: The ID of the user
+
         """
         self.voice_state_cache.pop(to_snowflake(user_id), None)
 
@@ -810,6 +841,7 @@ class GlobalCache:
 
         Returns:
             ActiveVoiceState if found
+
         """
         return self.bot_voice_state_cache.get(to_optional_snowflake(guild_id))
 
@@ -819,6 +851,7 @@ class GlobalCache:
 
         Args:
             state: The voice state to cache
+
         """
         if state._guild_id is None:
             return
@@ -832,6 +865,7 @@ class GlobalCache:
 
         Args:
             guild_id: The id of the guild
+
         """
         self.bot_voice_state_cache.pop(to_snowflake(guild_id), None)
 
@@ -854,6 +888,7 @@ class GlobalCache:
 
         Returns:
             The Emoji if found
+
         """
         guild_id = to_snowflake(guild_id)
         emoji_id = to_snowflake(emoji_id)
@@ -875,6 +910,7 @@ class GlobalCache:
 
         Returns:
             The Emoji if found
+
         """
         return self.emoji_cache.get(to_optional_snowflake(emoji_id)) if self.emoji_cache is not None else None
 
@@ -888,6 +924,7 @@ class GlobalCache:
 
         Returns:
             The processed emoji
+
         """
         with suppress(KeyError):
             del data["guild_id"]  # discord sometimes packages a guild_id - this will cause an exception
@@ -904,6 +941,7 @@ class GlobalCache:
 
         Args:
             emoji_id: The ID of the emoji
+
         """
         if self.emoji_cache is not None:
             self.emoji_cache.pop(to_snowflake(emoji_id), None)
@@ -921,6 +959,7 @@ class GlobalCache:
 
         Returns:
             The ScheduledEvent if found
+
         """
         return self.scheduled_events_cache.get(to_snowflake(scheduled_event_id))
 
@@ -943,6 +982,7 @@ class GlobalCache:
 
         Returns:
             The scheduled event if found
+
         """
         if not force:
             if scheduled_event := self.get_scheduled_event(scheduled_event_id):
@@ -965,6 +1005,7 @@ class GlobalCache:
 
         Returns:
             The processed scheduled event
+
         """
         scheduled_event = ScheduledEvent.from_dict(data, self._client)
         self.scheduled_events_cache[scheduled_event.id] = scheduled_event
@@ -977,6 +1018,7 @@ class GlobalCache:
 
         Args:
             scheduled_event_id: The ID of the scheduled event
+
         """
         self.scheduled_events_cache.pop(to_snowflake(scheduled_event_id), None)
 

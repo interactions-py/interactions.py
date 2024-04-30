@@ -71,6 +71,7 @@ from .components import (
 
 from .embed import Embed, EmbedAttachment, EmbedAuthor, EmbedField, EmbedFooter, EmbedProvider, process_embeds
 from .emoji import CustomEmoji, PartialEmoji, process_emoji, process_emoji_req_format
+from .entitlement import Entitlement
 from .enums import (
     ActivityFlag,
     ActivityType,
@@ -97,6 +98,8 @@ from .enums import (
     MessageType,
     MFALevel,
     NSFWLevel,
+    OnboardingMode,
+    OnboardingPromptType,
     OverwriteType,
     Permissions,
     PremiumTier,
@@ -148,6 +151,7 @@ from .message import (
     process_message_reference,
 )
 from .modal import InputText, Modal, ParagraphText, ShortText, TextStyles
+from .onboarding import Onboarding, OnboardingPrompt, OnboardingPromptOption
 from .reaction import Reaction, ReactionUsers
 from .role import Role
 from .scheduled_event import ScheduledEvent
@@ -223,6 +227,7 @@ __all__ = (
     "EmbedField",
     "EmbedFooter",
     "EmbedProvider",
+    "Entitlement",
     "ExplicitContentFilterLevel",
     "File",
     "FlatUIColors",
@@ -278,6 +283,11 @@ __all__ = (
     "Modal",
     "NSFWLevel",
     "open_file",
+    "Onboarding",
+    "OnboardingMode",
+    "OnboardingPrompt",
+    "OnboardingPromptOption",
+    "OnboardingPromptType",
     "OverwriteType",
     "ParagraphText",
     "PartialEmoji",

@@ -1,6 +1,7 @@
 import abc
 import datetime
 import re
+import contextlib
 import typing
 from typing_extensions import Self
 
@@ -19,6 +20,7 @@ from interactions.client.mixins.modal import ModalMixin
 
 from interactions.client.errors import HTTPException, AlreadyDeferred, AlreadyResponded
 from interactions.client.mixins.send import SendMixin
+from interactions.models.discord.entitlement import Entitlement
 from interactions.models.discord.enums import (
     Permissions,
     MessageFlags,
@@ -35,6 +37,7 @@ from interactions.models.discord.message import (
 )
 from interactions.models.discord.snowflake import Snowflake, Snowflake_Type, to_snowflake, to_optional_snowflake
 from interactions.models.discord.embed import Embed
+from interactions.models.discord.timestamp import Timestamp
 from interactions.models.internal.application_commands import (
     OptionType,
     CallbackType,
@@ -71,6 +74,7 @@ class Resolved:
         roles: A dictionary of roles resolved from the interaction.
         messages: A dictionary of messages resolved from the interaction.
         attachments: A dictionary of attachments resolved from the interaction.
+
     """
 
     def __init__(self) -> None:
@@ -252,6 +256,9 @@ class BaseInteractionContext(BaseContext):
     ephemeral: bool
     """Whether the interaction response is ephemeral."""
 
+    entitlements: list[Entitlement]
+    """The entitlements of the invoking user."""
+
     _context_type: int
     """The context type of the interaction."""
     command_id: Snowflake
@@ -282,6 +289,7 @@ class BaseInteractionContext(BaseContext):
         instance.guild_locale = payload.get("guild_locale", instance.locale)
         instance._context_type = payload.get("type", 0)
         instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
+        instance.entitlements = Entitlement.from_list(payload["entitlements"], client)
 
         instance.channel_id = Snowflake(payload["channel_id"])
         if channel := payload.get("channel"):
@@ -329,16 +337,16 @@ class BaseInteractionContext(BaseContext):
         return self.client._interaction_lookup[self._command_name]
 
     @property
-    def expires_at(self) -> typing.Optional[datetime.datetime]:
+    def expires_at(self) -> Timestamp:
         """The time at which the interaction expires."""
-        if self.responded:
+        if self.responded or self.deferred:
             return self.id.created_at + datetime.timedelta(minutes=15)
         return self.id.created_at + datetime.timedelta(seconds=3)
 
     @property
     def expired(self) -> bool:
         """Whether the interaction has expired."""
-        return datetime.datetime.utcnow() > self.expires_at
+        return Timestamp.utcnow() > self.expires_at
 
     @property
     def invoke_target(self) -> str:
@@ -398,13 +406,28 @@ class BaseInteractionContext(BaseContext):
 
 
 class InteractionContext(BaseInteractionContext, SendMixin):
-    async def defer(self, *, ephemeral: bool = False) -> None:
+    async def defer(self, *, ephemeral: bool = False, suppress_error: bool = False) -> None:
         """
         Defer the interaction.
 
+        Note:
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
+
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
+            suppress_error: Should errors on deferring be suppressed than raised.
+
         """
+        if suppress_error:
+            with contextlib.suppress(AlreadyDeferred, AlreadyResponded, HTTPException):
+                await self._defer(ephemeral=ephemeral)
+        else:
+            await self._defer(ephemeral=ephemeral)
+
+    async def _defer(self, *, ephemeral: bool = False) -> None:
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
         if self.responded:
@@ -417,6 +440,19 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         await self.client.http.post_initial_response(payload, self.id, self.token)
         self.deferred = True
         self.ephemeral = ephemeral
+
+    async def send_premium_required(self) -> None:
+        """
+        Send a premium required response.
+
+        When used, the user will be prompted to subscribe to premium to use this feature.
+        Only available for applications with monetization enabled.
+        """
+        if self.responded:
+            raise RuntimeError("Cannot send a premium required response after responding")
+
+        await self.client.http.post_initial_response({"type": 10}, self.id, self.token)
+        self.responded = True
 
     async def _send_http_request(
         self, message_payload: dict, files: typing.Iterable["UPLOADABLE_TYPE"] | None = None
@@ -518,6 +554,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
 
         Returns:
             New message object that was sent.
+
         """
         flags = MessageFlags(flags or 0)
         if ephemeral:
@@ -553,6 +590,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
 
         Args:
             message: The message to delete. Defaults to @original which represents the initial response message.
+
         """
         await self.client.http.delete_interaction_message(
             self.client.app.id, self.token, to_snowflake(message) if message != "@original" else message
@@ -628,23 +666,40 @@ class ContextMenuContext(InteractionContext, ModalMixin):
         instance.target_type = CommandType(payload["data"]["type"])
         return instance
 
-    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
+    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False, suppress_error: bool = False) -> None:
         """
         Defer the interaction.
+
+        Note:
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
+            suppress_error: Should errors on deferring be suppressed than raised.
+
         """
+        if suppress_error:
+            with contextlib.suppress(AlreadyDeferred, AlreadyResponded, HTTPException):
+                await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+        else:
+            await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+
+    async def _defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
         if self.responded:
             raise AlreadyResponded("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackType.DEFERRED_UPDATE_MESSAGE
-            if edit_origin
-            else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            "type": (
+                CallbackType.DEFERRED_UPDATE_MESSAGE
+                if edit_origin
+                else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            )
         }
         if ephemeral:
             if edit_origin:
@@ -663,6 +718,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
 
         Returns:
             The target of the context menu.
+
         """
         return self.resolved.get(self.target_id)
 
@@ -718,23 +774,40 @@ class ComponentContext(InteractionContext, ModalMixin):
                         instance.values[i] = channel
         return instance
 
-    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
+    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False, suppress_error: bool = False) -> None:
         """
         Defer the interaction.
+
+        Note:
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a new one.
+            suppress_error: Should errors on deferring be suppressed than raised.
+
         """
+        if suppress_error:
+            with contextlib.suppress(AlreadyDeferred, AlreadyResponded, HTTPException):
+                await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+        else:
+            await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+
+    async def _defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
         if self.responded:
             raise AlreadyResponded("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackType.DEFERRED_UPDATE_MESSAGE
-            if edit_origin
-            else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            "type": (
+                CallbackType.DEFERRED_UPDATE_MESSAGE
+                if edit_origin
+                else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            )
         }
         if ephemeral:
             if edit_origin:
@@ -782,6 +855,7 @@ class ComponentContext(InteractionContext, ModalMixin):
 
         Returns:
             The message after it was edited.
+
         """
         if not self.responded and not self.deferred and (files or file):
             # Discord doesn't allow files at initial response, so we defer then edit.
@@ -852,23 +926,40 @@ class ModalContext(InteractionContext):
             await self.defer(edit_origin=True)
         return await super().edit(message, **kwargs)
 
-    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
+    async def defer(self, *, ephemeral: bool = False, edit_origin: bool = False, suppress_error: bool = False) -> None:
         """
         Defer the interaction.
+
+        Note:
+            This method's ephemeral settings override the ephemeral settings of `send()`.
+
+            For example, deferring with `ephemeral=True` will make the response ephemeral even with
+            `send(ephemeral=False)`.
 
         Args:
             ephemeral: Whether the interaction response should be ephemeral.
             edit_origin: Whether to edit the original message instead of sending a followup.
+            suppress_error: Should errors on deferring be suppressed than raised.
+
         """
+        if suppress_error:
+            with contextlib.suppress(AlreadyDeferred, AlreadyResponded, HTTPException):
+                await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+        else:
+            await self._defer(ephemeral=ephemeral, edit_origin=edit_origin)
+
+    async def _defer(self, *, ephemeral: bool = False, edit_origin: bool = False) -> None:
         if self.deferred:
             raise AlreadyDeferred("Interaction has already been responded to.")
         if self.responded:
             raise AlreadyResponded("Interaction has already been responded to.")
 
         payload = {
-            "type": CallbackType.DEFERRED_UPDATE_MESSAGE
-            if edit_origin
-            else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            "type": (
+                CallbackType.DEFERRED_UPDATE_MESSAGE
+                if edit_origin
+                else CallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+            )
         }
         if ephemeral:
             payload["data"] = {"flags": MessageFlags.EPHEMERAL}
@@ -916,6 +1007,7 @@ class AutocompleteContext(BaseInteractionContext):
 
         Args:
             choices: 25 choices the user can pick
+
         """
         if self.focussed_option.type == OptionType.STRING:
             type_cast = str

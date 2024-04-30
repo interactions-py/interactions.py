@@ -115,7 +115,7 @@ class ActiveVoiceState(VoiceState):
         """Connect to the voice gateway for this voice state"""
         self.ws = VoiceGateway(self._client._connection_state, self._voice_state.data, self._voice_server.data)
 
-        _ = asyncio.create_task(self._ws_connect())
+        _ = asyncio.create_task(self._ws_connect())  # noqa: RUF006
         await self.ws.wait_until_ready()
 
     def _guild_predicate(self, event) -> bool:
@@ -213,6 +213,7 @@ class ActiveVoiceState(VoiceState):
 
         Args:
             audio: The audio object to play
+
         """
         if self.player:
             await self.stop()
@@ -221,14 +222,15 @@ class ActiveVoiceState(VoiceState):
             self.player.play()
             await self.wait_for_stopped()
 
-    def play_no_wait(self, audio: "BaseAudio") -> None:
+    def play_no_wait(self, audio: "BaseAudio") -> asyncio.Task:
         """
         Start playing an audio object, but don't wait for playback to finish.
 
         Args:
             audio: The audio object to play
+
         """
-        _ = asyncio.create_task(self.play(audio))
+        return asyncio.create_task(self.play(audio))
 
     def create_recorder(self) -> Recorder:
         """Create a recorder instance."""
@@ -245,6 +247,7 @@ class ActiveVoiceState(VoiceState):
         Args:
             encoding: What format the audio should be encoded to.
             output_dir: The directory to save the audio to
+
         """
         if not self.recorder:
             self.recorder = Recorder(self, asyncio.get_running_loop())
@@ -266,6 +269,7 @@ class ActiveVoiceState(VoiceState):
 
         Returns:
             dict[snowflake, BytesIO]: The recorded audio
+
         """
         if not self.recorder or not self.recorder.recording or not self.recorder.audio:
             raise RuntimeError("No recorder is running!")
@@ -284,6 +288,7 @@ class ActiveVoiceState(VoiceState):
 
         Args:
             data: voice server data
+
         """
         self.ws.set_new_voice_server(data)
 
@@ -300,6 +305,7 @@ class ActiveVoiceState(VoiceState):
             before: The previous voice state
             after: The current voice state
             data: Raw data from gateway
+
         """
         if after is None:
             # bot disconnected

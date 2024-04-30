@@ -2,7 +2,7 @@ import asyncio
 import time
 from datetime import datetime
 from collections import defaultdict
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 import interactions.api.events as events
 from interactions.api.events import ShardConnect
@@ -35,6 +35,8 @@ class AutoShardedClient(Client):
         self.auto_sharding = "total_shards" not in kwargs
         super().__init__(*args, **kwargs)
 
+        self.shard_ids: Optional[List[int]] = kwargs.get("shard_ids", None)
+
         self._connection_state = None
 
         self._connection_states: list[ConnectionState] = []
@@ -66,6 +68,7 @@ class AutoShardedClient(Client):
 
         Returns:
             {shard_id: latency}
+
         """
         return {state.shard_id: state.latency for state in self._connection_states}
 
@@ -95,6 +98,7 @@ class AutoShardedClient(Client):
 
         Returns:
             A gateway client for the given ID
+
         """
         shard_id = (int(guild_id) >> 22) % self.total_shards
         return next((state for state in self._connection_states if state.shard_id == shard_id), MISSING).gateway
@@ -108,6 +112,7 @@ class AutoShardedClient(Client):
 
         Returns:
             A list of guilds
+
         """
         return [guild for key, guild in self.cache.guild_cache.items() if ((key >> 22) % self.total_shards) == shard_id]
 
@@ -120,6 +125,7 @@ class AutoShardedClient(Client):
 
         Returns:
             The shard ID for the guild
+
         """
         return (int(guild_id) >> 22) % self.total_shards
 
@@ -130,6 +136,7 @@ class AutoShardedClient(Client):
 
         Args:
             event: The websocket ready packet
+
         """
         connection_data = event.data
         expected_guilds = {to_snowflake(guild["id"]) for guild in connection_data["guilds"]}
@@ -187,6 +194,7 @@ class AutoShardedClient(Client):
 
         Args:
             token: Your bot's token
+
         """
         self.logger.debug("Starting http client...")
         await self.login(token)
@@ -244,9 +252,13 @@ class AutoShardedClient(Client):
             )
 
         self.logger.debug(f"Starting bot with {self.total_shards} shard{'s' if self.total_shards != 1 else ''}")
-        self._connection_states: list[ConnectionState] = [
-            ConnectionState(self, self.intents, shard_id) for shard_id in range(self.total_shards)
-        ]
+
+        if self.shard_ids:
+            self._connection_states = [ConnectionState(self, self.intents, shard_id) for shard_id in self.shard_ids]
+        else:
+            self._connection_states = [
+                ConnectionState(self, self.intents, shard_id) for shard_id in range(self.total_shards)
+            ]
 
     async def change_presence(
         self,

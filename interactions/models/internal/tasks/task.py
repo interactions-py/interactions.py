@@ -87,11 +87,12 @@ class Task:
         except Exception as e:
             self.on_error(e)
 
-    def _fire(self, fire_time: datetime, *args, **kwargs) -> None:
+    def _fire(self, fire_time: datetime, *args, **kwargs) -> asyncio.Task:
         """Called when the task is being fired."""
         self.trigger.set_last_call_time(fire_time)
-        _ = asyncio.create_task(self(*args, **kwargs))
+        task = asyncio.create_task(self(*args, **kwargs))
         self.iteration += 1
+        return task
 
     async def _task_loop(self, *args, **kwargs) -> None:
         """The main task loop to fire the task at the specified time based on triggers configured."""
@@ -101,7 +102,7 @@ class Task:
                 return self.stop()
 
             future = asyncio.create_task(self._stop.wait())
-            timeout = (fire_time - datetime.now()).total_seconds()
+            timeout = (fire_time - datetime.now(tz=fire_time.tzinfo)).total_seconds()
             done, _ = await asyncio.wait([future], timeout=timeout, return_when=asyncio.FIRST_COMPLETED)
             if future in done:
                 return None

@@ -73,6 +73,7 @@ class PrefixedHelpCommand:
         Args:
             ctx: The context to use.
             cmd_name: An optional command name to send help for.
+
         """
         await self._callback.callback(ctx, cmd_name)  # type: ignore
 
@@ -123,6 +124,7 @@ class PrefixedHelpCommand:
 
         Returns:
             dict[str, PrefixedCommand]: A list of commands fit the class attribute configuration.
+
         """
         out: dict[str, PrefixedCommand] = {}
 
@@ -157,6 +159,7 @@ class PrefixedHelpCommand:
 
         Args:
             The text to sanitise.
+
         """
         mappings = {
             "@everyone": "@\u200beveryone",
@@ -176,6 +179,7 @@ class PrefixedHelpCommand:
         Args:
             cmd: The command in question.
             ctx: The context for this command.
+
         """
         _temp = f"`{ctx.prefix if self.show_prefix else ''}{cmd.qualified_name}`"
 

@@ -138,6 +138,7 @@ class ConnectionState:
             level: The logging level
             message: The message to log
             **kwargs: Any additional keyword arguments that Logger.log accepts
+
         """
         self.logger.log(level, f"Shard ID {self.shard_id} | {message}", **kwargs)
 
@@ -178,6 +179,7 @@ class ConnectionState:
                 ActivityType.LISTENING,
                 ActivityType.WATCHING,
                 ActivityType.COMPETING,
+                ActivityType.CUSTOM,
             ]:
                 self.wrapped_logger(
                     logging.WARNING, f"Activity type `{ActivityType(activity.type).name}` may not be enabled for bots"

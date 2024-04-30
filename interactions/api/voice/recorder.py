@@ -70,6 +70,7 @@ class Recorder(threading.Thread):
         Args:
             *user_id: The user_id(s) to record, if not specified everyone will be recorded.
             output_dir: The directory to save the audio to (overrides the constructor output_dir if specified)
+
         """
         if self.used:
             raise RuntimeError("Cannot reuse a recorder.")
@@ -105,6 +106,7 @@ class Recorder(threading.Thread):
             data: The payload data
         Returns:
               The decrypted payload
+
         """
         # a shorter alias to call
         return self.decrypter.decrypt(self.state.ws.selected_mode, header, data)
@@ -120,6 +122,7 @@ class Recorder(threading.Thread):
             ssrc: The source to retrieve the user from
         Returns:
             A snowflake representing the user
+
         """
         return self.state.ws.user_ssrc_map.get(ssrc)["user_id"]
 
@@ -131,6 +134,7 @@ class Recorder(threading.Thread):
             user_id: The user to retrieve the ssrc from
         Returns:
             A string representing the ssrc
+
         """
         return next((ssrc for ssrc, user in self.state.ws.user_ssrc_map.items() if user["user_id"] == user_id), None)
 
@@ -145,6 +149,7 @@ class Recorder(threading.Thread):
         Returns:
             A dictionary of the user_id and the output file.
             Output file can be a BytesIO or a string (if output_dir is specified)
+
         """
         return self.audio.files if self.audio.finished.is_set() else {}
 
@@ -158,6 +163,7 @@ class Recorder(threading.Thread):
 
         Args:
             *user_id: The user_id(s) to record
+
         """
         if not user_id:
             self.recording_whitelist = []
@@ -199,6 +205,7 @@ class Recorder(threading.Thread):
 
         Args:
             raw_audio: The raw audio that has been received
+
         """
         if raw_audio.user_id is None:
             return  # usually the first frame when a user rejoins
@@ -210,10 +217,10 @@ class Recorder(threading.Thread):
 
         if raw_audio.ssrc not in self.user_timestamps:
             if last_timestamp := self.audio.last_timestamps.get(raw_audio.user_id, None):
-                diff = raw_audio.timestamp - last_timestamp
-                silence = int(diff * decoder.sample_rate)
+                silence = raw_audio.timestamp - last_timestamp
+                frames = int(silence * decoder.sample_rate)
                 log.debug(
-                    f"{self.state.channel.id}::{raw_audio.user_id} - User rejoined, adding {silence} silence frames ({diff} seconds)"
+                    f"{self.state.channel.id}::{raw_audio.user_id} - User rejoined, adding {frames} silence frames ({silence} seconds)"
                 )
             else:
                 silence = 0

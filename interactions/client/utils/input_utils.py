@@ -134,6 +134,7 @@ def unpack_helper(iterable: typing.Iterable) -> list[Any]:
         iterable: The iterable to unpack
     Returns:
         A flattened list
+
     """
     unpack = []
     for c in iterable:

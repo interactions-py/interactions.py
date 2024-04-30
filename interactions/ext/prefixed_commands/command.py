@@ -582,6 +582,7 @@ class PrefixedCommand(BaseCommand):
 
         Args:
             cmd: The command to add
+
         """
         cmd.parent = self  # just so we know this is a subcommand
 
@@ -606,6 +607,7 @@ class PrefixedCommand(BaseCommand):
 
         Args:
             name: The command to remove.
+
         """
         command = self.subcommands.pop(name, None)
 
@@ -628,6 +630,7 @@ class PrefixedCommand(BaseCommand):
 
         Returns:
             PrefixedCommand: The command object, if found.
+
         """
         if " " not in name:
             return self.subcommands.get(name)
@@ -676,6 +679,7 @@ class PrefixedCommand(BaseCommand):
             ignore_extra: If `True`, ignores extraneous strings passed to a command if all its requirements are met \
                 (e.g. ?foo a b c when only expecting a and b). Otherwise, an error is raised.
             inherit_checks: If `True`, the subcommand will inherit its checks from the parent command.
+
         """
 
         def wrapper(func: Callable) -> Self:
@@ -704,6 +708,7 @@ class PrefixedCommand(BaseCommand):
         Args:
             callback (Callable: The callback to run. This is provided for compatibility with internal.
             ctx (internal.MessageContext): The context to use for this command.
+
         """
         # sourcery skip: remove-empty-nested-block, remove-redundant-if, remove-unnecessary-else
         if len(self.parameters) == 0:
@@ -815,6 +820,7 @@ def prefixed_command(
         hidden: If `True`, the default help command (when it is added) does not show this in the help output.
         ignore_extra: If `True`, ignores extraneous strings passed to a command if all its requirements are \
             met (e.g. ?foo a b c when only expecting a and b). Otherwise, an error is raised.
+
     """
 
     def wrapper(func: Callable) -> PrefixedCommand:

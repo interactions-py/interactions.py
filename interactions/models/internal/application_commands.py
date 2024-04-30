@@ -271,6 +271,7 @@ class InteractionCommand(BaseCommand):
 
         Returns:
             The markdown mention.
+
         """
         if scope:
             cmd_id = self.get_cmd_id(scope=scope)
@@ -308,6 +309,7 @@ class InteractionCommand(BaseCommand):
 
         Returns:
             Whether this command is enabled in the given context.
+
         """
         if not self.dm_permission and ctx.guild is None:
             return False
@@ -844,7 +846,12 @@ class ComponentCommand(InteractionCommand):
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class ModalCommand(ComponentCommand):
-    ...
+    _just_ctx: bool = attrs.field(repr=False, default=False)
+
+    async def call_callback(self, callback: Callable, context: "BaseContext") -> None:
+        if self._just_ctx:
+            return await self.call_with_binding(callback, context)
+        return await super().call_callback(callback, context)
 
 
 def _unpack_helper(iterable: typing.Iterable[str]) -> list[str]:
@@ -856,6 +863,7 @@ def _unpack_helper(iterable: typing.Iterable[str]) -> list[str]:
 
     Returns:
         A list of strings
+
     """
     unpack = []
     for c in iterable:
@@ -886,6 +894,7 @@ def global_autocomplete(option_name: str) -> Callable[[AsyncCallable], GlobalAut
 
     Returns:
         The decorator
+
     """
 
     def decorator(func: Callable) -> GlobalAutoComplete:
@@ -1201,6 +1210,7 @@ def modal_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], Mo
 
     Args:
         *custom_id: The custom ID of the modal to wait for
+
     """
 
     def wrapper(func: AsyncCallable) -> ModalCommand:
@@ -1250,6 +1260,7 @@ def slash_option(
         min_length: The minimum length of text a user can input. The option needs to be a string
         max_length: The maximum length of text a user can input. The option needs to be a string
         argument_name: The name of the argument to be used in the function. If not given, assumed to be the same as the name of the option
+
     """
 
     def wrapper(func: SlashCommandT) -> SlashCommandT:
@@ -1350,9 +1361,11 @@ def application_commands_to_dict(  # noqa: C901
                     "name": str(subcommand.name),
                     "description": str(subcommand.description),
                     "options": [],
-                    "default_member_permissions": str(int(subcommand.default_member_permissions))
-                    if subcommand.default_member_permissions
-                    else None,
+                    "default_member_permissions": (
+                        str(int(subcommand.default_member_permissions))
+                        if subcommand.default_member_permissions
+                        else None
+                    ),
                     "dm_permission": subcommand.dm_permission,
                     "name_localizations": subcommand.name.to_locale_dict(),
                     "description_localizations": subcommand.description.to_locale_dict(),
@@ -1439,6 +1452,7 @@ def _compare_commands(local_cmd: dict, remote_cmd: dict) -> bool:
 
     Returns:
         True if the commands are the same
+
     """
     lookup: dict[str, tuple[str, any]] = {
         "name": ("name", ""),
@@ -1513,6 +1527,7 @@ def sync_needed(local_cmd: dict, remote_cmd: Optional[dict] = None) -> bool:
 
     Returns:
         Boolean indicating if a sync is needed
+
     """
     if not remote_cmd:
         # No remote version, command must be new

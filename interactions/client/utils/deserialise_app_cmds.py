@@ -19,6 +19,7 @@ def deserialize_app_cmds(data: list[dict]) -> list["InteractionCommand"]:
 
     Returns:
         A list of interaction command objects
+
     """
     out = []
     command_mapping = {
@@ -66,6 +67,7 @@ def deserialize_subcommands(
 
     Returns:
         A list of slashcommand (subcommand) objects
+
     """
     out = []
     for opt in options:
@@ -100,6 +102,7 @@ def deserialize_options(options: list[dict]) -> list["SlashCommandOption"]:
 
     Returns:
         list of SlashCommandOption objects
+
     """
     return [
         models.internal.SlashCommandOption(**opt)

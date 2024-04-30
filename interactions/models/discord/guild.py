@@ -26,6 +26,7 @@ from interactions.models.discord.app_perms import (
 )
 from interactions.models.discord.auto_mod import AutoModRule, BaseAction, BaseTrigger
 from interactions.models.discord.file import UPLOADABLE_TYPE
+from interactions.models.discord.onboarding import Onboarding
 from interactions.models.misc.iterator import AsyncIterator
 
 from .base import ClientObject, DiscordObject
@@ -236,6 +237,8 @@ class Guild(BaseGuild):
     """A cache of all command permissions for this guild"""
     premium_progress_bar_enabled: bool = attrs.field(repr=False, default=False)
     """True if the guild has the boost progress bar enabled"""
+    safety_alerts_channel_id: Optional[Snowflake_Type] = attrs.field(repr=False, default=None)
+    """The id of the channel where admins and moderators of Community guilds receive safety alerts from Discord."""
 
     _owner_id: Snowflake_Type = attrs.field(repr=False, converter=to_snowflake)
     _channel_ids: Set[Snowflake_Type] = attrs.field(repr=False, factory=set)
@@ -397,6 +400,11 @@ class Guild(BaseGuild):
         return self._client.cache.get_channel(self.public_updates_channel_id)
 
     @property
+    def safety_alerts_channel(self) -> Optional["models.GuildText"]:
+        """Returns the channel where server staff receive safety alerts from Discord."""
+        return self._client.cache.get_channel(self.safety_alerts_channel_id)
+
+    @property
     def emoji_limit(self) -> int:
         """The maximum number of emoji this guild can have."""
         base = 200 if "MORE_EMOJI" in self.features else 50
@@ -521,7 +529,7 @@ class Guild(BaseGuild):
         """
         return self._client.cache.get_member(self.id, self._owner_id)
 
-    async def fetch_channels(self) -> List["models.TYPE_VOICE_CHANNEL"]:
+    async def fetch_channels(self) -> List["models.TYPE_GUILD_CHANNEL"]:
         """
         Fetch this guild's channels.
 
@@ -602,6 +610,7 @@ class Guild(BaseGuild):
         Args:
             wait: Wait for chunking to be completed before continuing
             presences: Do you need presence data for members?
+
         """
         ws = self._client.get_guild_websocket(self.id)
         await ws.request_member_chunks(self.id, limit=0, presences=presences)
@@ -759,6 +768,7 @@ class Guild(BaseGuild):
         banner: Absent[Optional[UPLOADABLE_TYPE]] = MISSING,
         rules_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
         public_updates_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
+        safety_alerts_channel: Absent[Optional[Union["models.GuildText", Snowflake_Type]]] = MISSING,
         preferred_locale: Absent[Optional[str]] = MISSING,
         premium_progress_bar_enabled: Absent[Optional[bool]] = False,
         # ToDo: Fill in guild features. No idea how this works - https://discord.com/developers/docs/resources/guild#guild-object-guild-features
@@ -785,6 +795,7 @@ class Guild(BaseGuild):
             system_channel_flags: The new settings for the system channel.
             rules_channel: The text channel where your rules and community guidelines are displayed.
             public_updates_channel: The text channel where updates from discord should appear.
+            safety_alerts_channel: The text channel where safety alerts from discord should appear.
             preferred_locale: The new preferred locale of the guild. Must be an ISO 639 code.
             premium_progress_bar_enabled: The status of the Nitro boost bar.
             features: The enabled guild features
@@ -796,9 +807,9 @@ class Guild(BaseGuild):
             name=name,
             description=description,
             verification_level=int(verification_level) if verification_level else MISSING,
-            default_message_notifications=int(default_message_notifications)
-            if default_message_notifications
-            else MISSING,
+            default_message_notifications=(
+                int(default_message_notifications) if default_message_notifications else MISSING
+            ),
             explicit_content_filter=int(explicit_content_filter) if explicit_content_filter else MISSING,
             afk_channel_id=to_snowflake(afk_channel) if afk_channel else MISSING,
             afk_timeout=afk_timeout,
@@ -811,6 +822,7 @@ class Guild(BaseGuild):
             system_channel_flags=int(system_channel_flags) if system_channel_flags else MISSING,
             rules_channel_id=to_snowflake(rules_channel) if rules_channel else MISSING,
             public_updates_channel_id=to_snowflake(public_updates_channel) if public_updates_channel else MISSING,
+            safety_alerts_channel_id=to_snowflake(safety_alerts_channel) if safety_alerts_channel else MISSING,
             preferred_locale=preferred_locale,
             premium_progress_bar_enabled=premium_progress_bar_enabled if premium_progress_bar_enabled else False,
             features=features,
@@ -1802,6 +1814,7 @@ class Guild(BaseGuild):
 
         Returns:
             The created rule
+
         """
         rule = AutoModRule(
             name=name,
@@ -1822,6 +1835,7 @@ class Guild(BaseGuild):
 
         Returns:
             A list of auto moderation rules
+
         """
         data = await self._client.http.get_auto_moderation_rules(self.id)
         return [AutoModRule.from_dict(d, self._client) for d in data]
@@ -1833,6 +1847,7 @@ class Guild(BaseGuild):
         Args:
             rule: The rule to delete
             reason: The reason for deleting this rule
+
         """
         await self._client.http.delete_auto_moderation_rule(self.id, to_snowflake(rule), reason=reason)
 
@@ -1869,6 +1884,7 @@ class Guild(BaseGuild):
 
         Returns:
             The updated rule
+
         """
         if trigger:
             _data = trigger.to_dict()
@@ -2020,6 +2036,16 @@ class Guild(BaseGuild):
         regions_data = await self._client.http.get_guild_voice_regions(self.id)
         return models.VoiceRegion.from_list(regions_data)
 
+    async def fetch_onboarding(self) -> Onboarding:
+        """
+        Fetches the guild's onboarding settings.
+
+        Returns:
+            The guild's onboarding settings.
+
+        """
+        return Onboarding.from_dict(await self._client.http.get_guild_onboarding(self.id), self._client)
+
     @property
     def gui_sorted_channels(self) -> list["models.TYPE_GUILD_CHANNEL"]:
         """Return this guilds channels sorted by their gui positions"""
@@ -2040,6 +2066,7 @@ class Guild(BaseGuild):
 
         Returns:
             The gui position of the channel.
+
         """
         if not self._channel_gui_positions:
             self._calculate_gui_channel_positions()
@@ -2053,6 +2080,7 @@ class Guild(BaseGuild):
 
         Returns:
             The list of channels in this guild, sorted by their GUI position.
+
         """
         # sorting is based on this https://github.com/discord/discord-api-docs/issues/4613#issuecomment-1059997612
         sort_map = {

@@ -443,6 +443,7 @@ class Message(BaseMessage):
 
         Returns:
             A boolean indicating whether the query could be found or not
+
         """
         return mentions(text=self.content or self.system_content, query=query, tag_as_mention=tag_as_mention)
 
@@ -683,9 +684,9 @@ class Message(BaseMessage):
                 await self._client.http.delete_message(self._channel_id, self.id)
 
         if delay:
-            _ = asyncio.create_task(_delete())
-        else:
-            return await _delete()
+            return asyncio.create_task(_delete())
+
+        return await _delete()
 
     async def reply(
         self,
@@ -926,6 +927,8 @@ def process_message_payload(
     attachments: Optional[List[Union[Attachment, dict]]] = None,
     tts: bool = False,
     flags: Optional[Union[int, MessageFlags]] = None,
+    nonce: Optional[str | int] = None,
+    enforce_nonce: bool = False,
     **kwargs,
 ) -> dict:
     """
@@ -941,6 +944,10 @@ def process_message_payload(
         attachments: The attachments to keep, only used when editing message.
         tts: Should this message use Text To Speech.
         flags: Message flags to apply.
+        nonce: Used to verify a message was sent.
+        enforce_nonce: If enabled and nonce is present, it will be checked for uniqueness in the past few minutes. \
+            If another message was created by the same author with the same nonce, that message will be returned \
+            and no new message will be created.
 
     Returns:
         Dictionary
@@ -969,6 +976,8 @@ def process_message_payload(
             "attachments": attachments,
             "tts": tts,
             "flags": flags,
+            "nonce": nonce,
+            "enforce_nonce": enforce_nonce,
             **kwargs,
         }
     )
