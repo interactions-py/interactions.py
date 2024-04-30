@@ -101,7 +101,7 @@ from .listener import listen, Listener
 from .protocols import Converter
 from .extension import Extension
 from .wait import Wait
-from .tasks import BaseTrigger, DateTrigger, IntervalTrigger, OrTrigger, Task, TimeTrigger
+from .tasks import BaseTrigger, CronTrigger, DateTrigger, IntervalTrigger, OrTrigger, Task, TimeTrigger
 from .localisation import LocalisedField, LocalizedField
 
 __all__ = (
@@ -131,6 +131,7 @@ __all__ = (
     "cooldown",
     "Cooldown",
     "CooldownSystem",
+    "CronTrigger",
     "CustomEmojiConverter",
     "DateTrigger",
     "dm_only",
