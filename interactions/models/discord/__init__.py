@@ -57,11 +57,13 @@ from .components import (
     BaseSelectMenu,
     Button,
     ChannelSelectMenu,
+    DefaultableSelectMenu,
     get_components_ids,
     InteractiveComponent,
     MentionableSelectMenu,
     process_components,
     RoleSelectMenu,
+    SelectDefaultValues,
     spread_to_rows,
     StringSelectMenu,
     StringSelectOption,
@@ -170,6 +172,8 @@ from .thread import ThreadList, ThreadMember, ThreadTag, DefaultReaction, proces
 from .timestamp import Timestamp, TimestampStyles
 from .user import BaseUser, Member, User, ClientUser
 from .voice_state import VoiceRegion, VoiceState
+from .webhooks import Webhook, WebhookTypes
+from .base import ClientObject, DiscordObject
 
 __all__ = (
     "ActionRow",
@@ -209,6 +213,7 @@ __all__ = (
     "ChannelMention",
     "ChannelSelectMenu",
     "ChannelType",
+    "ClientObject",
     "ClientUser",
     "Color",
     "COLOR_TYPES",
@@ -216,8 +221,10 @@ __all__ = (
     "CommandType",
     "ComponentType",
     "CustomEmoji",
+    "DefaultableSelectMenu",
     "DefaultNotificationLevel",
     "DefaultReaction",
+    "DiscordObject",
     "DM",
     "DMChannel",
     "DMGroup",
@@ -232,8 +239,8 @@ __all__ = (
     "File",
     "FlatUIColors",
     "FlatUIColours",
-    "ForumSortOrder",
     "ForumLayoutType",
+    "ForumSortOrder",
     "get_components_ids",
     "Guild",
     "GuildBan",
@@ -317,6 +324,7 @@ __all__ = (
     "ScheduledEventPrivacyLevel",
     "ScheduledEventStatus",
     "ScheduledEventType",
+    "SelectDefaultValues",
     "ShortText",
     "Snowflake",
     "Snowflake_Type",
@@ -370,4 +378,3 @@ __all__ = (
     "WebhookTypes",
     "WebSocketOPCode",
 )
-from .webhooks import Webhook, WebhookTypes
