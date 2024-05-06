@@ -71,6 +71,7 @@ class HybridManager:
 
         self.client.hybrid = self
 
+    @listen("on_callback_added")
     async def add_hybrid_command(self, event: CallbackAdded) -> None:
         # just here for backwards compatability since it was accidentially public, don't rely on it
         self._add_hybrid_command(event.callback)
