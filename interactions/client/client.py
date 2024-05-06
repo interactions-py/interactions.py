@@ -435,6 +435,8 @@ class Client(
         self.async_startup_tasks: list[tuple[Callable[..., Coroutine], Iterable[Any], dict[str, Any]]] = []
         """A list of coroutines to run during startup"""
 
+        self._add_command_hook: list[Callable[[Callable], Any]] = []
+
         # callbacks
         if global_pre_run_callback:
             if asyncio.iscoroutinefunction(global_pre_run_callback):
@@ -1415,6 +1417,9 @@ class Client(
             self.logger.debug(f"Added callback: {f'{ext.name}.' if ext else ''}{func.callback.func.__name__}")
         else:
             self.logger.debug(f"Added callback: {func.callback.__name__}")
+
+        for hook in self._add_command_hook:
+            hook(func)
 
         self.dispatch(CallbackAdded(callback=func, extension=func.extension if hasattr(func, "extension") else None))
 

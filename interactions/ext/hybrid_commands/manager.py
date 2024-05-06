@@ -65,21 +65,22 @@ class HybridManager:
         self.client = cast(prefixed.PrefixedInjectedClient, client)
         self.ext_command_list: dict[str, list[str]] = {}
 
-        self.client.add_listener(self.add_hybrid_command.copy_with_binding(self))
         self.client.add_listener(self.handle_ext_unload.copy_with_binding(self))
+
+        self.client._add_command_hook.append(self._add_hybrid_command)
 
         self.client.hybrid = self
 
     @listen("on_callback_added")
-    async def add_hybrid_command(self, event: CallbackAdded):
-        if (
-            not isinstance(event.callback, HybridSlashCommand)
-            or not event.callback.callback
-            or event.callback._dummy_base
-        ):
+    async def add_hybrid_command(self, event: CallbackAdded) -> None:
+        # just here for backwards compatability since it was accidentially public, don't rely on it
+        self._add_hybrid_command(event.callback)
+
+    def _add_hybrid_command(self, callback: Callable):
+        if not isinstance(callback, HybridSlashCommand) or not callback.callback or callback._dummy_base:
             return
 
-        cmd = event.callback
+        cmd = callback
         prefixed_transform = slash_to_prefixed(cmd)
 
         if self.use_slash_command_msg:
