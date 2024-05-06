@@ -7,7 +7,7 @@ if typing.TYPE_CHECKING:
 
 from croniter import croniter
 
-__all__ = ("BaseTrigger", "IntervalTrigger", "DateTrigger", "TimeTrigger", "OrTrigger")
+__all__ = ("BaseTrigger", "IntervalTrigger", "DateTrigger", "TimeTrigger", "OrTrigger", "CronTrigger")
 
 
 class BaseTrigger(ABC):
