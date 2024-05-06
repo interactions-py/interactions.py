@@ -101,7 +101,7 @@ from .listener import listen, Listener
 from .protocols import Converter
 from .extension import Extension
 from .wait import Wait
-from .tasks import BaseTrigger, DateTrigger, IntervalTrigger, OrTrigger, Task, TimeTrigger
+from .tasks import BaseTrigger, DateTrigger, IntervalTrigger, OrTrigger, Task, TimeTrigger, CronTrigger
 
 __all__ = (
     "ActiveVoiceState",
@@ -132,6 +132,7 @@ __all__ = (
     "cooldown",
     "Cooldown",
     "CooldownSystem",
+    "CronTrigger",
     "SlidingWindowSystem",
     "ExponentialBackoffSystem",
     "LeakyBucketSystem",
