@@ -9,7 +9,6 @@ from interactions.api.events.discord import MessageCreate
 from interactions.api.events.internal import (
     CommandError,
     CommandCompletion,
-    CallbackAdded,
     ExtensionUnload,
 )
 from interactions.client.client import Client
@@ -90,12 +89,12 @@ class PrefixedManager:
         self.client.prefixed = self
 
         self._dispatch_prefixed_commands = self._dispatch_prefixed_commands.copy_with_binding(self)
-        self._register_command = self._register_command.copy_with_binding(self)
         self._handle_ext_unload = self._handle_ext_unload.copy_with_binding(self)
 
         self.client.add_listener(self._dispatch_prefixed_commands)
-        self.client.add_listener(self._register_command)
         self.client.add_listener(self._handle_ext_unload)
+
+        self.client._add_command_hook.append(self._register_command)
 
     async def generate_prefixes(self, client: Client, msg: Message) -> str | list[str]:
         """
@@ -229,17 +228,13 @@ class PrefixedManager:
 
         return command
 
-    @listen("callback_added")
-    async def _register_command(self, event: CallbackAdded) -> None:
+    def _register_command(self, callback: Callable) -> None:
         """Registers a prefixed command, if there is one given."""
-        if not isinstance(event.callback, PrefixedCommand):
+        if not isinstance(callback, PrefixedCommand):
             return
 
-        cmd = event.callback
-        cmd.extension = event.extension
-
-        if not cmd.is_subcommand:
-            self.add_command(cmd)
+        if not callback.is_subcommand:
+            self.add_command(callback)
 
     @listen("extension_unload")
     async def _handle_ext_unload(self, event: ExtensionUnload) -> None:
