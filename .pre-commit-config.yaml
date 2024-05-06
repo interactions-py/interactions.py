@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
     - id: requirements-txt-fixer
       name: Requirements
@@ -30,13 +30,13 @@ repos:
     - id: check-merge-conflict
       name: Merge Conflicts
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.3.2'
+    rev: 'v0.4.3'
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
         language: python
   - repo: https://github.com/psf/black
-    rev: 24.2.0
+    rev: 24.4.2
     hooks:
       - id: black
         name: Black Formatting
