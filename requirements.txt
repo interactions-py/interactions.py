@@ -1,6 +1,6 @@
 aiohttp
 attrs>=22.1
 croniter
-discord-typings>=0.5.1
+discord-typings>=0.7.0
 emoji
 tomli
