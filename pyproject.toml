@@ -111,9 +111,11 @@ log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 [tool.ruff]
 line-length = 120
 target-version = "py310"
+output-format = "concise" # set to full if you want to see the source of the error/warning
+
+[tool.ruff.lint]
 ignore-init-module-imports = true
 task-tags = ["TODO", "FIXME", "XXX", "HACK", "REVIEW", "NOTE"]
-show-source = false # set to true if you want to see the source of the error/warning
 select = ["E", "F", "B", "Q", "RUF", "D", "ANN", "RET", "C"]
 ignore = [
     "Q0",
@@ -175,16 +177,16 @@ ignore = [
     # unecessary variable assignement before return statement.
 ]
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 
-[tool.ruff.flake8-annotations]
+[tool.ruff.lint.flake8-annotations]
 mypy-init-return = true
 suppress-dummy-args = true
 suppress-none-returning = true
 
-[tool.ruff.flake8-errmsg]
+[tool.ruff.lint.flake8-errmsg]
 max-string-length = 20
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 13
