@@ -259,6 +259,15 @@ class Paginator:
             pages.append(Page(page, prefix=prefix, suffix=suffix))
         return cls(client, pages=pages, timeout_interval=timeout)
 
+    def deactivate_buttons(self) -> None:
+        """
+        deactivate all control buttons for `First`, `Back`, `Next`, `Last`.
+        """
+        self.show_first_button = False
+        self.show_back_button = False
+        self.show_next_button = False
+        self.show_last_button = False
+
     def create_components(self, disable: bool = False) -> List[ActionRow]:
         """
         Create the components for the paginator message.
