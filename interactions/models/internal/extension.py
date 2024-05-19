@@ -83,6 +83,7 @@ class Extension:
         if instance.name in bot.ext:
             raise ValueError(f"An extension with the name {instance.name} is already loaded!")
 
+        instance.extension_name = inspect.getmodule(instance).__name__
         instance.extension_checks = []
         instance.extension_prerun = []
         instance.extension_postrun = []
@@ -123,7 +124,6 @@ class Extension:
                 bot.add_global_autocomplete(val)
         bot.dispatch(events.ExtensionCommandParse(extension=instance, callables=callables))
 
-        instance.extension_name = inspect.getmodule(instance).__name__
         instance.bot.ext[instance.name] = instance
 
         if hasattr(instance, "async_start"):
