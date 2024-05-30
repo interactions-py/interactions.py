@@ -173,7 +173,12 @@ class AutoShardedClient(Client):
         # run any pending startup tasks
         if self.async_startup_tasks:
             try:
-                await asyncio.gather(*self.async_startup_tasks)
+                await asyncio.gather(
+                    *[
+                        task[0](*task[1] if len(task) > 1 else [], **task[2] if len(task) == 3 else {})
+                        for task in self.async_startup_tasks
+                    ]
+                )
             except Exception as e:
                 self.dispatch(events.Error(source="async-extension-loader", error=e))
 
