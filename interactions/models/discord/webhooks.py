@@ -6,7 +6,7 @@ from typing import Optional, TYPE_CHECKING, Union, Dict, Any, List
 import attrs
 
 from interactions.client.const import MISSING, Absent
-from interactions.client.errors import ForeignWebhookException, EmptyMessageException
+from interactions.client.errors import ForeignWebhookException, EmptyMessageException, NotFound
 from interactions.client.mixins.send import SendMixin
 from interactions.client.utils.serializer import to_image_data
 from interactions.models.discord.message import process_message_payload
@@ -269,9 +269,11 @@ class Webhook(DiscordObject, SendMixin):
 
         """
         message_id = to_snowflake(message_id)
-        msg_data = await self._client.http.get_webhook_message(self.id, self.token, message_id)
-        if msg_data:
-            return self._client.cache.place_message_data(msg_data)
+        try:
+            msg_data = await self._client.http.get_webhook_message(self.id, self.token, message_id)
+        except NotFound:
+            return None
+        return self._client.cache.place_message_data(msg_data)
 
     async def edit_message(
         self,
