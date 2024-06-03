@@ -1,3 +1,4 @@
+import asyncio
 import re
 from enum import IntEnum
 from typing import Optional, TYPE_CHECKING, Union, Dict, Any, List
@@ -313,3 +314,29 @@ class Webhook(DiscordObject, SendMixin):
         )
         if msg_data:
             return self._client.cache.place_message_data(msg_data)
+
+    async def delete_message(
+        self,
+        message: Union["Message", "Snowflake_Type"],
+        *,
+        delay: int = 0,
+    ) -> None:
+        """
+        Delete a message as this webhook.
+
+        Args:
+            message: Message to delete
+            delay: Seconds to wait before deleting message.
+
+        """
+
+        async def _delete() -> None:
+            if delay:
+                await asyncio.sleep(delay)
+
+            await self._client.http.delete_webhook_message(self.id, self.token, to_snowflake(message))
+
+        if delay:
+            return asyncio.create_task(_delete())
+
+        return await _delete()
