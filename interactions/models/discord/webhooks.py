@@ -257,6 +257,22 @@ class Webhook(DiscordObject, SendMixin):
         if message_data:
             return self._client.cache.place_message_data(message_data)
 
+    async def get_message(self, message_id: Union["Message", "Snowflake_Type"]) -> Optional["Message"]:
+        """
+        Returns a previously-sent webhook message from the same token. Returns a message object on success.
+
+        Args:
+            message_id: ID of message to retrieve.
+
+        Returns:
+            The message object fetched. If the message is not found, returns None.
+
+        """
+        message_id = to_snowflake(message_id)
+        msg_data = await self._client.http.get_webhook_message(self.id, self.token, message_id)
+        if msg_data:
+            return self._client.cache.place_message_data(msg_data)
+
     async def edit_message(
         self,
         message: Union["Message", "Snowflake_Type"],
