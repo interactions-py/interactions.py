@@ -1,3 +1,4 @@
+import asyncio
 import re
 from enum import IntEnum
 from typing import Optional, TYPE_CHECKING, Union, Dict, Any, List
@@ -5,7 +6,7 @@ from typing import Optional, TYPE_CHECKING, Union, Dict, Any, List
 import attrs
 
 from interactions.client.const import MISSING, Absent
-from interactions.client.errors import ForeignWebhookException, EmptyMessageException
+from interactions.client.errors import ForeignWebhookException, EmptyMessageException, NotFound
 from interactions.client.mixins.send import SendMixin
 from interactions.client.utils.serializer import to_image_data
 from interactions.models.discord.message import process_message_payload
@@ -256,6 +257,24 @@ class Webhook(DiscordObject, SendMixin):
         if message_data:
             return self._client.cache.place_message_data(message_data)
 
+    async def fetch_message(self, message_id: Union["Message", "Snowflake_Type"]) -> Optional["Message"]:
+        """
+        Returns a previously-sent webhook message from the same token. Returns a message object on success.
+
+        Args:
+            message_id: ID of message to retrieve.
+
+        Returns:
+            The message object fetched. If the message is not found, returns None.
+
+        """
+        message_id = to_snowflake(message_id)
+        try:
+            msg_data = await self._client.http.get_webhook_message(self.id, self.token, message_id)
+        except NotFound:
+            return None
+        return self._client.cache.place_message_data(msg_data)
+
     async def edit_message(
         self,
         message: Union["Message", "Snowflake_Type"],
@@ -313,3 +332,29 @@ class Webhook(DiscordObject, SendMixin):
         )
         if msg_data:
             return self._client.cache.place_message_data(msg_data)
+
+    async def delete_message(
+        self,
+        message: Union["Message", "Snowflake_Type"],
+        *,
+        delay: int = 0,
+    ) -> None:
+        """
+        Delete a message as this webhook.
+
+        Args:
+            message: Message to delete
+            delay: Seconds to wait before deleting message.
+
+        """
+
+        async def _delete() -> None:
+            if delay:
+                await asyncio.sleep(delay)
+
+            await self._client.http.delete_webhook_message(self.id, self.token, to_snowflake(message))
+
+        if delay:
+            return asyncio.create_task(_delete())
+
+        return await _delete()
