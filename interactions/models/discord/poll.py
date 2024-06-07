@@ -81,7 +81,7 @@ class Poll(DictSerializationMixin):
     """The question of the poll. Only text media is supported."""
     answers: list[PollAnswer] = attrs.field(repr=False, factory=list, converter=PollAnswer.from_list)
     """Each of the answers available in the poll, up to 10."""
-    expiry: Timestamp = attrs.field(repr=False, default=MISSING, converter=timestamp_converter)
+    expiry: Timestamp = attrs.field(repr=False, default=MISSING, converter=optional(timestamp_converter))
     """Number of hours the poll is open for, up to 7 days."""
     allow_multiselect: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
     """Whether a user can select multiple answers."""
