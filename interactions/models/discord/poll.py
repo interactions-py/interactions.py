@@ -95,7 +95,12 @@ class Poll(DictSerializationMixin):
 
     @classmethod
     def create(
-        cls, question: str, duration: int, *, allow_multiselect: bool = False, answers: Optional[list[PollMedia]] = None
+        cls,
+        question: str,
+        *,
+        duration: int,
+        allow_multiselect: bool = False,
+        answers: Optional[list[PollMedia | str]] = None,
     ) -> Self:
         """
         Create a Poll object for sending.
@@ -111,7 +116,14 @@ class Poll(DictSerializationMixin):
 
         """
         if answers:
-            media_to_answers = [PollAnswer(poll_media=answer) for answer in answers]
+            media_to_answers = [
+                (
+                    PollAnswer(poll_media=answer)
+                    if isinstance(answer, PollMedia)
+                    else PollAnswer(poll_media=PollMedia.create(text=answer))
+                )
+                for answer in answers
+            ]
         else:
             media_to_answers = []
 
