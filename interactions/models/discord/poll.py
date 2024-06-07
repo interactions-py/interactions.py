@@ -3,7 +3,7 @@ from typing_extensions import Self
 
 import attrs
 
-from interactions.client.const import MISSING
+from interactions.client.const import MISSING, POLL_MAX_DURATION_HOURS, POLL_MAX_ANSWERS
 from interactions.client.utils.attr_converters import (
     optional,
     timestamp_converter,
@@ -124,13 +124,15 @@ class Poll(DictSerializationMixin):
 
     @answers.validator
     def _answers_validation(self, attribute: str, value: Any) -> None:
-        if len(value) > 10:
-            raise ValueError("A poll can have at most 10 answers.")
+        if len(value) > POLL_MAX_ANSWERS:
+            raise ValueError(f"A poll can have at most {POLL_MAX_ANSWERS} answers.")
 
     @_duration.validator
     def _duration_validation(self, attribute: str, value: int) -> None:
-        if value < 0 or value > 168:
-            raise ValueError("The duration must be between 0 and 168 hours (7 days).")
+        if value < 0 or value > POLL_MAX_DURATION_HOURS:
+            raise ValueError(
+                f"The duration must be between 0 and {POLL_MAX_DURATION_HOURS} hours ({POLL_MAX_DURATION_HOURS // 24} days)."
+            )
 
     def add_answer(self, text: Optional[str] = None, emoji: Optional[Union[PartialEmoji, dict, str]] = None) -> None:
         """
