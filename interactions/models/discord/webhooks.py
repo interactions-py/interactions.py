@@ -27,6 +27,7 @@ if TYPE_CHECKING:
         Message,
         MessageReference,
     )
+    from interactions.models.discord.poll import Poll
     from interactions.models.discord.sticker import Sticker
 
 __all__ = ("WebhookTypes", "Webhook")
@@ -190,6 +191,7 @@ class Webhook(DiscordObject, SendMixin):
         tts: bool = False,
         suppress_embeds: bool = False,
         flags: Optional[Union[int, "MessageFlags"]] = None,
+        poll: "Optional[Poll | dict]" = None,
         username: str | None = None,
         avatar_url: str | None = None,
         wait: bool = False,
@@ -212,6 +214,7 @@ class Webhook(DiscordObject, SendMixin):
             tts: Should this message use Text To Speech.
             suppress_embeds: Should embeds be suppressed on this send
             flags: Message flags to apply.
+            poll: A poll.
             username: The username to use
             avatar_url: The url of an image to use as the avatar
             wait: Waits for confirmation of delivery. Set this to True if you intend to edit the message
@@ -241,6 +244,7 @@ class Webhook(DiscordObject, SendMixin):
             reply_to=reply_to,
             tts=tts,
             flags=flags,
+            poll=poll,
             username=username,
             avatar_url=avatar_url,
             **kwargs,

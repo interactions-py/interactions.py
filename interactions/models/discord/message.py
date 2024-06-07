@@ -28,6 +28,7 @@ from interactions.models.discord.channel import BaseChannel, GuildChannel
 from interactions.models.discord.embed import process_embeds
 from interactions.models.discord.emoji import process_emoji_req_format
 from interactions.models.discord.file import UPLOADABLE_TYPE
+from interactions.models.discord.poll import Poll
 
 from .base import DiscordObject
 from .enums import (
@@ -981,6 +982,7 @@ def process_message_payload(
     flags: Optional[Union[int, MessageFlags]] = None,
     nonce: Optional[str | int] = None,
     enforce_nonce: bool = False,
+    poll: Optional[Poll | dict] = None,
     **kwargs,
 ) -> dict:
     """
@@ -1000,6 +1002,7 @@ def process_message_payload(
         enforce_nonce: If enabled and nonce is present, it will be checked for uniqueness in the past few minutes. \
             If another message was created by the same author with the same nonce, that message will be returned \
             and no new message will be created.
+        poll: A poll.
 
     Returns:
         Dictionary
@@ -1017,6 +1020,9 @@ def process_message_payload(
     if attachments:
         attachments = [attachment.to_dict() for attachment in attachments]
 
+    if isinstance(poll, Poll):
+        poll = poll.to_dict()
+
     return dict_filter_none(
         {
             "content": content,
@@ -1030,6 +1036,7 @@ def process_message_payload(
             "flags": flags,
             "nonce": nonce,
             "enforce_nonce": enforce_nonce,
+            "poll": poll,
             **kwargs,
         }
     )

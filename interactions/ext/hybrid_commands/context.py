@@ -23,6 +23,7 @@ from interactions import (
     Attachment,
     process_message_payload,
     TYPE_MESSAGEABLE_CHANNEL,
+    Poll,
 )
 from interactions.models.discord.enums import ContextType
 from interactions.client.mixins.send import SendMixin
@@ -309,6 +310,7 @@ class HybridContext(BaseContext, SendMixin):
         suppress_embeds: bool = False,
         silent: bool = False,
         flags: Optional[Union[int, "MessageFlags"]] = None,
+        poll: "Optional[Poll | dict]" = None,
         delete_after: Optional[float] = None,
         ephemeral: bool = False,
         **kwargs: Any,
@@ -330,6 +332,7 @@ class HybridContext(BaseContext, SendMixin):
             suppress_embeds: Should embeds be suppressed on this send
             silent: Should this message be sent without triggering a notification.
             flags: Message flags to apply.
+            poll: A poll.
             delete_after: Delete message after this many seconds.
             ephemeral: Should this message be sent as ephemeral (hidden) - only works with interactions
 
@@ -358,6 +361,7 @@ class HybridContext(BaseContext, SendMixin):
             file=file,
             tts=tts,
             flags=flags,
+            poll=poll,
             delete_after=delete_after,
             pass_self_into_delete=bool(self._slash_ctx),
             **kwargs,
