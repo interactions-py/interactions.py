@@ -2,6 +2,7 @@ import asyncio
 import inspect
 import typing
 from typing import Awaitable, Dict, List, TYPE_CHECKING, Callable, Coroutine, Optional
+import re
 
 import interactions.models.internal as models
 import interactions.api.events as events
@@ -154,12 +155,20 @@ class Extension:
         for func in self._commands:
             if isinstance(func, models.ModalCommand):
                 for listener in func.listeners:
-                    # noinspection PyProtectedMember
-                    self.bot._modal_callbacks.pop(listener)
+                    if isinstance(listener, re.Pattern):
+                        # noinspection PyProtectedMember
+                        self.bot._regex_modal_callbacks.pop(listener)
+                    else:
+                        # noinspection PyProtectedMember
+                        self.bot._modal_callbacks.pop(listener)
             elif isinstance(func, models.ComponentCommand):
                 for listener in func.listeners:
-                    # noinspection PyProtectedMember
-                    self.bot._component_callbacks.pop(listener)
+                    if isinstance(listener, re.Pattern):
+                        # noinspection PyProtectedMember
+                        self.bot._regex_component_callbacks.pop(listener)
+                    else:
+                        # noinspection PyProtectedMember
+                        self.bot._component_callbacks.pop(listener)
             elif isinstance(func, models.InteractionCommand):
                 for scope in func.scopes:
                     if self.bot.interactions_by_scope.get(scope):
