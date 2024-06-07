@@ -833,6 +833,7 @@ class BaseChannel(DiscordObject):
         rtc_region: Absent[Union["models.VoiceRegion", str]] = MISSING,
         video_quality_mode: Absent[VideoQualityMode] = MISSING,
         default_auto_archive_duration: Absent[AutoArchiveDuration] = MISSING,
+        flags: Absent[Union[int, ChannelFlags]] = MISSING,
         archived: Absent[bool] = MISSING,
         auto_archive_duration: Absent[AutoArchiveDuration] = MISSING,
         locked: Absent[bool] = MISSING,
@@ -858,6 +859,7 @@ class BaseChannel(DiscordObject):
             rtc_region: Channel voice region id, automatic when set to None.
             video_quality_mode: The camera video quality mode of the voice channel
             default_auto_archive_duration: The default duration that the clients use (not the API) for newly created threads in the channel, in minutes, to automatically archive the thread after recent activity
+            flags: Channel flags combined as a bitfield. Only REQUIRE_TAG is supported for now.
             archived: Whether the thread is archived
             auto_archive_duration: Duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080
             locked: Whether the thread is locked; when a thread is locked, only users with MANAGE_THREADS can unarchive it
@@ -883,6 +885,7 @@ class BaseChannel(DiscordObject):
             "rtc_region": rtc_region.id if isinstance(rtc_region, models.VoiceRegion) else rtc_region,
             "video_quality_mode": video_quality_mode,
             "default_auto_archive_duration": default_auto_archive_duration,
+            "flags": flags,
             "archived": archived,
             "auto_archive_duration": auto_archive_duration,
             "locked": locked,
