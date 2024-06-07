@@ -72,12 +72,10 @@ __all__ = (
 )
 
 channel_mention = re.compile(r"<#(?P<id>[0-9]{17,})>")
-    
+
 
 class PollAnswerVotersIterator(AsyncIterator):
-    def __init__(
-        self, message: "Message", answer_id: int, limit: int = 25, after: Snowflake_Type | None = None
-    ) -> None:
+    def __init__(self, message: "Message", answer_id: int, limit: int = 25, after: Snowflake_Type | None = None) -> None:
         self.message: "Message" = message
         self.answer_id = answer_id
         self.after: Snowflake_Type | None = after
@@ -677,10 +675,8 @@ class Message(BaseMessage):
     def proto_url(self) -> str:
         """A URL like `jump_url` that uses protocols."""
         return f"discord://-/channels/{self._guild_id or '@me'}/{self._channel_id}/{self.id}"
-    
-    def answer_voters(
-        self, answer_id: int, limit: int = 0, before: Snowflake_Type | None = None
-    ) -> PollAnswerVotersIterator:
+
+    def answer_voters(self, answer_id: int, limit: int = 0, before: Snowflake_Type | None = None) -> PollAnswerVotersIterator:
         """
         An async iterator for getting the voters for an answer in the poll this message has.
 
