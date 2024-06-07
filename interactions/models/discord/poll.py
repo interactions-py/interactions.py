@@ -134,7 +134,7 @@ class Poll(DictSerializationMixin):
                 f"The duration must be between 0 and {POLL_MAX_DURATION_HOURS} hours ({POLL_MAX_DURATION_HOURS // 24} days)."
             )
 
-    def add_answer(self, text: Optional[str] = None, emoji: Optional[Union[PartialEmoji, dict, str]] = None) -> None:
+    def add_answer(self, text: Optional[str] = None, emoji: Optional[Union[PartialEmoji, dict, str]] = None) -> Self:
         """
         Adds an answer to the poll.
 
@@ -148,6 +148,7 @@ class Poll(DictSerializationMixin):
 
         self.answers.append(PollAnswer(poll_media=PollMedia.create(text=text, emoji=emoji)))
         self._answers_validation("answers", self.answers)
+        return self
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
