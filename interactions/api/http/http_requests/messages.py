@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, TypedDict
 
 import discord_typings
 
@@ -12,6 +12,10 @@ __all__ = ("MessageRequests",)
 if TYPE_CHECKING:
     from interactions.models.discord.snowflake import Snowflake_Type
     from interactions import UPLOADABLE_TYPE
+
+
+class GetAnswerVotersData(TypedDict):
+    users: list[discord_typings.UserData]
 
 
 class MessageRequests(CanRequest):
@@ -184,7 +188,7 @@ class MessageRequests(CanRequest):
         answer_id: int,
         after: "Snowflake_Type | None" = None,
         limit: int = 25,
-    ) -> list[discord_typings.UserData]:
+    ) -> GetAnswerVotersData:
         """
         Get a list of users that voted for this specific answer.
 
@@ -196,20 +200,20 @@ class MessageRequests(CanRequest):
             limit: The max number of users to return (default 25, max 100)
 
         Returns:
-            list[discord_typings.UserData]: A list of users that voted for the answer
+            GetAnswerVotersData: A response that has a list of users that voted for the answer
 
         """
         result = await self.request(
             Route(
                 "GET",
-                "/channels/{channel_id}/messages/{message_id}/polls/{answer_id}/votes",
+                "/channels/{channel_id}/polls/{message_id}/answers/{answer_id}",
                 channel_id=channel_id,
                 message_id=message_id,
                 answer_id=answer_id,
             ),
             params=dict_filter_none({"after": after, "limit": limit}),
         )
-        return cast(list[discord_typings.UserData], result)
+        return cast(GetAnswerVotersData, result)
 
     async def end_poll(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type") -> discord_typings.MessageData:
         """
@@ -226,7 +230,7 @@ class MessageRequests(CanRequest):
         result = await self.request(
             Route(
                 "POST",
-                "/channels/{channel_id}/messages/{message_id}/polls/end",
+                "/channels/{channel_id}/polls/{message_id}/expire",
                 channel_id=channel_id,
                 message_id=message_id,
             )
