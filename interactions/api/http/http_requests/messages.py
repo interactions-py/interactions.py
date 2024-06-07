@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, cast
 import discord_typings
 
 from interactions.models.internal.protocols import CanRequest
+from interactions.client.utils.serializer import dict_filter_none
 from ..route import Route
 
 __all__ = ("MessageRequests",)
@@ -170,6 +171,62 @@ class MessageRequests(CanRequest):
             Route(
                 "POST",
                 "/channels/{channel_id}/messages/{message_id}/crosspost",
+                channel_id=channel_id,
+                message_id=message_id,
+            )
+        )
+        return cast(discord_typings.MessageData, result)
+
+    async def get_answer_voters(
+        self,
+        channel_id: "Snowflake_Type",
+        message_id: "Snowflake_Type",
+        answer_id: int,
+        after: "Snowflake_Type | None" = None,
+        limit: int = 25,
+    ) -> list[discord_typings.UserData]:
+        """
+        Get a list of users that voted for this specific answer.
+
+        Args:
+            channel_id: Channel the message is in
+            message_id: The message with the poll
+            answer_id: The answer to get voters for
+            after: Get messages after this user ID
+            limit: The max number of users to return (default 25, max 100)
+
+        Returns:
+            list[discord_typings.UserData]: A list of users that voted for the answer
+
+        """
+        result = await self.request(
+            Route(
+                "GET",
+                "/channels/{channel_id}/messages/{message_id}/polls/{answer_id}/votes",
+                channel_id=channel_id,
+                message_id=message_id,
+                answer_id=answer_id,
+            ),
+            params=dict_filter_none({"after": after, "limit": limit}),
+        )
+        return cast(list[discord_typings.UserData], result)
+
+    async def end_poll(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type") -> discord_typings.MessageData:
+        """
+        Ends a poll. Only can end polls from the current bot.
+
+        Args:
+            channel_id: Channel the message is in
+            message_id: The message with the poll
+
+        Returns:
+            message object
+
+        """
+        result = await self.request(
+            Route(
+                "POST",
+                "/channels/{channel_id}/messages/{message_id}/polls/end",
                 channel_id=channel_id,
                 message_id=message_id,
             )
