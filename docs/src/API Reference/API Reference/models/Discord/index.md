@@ -22,6 +22,7 @@ search:
 - [Invite](invite)
 - [Message](message)
 - [Modals](modals)
+- [Poll](poll)
 - [Reaction](reaction)
 - [Role](role)
 - [Scheduled event](scheduled_event)
