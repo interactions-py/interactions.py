@@ -24,8 +24,10 @@ class Entitlement(DiscordObject):
     """ID of the parent application."""
     type: EntitlementType = attrs.field(repr=False, converter=EntitlementType)
     """The type of entitlement."""
-    deleted: bool = attrs.field(repr=False, converter=bool)
+    deleted: bool = attrs.field(repr=False)
     """Whether the entitlement is deleted."""
+    consumed: bool = attrs.field(repr=False, default=False)
+    """For consumable items, whether or not the entitlement has been consumed"""
     subscription_id: Optional[Snowflake_Type] = attrs.field(repr=False, converter=to_optional_snowflake, default=None)
     """The ID of the subscription plan. Not present when using test entitlements."""
     starts_at: Optional[Timestamp] = attrs.field(repr=False, converter=optional_c(timestamp_converter), default=None)

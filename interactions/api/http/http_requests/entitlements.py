@@ -89,3 +89,21 @@ class EntitlementRequests(CanRequest):
                 entitlement_id=entitlement_id,
             )
         )
+
+    async def consume_entitlement(self, application_id: "Snowflake_Type", entitlement_id: "Snowflake_Type") -> None:
+        """
+        For One-Time Purchase consumable SKUs, marks a given entitlement for the user as consumed.
+
+        Args:
+            application_id: The ID of the application.
+            entitlement_id: The ID of the entitlement.
+
+        """
+        await self.request(
+            Route(
+                "POST",
+                "/applications/{application_id}/entitlements/{entitlement_id}/consume",
+                application_id=application_id,
+                entitlement_id=entitlement_id,
+            )
+        )
