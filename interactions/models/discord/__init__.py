@@ -156,6 +156,7 @@ from .message import (
 )
 from .modal import InputText, Modal, ParagraphText, ShortText, TextStyles
 from .onboarding import Onboarding, OnboardingPrompt, OnboardingPromptOption
+from .poll import PollMedia, PollAnswer, PollAnswerCount, PollResults, Poll
 from .reaction import Reaction, ReactionUsers
 from .role import Role
 from .scheduled_event import ScheduledEvent
@@ -300,7 +301,12 @@ __all__ = (
     "PartialEmoji",
     "PermissionOverwrite",
     "Permissions",
+    "Poll",
+    "PollAnswer",
+    "PollAnswerCount",
     "PollLayoutType",
+    "PollMedia",
+    "PollResults",
     "PremiumTier",
     "PremiumType",
     "process_allowed_mentions",
