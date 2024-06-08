@@ -581,6 +581,8 @@ class Permissions(DiscordIntFlag):  # type: ignore
     """Allows the usage of custom sounds from other servers"""
     SEND_VOICE_MESSAGES = 1 << 46
     """Allows for sending audio messages"""
+    SEND_POLLS = 1 << 49
+    """Allows sending polls"""
 
     # Shortcuts/grouping/aliases
     REQUIRES_MFA = (
