@@ -1072,8 +1072,7 @@ class Client(
         event: type[EventT],
         checks: Absent[Callable[[EventT], bool] | Callable[[EventT], Awaitable[bool]]] = MISSING,
         timeout: Optional[float] = None,
-    ) -> "Awaitable[EventT]":
-        ...
+    ) -> "Awaitable[EventT]": ...
 
     @overload
     def wait_for(
@@ -1081,8 +1080,7 @@ class Client(
         event: str,
         checks: Callable[[EventT], bool] | Callable[[EventT], Awaitable[bool]],
         timeout: Optional[float] = None,
-    ) -> "Awaitable[EventT]":
-        ...
+    ) -> "Awaitable[EventT]": ...
 
     @overload
     def wait_for(
@@ -1090,8 +1088,7 @@ class Client(
         event: str,
         checks: Missing = MISSING,
         timeout: Optional[float] = None,
-    ) -> Awaitable[Any]:
-        ...
+    ) -> Awaitable[Any]: ...
 
     def wait_for(
         self,
@@ -1157,15 +1154,14 @@ class Client(
         self,
         messages: Union[Message, int, list],
         components: Union[
-                List[List[Union["BaseComponent", dict]]],
-                List[Union["BaseComponent", dict]],
-                "BaseComponent",
-                dict,
-            ],
+            List[List[Union["BaseComponent", dict]]],
+            List[Union["BaseComponent", dict]],
+            "BaseComponent",
+            dict,
+        ],
         check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
         timeout: Optional[float] = None,
-    ) -> "events.Component":
-        ...
+    ) -> "events.Component": ...
 
     @overload
     async def wait_for_component(
@@ -1179,8 +1175,7 @@ class Client(
         ],
         check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
         timeout: Optional[float] = None,
-    ) -> "events.Component":
-        ...
+    ) -> "events.Component": ...
 
     @overload
     async def wait_for_component(
@@ -1194,8 +1189,7 @@ class Client(
         ],
         check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
         timeout: Optional[float] = None,
-    ) -> "events.Component":
-        ...
+    ) -> "events.Component": ...
 
     @overload
     async def wait_for_component(
@@ -1204,8 +1198,7 @@ class Client(
         components: None = None,
         check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
         timeout: Optional[float] = None,
-    ) -> "events.Component":
-        ...
+    ) -> "events.Component": ...
 
     async def wait_for_component(
         self,
