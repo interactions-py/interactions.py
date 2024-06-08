@@ -26,6 +26,8 @@ from typing import (
     Union,
     Awaitable,
     Tuple,
+    TypeVar,
+    overload,
 )
 
 from aiohttp import BasicAuth
@@ -40,6 +42,7 @@ from interactions.api.http.http_client import HTTPClient
 from interactions.client import errors
 from interactions.client.const import (
     GLOBAL_SCOPE,
+    Missing,
     MISSING,
     Absent,
     EMBED_MAX_DESC_LENGTH,
@@ -121,6 +124,8 @@ from interactions.models.internal.tasks import Task
 
 if TYPE_CHECKING:
     from interactions.models import Snowflake_Type, TYPE_ALL_CHANNEL
+
+EventT = TypeVar("EventT", bound=BaseEvent)
 
 __all__ = ("Client",)
 
@@ -1061,12 +1066,39 @@ class Client(
         """Waits for the client to become ready."""
         await self._ready.wait()
 
+    @overload
     def wait_for(
         self,
-        event: Union[str, "BaseEvent"],
-        checks: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] = MISSING,
+        event: type[EventT],
+        checks: Absent[Callable[[EventT], bool] | Callable[[EventT], Awaitable[bool]]] = MISSING,
         timeout: Optional[float] = None,
-    ) -> Any:
+    ) -> "Awaitable[EventT]":
+        ...
+
+    @overload
+    def wait_for(
+        self,
+        event: str,
+        checks: Callable[[EventT], bool] | Callable[[EventT], Awaitable[bool]],
+        timeout: Optional[float] = None,
+    ) -> "Awaitable[EventT]":
+        ...
+
+    @overload
+    def wait_for(
+        self,
+        event: str,
+        checks: Missing = MISSING,
+        timeout: Optional[float] = None,
+    ) -> Awaitable[Any]:
+        ...
+
+    def wait_for(
+        self,
+        event: Union[str, "type[BaseEvent]"],
+        checks: Absent[Callable[[BaseEvent], bool] | Callable[[BaseEvent], Awaitable[bool]]] = MISSING,
+        timeout: Optional[float] = None,
+    ) -> Awaitable[Any]:
         """
         Waits for a WebSocket event to be dispatched.
 
@@ -1112,7 +1144,7 @@ class Client(
         """
         author = to_snowflake(author) if author else None
 
-        def predicate(event) -> bool:
+        def predicate(event: events.ModalCompletion) -> bool:
             if modal.custom_id != event.ctx.custom_id:
                 return False
             return author == to_snowflake(event.ctx.author) if author else True
@@ -1120,9 +1152,64 @@ class Client(
         resp = await self.wait_for("modal_completion", predicate, timeout)
         return resp.ctx
 
+    @overload
     async def wait_for_component(
         self,
-        messages: Union[Message, int, list] = None,
+        messages: Union[Message, int, list],
+        components: Union[
+                List[List[Union["BaseComponent", dict]]],
+                List[Union["BaseComponent", dict]],
+                "BaseComponent",
+                dict,
+            ],
+        check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
+        timeout: Optional[float] = None,
+    ) -> "events.Component":
+        ...
+
+    @overload
+    async def wait_for_component(
+        self,
+        *,
+        components: Union[
+            List[List[Union["BaseComponent", dict]]],
+            List[Union["BaseComponent", dict]],
+            "BaseComponent",
+            dict,
+        ],
+        check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
+        timeout: Optional[float] = None,
+    ) -> "events.Component":
+        ...
+
+    @overload
+    async def wait_for_component(
+        self,
+        messages: None,
+        components: Union[
+            List[List[Union["BaseComponent", dict]]],
+            List[Union["BaseComponent", dict]],
+            "BaseComponent",
+            dict,
+        ],
+        check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
+        timeout: Optional[float] = None,
+    ) -> "events.Component":
+        ...
+
+    @overload
+    async def wait_for_component(
+        self,
+        messages: Union[Message, int, list],
+        components: None = None,
+        check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
+        timeout: Optional[float] = None,
+    ) -> "events.Component":
+        ...
+
+    async def wait_for_component(
+        self,
+        messages: Optional[Union[Message, int, list]] = None,
         components: Optional[
             Union[
                 List[List[Union["BaseComponent", dict]]],
@@ -1131,7 +1218,7 @@ class Client(
                 dict,
             ]
         ] = None,
-        check: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] | None = None,
+        check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
         timeout: Optional[float] = None,
     ) -> "events.Component":
         """
