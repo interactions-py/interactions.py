@@ -2572,6 +2572,16 @@ class Client(
         """
         await self.http.delete_test_entitlement(self.app.id, to_snowflake(entitlement_id))
 
+    async def consume_entitlement(self, entitlement_id: "Snowflake_Type") -> None:
+        """
+        For One-Time Purchase consumable SKUs, marks a given entitlement for the user as consumed.
+
+        Args:
+            entitlement_id: The ID of the entitlement to consume.
+
+        """
+        await self.http.consume_entitlement(self.app.id, entitlement_id)
+
     def mention_command(self, name: str, scope: int = 0) -> str:
         """
         Returns a string that would mention the interaction specified.
