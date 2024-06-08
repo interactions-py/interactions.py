@@ -825,6 +825,8 @@ class SystemChannelFlags(DiscordIntFlag):
 class ChannelFlags(DiscordIntFlag):
     PINNED = 1 << 1
     """ Thread is pinned to the top of its parent forum channel """
+    REQUIRE_TAG = 1 << 4
+    """Whether a tag is required to be specified when creating a thread in a Guild Forum or Media channel."""
     CLYDE_THREAD = 1 << 8
     """This thread was created by Clyde"""
     HIDE_MEDIA_DOWNLOAD_OPTIONS = 1 << 15
