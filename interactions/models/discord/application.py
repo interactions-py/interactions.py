@@ -62,6 +62,9 @@ class Application(DiscordObject):
     # todo: implement an ApplicationInstallParams object. See https://discord.com/developers/docs/resources/application#install-params-object
     install_params: Optional[dict] = attrs.field(repr=False, default=None)
     """The application's settings for in-app invitation to guilds"""
+    # todo: implement IntegrationTypeConfigurationObject too, see https://discord.com/developers/docs/resources/application#application-object-application-integration-type-configuration-object
+    integration_types_config: Optional[dict] = attrs.field(repr=False, default=None)
+    """Default scopes and permissions for each supported installation context. Value for each key is an integration type configuration object"""
     custom_install_url: Optional[str] = attrs.field(repr=False, default=None)
     """The application's custom authorization link for invitation to a guild"""
 

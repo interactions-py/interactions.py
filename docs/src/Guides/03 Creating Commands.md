@@ -423,18 +423,69 @@ There are two ways to define permissions.
 
 Multiple permissions are defined with the bitwise OR operator `|`.
 
-### Blocking Commands in DMs
+## Usable Contexts
 
-You can also block commands in DMs. To do that, just set `dm_permission` to false.
+You can control where slash commands (and other application commands) can be used using - in guilds, in DMs, and/or other private channels. By default, commands can be used in all contexts.
 
-```py
-@slash_command(
-    name="my_guild_only_command",
-    dm_permission=False,
-)
-async def my_command_function(ctx: SlashContext):
-    ...
-```
+As with permissions, there are two ways to define the context.
+
+=== ":one: Decorators"
+
+    ```python
+    from interactions import contexts
+
+    @slash_command(name="my_guild_only_command")
+    @contexts(guild=True, bot_dm=False, private_channel=False)
+    async def my_command_function(ctx: SlashContext):
+        ...
+    ```
+
+=== ":two: Function Definition"
+
+    ```python
+    from interactions import ContextType
+
+    @slash_command(
+        name="my_command",
+        contexts=[ContextType.GUILD],
+    )
+    async def my_command_function(ctx: SlashContext):
+        ...
+    ```
+
+## Integration Types
+
+Applications can be installed/integrated in different ways:
+- The one you are familiar with is the *guild* integration, where the application is installed in a specific guild, and so the entire guild can use the application.
+- You can also install the application to a *user*, where the application can then be used by the user anywhere they desire.
+
+By default, commands can only be used in guild integrations. Like many other properties, this can be changed.
+
+There are two ways to define this:
+
+=== ":one: Decorators"
+
+    ```python
+    from interactions import integration_types
+
+    @slash_command(name="my_command")
+    @integration_types(guild=True, user=True)
+    async def my_command_function(ctx: SlashContext):
+        ...
+    ```
+
+=== ":two: Function Definition"
+
+    ```python
+    from interactions import IntegrationType
+
+    @slash_command(
+        name="my_command",
+        integration_types=[IntegrationType.GUILD_INSTALL, IntegrationType.USER_INSTALL],
+    )
+    async def my_command_function(ctx: SlashContext):
+        ...
+    ```
 
 ## Checks
 

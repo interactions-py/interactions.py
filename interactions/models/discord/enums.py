@@ -16,11 +16,13 @@ __all__ = (
     "ChannelType",
     "CommandType",
     "ComponentType",
+    "ContextType",
     "DefaultNotificationLevel",
     "ExplicitContentFilterLevel",
     "ForumLayoutType",
     "ForumSortOrder",
     "IntegrationExpireBehaviour",
+    "IntegrationType",
     "Intents",
     "InteractionPermissionTypes",
     "InteractionType",
@@ -659,6 +661,21 @@ class ComponentType(CursedIntEnum):
     """Select menu for picking from mentionable objects"""
     CHANNEL_SELECT = 8
     """Select menu for picking from channels"""
+
+
+class IntegrationType(CursedIntEnum):
+    """The types of installation contexts supported by discord."""
+
+    GUILD_INSTALL = 0
+    USER_INSTALL = 1
+
+
+class ContextType(CursedIntEnum):
+    """The context of where an interaction can be used."""
+
+    GUILD = 0
+    BOT_DM = 1
+    PRIVATE_CHANNEL = 2
 
 
 class CommandType(CursedIntEnum):

@@ -36,7 +36,7 @@ from interactions.client.utils import optional
 from interactions.client.utils.attr_utils import attrs_validator, docs
 from interactions.client.utils.misc_utils import get_parameters, maybe_coroutine
 from interactions.client.utils.serializer import no_export_meta
-from interactions.models.discord.enums import ChannelType, CommandType, Permissions
+from interactions.models.discord.enums import ChannelType, CommandType, ContextType, IntegrationType, Permissions
 from interactions.models.discord.role import Role
 from interactions.models.discord.snowflake import to_snowflake_list, to_snowflake
 from interactions.models.discord.user import BaseUser
@@ -57,12 +57,14 @@ __all__ = (
     "CallbackType",
     "component_callback",
     "ComponentCommand",
+    "contexts",
     "context_menu",
     "user_context_menu",
     "message_context_menu",
     "ContextMenu",
     "global_autocomplete",
     "GlobalAutoComplete",
+    "integration_types",
     "InteractionCommand",
     "LocalisedDesc",
     "LocalisedName",
@@ -221,7 +223,7 @@ class InteractionCommand(BaseCommand):
         converter=LocalisedName.converter,
     )
     scopes: List["Snowflake_Type"] = attrs.field(
-        default=[GLOBAL_SCOPE],
+        factory=lambda: [GLOBAL_SCOPE],
         converter=to_snowflake_list,
         metadata=docs("The scopes of this interaction. Global or guild ids") | no_export_meta,
     )
@@ -230,7 +232,9 @@ class InteractionCommand(BaseCommand):
         default=None,
         metadata=docs("What permissions members need to have by default to use this command"),
     )
-    dm_permission: bool = attrs.field(repr=False, default=True, metadata=docs("Whether this command is enabled in DMs"))
+    dm_permission: bool = attrs.field(
+        repr=False, default=True, metadata=docs("Whether this command is enabled in DMs (deprecated)") | no_export_meta
+    )
     cmd_id: Dict[str, "Snowflake_Type"] = attrs.field(
         repr=False, factory=dict, metadata=docs("The unique IDs of this commands") | no_export_meta
     )  # scope: cmd_id
@@ -244,13 +248,42 @@ class InteractionCommand(BaseCommand):
         metadata=docs("A system to automatically defer this command after a set duration") | no_export_meta,
     )
     nsfw: bool = attrs.field(repr=False, default=False, metadata=docs("This command should only work in NSFW channels"))
+    integration_types: list[Union[IntegrationType, int]] = attrs.field(
+        factory=lambda: [IntegrationType.GUILD_INSTALL],
+        repr=False,
+        metadata=docs("Installation context(s) where the command is available, only for globally-scoped commands."),
+    )
+    contexts: list[Union[ContextType, int]] = attrs.field(
+        factory=lambda: [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL],
+        repr=False,
+        metadata=docs("Interaction context(s) where the command can be used, only for globally-scoped commands."),
+    )
     _application_id: "Snowflake_Type" = attrs.field(repr=False, default=None, converter=optional(to_snowflake))
 
     def __attrs_post_init__(self) -> None:
-        if self.callback is not None and hasattr(self.callback, "auto_defer"):
-            self.auto_defer = self.callback.auto_defer
+        if self.callback is not None:
+            if hasattr(self.callback, "auto_defer"):
+                self.auto_defer = self.callback.auto_defer
+            if hasattr(self.callback, "integration_types"):
+                self.integration_types = self.callback.integration_types
+            if hasattr(self.callback, "contexts"):
+                self.contexts = self.callback.contexts
 
         super().__attrs_post_init__()
+
+    @dm_permission.validator
+    def _dm_permission_validator(self, attribute: str, value: bool) -> None:
+        # since dm_permission is deprecated, ipy transforms it into something that isn't
+        if not value:
+            try:
+                self.contexts.remove(ContextType.PRIVATE_CHANNEL)
+            except ValueError:
+                pass
+
+            try:
+                self.contexts.remove(ContextType.BOT_DM)
+            except ValueError:
+                pass
 
     def to_dict(self) -> dict:
         data = super().to_dict()
@@ -754,6 +787,8 @@ class SlashCommand(InteractionCommand):
             group_description=description,
             scopes=self.scopes,
             default_member_permissions=self.default_member_permissions,
+            integration_types=self.integration_types,
+            contexts=self.contexts,
             dm_permission=self.dm_permission,
             checks=self.checks.copy() if inherit_checks else [],
         )
@@ -787,6 +822,8 @@ class SlashCommand(InteractionCommand):
                 sub_cmd_name=sub_cmd_name,
                 sub_cmd_description=sub_cmd_description,
                 default_member_permissions=self.default_member_permissions,
+                integration_types=self.integration_types,
+                contexts=self.contexts,
                 dm_permission=self.dm_permission,
                 options=options,
                 callback=call,
@@ -912,6 +949,8 @@ def slash_command(
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
     options: Optional[List[Union[SlashCommandOption, Dict]]] = None,
     default_member_permissions: Optional["Permissions"] = None,
+    integration_types: Optional[List[Union[IntegrationType, int]]] = None,
+    contexts: Optional[List[Union[ContextType, int]]] = None,
     dm_permission: bool = True,
     sub_cmd_name: str | LocalisedName = None,
     group_name: str | LocalisedName = None,
@@ -933,7 +972,9 @@ def slash_command(
         scopes: The scope this command exists within
         options: The parameters for the command, max 25
         default_member_permissions: What permissions members need to have by default to use this command.
-        dm_permission: Should this command be available in DMs.
+        integration_types: Installation context(s) where the command is available, only for globally-scoped commands.
+        contexts: Interaction context(s) where the command can be used, only for globally-scoped commands.
+        dm_permission: Should this command be available in DMs (deprecated).
         sub_cmd_name: 1-32 character name of the subcommand
         sub_cmd_description: 1-100 character description of the subcommand
         group_name: 1-32 character name of the group
@@ -973,6 +1014,8 @@ def slash_command(
             description=_description,
             scopes=scopes or [GLOBAL_SCOPE],
             default_member_permissions=perm,
+            integration_types=integration_types or [IntegrationType.GUILD_INSTALL],
+            contexts=contexts or [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL],
             dm_permission=dm_permission,
             callback=func,
             options=options,
@@ -993,6 +1036,8 @@ def subcommand(
     base_description: Optional[str | LocalisedDesc] = None,
     base_desc: Optional[str | LocalisedDesc] = None,
     base_default_member_permissions: Optional["Permissions"] = None,
+    base_integration_types: Optional[List[Union[IntegrationType, int]]] = None,
+    base_contexts: Optional[List[Union[ContextType, int]]] = None,
     base_dm_permission: bool = True,
     subcommand_group_description: Optional[str | LocalisedDesc] = None,
     sub_group_desc: Optional[str | LocalisedDesc] = None,
@@ -1011,7 +1056,9 @@ def subcommand(
         base_description: The description of the base command
         base_desc: An alias of `base_description`
         base_default_member_permissions: What permissions members need to have by default to use this command.
-        base_dm_permission: Should this command be available in DMs.
+        base_integration_types: Installation context(s) where the command is available, only for globally-scoped commands.
+        base_contexts: Interaction context(s) where the command can be used, only for globally-scoped commands.
+        base_dm_permission: Should this command be available in DMs (deprecated).
         subcommand_group_description: Description of the subcommand group
         sub_group_desc: An alias for `subcommand_group_description`
         scopes: The scopes of which this command is available, defaults to GLOBAL_SCOPE
@@ -1043,6 +1090,8 @@ def subcommand(
             sub_cmd_name=_name,
             sub_cmd_description=_description,
             default_member_permissions=base_default_member_permissions,
+            integration_types=base_integration_types or [IntegrationType.GUILD_INSTALL],
+            contexts=base_contexts or [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL],
             dm_permission=base_dm_permission,
             scopes=scopes or [GLOBAL_SCOPE],
             callback=func,
@@ -1060,6 +1109,8 @@ def context_menu(
     context_type: "CommandType",
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
     default_member_permissions: Optional["Permissions"] = None,
+    integration_types: Optional[List[Union[IntegrationType, int]]] = None,
+    contexts: Optional[List[Union[ContextType, int]]] = None,
     dm_permission: bool = True,
 ) -> Callable[[AsyncCallable], ContextMenu]:
     """
@@ -1070,7 +1121,9 @@ def context_menu(
         context_type: The type of context menu
         scopes: The scope this command exists within
         default_member_permissions: What permissions members need to have by default to use this command.
-        dm_permission: Should this command be available in DMs.
+        integration_types: Installation context(s) where the command is available, only for globally-scoped commands.
+        contexts: Interaction context(s) where the command can be used, only for globally-scoped commands.
+        dm_permission: Should this command be available in DMs (deprecated).
 
     Returns:
         ContextMenu object
@@ -1097,6 +1150,8 @@ def context_menu(
             type=context_type,
             scopes=scopes or [GLOBAL_SCOPE],
             default_member_permissions=perm,
+            integration_types=integration_types or [IntegrationType.GUILD_INSTALL],
+            contexts=contexts or [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL],
             dm_permission=dm_permission,
             callback=func,
         )
@@ -1110,6 +1165,8 @@ def user_context_menu(
     *,
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
     default_member_permissions: Optional["Permissions"] = None,
+    integration_types: Optional[List[Union[IntegrationType, int]]] = None,
+    contexts: Optional[List[Union[ContextType, int]]] = None,
     dm_permission: bool = True,
 ) -> Callable[[AsyncCallable], ContextMenu]:
     """
@@ -1119,7 +1176,9 @@ def user_context_menu(
         name: 1-32 character name of the context menu, defaults to the name of the coroutine.
         scopes: The scope this command exists within
         default_member_permissions: What permissions members need to have by default to use this command.
-        dm_permission: Should this command be available in DMs.
+        integration_types: Installation context(s) where the command is available, only for globally-scoped commands.
+        contexts: Interaction context(s) where the command can be used, only for globally-scoped commands.
+        dm_permission: Should this command be available in DMs (deprecated).
 
     Returns:
         ContextMenu object
@@ -1130,6 +1189,8 @@ def user_context_menu(
         context_type=CommandType.USER,
         scopes=scopes,
         default_member_permissions=default_member_permissions,
+        integration_types=integration_types or [IntegrationType.GUILD_INSTALL],
+        contexts=contexts or [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL],
         dm_permission=dm_permission,
     )
 
@@ -1139,6 +1200,8 @@ def message_context_menu(
     *,
     scopes: Absent[List["Snowflake_Type"]] = MISSING,
     default_member_permissions: Optional["Permissions"] = None,
+    integration_types: Optional[List[Union[IntegrationType, int]]] = None,
+    contexts: Optional[List[Union[ContextType, int]]] = None,
     dm_permission: bool = True,
 ) -> Callable[[AsyncCallable], ContextMenu]:
     """
@@ -1148,7 +1211,9 @@ def message_context_menu(
         name: 1-32 character name of the context menu, defaults to the name of the coroutine.
         scopes: The scope this command exists within
         default_member_permissions: What permissions members need to have by default to use this command.
-        dm_permission: Should this command be available in DMs.
+        integration_types: Installation context(s) where the command is available, only for globally-scoped commands.
+        contexts: Interaction context(s) where the command can be used, only for globally-scoped commands.
+        dm_permission: Should this command be available in DMs (deprecated).
 
     Returns:
         ContextMenu object
@@ -1159,6 +1224,8 @@ def message_context_menu(
         context_type=CommandType.MESSAGE,
         scopes=scopes,
         default_member_permissions=default_member_permissions,
+        integration_types=integration_types or [IntegrationType.GUILD_INSTALL],
+        contexts=contexts or [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL],
         dm_permission=dm_permission,
     )
 
@@ -1337,6 +1404,59 @@ def auto_defer(
     return wrapper
 
 
+def integration_types(guild: bool = True, user: bool = False) -> Callable[[InterCommandT], InterCommandT]:
+    """
+    A decorator to set integration types for an application command.
+
+    Args:
+        guild: Should the command be available for guilds
+        user: Should the command be available for individual users
+
+    """
+    kwargs = locals()
+
+    def wrapper(func: InterCommandT) -> InterCommandT:
+        if hasattr(func, "cmd_id"):
+            raise ValueError("integration_types decorators must be positioned under a command decorator")
+
+        func.integration_types = []
+        for key in kwargs:
+            if kwargs[key]:
+                func.integration_types.append(IntegrationType[key.upper() + "_INSTALL"])
+
+        return func
+
+    return wrapper
+
+
+def contexts(
+    guild: bool = True, bot_dm: bool = True, private_channel: bool = True
+) -> Callable[[InterCommandT], InterCommandT]:
+    """
+    A decorator to set contexts where the command can be used for a application command.
+
+    Args:
+        guild: Should the command be available in guilds
+        bot_dm: Should the command be available in bot DMs
+        private_channel: Should the command be available in private channels
+
+    """
+    kwargs = locals()
+
+    def wrapper(func: InterCommandT) -> InterCommandT:
+        if hasattr(func, "cmd_id"):
+            raise ValueError("contexts decorators must be positioned under a command decorator")
+
+        func.contexts = []
+        for key in kwargs:
+            if kwargs[key]:
+                func.contexts.append(ContextType[key.upper()])
+
+        return func
+
+    return wrapper
+
+
 def application_commands_to_dict(  # noqa: C901
     commands: Dict["Snowflake_Type", Dict[str, InteractionCommand]], client: "Client"
 ) -> dict:
@@ -1366,7 +1486,8 @@ def application_commands_to_dict(  # noqa: C901
                         if subcommand.default_member_permissions
                         else None
                     ),
-                    "dm_permission": subcommand.dm_permission,
+                    "integration_types": subcommand.integration_types,
+                    "contexts": subcommand.contexts,
                     "name_localizations": subcommand.name.to_locale_dict(),
                     "description_localizations": subcommand.description.to_locale_dict(),
                     "nsfw": subcommand.nsfw,
@@ -1419,6 +1540,10 @@ def application_commands_to_dict(  # noqa: C901
                 )
             if any(c.default_member_permissions != cmd_list[0].default_member_permissions for c in cmd_list):
                 raise ValueError(f"Conflicting `default_member_permissions` values found in `{cmd_list[0].name}`")
+            if any(c.contexts != cmd_list[0].contexts for c in cmd_list):
+                raise ValueError(f"Conflicting `contexts` values found in `{cmd_list[0].name}`")
+            if any(c.integration_types != cmd_list[0].integration_types for c in cmd_list):
+                raise ValueError(f"Conflicting `integration_types` values found in `{cmd_list[0].name}`")
             if any(c.dm_permission != cmd_list[0].dm_permission for c in cmd_list):
                 raise ValueError(f"Conflicting `dm_permission` values found in `{cmd_list[0].name}`")
             if any(c.nsfw != nsfw for c in cmd_list):
@@ -1458,13 +1583,14 @@ def _compare_commands(local_cmd: dict, remote_cmd: dict) -> bool:
         "name": ("name", ""),
         "description": ("description", ""),
         "default_member_permissions": ("default_member_permissions", None),
-        "dm_permission": ("dm_permission", True),
         "name_localized": ("name_localizations", None),
         "description_localized": ("description_localizations", None),
+        "integration_types": ("integration_types", [IntegrationType.GUILD_INSTALL]),
+        "contexts": ("contexts", [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL]),
     }
     if remote_cmd.get("guild_id"):
         # non-global command
-        del lookup["dm_permission"]
+        del lookup["contexts"]
 
     for local_name, comparison_data in lookup.items():
         remote_name, default_value = comparison_data

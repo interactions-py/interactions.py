@@ -22,7 +22,9 @@ from interactions import (
     to_snowflake,
     Attachment,
     process_message_payload,
+    TYPE_MESSAGEABLE_CHANNEL,
 )
+from interactions.models.discord.enums import ContextType
 from interactions.client.mixins.send import SendMixin
 from interactions.client.errors import HTTPException
 from interactions.ext import prefixed_commands as prefixed
@@ -60,6 +62,9 @@ class HybridContext(BaseContext, SendMixin):
     ephemeral: bool
     """Whether the context response is ephemeral."""
 
+    context: Optional[ContextType]
+    """Context where the command was triggered from"""
+
     _command_name: str
     """The command name."""
     _message: Message | None
@@ -81,6 +86,7 @@ class HybridContext(BaseContext, SendMixin):
         self.deferred = False
         self.responded = False
         self.ephemeral = False
+        self.context = None
         self._command_name = ""
         self.args = []
         self.kwargs = {}
@@ -106,6 +112,7 @@ class HybridContext(BaseContext, SendMixin):
         self.deferred = ctx.deferred
         self.responded = ctx.responded
         self.ephemeral = ctx.ephemeral
+        self.context = ctx.context
         self._command_name = ctx._command_name
         self.args = ctx.args
         self.kwargs = ctx.kwargs
@@ -121,9 +128,27 @@ class HybridContext(BaseContext, SendMixin):
         elif ctx.channel.type in {10, 11, 12}:  # it's a thread
             app_permissions = ctx.channel.parent_channel.permissions_for(ctx.guild.me)  # type: ignore
         else:
-            app_permissions = Permissions(0)
+            # likely a dm, give a sane default
+            app_permissions = (
+                Permissions.VIEW_CHANNEL
+                | Permissions.SEND_MESSAGES
+                | Permissions.READ_MESSAGE_HISTORY
+                | Permissions.EMBED_LINKS
+                | Permissions.ATTACH_FILES
+                | Permissions.MENTION_EVERYONE
+                | Permissions.USE_EXTERNAL_EMOJIS
+            )
 
         self = cls(ctx.client)
+
+        if ctx.channel.type == 1:  # dm
+            # note that prefixed cmds for dms cannot be used outside of bot dms
+            self.context = ContextType.BOT_DM
+        elif ctx.channel.type == 3:  # group dm - technically not possible but just in case
+            self.context = ContextType.PRIVATE_CHANNEL
+        else:
+            self.context = ContextType.GUILD
+
         self.guild_id = ctx.guild_id
         self.channel_id = ctx.channel_id
         self.author_id = ctx.author_id
@@ -164,6 +189,14 @@ class HybridContext(BaseContext, SendMixin):
     def deferred_ephemeral(self) -> bool:
         """Whether the interaction has been deferred ephemerally."""
         return self.deferred and self.ephemeral
+
+    @property
+    def channel(self) -> "TYPE_MESSAGEABLE_CHANNEL":
+        """The channel this context was invoked in."""
+        if self._prefixed_ctx:
+            return self._prefixed_ctx.channel
+
+        return self._slash_ctx.channel
 
     @property
     def message(self) -> Message | None:

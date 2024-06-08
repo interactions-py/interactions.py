@@ -27,6 +27,8 @@ from interactions.models.discord.enums import (
     InteractionType,
     ComponentType,
     CommandType,
+    ContextType,
+    IntegrationType,
 )
 from interactions.models.discord.message import (
     AllowedMentions,
@@ -256,11 +258,16 @@ class BaseInteractionContext(BaseContext):
     ephemeral: bool
     """Whether the interaction response is ephemeral."""
 
+    authorizing_integration_owners: dict[IntegrationType, Snowflake]
+    """Mapping of installation contexts that the interaction was authorized for to related user or guild IDs"""
+    context: typing.Optional[ContextType]
+    """Context where the interaction was triggered from"""
+
     entitlements: list[Entitlement]
     """The entitlements of the invoking user."""
 
     _context_type: int
-    """The context type of the interaction."""
+    """The type of the interaction."""
     command_id: Snowflake
     """The command ID of the interaction."""
     _command_name: str
@@ -290,6 +297,11 @@ class BaseInteractionContext(BaseContext):
         instance._context_type = payload.get("type", 0)
         instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
         instance.entitlements = Entitlement.from_list(payload["entitlements"], client)
+        instance.context = ContextType(payload["context"]) if payload.get("context") else None
+        instance.authorizing_integration_owners = {
+            IntegrationType(int(integration_type)): Snowflake(owner_id)
+            for integration_type, owner_id in payload.get("authorizing_integration_owners", {}).items()
+        }
 
         instance.channel_id = Snowflake(payload["channel_id"])
         if channel := payload.get("channel"):
