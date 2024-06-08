@@ -72,6 +72,8 @@ __all__ = (
     "MessageCreate",
     "MessageDelete",
     "MessageDeleteBulk",
+    "MessagePollVoteAdd",
+    "MessagePollVoteRemove",
     "MessageReactionAdd",
     "MessageReactionRemove",
     "MessageReactionRemoveAll",
@@ -115,6 +117,7 @@ if TYPE_CHECKING:
     from interactions.models.discord.entitlement import Entitlement
     from interactions.models.discord.guild import Guild, GuildIntegration
     from interactions.models.discord.message import Message
+    from interactions.models.discord.poll import Poll
     from interactions.models.discord.reaction import Reaction
     from interactions.models.discord.role import Role
     from interactions.models.discord.scheduled_event import ScheduledEvent
@@ -586,6 +589,72 @@ class MessageReactionRemoveEmoji(MessageReactionRemoveAll):
         repr=False,
     )
     """The emoji that was removed"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class BaseMessagePollEvent(BaseEvent):
+    user_id: "Snowflake_Type" = attrs.field(repr=False)
+    """The ID of the user that voted"""
+    channel_id: "Snowflake_Type" = attrs.field(repr=False)
+    """The ID of the channel the poll is in"""
+    message_id: "Snowflake_Type" = attrs.field(repr=False)
+    """The ID of the message the poll is in"""
+    answer_id: int = attrs.field(repr=False)
+    """The ID of the answer the user voted for"""
+    guild_id: "Optional[Snowflake_Type]" = attrs.field(repr=False, default=None)
+    """The ID of the guild the poll is in"""
+
+    def get_message(self) -> "Optional[Message]":
+        """Get the message object if it is cached"""
+        return self.client.cache.get_message(self.channel_id, self.message_id)
+
+    def get_user(self) -> "Optional[User]":
+        """Get the user object if it is cached"""
+        return self.client.get_user(self.user_id)
+
+    def get_channel(self) -> "Optional[TYPE_ALL_CHANNEL]":
+        """Get the channel object if it is cached"""
+        return self.client.get_channel(self.channel_id)
+
+    def get_guild(self) -> "Optional[Guild]":
+        """Get the guild object if it is cached"""
+        return self.client.get_guild(self.guild_id) if self.guild_id is not None else None
+
+    def get_poll(self) -> "Optional[Poll]":
+        """Get the poll object if it is cached"""
+        message = self.get_message()
+        return message.poll if message is not None else None
+
+    async def fetch_message(self) -> "Message":
+        """Fetch the message the poll is in"""
+        return await self.client.cache.fetch_message(self.channel_id, self.message_id)
+
+    async def fetch_user(self) -> "User":
+        """Fetch the user that voted"""
+        return await self.client.fetch_user(self.user_id)
+
+    async def fetch_channel(self) -> "TYPE_ALL_CHANNEL":
+        """Fetch the channel the poll is in"""
+        return await self.client.fetch_channel(self.channel_id)
+
+    async def fetch_guild(self) -> "Optional[Guild]":
+        """Fetch the guild the poll is in"""
+        return await self.client.fetch_guild(self.guild_id) if self.guild_id is not None else None
+
+    async def fetch_poll(self) -> "Poll":
+        """Fetch the poll object"""
+        message = await self.fetch_message()
+        return message.poll
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class MessagePollVoteAdd(BaseMessagePollEvent):
+    """Dispatched when a user votes in a poll"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=False)
+class MessagePollVoteRemove(BaseMessagePollEvent):
+    """Dispatched when a user remotes a votes in a poll"""
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
