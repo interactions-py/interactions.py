@@ -633,7 +633,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
     ) -> "interactions.Message":
         message_payload = process_message_payload(
             content=content,
-            embeds=embeds or embed,
+            embeds=embed if embeds is None else embeds,
             components=components,
             allowed_mentions=allowed_mentions,
             attachments=attachments,
@@ -875,7 +875,7 @@ class ComponentContext(InteractionContext, ModalMixin):
 
         message_payload = process_message_payload(
             content=content,
-            embeds=embeds or embed,
+            embeds=embed if embeds is None else embeds,
             components=components,
             allowed_mentions=allowed_mentions,
             tts=tts,
@@ -889,13 +889,13 @@ class ComponentContext(InteractionContext, ModalMixin):
                 )
 
             message_data = await self.client.http.edit_interaction_message(
-                message_payload, self.client.app.id, self.token, files=files or file
+                message_payload, self.client.app.id, self.token, files=file if files is None else files
             )
             self.deferred = False
             self.editing_origin = False
         else:
             payload = {"type": CallbackType.UPDATE_MESSAGE, "data": message_payload}
-            await self.client.http.post_initial_response(payload, str(self.id), self.token, files=files or file)
+            await self.client.http.post_initial_response(payload, str(self.id), self.token, files=file if files is None else files)
             message_data = await self.client.http.get_interaction_message(self.client.app.id, self.token)
 
         if message_data:

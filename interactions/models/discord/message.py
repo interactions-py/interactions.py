@@ -701,7 +701,7 @@ class Message(BaseMessage):
             )
         message_payload = process_message_payload(
             content=content,
-            embeds=embeds or embed,
+            embeds=embed if embeds is None else embeds,
             components=components,
             allowed_mentions=allowed_mentions,
             attachments=attachments,
