@@ -299,6 +299,32 @@ class GuildRequests(CanRequest):
             Route("DELETE", "/guilds/{guild_id}/bans/{user_id}", guild_id=guild_id, user_id=user_id), reason=reason
         )
 
+    async def bulk_guild_ban(
+        self,
+        guild_id: "Snowflake_Type",
+        user_ids: "list[Snowflake_Type]",
+        delete_message_seconds: int = 0,
+        reason: str | None = None,
+    ) -> discord_typings.BulkBanData:
+        """
+        Ban a list of users from the guild.
+
+        Args:
+            guild_id: The ID of the guild to create the ban in
+            user_ids: List of user ids to ban (max 200)
+            delete_message_seconds: Number of seconds to delete messages for (0-604800)
+            reason: The reason for this action
+
+        Returns:
+            Bulk ban object
+
+        """
+        payload = {"delete_message_days": delete_message_seconds, "user_ids": user_ids}
+        result = await self.request(
+            Route("POST", "/guilds/{guild_id}/bulk-ban", guild_id=guild_id), payload=payload, reason=reason
+        )
+        return cast(discord_typings.BulkBanData, result)
+
     async def get_guild_prune_count(
         self,
         guild_id: "Snowflake_Type",
