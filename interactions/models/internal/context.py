@@ -895,7 +895,9 @@ class ComponentContext(InteractionContext, ModalMixin):
             self.editing_origin = False
         else:
             payload = {"type": CallbackType.UPDATE_MESSAGE, "data": message_payload}
-            await self.client.http.post_initial_response(payload, str(self.id), self.token, files=file if files is None else files)
+            await self.client.http.post_initial_response(
+                payload, str(self.id), self.token, files=file if files is None else files
+            )
             message_data = await self.client.http.get_interaction_message(self.client.app.id, self.token)
 
         if message_data:
