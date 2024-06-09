@@ -26,7 +26,13 @@ __all__ = (
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class PollMedia(DictSerializationMixin):
     text: Optional[str] = attrs.field(repr=False, default=None)
-    """The text of the field."""
+    """
+    The text of the field.
+
+    !!! warning
+        While `text` is *marked* as optional, it is *currently required* by Discord's API to make polls.
+        According to Discord, this may change to be actually optional in the future.
+    """
     emoji: Optional[PartialEmoji] = attrs.field(repr=False, default=None, converter=optional(PartialEmoji.from_dict))
     """The emoji of the field."""
 
@@ -34,6 +40,10 @@ class PollMedia(DictSerializationMixin):
     def create(cls, *, text: Optional[str] = None, emoji: Optional[Union[PartialEmoji, dict, str]] = None) -> Self:
         """
         Create a PollMedia object, used for questions and answers for polls.
+
+        !!! warning
+            While `text` is *marked* as optional, it is *currently required* by Discord's API to make polls.
+            According to Discord, this may change to be actually optional in the future.
 
         Args:
             text: The text of the field.
@@ -149,6 +159,10 @@ class Poll(DictSerializationMixin):
     def add_answer(self, text: Optional[str] = None, emoji: Optional[Union[PartialEmoji, dict, str]] = None) -> Self:
         """
         Adds an answer to the poll.
+
+        !!! warning
+            While `text` is *marked* as optional, it is *currently required* by Discord's API to make polls.
+            According to Discord, this may change to be actually optional in the future.
 
         Args:
             text: The text of the answer.
