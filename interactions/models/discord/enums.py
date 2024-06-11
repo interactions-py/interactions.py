@@ -422,6 +422,10 @@ class MessageType(CursedIntEnum):
             cls.STAGE_SPEAKER,
             cls.STAGE_TOPIC,
             cls.GUILD_APPLICATION_PREMIUM_SUBSCRIPTION,
+            cls.GUILD_INCIDENT_ALERT_MODE_ENABLED,
+            cls.GUILD_INCIDENT_ALERT_MODE_DISABLED,
+            cls.GUILD_INCIDENT_REPORT_RAID,
+            cls.GUILD_INCIDENT_REPORT_FALSE_ALARM,
             cls.PURCHASE_NOTIFICATION,
         )
 
