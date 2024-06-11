@@ -391,6 +391,7 @@ class MessageType(CursedIntEnum):
     GUILD_INCIDENT_ALERT_MODE_DISABLED = 37
     GUILD_INCIDENT_REPORT_RAID = 38
     GUILD_INCIDENT_REPORT_FALSE_ALARM = 39
+    PURCHASE_NOTIFICATION = 44
 
     @classmethod
     def deletable(cls) -> Tuple["MessageType", ...]:
@@ -404,6 +405,10 @@ class MessageType(CursedIntEnum):
             cls.USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2,
             cls.USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3,
             cls.CHANNEL_FOLLOW_ADD,
+            cls.GUILD_DISCOVERY_DISQUALIFIED,
+            cls.GUILD_DISCOVERY_REQUALIFIED,
+            cls.GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING,
+            cls.GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING,
             cls.THREAD_CREATED,
             cls.REPLY,
             cls.APPLICATION_COMMAND,
@@ -417,6 +422,7 @@ class MessageType(CursedIntEnum):
             cls.STAGE_SPEAKER,
             cls.STAGE_TOPIC,
             cls.GUILD_APPLICATION_PREMIUM_SUBSCRIPTION,
+            cls.PURCHASE_NOTIFICATION,
         )
 
 
