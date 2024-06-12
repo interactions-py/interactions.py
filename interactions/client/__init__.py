@@ -32,6 +32,7 @@ from .const import (
     Absent,
     T,
     T_co,
+    ClientT,
 )
 from .client import Client
 from .auto_shard_client import AutoShardedClient
@@ -73,6 +74,7 @@ __all__ = (
     "Absent",
     "T",
     "T_co",
+    "ClientT",
     "Client",
     "AutoShardedClient",
     "smart_cache",

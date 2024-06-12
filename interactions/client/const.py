@@ -43,7 +43,8 @@ import os
 import sys
 from collections import defaultdict
 from importlib.metadata import version as _v, PackageNotFoundError
-from typing import TypeVar, Union, Callable, Coroutine, ClassVar
+import typing_extensions
+from typing import TypeVar, Union, Callable, Coroutine, ClassVar, TYPE_CHECKING
 
 __all__ = (
     "__version__",
@@ -79,6 +80,7 @@ __all__ = (
     "Absent",
     "T",
     "T_co",
+    "ClientT",
     "LIB_PATH",
     "RECOVERABLE_WEBSOCKET_CLOSE_CODES",
     "NON_RESUMABLE_WEBSOCKET_CLOSE_CODES",
@@ -233,6 +235,13 @@ T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
 Absent = Union[T, Missing]
 AsyncCallable = Callable[..., Coroutine]
+
+if TYPE_CHECKING:
+    from interactions import Client
+
+    ClientT = typing_extensions.TypeVar("ClientT", bound=Client, default=Client)
+else:
+    ClientT = TypeVar("ClientT")
 
 LIB_PATH = os.sep.join(__file__.split(os.sep)[:-2])
 """The path to the library folder."""

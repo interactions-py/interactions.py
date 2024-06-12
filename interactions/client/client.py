@@ -12,6 +12,7 @@ import time
 import traceback
 from collections.abc import Iterable
 from datetime import datetime
+from typing_extensions import Self
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -362,17 +363,17 @@ class Client(
         """The HTTP client to use when interacting with discord endpoints"""
 
         # context factories
-        self.interaction_context: Type[BaseContext] = interaction_context
+        self.interaction_context: Type[BaseContext[Self]] = interaction_context
         """The object to instantiate for Interaction Context"""
-        self.component_context: Type[BaseContext] = component_context
+        self.component_context: Type[BaseContext[Self]] = component_context
         """The object to instantiate for Component Context"""
-        self.autocomplete_context: Type[BaseContext] = autocomplete_context
+        self.autocomplete_context: Type[BaseContext[Self]] = autocomplete_context
         """The object to instantiate for Autocomplete Context"""
-        self.modal_context: Type[BaseContext] = modal_context
+        self.modal_context: Type[BaseContext[Self]] = modal_context
         """The object to instantiate for Modal Context"""
-        self.slash_context: Type[BaseContext] = slash_context
+        self.slash_context: Type[BaseContext[Self]] = slash_context
         """The object to instantiate for Slash Context"""
-        self.context_menu_context: Type[BaseContext] = context_menu_context
+        self.context_menu_context: Type[BaseContext[Self]] = context_menu_context
         """The object to instantiate for Context Menu Context"""
 
         self.token: str | None = token
@@ -1746,7 +1747,7 @@ class Client(
             command.cmd_id[scope] = command_id
             self._interaction_lookup[command.resolved_name] = command
 
-    async def get_context(self, data: dict) -> InteractionContext:
+    async def get_context(self, data: dict) -> InteractionContext[Self]:
         match data["type"]:
             case InteractionType.MESSAGE_COMPONENT:
                 cls = self.component_context.from_dict(self, data)

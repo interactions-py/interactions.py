@@ -9,7 +9,6 @@ from interactions import (
     Permissions,
     Message,
     SlashContext,
-    Client,
     Typing,
     Embed,
     BaseComponent,
@@ -24,6 +23,7 @@ from interactions import (
     process_message_payload,
     TYPE_MESSAGEABLE_CHANNEL,
 )
+from interactions.client.const import ClientT
 from interactions.models.discord.enums import ContextType
 from interactions.client.mixins.send import SendMixin
 from interactions.client.errors import HTTPException
@@ -37,7 +37,7 @@ __all__ = ("HybridContext",)
 
 
 class DeferTyping:
-    def __init__(self, ctx: "HybridContext", ephermal: bool) -> None:
+    def __init__(self, ctx: "SlashContext[ClientT]", ephermal: bool) -> None:
         self.ctx = ctx
         self.ephermal = ephermal
 
@@ -48,7 +48,7 @@ class DeferTyping:
         pass
 
 
-class HybridContext(BaseContext, SendMixin):
+class HybridContext(BaseContext[ClientT], SendMixin):
     prefix: str
     "The prefix used to invoke this command."
 
@@ -76,10 +76,10 @@ class HybridContext(BaseContext, SendMixin):
 
     __attachment_index__: int
 
-    _slash_ctx: SlashContext | None
-    _prefixed_ctx: prefixed.PrefixedContext | None
+    _slash_ctx: SlashContext[ClientT] | None
+    _prefixed_ctx: prefixed.PrefixedContext[ClientT] | None
 
-    def __init__(self, client: Client):
+    def __init__(self, client: ClientT):
         super().__init__(client)
         self.prefix = ""
         self.app_permissions = Permissions(0)
@@ -96,12 +96,12 @@ class HybridContext(BaseContext, SendMixin):
         self._prefixed_ctx = None
 
     @classmethod
-    def from_dict(cls, client: Client, payload: dict) -> None:
+    def from_dict(cls, client: ClientT, payload: dict) -> None:
         # this doesn't mean anything, so just implement it to make abc happy
         raise NotImplementedError
 
     @classmethod
-    def from_slash_context(cls, ctx: SlashContext) -> Self:
+    def from_slash_context(cls, ctx: SlashContext[ClientT]) -> Self:
         self = cls(ctx.client)
         self.guild_id = ctx.guild_id
         self.channel_id = ctx.channel_id
@@ -120,7 +120,7 @@ class HybridContext(BaseContext, SendMixin):
         return self
 
     @classmethod
-    def from_prefixed_context(cls, ctx: prefixed.PrefixedContext) -> Self:
+    def from_prefixed_context(cls, ctx: prefixed.PrefixedContext[ClientT]) -> Self:
         # this is a "best guess" on what the permissions are
         # this may or may not be totally accurate
         if hasattr(ctx.channel, "permissions_for"):
@@ -162,7 +162,7 @@ class HybridContext(BaseContext, SendMixin):
         return self
 
     @property
-    def inner_context(self) -> SlashContext | prefixed.PrefixedContext:
+    def inner_context(self) -> SlashContext[ClientT] | prefixed.PrefixedContext[ClientT]:
         """The inner context that this hybrid context is wrapping."""
         return self._slash_ctx or self._prefixed_ctx  # type: ignore
 
