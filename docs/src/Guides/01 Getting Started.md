@@ -76,7 +76,7 @@ async def on_ready():
 @listen()
 async def on_message_create(event):
     # This event is called when a message is sent in a channel the bot can see
-    print(f"message received: {event.message.content}")
+    print(f"message received: {event.message.jump_url}")
 
 
 bot.start("Put your token here")
