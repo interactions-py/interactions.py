@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
 from typing_extensions import Self
 
-from interactions.client.client import Client
+from interactions.client.const import ClientT
 from interactions.client.mixins.send import SendMixin
 from interactions.models.discord.channel import TYPE_MESSAGEABLE_CHANNEL
 from interactions.models.discord.embed import Embed
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 __all__ = ("PrefixedContext",)
 
 
-class PrefixedContext(BaseContext, SendMixin):
+class PrefixedContext(BaseContext[ClientT], SendMixin):
     _message: Message
 
     prefix: str
@@ -33,12 +33,12 @@ class PrefixedContext(BaseContext, SendMixin):
     "This is always empty, and is only here for compatibility with other types of commands."
 
     @classmethod
-    def from_dict(cls, client: "Client", payload: dict) -> Self:
+    def from_dict(cls, client: "ClientT", payload: dict) -> Self:
         # this doesn't mean anything, so just implement it to make abc happy
         raise NotImplementedError
 
     @classmethod
-    def from_message(cls, client: "Client", message: Message) -> Self:
+    def from_message(cls, client: "ClientT", message: Message) -> Self:
         instance = cls(client=client)
 
         # hack to work around BaseContext property

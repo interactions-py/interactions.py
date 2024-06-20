@@ -39,6 +39,7 @@ from .client import (
     smart_cache,
     T,
     T_co,
+    ClientT,
     utils,
 )
 from .client import const
@@ -430,6 +431,7 @@ __all__ = (
     "ChannelType",
     "check",
     "Client",
+    "ClientT",
     "ClientUser",
     "Color",
     "COLOR_TYPES",
