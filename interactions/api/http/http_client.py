@@ -319,7 +319,11 @@ class HTTPClient(
         else:
             payload = [dict_filter(x) if isinstance(x, dict) else x for x in payload]
 
-        if not files:
+        if files is None:
+            return payload
+
+        if files == []:
+            payload["attachments"] = []
             return payload
 
         if not isinstance(files, list):
