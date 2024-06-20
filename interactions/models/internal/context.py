@@ -12,6 +12,7 @@ from interactions.client import const
 from interactions.client.const import get_logger, MISSING
 from interactions.models.discord.components import BaseComponent
 from interactions.models.discord.file import UPLOADABLE_TYPE
+from interactions.models.discord.poll import Poll
 from interactions.models.discord.sticker import Sticker
 from interactions.models.discord.user import Member, User
 
@@ -540,6 +541,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         suppress_embeds: bool = False,
         silent: bool = False,
         flags: typing.Optional[typing.Union[int, "MessageFlags"]] = None,
+        poll: "typing.Optional[Poll | dict]" = None,
         delete_after: typing.Optional[float] = None,
         ephemeral: bool = False,
         **kwargs: typing.Any,
@@ -561,6 +563,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             suppress_embeds: Should embeds be suppressed on this send
             silent: Should this message be sent without triggering a notification.
             flags: Message flags to apply.
+            poll: A poll.
             delete_after: Delete message after this many seconds.
             ephemeral: Whether the response should be ephemeral
 
@@ -589,6 +592,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             file=file,
             tts=tts,
             flags=flags,
+            poll=poll,
             delete_after=delete_after,
             pass_self_into_delete=True,
             **kwargs,

@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from interactions.models.discord.components import BaseComponent
     from interactions.models.discord.embed import Embed
     from interactions.models.discord.message import AllowedMentions, Message, MessageReference
+    from interactions.models.discord.poll import Poll
     from interactions.models.discord.sticker import Sticker
     from interactions.models.discord.snowflake import Snowflake_Type
 
@@ -49,6 +50,7 @@ class SendMixin:
         delete_after: Optional[float] = None,
         nonce: Optional[str | int] = None,
         enforce_nonce: bool = False,
+        poll: "Optional[Poll | dict]" = None,
         **kwargs: Any,
     ) -> "Message":
         """
@@ -73,6 +75,7 @@ class SendMixin:
             enforce_nonce: If enabled and nonce is present, it will be checked for uniqueness in the past few minutes. \
                 If another message was created by the same author with the same nonce, that message will be returned \
                 and no new message will be created.
+            poll: A poll.
 
         Returns:
             New message object that was sent.
@@ -115,6 +118,7 @@ class SendMixin:
             flags=flags,
             nonce=nonce,
             enforce_nonce=enforce_nonce,
+            poll=poll,
             **kwargs,
         )
 

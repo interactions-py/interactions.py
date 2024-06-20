@@ -1,8 +1,9 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, TypedDict
 
 import discord_typings
 
 from interactions.models.internal.protocols import CanRequest
+from interactions.client.utils.serializer import dict_filter_none
 from ..route import Route
 
 __all__ = ("MessageRequests",)
@@ -11,6 +12,10 @@ __all__ = ("MessageRequests",)
 if TYPE_CHECKING:
     from interactions.models.discord.snowflake import Snowflake_Type
     from interactions import UPLOADABLE_TYPE
+
+
+class GetAnswerVotersData(TypedDict):
+    users: list[discord_typings.UserData]
 
 
 class MessageRequests(CanRequest):
@@ -170,6 +175,62 @@ class MessageRequests(CanRequest):
             Route(
                 "POST",
                 "/channels/{channel_id}/messages/{message_id}/crosspost",
+                channel_id=channel_id,
+                message_id=message_id,
+            )
+        )
+        return cast(discord_typings.MessageData, result)
+
+    async def get_answer_voters(
+        self,
+        channel_id: "Snowflake_Type",
+        message_id: "Snowflake_Type",
+        answer_id: int,
+        after: "Snowflake_Type | None" = None,
+        limit: int = 25,
+    ) -> GetAnswerVotersData:
+        """
+        Get a list of users that voted for this specific answer.
+
+        Args:
+            channel_id: Channel the message is in
+            message_id: The message with the poll
+            answer_id: The answer to get voters for
+            after: Get messages after this user ID
+            limit: The max number of users to return (default 25, max 100)
+
+        Returns:
+            GetAnswerVotersData: A response that has a list of users that voted for the answer
+
+        """
+        result = await self.request(
+            Route(
+                "GET",
+                "/channels/{channel_id}/polls/{message_id}/answers/{answer_id}",
+                channel_id=channel_id,
+                message_id=message_id,
+                answer_id=answer_id,
+            ),
+            params=dict_filter_none({"after": after, "limit": limit}),
+        )
+        return cast(GetAnswerVotersData, result)
+
+    async def end_poll(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type") -> discord_typings.MessageData:
+        """
+        Ends a poll. Only can end polls from the current bot.
+
+        Args:
+            channel_id: Channel the message is in
+            message_id: The message with the poll
+
+        Returns:
+            message object
+
+        """
+        result = await self.request(
+            Route(
+                "POST",
+                "/channels/{channel_id}/polls/{message_id}/expire",
                 channel_id=channel_id,
                 message_id=message_id,
             )
