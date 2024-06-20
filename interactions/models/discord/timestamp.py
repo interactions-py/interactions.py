@@ -99,11 +99,14 @@ class Timestamp(datetime):
         if self.year > 1970 or (self.year == 1970 and (self.month > 1 or self.day > 1)):
             return super().astimezone(tz)
 
-        if self.year < 1969 or self.month < 12 or self.day < 31:
+        if self.year < 1969 or (self.year == 1969 and (self.month < 12 or self.day < 31)):
             # windows kind of breaks down for dates before unix time
             # technically this is solvable, but it's not worth the effort
             # also, again, this is a loose bound, but it's good enough for our purposes
             raise ValueError("astimezone with no arguments is not supported for dates before Unix Time on Windows.")
+
+        if tz:
+            return self.replace(tzinfo=tz)
 
         # to work around the issue to some extent, we'll use a timestamp with a date
         # that doesn't trigger the bug, and use the timezone from it to modify this
