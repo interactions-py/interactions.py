@@ -734,6 +734,8 @@ class ButtonStyle(CursedIntEnum):
     """red"""
     LINK = 5
     """url button"""
+    PREMIUM = 6
+    """premium button"""
 
     # Aliases
     BLUE = 1

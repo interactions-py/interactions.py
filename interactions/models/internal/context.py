@@ -457,6 +457,10 @@ class InteractionContext(BaseInteractionContext[ClientT], SendMixin):
         """
         Send a premium required response.
 
+        !!! warn
+            This response has been deprecated by Discord and will be removed in the future.
+            Use a button with the PREMIUM type instead.
+
         When used, the user will be prompted to subscribe to premium to use this feature.
         Only available for applications with monetization enabled.
         """
