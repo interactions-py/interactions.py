@@ -910,6 +910,7 @@ class ComponentContext(InteractionContext[ClientT], ModalMixin):
         if message_data:
             message = self.client.cache.place_message_data(message_data)
             self.message_id = message.id
+            self.responded = True
             return message
 
     @property
