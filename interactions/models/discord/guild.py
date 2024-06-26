@@ -61,6 +61,7 @@ if TYPE_CHECKING:
 
 __all__ = (
     "GuildBan",
+    "BulkBanResponse",
     "BaseGuild",
     "GuildWelcome",
     "GuildPreview",
@@ -83,6 +84,34 @@ class GuildBan:
     """The reason for the ban"""
     user: "models.User"
     """The banned user"""
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class BulkBanResponse(ClientObject):
+    _banned_users: list[Snowflake_Type] = attrs.field(repr=False, converter=to_snowflake_list)
+    """List of user IDs that were successfully banned."""
+    _failed_users: list[Snowflake_Type] = attrs.field(repr=False, converter=to_snowflake_list)
+    """List of user IDs that were not banned."""
+
+    @property
+    def banned_users(self) -> List["models.User | None"]:
+        """List of users that were successfully banned."""
+        return [self.client.cache.get_user(u_id) for u_id in self._banned_users]
+
+    @property
+    def failed_users(self) -> List["models.User | None"]:
+        """List of users that were not banned."""
+        return [self.client.cache.get_user(u_id) for u_id in self._failed_users]
+
+    @property
+    def failed_user_ids(self) -> List[Snowflake_Type]:
+        """List of user IDs that were not banned."""
+        return self._failed_users
+
+    @property
+    def banned_user_ids(self) -> List[Snowflake_Type]:
+        """List of user IDs that were successfully banned."""
+        return self._banned_users
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -1747,6 +1776,29 @@ class Guild(BaseGuild):
             )
             delete_message_seconds = delete_message_days * 3600
         await self._client.http.create_guild_ban(self.id, to_snowflake(user), delete_message_seconds, reason=reason)
+
+    async def bulk_ban(
+        self,
+        users: List[Union["models.User", "models.Member", Snowflake_Type]],
+        delete_message_seconds: int = 0,
+        reason: Optional[str] = None,
+    ) -> BulkBanResponse:
+        """
+        Bans a list of users from the guild.
+
+        !!! note
+            You must have the `ban members` permission
+
+        Args:
+            user: The users to ban
+            delete_message_seconds: How many seconds worth of messages to remove
+            reason: The reason for the ban
+
+        """
+        result = await self.client.http.bulk_guild_ban(
+            self.id, [to_snowflake(user) for user in users], delete_message_seconds, reason=reason
+        )
+        return BulkBanResponse.from_dict(result, self.client)
 
     async def fetch_ban(self, user: Union["models.User", "models.Member", Snowflake_Type]) -> Optional[GuildBan]:
         """

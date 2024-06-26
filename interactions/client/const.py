@@ -43,7 +43,8 @@ import os
 import sys
 from collections import defaultdict
 from importlib.metadata import version as _v, PackageNotFoundError
-from typing import TypeVar, Union, Callable, Coroutine, ClassVar
+import typing_extensions
+from typing import TypeVar, Union, Callable, Coroutine, ClassVar, TYPE_CHECKING
 
 __all__ = (
     "__version__",
@@ -79,11 +80,14 @@ __all__ = (
     "Absent",
     "T",
     "T_co",
+    "ClientT",
     "LIB_PATH",
     "RECOVERABLE_WEBSOCKET_CLOSE_CODES",
     "NON_RESUMABLE_WEBSOCKET_CLOSE_CODES",
     "CLIENT_FEATURE_FLAGS",
     "has_client_feature",
+    "POLL_MAX_ANSWERS",
+    "POLL_MAX_DURATION_HOURS",
 )
 
 _ver_info = sys.version_info
@@ -129,6 +133,9 @@ EMBED_MAX_DESC_LENGTH = 4096
 EMBED_MAX_FIELDS = 25
 EMBED_TOTAL_MAX = 6000
 EMBED_FIELD_VALUE_LENGTH = 1024
+
+POLL_MAX_ANSWERS = 10
+POLL_MAX_DURATION_HOURS = 168
 
 
 class Singleton(type):
@@ -233,6 +240,13 @@ T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
 Absent = Union[T, Missing]
 AsyncCallable = Callable[..., Coroutine]
+
+if TYPE_CHECKING:
+    from interactions import Client
+
+    ClientT = typing_extensions.TypeVar("ClientT", bound=Client, default=Client)
+else:
+    ClientT = TypeVar("ClientT")
 
 LIB_PATH = os.sep.join(__file__.split(os.sep)[:-2])
 """The path to the library folder."""

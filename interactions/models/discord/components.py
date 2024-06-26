@@ -7,7 +7,7 @@ import attrs
 import discord_typings
 
 import interactions.models.discord as d_models
-from interactions.models.discord.snowflake import Snowflake
+from interactions.models.discord.snowflake import Snowflake, Snowflake_Type
 from interactions.client.const import ACTION_ROW_MAX_ITEMS, MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.models.discord.base import DiscordObject
@@ -212,6 +212,7 @@ class Button(InteractiveComponent):
         label optional[str]: The text that appears on the button, max 80 characters.
         emoji optional[Union[PartialEmoji, dict, str]]: The emoji that appears on the button.
         custom_id Optional[str]: A developer-defined identifier for the button, max 100 characters.
+        sku_id: Optional[Snowflake_Type]: Identifier for a purchasable SKU, only available when using premium-style buttons
         url Optional[str]: A url for link-style buttons.
         disabled bool: Disable the button and make it not interactable, default false.
 
@@ -226,6 +227,7 @@ class Button(InteractiveComponent):
         label: str | None = None,
         emoji: "PartialEmoji | None | str" = None,
         custom_id: str | None = None,
+        sku_id: Snowflake_Type | None = None,
         url: str | None = None,
         disabled: bool = False,
     ) -> None:
@@ -233,6 +235,7 @@ class Button(InteractiveComponent):
         self.label: str | None = label
         self.emoji: "PartialEmoji | None" = emoji
         self.custom_id: str | None = custom_id
+        self.sku_id: Snowflake_Type | None = sku_id
         self.url: str | None = url
         self.disabled: bool = disabled
 
@@ -244,10 +247,17 @@ class Button(InteractiveComponent):
             if self.url is None:
                 raise ValueError("URL buttons must have a url.")
 
+        elif self.style == ButtonStyle.PREMIUM:
+            if any(p is not None for p in (self.custom_id, self.url, self.emoji, self.label)):
+                raise ValueError("Premium buttons cannot have a custom_id, url, emoji, or label.")
+            if self.sku_id is None:
+                raise ValueError("Premium buttons must have a sku_id.")
+
         elif self.custom_id is None:
             self.custom_id = str(uuid.uuid4())
-        if not self.label and not self.emoji:
-            raise ValueError("Buttons must have a label or an emoji.")
+
+        if self.style != ButtonStyle.PREMIUM and not self.label and not self.emoji:
+            raise ValueError("Non-premium buttons must have a label or an emoji.")
 
         if isinstance(self.emoji, str):
             self.emoji = PartialEmoji.from_str(self.emoji)
@@ -261,12 +271,13 @@ class Button(InteractiveComponent):
             label=data.get("label"),
             emoji=emoji,
             custom_id=data.get("custom_id"),
+            sku_id=data.get("sku_id"),
             url=data.get("url"),
             disabled=data.get("disabled", False),
         )
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} type={self.type} style={self.style} label={self.label} emoji={self.emoji} custom_id={self.custom_id} url={self.url} disabled={self.disabled}>"
+        return f"<{self.__class__.__name__} type={self.type} style={self.style} label={self.label} emoji={self.emoji} custom_id={self.custom_id} sku_id={self.sku_id} url={self.url} disabled={self.disabled}>"
 
     def to_dict(self) -> discord_typings.ButtonComponentData:
         emoji = self.emoji.to_dict() if self.emoji else None
@@ -279,6 +290,7 @@ class Button(InteractiveComponent):
             "label": self.label,
             "emoji": emoji,
             "custom_id": self.custom_id,
+            "sku_id": self.sku_id,
             "url": self.url,
             "disabled": self.disabled,
         }

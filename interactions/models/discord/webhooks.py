@@ -1,3 +1,4 @@
+import asyncio
 import re
 from enum import IntEnum
 from typing import Optional, TYPE_CHECKING, Union, Dict, Any, List
@@ -5,7 +6,7 @@ from typing import Optional, TYPE_CHECKING, Union, Dict, Any, List
 import attrs
 
 from interactions.client.const import MISSING, Absent
-from interactions.client.errors import ForeignWebhookException, EmptyMessageException
+from interactions.client.errors import ForeignWebhookException, EmptyMessageException, NotFound
 from interactions.client.mixins.send import SendMixin
 from interactions.client.utils.serializer import to_image_data
 from interactions.models.discord.message import process_message_payload
@@ -26,6 +27,7 @@ if TYPE_CHECKING:
         Message,
         MessageReference,
     )
+    from interactions.models.discord.poll import Poll
     from interactions.models.discord.sticker import Sticker
 
 __all__ = ("WebhookTypes", "Webhook")
@@ -189,6 +191,7 @@ class Webhook(DiscordObject, SendMixin):
         tts: bool = False,
         suppress_embeds: bool = False,
         flags: Optional[Union[int, "MessageFlags"]] = None,
+        poll: "Optional[Poll | dict]" = None,
         username: str | None = None,
         avatar_url: str | None = None,
         wait: bool = False,
@@ -211,6 +214,7 @@ class Webhook(DiscordObject, SendMixin):
             tts: Should this message use Text To Speech.
             suppress_embeds: Should embeds be suppressed on this send
             flags: Message flags to apply.
+            poll: A poll.
             username: The username to use
             avatar_url: The url of an image to use as the avatar
             wait: Waits for confirmation of delivery. Set this to True if you intend to edit the message
@@ -240,6 +244,7 @@ class Webhook(DiscordObject, SendMixin):
             reply_to=reply_to,
             tts=tts,
             flags=flags,
+            poll=poll,
             username=username,
             avatar_url=avatar_url,
             **kwargs,
@@ -255,6 +260,24 @@ class Webhook(DiscordObject, SendMixin):
         )
         if message_data:
             return self._client.cache.place_message_data(message_data)
+
+    async def fetch_message(self, message_id: Union["Message", "Snowflake_Type"]) -> Optional["Message"]:
+        """
+        Returns a previously-sent webhook message from the same token. Returns a message object on success.
+
+        Args:
+            message_id: ID of message to retrieve.
+
+        Returns:
+            The message object fetched. If the message is not found, returns None.
+
+        """
+        message_id = to_snowflake(message_id)
+        try:
+            msg_data = await self._client.http.get_webhook_message(self.id, self.token, message_id)
+        except NotFound:
+            return None
+        return self._client.cache.place_message_data(msg_data)
 
     async def edit_message(
         self,
@@ -313,3 +336,29 @@ class Webhook(DiscordObject, SendMixin):
         )
         if msg_data:
             return self._client.cache.place_message_data(msg_data)
+
+    async def delete_message(
+        self,
+        message: Union["Message", "Snowflake_Type"],
+        *,
+        delay: int = 0,
+    ) -> None:
+        """
+        Delete a message as this webhook.
+
+        Args:
+            message: Message to delete
+            delay: Seconds to wait before deleting message.
+
+        """
+
+        async def _delete() -> None:
+            if delay:
+                await asyncio.sleep(delay)
+
+            await self._client.http.delete_webhook_message(self.id, self.token, to_snowflake(message))
+
+        if delay:
+            return asyncio.create_task(_delete())
+
+        return await _delete()

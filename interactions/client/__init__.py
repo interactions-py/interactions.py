@@ -29,9 +29,12 @@ from .const import (
     MISSING,
     MENTION_PREFIX,
     PREMIUM_GUILD_LIMITS,
+    POLL_MAX_ANSWERS,
+    POLL_MAX_DURATION_HOURS,
     Absent,
     T,
     T_co,
+    ClientT,
 )
 from .client import Client
 from .auto_shard_client import AutoShardedClient
@@ -61,6 +64,8 @@ __all__ = (
     "EMBED_MAX_FIELDS",
     "EMBED_TOTAL_MAX",
     "EMBED_FIELD_VALUE_LENGTH",
+    "POLL_MAX_ANSWERS",
+    "POLL_MAX_DURATION_HOURS",
     "Singleton",
     "Sentinel",
     "GlobalScope",
@@ -73,6 +78,7 @@ __all__ = (
     "Absent",
     "T",
     "T_co",
+    "ClientT",
     "Client",
     "AutoShardedClient",
     "smart_cache",

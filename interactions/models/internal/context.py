@@ -9,9 +9,10 @@ import discord_typings
 from aiohttp import FormData
 
 from interactions.client import const
-from interactions.client.const import get_logger, MISSING
+from interactions.client.const import get_logger, MISSING, ClientT
 from interactions.models.discord.components import BaseComponent
 from interactions.models.discord.file import UPLOADABLE_TYPE
+from interactions.models.discord.poll import Poll
 from interactions.models.discord.sticker import Sticker
 from interactions.models.discord.user import Member, User
 
@@ -27,6 +28,8 @@ from interactions.models.discord.enums import (
     InteractionType,
     ComponentType,
     CommandType,
+    ContextType,
+    IntegrationType,
 )
 from interactions.models.discord.message import (
     AllowedMentions,
@@ -146,16 +149,13 @@ class Resolved:
         return instance
 
 
-class BaseContext(metaclass=abc.ABCMeta):
+class BaseContext(typing.Generic[ClientT], metaclass=abc.ABCMeta):
     """
     Base context class for all contexts.
 
     Define your own context class by inheriting from this class. For compatibility with the library, you must define a `from_dict` classmethod that takes a dict and returns an instance of your context class.
 
     """
-
-    client: "interactions.Client"
-    """The client that created this context."""
 
     command: BaseCommand
     """The command this context invokes."""
@@ -170,8 +170,10 @@ class BaseContext(metaclass=abc.ABCMeta):
     guild_id: typing.Optional[Snowflake]
     """The id of the guild this context was invoked in, if any."""
 
-    def __init__(self, client: "interactions.Client") -> None:
-        self.client = client
+    def __init__(self, client: ClientT) -> None:
+        self.client: ClientT = client
+        """The client that created this context."""
+
         self.author_id = MISSING
         self.channel_id = MISSING
         self.message_id = MISSING
@@ -215,12 +217,12 @@ class BaseContext(metaclass=abc.ABCMeta):
         return self.client.cache.get_bot_voice_state(self.guild_id)
 
     @property
-    def bot(self) -> "interactions.Client":
+    def bot(self) -> "ClientT":
         return self.client
 
     @classmethod
     @abc.abstractmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
+    def from_dict(cls, client: "ClientT", payload: dict) -> Self:
         """
         Create a context instance from a dict.
 
@@ -235,7 +237,7 @@ class BaseContext(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
-class BaseInteractionContext(BaseContext):
+class BaseInteractionContext(BaseContext[ClientT]):
     token: str
     """The interaction token."""
     id: Snowflake
@@ -256,11 +258,16 @@ class BaseInteractionContext(BaseContext):
     ephemeral: bool
     """Whether the interaction response is ephemeral."""
 
+    authorizing_integration_owners: dict[IntegrationType, Snowflake]
+    """Mapping of installation contexts that the interaction was authorized for to related user or guild IDs"""
+    context: typing.Optional[ContextType]
+    """Context where the interaction was triggered from"""
+
     entitlements: list[Entitlement]
     """The entitlements of the invoking user."""
 
     _context_type: int
-    """The context type of the interaction."""
+    """The type of the interaction."""
     command_id: Snowflake
     """The command ID of the interaction."""
     _command_name: str
@@ -273,14 +280,14 @@ class BaseInteractionContext(BaseContext):
     kwargs: dict[str, typing.Any]
     """The keyword arguments passed to the interaction."""
 
-    def __init__(self, client: "interactions.Client") -> None:
+    def __init__(self, client: "ClientT") -> None:
         super().__init__(client)
         self.deferred = False
         self.responded = False
         self.ephemeral = False
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
+    def from_dict(cls, client: "ClientT", payload: dict) -> Self:
         instance = cls(client=client)
         instance.token = payload["token"]
         instance.id = Snowflake(payload["id"])
@@ -290,6 +297,11 @@ class BaseInteractionContext(BaseContext):
         instance._context_type = payload.get("type", 0)
         instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
         instance.entitlements = Entitlement.from_list(payload["entitlements"], client)
+        instance.context = ContextType(payload["context"]) if payload.get("context") else None
+        instance.authorizing_integration_owners = {
+            IntegrationType(int(integration_type)): Snowflake(owner_id)
+            for integration_type, owner_id in payload.get("authorizing_integration_owners", {}).items()
+        }
 
         instance.channel_id = Snowflake(payload["channel_id"])
         if channel := payload.get("channel"):
@@ -405,7 +417,7 @@ class BaseInteractionContext(BaseContext):
         self.args = list(self.kwargs.values())
 
 
-class InteractionContext(BaseInteractionContext, SendMixin):
+class InteractionContext(BaseInteractionContext[ClientT], SendMixin):
     async def defer(self, *, ephemeral: bool = False, suppress_error: bool = False) -> None:
         """
         Defer the interaction.
@@ -444,6 +456,10 @@ class InteractionContext(BaseInteractionContext, SendMixin):
     async def send_premium_required(self) -> None:
         """
         Send a premium required response.
+
+        !!! warn
+            This response has been deprecated by Discord and will be removed in the future.
+            Use a button with the PREMIUM type instead.
 
         When used, the user will be prompted to subscribe to premium to use this feature.
         Only available for applications with monetization enabled.
@@ -528,6 +544,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
         suppress_embeds: bool = False,
         silent: bool = False,
         flags: typing.Optional[typing.Union[int, "MessageFlags"]] = None,
+        poll: "typing.Optional[Poll | dict]" = None,
         delete_after: typing.Optional[float] = None,
         ephemeral: bool = False,
         **kwargs: typing.Any,
@@ -549,6 +566,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             suppress_embeds: Should embeds be suppressed on this send
             silent: Should this message be sent without triggering a notification.
             flags: Message flags to apply.
+            poll: A poll.
             delete_after: Delete message after this many seconds.
             ephemeral: Whether the response should be ephemeral
 
@@ -577,6 +595,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             file=file,
             tts=tts,
             flags=flags,
+            poll=poll,
             delete_after=delete_after,
             pass_self_into_delete=True,
             **kwargs,
@@ -621,7 +640,7 @@ class InteractionContext(BaseInteractionContext, SendMixin):
     ) -> "interactions.Message":
         message_payload = process_message_payload(
             content=content,
-            embeds=embeds or embed,
+            embeds=embed if embeds is None else embeds,
             components=components,
             allowed_mentions=allowed_mentions,
             attachments=attachments,
@@ -641,13 +660,13 @@ class InteractionContext(BaseInteractionContext, SendMixin):
             return self.client.cache.place_message_data(message_data)
 
 
-class SlashContext(InteractionContext, ModalMixin):
+class SlashContext(InteractionContext[ClientT], ModalMixin):
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
+    def from_dict(cls, client: "ClientT", payload: dict) -> Self:
         return super().from_dict(client, payload)
 
 
-class ContextMenuContext(InteractionContext, ModalMixin):
+class ContextMenuContext(InteractionContext[ClientT], ModalMixin):
     target_id: Snowflake
     """The id of the target of the context menu."""
     editing_origin: bool
@@ -655,12 +674,12 @@ class ContextMenuContext(InteractionContext, ModalMixin):
     target_type: None | CommandType
     """The type of the target of the context menu."""
 
-    def __init__(self, client: "interactions.Client") -> None:
+    def __init__(self, client: "ClientT") -> None:
         super().__init__(client)
         self.editing_origin = False
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
+    def from_dict(cls, client: "ClientT", payload: dict) -> Self:
         instance = super().from_dict(client, payload)
         instance.target_id = Snowflake(payload["data"]["target_id"])
         instance.target_type = CommandType(payload["data"]["type"])
@@ -723,7 +742,7 @@ class ContextMenuContext(InteractionContext, ModalMixin):
         return self.resolved.get(self.target_id)
 
 
-class ComponentContext(InteractionContext, ModalMixin):
+class ComponentContext(InteractionContext[ClientT], ModalMixin):
     values: list[str]
     """The values of the SelectMenu component, if any."""
     custom_id: str
@@ -734,7 +753,7 @@ class ComponentContext(InteractionContext, ModalMixin):
     """Whether you have deferred the interaction and are editing the original response."""
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
+    def from_dict(cls, client: "ClientT", payload: dict) -> Self:
         instance = super().from_dict(client, payload)
         instance.values = payload["data"].get("values", [])
         instance.custom_id = payload["data"]["custom_id"]
@@ -863,7 +882,7 @@ class ComponentContext(InteractionContext, ModalMixin):
 
         message_payload = process_message_payload(
             content=content,
-            embeds=embeds or embed,
+            embeds=embed if embeds is None else embeds,
             components=components,
             allowed_mentions=allowed_mentions,
             tts=tts,
@@ -877,18 +896,21 @@ class ComponentContext(InteractionContext, ModalMixin):
                 )
 
             message_data = await self.client.http.edit_interaction_message(
-                message_payload, self.client.app.id, self.token, files=files or file
+                message_payload, self.client.app.id, self.token, files=file if files is None else files
             )
             self.deferred = False
             self.editing_origin = False
         else:
             payload = {"type": CallbackType.UPDATE_MESSAGE, "data": message_payload}
-            await self.client.http.post_initial_response(payload, str(self.id), self.token, files=files or file)
+            await self.client.http.post_initial_response(
+                payload, str(self.id), self.token, files=file if files is None else files
+            )
             message_data = await self.client.http.get_interaction_message(self.client.app.id, self.token)
 
         if message_data:
             message = self.client.cache.place_message_data(message_data)
             self.message_id = message.id
+            self.responded = True
             return message
 
     @property
@@ -902,7 +924,7 @@ class ComponentContext(InteractionContext, ModalMixin):
                     return component
 
 
-class ModalContext(InteractionContext):
+class ModalContext(InteractionContext[ClientT]):
     responses: dict[str, str]
     """The responses of the modal. The key is the `custom_id` of the component."""
     custom_id: str
@@ -911,7 +933,7 @@ class ModalContext(InteractionContext):
     """Whether to edit the original message instead of sending a new one."""
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
+    def from_dict(cls, client: "ClientT", payload: dict) -> Self:
         instance = super().from_dict(client, payload)
         instance.responses = {
             comp["components"][0]["custom_id"]: comp["components"][0]["value"] for comp in payload["data"]["components"]
@@ -972,12 +994,12 @@ class ModalContext(InteractionContext):
         self.ephemeral = ephemeral
 
 
-class AutocompleteContext(BaseInteractionContext):
+class AutocompleteContext(BaseInteractionContext[ClientT]):
     focussed_option: SlashCommandOption  # todo: option parsing
     """The option the user is currently filling in."""
 
     @classmethod
-    def from_dict(cls, client: "interactions.Client", payload: dict) -> Self:
+    def from_dict(cls, client: "ClientT", payload: dict) -> Self:
         return super().from_dict(client, payload)
 
     @property

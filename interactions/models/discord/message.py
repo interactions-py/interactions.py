@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import re
+from collections import namedtuple
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
@@ -28,6 +29,8 @@ from interactions.models.discord.channel import BaseChannel, GuildChannel
 from interactions.models.discord.embed import process_embeds
 from interactions.models.discord.emoji import process_emoji_req_format
 from interactions.models.discord.file import UPLOADABLE_TYPE
+from interactions.models.discord.poll import Poll
+from interactions.models.misc.iterator import AsyncIterator
 
 from .base import DiscordObject
 from .enums import (
@@ -38,8 +41,10 @@ from .enums import (
     MessageActivityType,
     MessageFlags,
     MessageType,
+    IntegrationType,
 )
 from .snowflake import (
+    Snowflake,
     Snowflake_Type,
     to_optional_snowflake,
     to_snowflake,
@@ -56,6 +61,7 @@ __all__ = (
     "MessageActivity",
     "MessageReference",
     "MessageInteraction",
+    "MessageInteractionMetadata",
     "AllowedMentions",
     "BaseMessage",
     "Message",
@@ -66,6 +72,35 @@ __all__ = (
 )
 
 channel_mention = re.compile(r"<#(?P<id>[0-9]{17,})>")
+
+
+class PollAnswerVotersIterator(AsyncIterator):
+    def __init__(
+        self, message: "Message", answer_id: int, limit: int = 25, after: Snowflake_Type | None = None
+    ) -> None:
+        self.message: "Message" = message
+        self.answer_id = answer_id
+        self.after: Snowflake_Type | None = after
+        self._more: bool = True
+        super().__init__(limit)
+
+    async def fetch(self) -> list["models.User"]:
+        if not self.last:
+            self.last = namedtuple("temp", "id")
+            self.last.id = self.after
+
+        rcv = await self.message._client.http.get_answer_voters(
+            self.message._channel_id,
+            self.message.id,
+            self.answer_id,
+            limit=self.get_limit,
+            after=to_snowflake(self.last.id) if self.last.id else None,
+        )
+        if not rcv:
+            raise asyncio.QueueEmpty
+
+        users = [self.message._client.cache.place_user_data(user_data) for user_data in rcv["users"]]
+        return users
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
@@ -186,6 +221,7 @@ class MessageInteraction(DiscordObject):
     _user_id: "Snowflake_Type" = attrs.field(
         repr=False,
     )
+    """ID of the user who triggered the interaction"""
 
     @classmethod
     def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
@@ -197,6 +233,49 @@ class MessageInteraction(DiscordObject):
     def user(self) -> "models.User":
         """Get the user associated with this interaction."""
         return self.client.get_user(self._user_id)
+
+
+@attrs.define(eq=False, order=False, hash=False, kw_only=True)
+class MessageInteractionMetadata(DiscordObject):
+    type: InteractionType = attrs.field(repr=False, converter=InteractionType)
+    """The type of interaction"""
+    authorizing_integration_owners: dict[IntegrationType, Snowflake] = attrs.field(repr=False, factory=dict)
+    """IDs for installation context(s) related to an interaction."""
+    original_response_message_id: "Optional[Snowflake_Type]" = attrs.field(
+        repr=False, default=None, converter=to_optional_snowflake
+    )
+    """ID of the original response message, present only on follow-up messages"""
+    interacted_message_id: "Optional[Snowflake_Type]" = attrs.field(
+        repr=False, default=None, converter=to_optional_snowflake
+    )
+    """ID of the message that contained interactive component, present only on messages created from component interactions"""
+    triggering_interaction_metadata: "Optional[MessageInteractionMetadata]" = attrs.field(repr=False, default=None)
+    """Metadata for the interaction that was used to open the modal, present only on modal submit interactions"""
+
+    _user_id: "Snowflake_Type" = attrs.field(
+        repr=False,
+    )
+    """ID of the user who triggered the interaction"""
+
+    @classmethod
+    def _process_dict(cls, data: Dict[str, Any], client: "Client") -> Dict[str, Any]:
+        if "authorizing_integration_owners" in data:
+            data["authorizing_integration_owners"] = {
+                IntegrationType(int(integration_type)): Snowflake(owner_id)
+                for integration_type, owner_id in data["authorizing_integration_owners"].items()
+            }
+        if "triggering_interaction_metadata" in data:
+            data["triggering_interaction_metadata"] = cls.from_dict(data["triggering_interaction_metadata"], client)
+
+        user_data = data["user"]
+        data["user_id"] = client.cache.place_user_data(user_data).id
+
+        return data
+
+    @property
+    def user(self) -> "models.User":
+        """Get the user associated with this interaction."""
+        return self.client.get_user(self.user_id)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
@@ -360,8 +439,12 @@ class Message(BaseMessage):
     """Data showing the source of a crosspost, channel follow add, pin, or reply message"""
     flags: MessageFlags = attrs.field(repr=False, default=MessageFlags.NONE, converter=MessageFlags)
     """Message flags combined as a bitfield"""
-    interaction: Optional["MessageInteraction"] = attrs.field(repr=False, default=None)
+    poll: Optional[Poll] = attrs.field(repr=False, default=None, converter=optional_c(Poll.from_dict))
+    """A poll."""
+    interaction_metadata: Optional[MessageInteractionMetadata] = attrs.field(repr=False, default=None)
     """Sent if the message is a response to an Interaction"""
+    interaction: Optional["MessageInteraction"] = attrs.field(repr=False, default=None)
+    """(Deprecated in favor of interaction_metadata) Sent if the message is a response to an Interaction"""
     components: Optional[List["models.ActionRow"]] = attrs.field(repr=False, default=None)
     """Sent if the message contains components like buttons, action rows, or other interactive components"""
     sticker_items: Optional[List["models.StickerItem"]] = attrs.field(repr=False, default=None)
@@ -510,6 +593,9 @@ class Message(BaseMessage):
         elif msg_reference := data.get("message_reference"):
             data["referenced_message_id"] = msg_reference.get("message_id")
 
+        if "interaction_metadata" in data:
+            data["interaction_metadata"] = MessageInteractionMetadata.from_dict(data["interaction_metadata"], client)
+
         if "interaction" in data:
             data["interaction"] = MessageInteraction.from_dict(data["interaction"], client)
 
@@ -592,6 +678,20 @@ class Message(BaseMessage):
         """A URL like `jump_url` that uses protocols."""
         return f"discord://-/channels/{self._guild_id or '@me'}/{self._channel_id}/{self.id}"
 
+    def answer_voters(
+        self, answer_id: int, limit: int = 0, before: Snowflake_Type | None = None
+    ) -> PollAnswerVotersIterator:
+        """
+        An async iterator for getting the voters for an answer in the poll this message has.
+
+        Args:
+            answer_id: The answer to get voters for
+            after: Get messages after this user ID
+            limit: The max number of users to return (default 25, max 100)
+
+        """
+        return PollAnswerVotersIterator(self, answer_id, limit, before)
+
     async def edit(
         self,
         *,
@@ -649,7 +749,7 @@ class Message(BaseMessage):
             )
         message_payload = process_message_payload(
             content=content,
-            embeds=embeds or embed,
+            embeds=embed if embeds is None else embeds,
             components=components,
             allowed_mentions=allowed_mentions,
             attachments=attachments,
@@ -847,6 +947,12 @@ class Message(BaseMessage):
         """
         await self._client.http.crosspost_message(self._channel_id, self.id)
 
+    async def end_poll(self) -> "Message":
+        """Ends the poll contained in this message."""
+        message_data = await self._client.http.end_poll(self._channel_id, self.id)
+        if message_data:
+            return self._client.cache.place_message_data(message_data)
+
 
 def process_allowed_mentions(allowed_mentions: Optional[Union[AllowedMentions, dict]]) -> Optional[dict]:
     """
@@ -929,6 +1035,7 @@ def process_message_payload(
     flags: Optional[Union[int, MessageFlags]] = None,
     nonce: Optional[str | int] = None,
     enforce_nonce: bool = False,
+    poll: Optional[Poll | dict] = None,
     **kwargs,
 ) -> dict:
     """
@@ -948,6 +1055,7 @@ def process_message_payload(
         enforce_nonce: If enabled and nonce is present, it will be checked for uniqueness in the past few minutes. \
             If another message was created by the same author with the same nonce, that message will be returned \
             and no new message will be created.
+        poll: A poll.
 
     Returns:
         Dictionary
@@ -965,6 +1073,9 @@ def process_message_payload(
     if attachments:
         attachments = [attachment.to_dict() for attachment in attachments]
 
+    if isinstance(poll, Poll):
+        poll = poll.to_dict()
+
     return dict_filter_none(
         {
             "content": content,
@@ -978,6 +1089,7 @@ def process_message_payload(
             "flags": flags,
             "nonce": nonce,
             "enforce_nonce": enforce_nonce,
+            "poll": poll,
             **kwargs,
         }
     )

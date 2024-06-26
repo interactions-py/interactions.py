@@ -12,6 +12,7 @@ import time
 import traceback
 from collections.abc import Iterable
 from datetime import datetime
+from typing_extensions import Self
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -26,6 +27,8 @@ from typing import (
     Union,
     Awaitable,
     Tuple,
+    TypeVar,
+    overload,
 )
 
 from aiohttp import BasicAuth
@@ -40,6 +43,7 @@ from interactions.api.http.http_client import HTTPClient
 from interactions.client import errors
 from interactions.client.const import (
     GLOBAL_SCOPE,
+    Missing,
     MISSING,
     Absent,
     EMBED_MAX_DESC_LENGTH,
@@ -121,6 +125,8 @@ from interactions.models.internal.tasks import Task
 
 if TYPE_CHECKING:
     from interactions.models import Snowflake_Type, TYPE_ALL_CHANNEL
+
+EventT = TypeVar("EventT", bound=BaseEvent)
 
 __all__ = ("Client",)
 
@@ -362,17 +368,17 @@ class Client(
         """The HTTP client to use when interacting with discord endpoints"""
 
         # context factories
-        self.interaction_context: Type[BaseContext] = interaction_context
+        self.interaction_context: Type[BaseContext[Self]] = interaction_context
         """The object to instantiate for Interaction Context"""
-        self.component_context: Type[BaseContext] = component_context
+        self.component_context: Type[BaseContext[Self]] = component_context
         """The object to instantiate for Component Context"""
-        self.autocomplete_context: Type[BaseContext] = autocomplete_context
+        self.autocomplete_context: Type[BaseContext[Self]] = autocomplete_context
         """The object to instantiate for Autocomplete Context"""
-        self.modal_context: Type[BaseContext] = modal_context
+        self.modal_context: Type[BaseContext[Self]] = modal_context
         """The object to instantiate for Modal Context"""
-        self.slash_context: Type[BaseContext] = slash_context
+        self.slash_context: Type[BaseContext[Self]] = slash_context
         """The object to instantiate for Slash Context"""
-        self.context_menu_context: Type[BaseContext] = context_menu_context
+        self.context_menu_context: Type[BaseContext[Self]] = context_menu_context
         """The object to instantiate for Context Menu Context"""
 
         self.token: str | None = token
@@ -1061,12 +1067,36 @@ class Client(
         """Waits for the client to become ready."""
         await self._ready.wait()
 
+    @overload
     def wait_for(
         self,
-        event: Union[str, "BaseEvent"],
-        checks: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] = MISSING,
+        event: type[EventT],
+        checks: Absent[Callable[[EventT], bool] | Callable[[EventT], Awaitable[bool]]] = MISSING,
         timeout: Optional[float] = None,
-    ) -> Any:
+    ) -> "Awaitable[EventT]": ...
+
+    @overload
+    def wait_for(
+        self,
+        event: str,
+        checks: Callable[[EventT], bool] | Callable[[EventT], Awaitable[bool]],
+        timeout: Optional[float] = None,
+    ) -> "Awaitable[EventT]": ...
+
+    @overload
+    def wait_for(
+        self,
+        event: str,
+        checks: Missing = MISSING,
+        timeout: Optional[float] = None,
+    ) -> Awaitable[Any]: ...
+
+    def wait_for(
+        self,
+        event: Union[str, "type[BaseEvent]"],
+        checks: Absent[Callable[[BaseEvent], bool] | Callable[[BaseEvent], Awaitable[bool]]] = MISSING,
+        timeout: Optional[float] = None,
+    ) -> Awaitable[Any]:
         """
         Waits for a WebSocket event to be dispatched.
 
@@ -1112,7 +1142,7 @@ class Client(
         """
         author = to_snowflake(author) if author else None
 
-        def predicate(event) -> bool:
+        def predicate(event: events.ModalCompletion) -> bool:
             if modal.custom_id != event.ctx.custom_id:
                 return False
             return author == to_snowflake(event.ctx.author) if author else True
@@ -1120,9 +1150,60 @@ class Client(
         resp = await self.wait_for("modal_completion", predicate, timeout)
         return resp.ctx
 
+    @overload
     async def wait_for_component(
         self,
-        messages: Union[Message, int, list] = None,
+        messages: Union[Message, int, list],
+        components: Union[
+            List[List[Union["BaseComponent", dict]]],
+            List[Union["BaseComponent", dict]],
+            "BaseComponent",
+            dict,
+        ],
+        check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
+        timeout: Optional[float] = None,
+    ) -> "events.Component": ...
+
+    @overload
+    async def wait_for_component(
+        self,
+        *,
+        components: Union[
+            List[List[Union["BaseComponent", dict]]],
+            List[Union["BaseComponent", dict]],
+            "BaseComponent",
+            dict,
+        ],
+        check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
+        timeout: Optional[float] = None,
+    ) -> "events.Component": ...
+
+    @overload
+    async def wait_for_component(
+        self,
+        messages: None,
+        components: Union[
+            List[List[Union["BaseComponent", dict]]],
+            List[Union["BaseComponent", dict]],
+            "BaseComponent",
+            dict,
+        ],
+        check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
+        timeout: Optional[float] = None,
+    ) -> "events.Component": ...
+
+    @overload
+    async def wait_for_component(
+        self,
+        messages: Union[Message, int, list],
+        components: None = None,
+        check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
+        timeout: Optional[float] = None,
+    ) -> "events.Component": ...
+
+    async def wait_for_component(
+        self,
+        messages: Optional[Union[Message, int, list]] = None,
         components: Optional[
             Union[
                 List[List[Union["BaseComponent", dict]]],
@@ -1131,7 +1212,7 @@ class Client(
                 dict,
             ]
         ] = None,
-        check: Absent[Optional[Union[Callable[..., bool], Callable[..., Awaitable[bool]]]]] | None = None,
+        check: Optional[Callable[[events.Component], bool] | Callable[[events.Component], Awaitable[bool]]] = None,
         timeout: Optional[float] = None,
     ) -> "events.Component":
         """
@@ -1746,7 +1827,7 @@ class Client(
             command.cmd_id[scope] = command_id
             self._interaction_lookup[command.resolved_name] = command
 
-    async def get_context(self, data: dict) -> InteractionContext:
+    async def get_context(self, data: dict) -> InteractionContext[Self]:
         match data["type"]:
             case InteractionType.MESSAGE_COMPONENT:
                 cls = self.component_context.from_dict(self, data)
@@ -2571,6 +2652,16 @@ class Client(
 
         """
         await self.http.delete_test_entitlement(self.app.id, to_snowflake(entitlement_id))
+
+    async def consume_entitlement(self, entitlement_id: "Snowflake_Type") -> None:
+        """
+        For One-Time Purchase consumable SKUs, marks a given entitlement for the user as consumed.
+
+        Args:
+            entitlement_id: The ID of the entitlement to consume.
+
+        """
+        await self.http.consume_entitlement(self.app.id, entitlement_id)
 
     def mention_command(self, name: str, scope: int = 0) -> str:
         """

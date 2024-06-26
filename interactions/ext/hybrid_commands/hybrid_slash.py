@@ -26,6 +26,8 @@ from interactions import (
     SlashCommandOption,
     Snowflake_Type,
     Permissions,
+    ContextType,
+    IntegrationType,
 )
 from interactions.client.const import AsyncCallable, GLOBAL_SCOPE
 from interactions.client.utils.serializer import no_export_meta
@@ -33,7 +35,6 @@ from interactions.client.utils.misc_utils import maybe_coroutine, get_object_nam
 from interactions.client.errors import BadArgument
 from interactions.ext.prefixed_commands import PrefixedCommand, PrefixedContext
 from interactions.models.internal.converters import _LiteralConverter, CONSUME_REST_MARKER
-from interactions.models.internal.checks import guild_only
 
 if TYPE_CHECKING:
     from .context import HybridContext
@@ -43,6 +44,22 @@ __all__ = ("HybridSlashCommand", "hybrid_slash_command", "hybrid_slash_subcomman
 
 def _values_wrapper(a_dict: dict | None) -> list:
     return list(a_dict.values()) if a_dict else []
+
+
+def generate_contexts_check(contexts: list[ContextType | int]) -> Callable[["HybridContext"], Awaitable[bool]]:
+    set_contexts = frozenset(contexts)
+
+    async def _contexts_check(ctx: "HybridContext") -> bool:
+        if ctx.context:
+            return ctx.context in set_contexts
+
+        if ctx.guild_id:
+            return ContextType.GUILD in set_contexts
+        if ctx.channel.type == 1 and ctx.channel.recipient.id == ctx.bot.user.id:
+            return ContextType.BOT_DM in set_contexts
+        return ContextType.PRIVATE_CHANNEL in set_contexts
+
+    return _contexts_check  # type: ignore
 
 
 def generate_permission_check(permissions: "Permissions") -> Callable[["HybridContext"], Awaitable[bool]]:
@@ -333,10 +350,9 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
     # can't be done in init due to how _binding works
     prefixed_cmd._binding = cmd._binding
 
-    if not cmd.dm_permission:
-        prefixed_cmd.add_check(guild_only())
-
-    if cmd.scopes != [GLOBAL_SCOPE]:
+    if cmd.scopes == [GLOBAL_SCOPE]:
+        prefixed_cmd.add_check(generate_contexts_check(cmd.contexts))
+    else:
         prefixed_cmd.add_check(generate_scope_check(cmd.scopes))
 
     if cmd.default_member_permissions:
@@ -451,6 +467,8 @@ def hybrid_slash_command(
     scopes: Absent[list["Snowflake_Type"]] = MISSING,
     options: Optional[list[Union[SlashCommandOption, dict]]] = None,
     default_member_permissions: Optional["Permissions"] = None,
+    integration_types: Optional[List[Union[IntegrationType, int]]] = None,
+    contexts: Optional[List[Union[ContextType, int]]] = None,
     dm_permission: bool = True,
     sub_cmd_name: str | LocalisedName = None,
     group_name: str | LocalisedName = None,
@@ -480,7 +498,9 @@ def hybrid_slash_command(
         scopes: The scope this command exists within
         options: The parameters for the command, max 25
         default_member_permissions: What permissions members need to have by default to use this command.
-        dm_permission: Should this command be available in DMs.
+        integration_types: Installation context(s) where the slash command is available, only for globally-scoped commands.
+        contexts: Interaction context(s) where the command can be used, only for globally-scoped commands.
+        dm_permission: Should this command be available in DMs (deprecated).
         sub_cmd_name: 1-32 character name of the subcommand
         sub_cmd_description: 1-100 character description of the subcommand
         group_name: 1-32 character name of the group
@@ -521,6 +541,8 @@ def hybrid_slash_command(
             description=_description,
             scopes=scopes or [GLOBAL_SCOPE],
             default_member_permissions=perm,
+            integration_types=integration_types or [IntegrationType.GUILD_INSTALL],
+            contexts=contexts or [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL],
             dm_permission=dm_permission,
             callback=func,
             options=options,
@@ -544,6 +566,8 @@ def hybrid_slash_subcommand(
     base_description: Optional[str | LocalisedDesc] = None,
     base_desc: Optional[str | LocalisedDesc] = None,
     base_default_member_permissions: Optional["Permissions"] = None,
+    base_integration_types: Optional[List[Union[IntegrationType, int]]] = None,
+    base_contexts: Optional[List[Union[ContextType, int]]] = None,
     base_dm_permission: bool = True,
     subcommand_group_description: Optional[str | LocalisedDesc] = None,
     sub_group_desc: Optional[str | LocalisedDesc] = None,
@@ -564,7 +588,9 @@ def hybrid_slash_subcommand(
         base_description: The description of the base command
         base_desc: An alias of `base_description`
         base_default_member_permissions: What permissions members need to have by default to use this command.
-        base_dm_permission: Should this command be available in DMs.
+        base_integration_types: Installation context(s) where the slash command is available, only for globally-scoped commands.
+        base_contexts: Interaction context(s) where the command can be used, only for globally-scoped commands.
+        base_dm_permission: Should this command be available in DMs (deprecated).
         subcommand_group_description: Description of the subcommand group
         sub_group_desc: An alias for `subcommand_group_description`
         scopes: The scopes of which this command is available, defaults to GLOBAL_SCOPE
@@ -597,6 +623,8 @@ def hybrid_slash_subcommand(
             sub_cmd_name=_name,
             sub_cmd_description=_description,
             default_member_permissions=base_default_member_permissions,
+            integration_types=base_integration_types or [IntegrationType.GUILD_INSTALL],
+            contexts=base_contexts or [ContextType.GUILD, ContextType.BOT_DM, ContextType.PRIVATE_CHANNEL],
             dm_permission=base_dm_permission,
             scopes=scopes or [GLOBAL_SCOPE],
             callback=func,

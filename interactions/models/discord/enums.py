@@ -16,11 +16,13 @@ __all__ = (
     "ChannelType",
     "CommandType",
     "ComponentType",
+    "ContextType",
     "DefaultNotificationLevel",
     "ExplicitContentFilterLevel",
     "ForumLayoutType",
     "ForumSortOrder",
     "IntegrationExpireBehaviour",
+    "IntegrationType",
     "Intents",
     "InteractionPermissionTypes",
     "InteractionType",
@@ -36,6 +38,7 @@ __all__ = (
     "OnboardingPromptType",
     "OverwriteType",
     "Permissions",
+    "PollLayoutType",
     "PremiumTier",
     "PremiumType",
     "ScheduledEventPrivacyLevel",
@@ -389,6 +392,7 @@ class MessageType(CursedIntEnum):
     GUILD_INCIDENT_ALERT_MODE_DISABLED = 37
     GUILD_INCIDENT_REPORT_RAID = 38
     GUILD_INCIDENT_REPORT_FALSE_ALARM = 39
+    PURCHASE_NOTIFICATION = 44
 
     @classmethod
     def deletable(cls) -> Tuple["MessageType", ...]:
@@ -402,6 +406,10 @@ class MessageType(CursedIntEnum):
             cls.USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2,
             cls.USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3,
             cls.CHANNEL_FOLLOW_ADD,
+            cls.GUILD_DISCOVERY_DISQUALIFIED,
+            cls.GUILD_DISCOVERY_REQUALIFIED,
+            cls.GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING,
+            cls.GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING,
             cls.THREAD_CREATED,
             cls.REPLY,
             cls.APPLICATION_COMMAND,
@@ -415,6 +423,11 @@ class MessageType(CursedIntEnum):
             cls.STAGE_SPEAKER,
             cls.STAGE_TOPIC,
             cls.GUILD_APPLICATION_PREMIUM_SUBSCRIPTION,
+            cls.GUILD_INCIDENT_ALERT_MODE_ENABLED,
+            cls.GUILD_INCIDENT_ALERT_MODE_DISABLED,
+            cls.GUILD_INCIDENT_REPORT_RAID,
+            cls.GUILD_INCIDENT_REPORT_FALSE_ALARM,
+            cls.PURCHASE_NOTIFICATION,
         )
 
 
@@ -578,6 +591,8 @@ class Permissions(DiscordIntFlag):  # type: ignore
     """Allows the usage of custom sounds from other servers"""
     SEND_VOICE_MESSAGES = 1 << 46
     """Allows for sending audio messages"""
+    SEND_POLLS = 1 << 49
+    """Allows sending polls"""
 
     # Shortcuts/grouping/aliases
     REQUIRES_MFA = (
@@ -661,6 +676,21 @@ class ComponentType(CursedIntEnum):
     """Select menu for picking from channels"""
 
 
+class IntegrationType(CursedIntEnum):
+    """The types of installation contexts supported by discord."""
+
+    GUILD_INSTALL = 0
+    USER_INSTALL = 1
+
+
+class ContextType(CursedIntEnum):
+    """The context of where an interaction can be used."""
+
+    GUILD = 0
+    BOT_DM = 1
+    PRIVATE_CHANNEL = 2
+
+
 class CommandType(CursedIntEnum):
     """The interaction commands supported by discord."""
 
@@ -704,6 +734,8 @@ class ButtonStyle(CursedIntEnum):
     """red"""
     LINK = 5
     """url button"""
+    PREMIUM = 6
+    """premium button"""
 
     # Aliases
     BLUE = 1
@@ -825,6 +857,8 @@ class SystemChannelFlags(DiscordIntFlag):
 class ChannelFlags(DiscordIntFlag):
     PINNED = 1 << 1
     """ Thread is pinned to the top of its parent forum channel """
+    REQUIRE_TAG = 1 << 4
+    """Whether a tag is required to be specified when creating a thread in a Guild Forum or Media channel."""
     CLYDE_THREAD = 1 << 8
     """This thread was created by Clyde"""
     HIDE_MEDIA_DOWNLOAD_OPTIONS = 1 << 15
@@ -1099,4 +1133,25 @@ class ForumSortOrder(CursedIntEnum):
 class EntitlementType(CursedIntEnum):
     """The type of entitlement."""
 
+    PURCHASE = 1
+    """Entitlement was purchased by user"""
+    PREMIUM_SUBSCRIPTION = 2
+    """Entitlement for Discord Nitro subscription"""
+    DEVELOPER_GIFT = 3
+    """Entitlement was gifted by developer"""
+    TEST_MODE_PURCHASE = 4
+    """Entitlement was purchased by a dev in application test mode"""
+    FREE_PURCHASE = 5
+    """Entitlement was granted when the SKU was free"""
+    USER_GIFT = 6
+    """Entitlement was gifted by another user"""
+    PREMIUM_PURCHASE = 7
+    """Entitlement was claimed by user for free as a Nitro Subscriber"""
     APPLICATION_SUBSCRIPTION = 8
+    """Entitlement was purchased as an app subscription"""
+
+
+class PollLayoutType(CursedIntEnum):
+    """The layout of a poll."""
+
+    DEFAULT = 1

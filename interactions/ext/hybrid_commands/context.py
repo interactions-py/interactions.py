@@ -9,7 +9,6 @@ from interactions import (
     Permissions,
     Message,
     SlashContext,
-    Client,
     Typing,
     Embed,
     BaseComponent,
@@ -22,7 +21,11 @@ from interactions import (
     to_snowflake,
     Attachment,
     process_message_payload,
+    TYPE_MESSAGEABLE_CHANNEL,
+    Poll,
 )
+from interactions.client.const import ClientT
+from interactions.models.discord.enums import ContextType
 from interactions.client.mixins.send import SendMixin
 from interactions.client.errors import HTTPException
 from interactions.ext import prefixed_commands as prefixed
@@ -35,7 +38,7 @@ __all__ = ("HybridContext",)
 
 
 class DeferTyping:
-    def __init__(self, ctx: "HybridContext", ephermal: bool) -> None:
+    def __init__(self, ctx: "SlashContext[ClientT]", ephermal: bool) -> None:
         self.ctx = ctx
         self.ephermal = ephermal
 
@@ -46,7 +49,7 @@ class DeferTyping:
         pass
 
 
-class HybridContext(BaseContext, SendMixin):
+class HybridContext(BaseContext[ClientT], SendMixin):
     prefix: str
     "The prefix used to invoke this command."
 
@@ -60,6 +63,9 @@ class HybridContext(BaseContext, SendMixin):
     ephemeral: bool
     """Whether the context response is ephemeral."""
 
+    context: Optional[ContextType]
+    """Context where the command was triggered from"""
+
     _command_name: str
     """The command name."""
     _message: Message | None
@@ -71,16 +77,17 @@ class HybridContext(BaseContext, SendMixin):
 
     __attachment_index__: int
 
-    _slash_ctx: SlashContext | None
-    _prefixed_ctx: prefixed.PrefixedContext | None
+    _slash_ctx: SlashContext[ClientT] | None
+    _prefixed_ctx: prefixed.PrefixedContext[ClientT] | None
 
-    def __init__(self, client: Client):
+    def __init__(self, client: ClientT):
         super().__init__(client)
         self.prefix = ""
         self.app_permissions = Permissions(0)
         self.deferred = False
         self.responded = False
         self.ephemeral = False
+        self.context = None
         self._command_name = ""
         self.args = []
         self.kwargs = {}
@@ -90,12 +97,12 @@ class HybridContext(BaseContext, SendMixin):
         self._prefixed_ctx = None
 
     @classmethod
-    def from_dict(cls, client: Client, payload: dict) -> None:
+    def from_dict(cls, client: ClientT, payload: dict) -> None:
         # this doesn't mean anything, so just implement it to make abc happy
         raise NotImplementedError
 
     @classmethod
-    def from_slash_context(cls, ctx: SlashContext) -> Self:
+    def from_slash_context(cls, ctx: SlashContext[ClientT]) -> Self:
         self = cls(ctx.client)
         self.guild_id = ctx.guild_id
         self.channel_id = ctx.channel_id
@@ -106,6 +113,7 @@ class HybridContext(BaseContext, SendMixin):
         self.deferred = ctx.deferred
         self.responded = ctx.responded
         self.ephemeral = ctx.ephemeral
+        self.context = ctx.context
         self._command_name = ctx._command_name
         self.args = ctx.args
         self.kwargs = ctx.kwargs
@@ -113,7 +121,7 @@ class HybridContext(BaseContext, SendMixin):
         return self
 
     @classmethod
-    def from_prefixed_context(cls, ctx: prefixed.PrefixedContext) -> Self:
+    def from_prefixed_context(cls, ctx: prefixed.PrefixedContext[ClientT]) -> Self:
         # this is a "best guess" on what the permissions are
         # this may or may not be totally accurate
         if hasattr(ctx.channel, "permissions_for"):
@@ -121,9 +129,27 @@ class HybridContext(BaseContext, SendMixin):
         elif ctx.channel.type in {10, 11, 12}:  # it's a thread
             app_permissions = ctx.channel.parent_channel.permissions_for(ctx.guild.me)  # type: ignore
         else:
-            app_permissions = Permissions(0)
+            # likely a dm, give a sane default
+            app_permissions = (
+                Permissions.VIEW_CHANNEL
+                | Permissions.SEND_MESSAGES
+                | Permissions.READ_MESSAGE_HISTORY
+                | Permissions.EMBED_LINKS
+                | Permissions.ATTACH_FILES
+                | Permissions.MENTION_EVERYONE
+                | Permissions.USE_EXTERNAL_EMOJIS
+            )
 
         self = cls(ctx.client)
+
+        if ctx.channel.type == 1:  # dm
+            # note that prefixed cmds for dms cannot be used outside of bot dms
+            self.context = ContextType.BOT_DM
+        elif ctx.channel.type == 3:  # group dm - technically not possible but just in case
+            self.context = ContextType.PRIVATE_CHANNEL
+        else:
+            self.context = ContextType.GUILD
+
         self.guild_id = ctx.guild_id
         self.channel_id = ctx.channel_id
         self.author_id = ctx.author_id
@@ -137,7 +163,7 @@ class HybridContext(BaseContext, SendMixin):
         return self
 
     @property
-    def inner_context(self) -> SlashContext | prefixed.PrefixedContext:
+    def inner_context(self) -> SlashContext[ClientT] | prefixed.PrefixedContext[ClientT]:
         """The inner context that this hybrid context is wrapping."""
         return self._slash_ctx or self._prefixed_ctx  # type: ignore
 
@@ -164,6 +190,14 @@ class HybridContext(BaseContext, SendMixin):
     def deferred_ephemeral(self) -> bool:
         """Whether the interaction has been deferred ephemerally."""
         return self.deferred and self.ephemeral
+
+    @property
+    def channel(self) -> "TYPE_MESSAGEABLE_CHANNEL":
+        """The channel this context was invoked in."""
+        if self._prefixed_ctx:
+            return self._prefixed_ctx.channel
+
+        return self._slash_ctx.channel
 
     @property
     def message(self) -> Message | None:
@@ -276,6 +310,7 @@ class HybridContext(BaseContext, SendMixin):
         suppress_embeds: bool = False,
         silent: bool = False,
         flags: Optional[Union[int, "MessageFlags"]] = None,
+        poll: "Optional[Poll | dict]" = None,
         delete_after: Optional[float] = None,
         ephemeral: bool = False,
         **kwargs: Any,
@@ -297,6 +332,7 @@ class HybridContext(BaseContext, SendMixin):
             suppress_embeds: Should embeds be suppressed on this send
             silent: Should this message be sent without triggering a notification.
             flags: Message flags to apply.
+            poll: A poll.
             delete_after: Delete message after this many seconds.
             ephemeral: Should this message be sent as ephemeral (hidden) - only works with interactions
 
@@ -325,6 +361,7 @@ class HybridContext(BaseContext, SendMixin):
             file=file,
             tts=tts,
             flags=flags,
+            poll=poll,
             delete_after=delete_after,
             pass_self_into_delete=bool(self._slash_ctx),
             **kwargs,
