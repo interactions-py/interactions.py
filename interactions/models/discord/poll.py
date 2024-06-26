@@ -9,7 +9,6 @@ from interactions.client.utils.attr_converters import (
     timestamp_converter,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.serializer import no_export_meta
 from interactions.models.discord.emoji import PartialEmoji, process_emoji
 from interactions.models.discord.enums import PollLayoutType
 from interactions.models.discord.timestamp import Timestamp
