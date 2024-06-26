@@ -240,7 +240,7 @@ class Intents(DiscordIntFlag):  # type: ignore
         guild_message_reactions=False,
         guild_message_typing=False,
         direct_messages=False,
-        direct_message_polls=False
+        direct_message_polls=False,
         direct_message_reactions=False,
         direct_message_typing=False,
         message_content=False,
