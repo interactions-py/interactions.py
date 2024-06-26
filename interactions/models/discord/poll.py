@@ -93,7 +93,7 @@ class Poll(DictSerializationMixin):
     """Each of the answers available in the poll, up to 10."""
     expiry: Timestamp = attrs.field(repr=False, default=MISSING, converter=optional(timestamp_converter))
     """Number of hours the poll is open for, up to 7 days."""
-    allow_multiselect: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
+    allow_multiselect: bool = attrs.field(repr=False, default=False)
     """Whether a user can select multiple answers."""
     layout_type: PollLayoutType = attrs.field(repr=False, default=PollLayoutType.DEFAULT, converter=PollLayoutType)
     """The layout type of the poll."""
