@@ -93,13 +93,11 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 
 [tool.coverage.run]
 omit = ["tests/*"]
+source = ["interactions"]
 
 [build-system]
 requires = ["setuptools", "tomli"]
 build-backend = "setuptools.build_meta"
-
-[tools.coverage.run]
-source = ["interactions"]
 
 [tool.pytest.ini_options]
 addopts = "-l -ra --durations=2 --junitxml=TestResults.xml"
