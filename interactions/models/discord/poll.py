@@ -91,7 +91,7 @@ class Poll(DictSerializationMixin):
     answers: list[PollAnswer] = attrs.field(repr=False, factory=list, converter=PollAnswer.from_list)
     """Each of the answers available in the poll, up to 10."""
     expiry: Timestamp = attrs.field(repr=False, default=MISSING, converter=optional(timestamp_converter))
-    """Number of hours the poll is open for, up to 7 days."""
+    """Number of hours the poll is open for, up to 32 days."""
     allow_multiselect: bool = attrs.field(repr=False, default=False)
     """Whether a user can select multiple answers."""
     layout_type: PollLayoutType = attrs.field(repr=False, default=PollLayoutType.DEFAULT, converter=PollLayoutType)
@@ -100,7 +100,7 @@ class Poll(DictSerializationMixin):
     """The results of the poll, if the polls is finished."""
 
     _duration: int = attrs.field(repr=False, default=0)
-    """How long, in hours, the poll will be open for (up to 7 days). This is only used when creating polls."""
+    """How long, in hours, the poll will be open for (up to 32 days). This is only used when creating polls."""
 
     @classmethod
     def create(
