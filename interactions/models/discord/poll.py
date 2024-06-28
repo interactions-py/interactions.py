@@ -9,7 +9,6 @@ from interactions.client.utils.attr_converters import (
     timestamp_converter,
 )
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils.serializer import no_export_meta
 from interactions.models.discord.emoji import PartialEmoji, process_emoji
 from interactions.models.discord.enums import PollLayoutType
 from interactions.models.discord.timestamp import Timestamp
@@ -92,8 +91,8 @@ class Poll(DictSerializationMixin):
     answers: list[PollAnswer] = attrs.field(repr=False, factory=list, converter=PollAnswer.from_list)
     """Each of the answers available in the poll, up to 10."""
     expiry: Timestamp = attrs.field(repr=False, default=MISSING, converter=optional(timestamp_converter))
-    """Number of hours the poll is open for, up to 7 days."""
-    allow_multiselect: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
+    """Number of hours the poll is open for, up to 32 days."""
+    allow_multiselect: bool = attrs.field(repr=False, default=False)
     """Whether a user can select multiple answers."""
     layout_type: PollLayoutType = attrs.field(repr=False, default=PollLayoutType.DEFAULT, converter=PollLayoutType)
     """The layout type of the poll."""
@@ -101,7 +100,7 @@ class Poll(DictSerializationMixin):
     """The results of the poll, if the polls is finished."""
 
     _duration: int = attrs.field(repr=False, default=0)
-    """How long, in hours, the poll will be open for (up to 7 days). This is only used when creating polls."""
+    """How long, in hours, the poll will be open for (up to 32 days). This is only used when creating polls."""
 
     @classmethod
     def create(

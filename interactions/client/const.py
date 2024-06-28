@@ -135,7 +135,7 @@ EMBED_TOTAL_MAX = 6000
 EMBED_FIELD_VALUE_LENGTH = 1024
 
 POLL_MAX_ANSWERS = 10
-POLL_MAX_DURATION_HOURS = 168
+POLL_MAX_DURATION_HOURS = 768
 
 
 class Singleton(type):
@@ -244,7 +244,7 @@ AsyncCallable = Callable[..., Coroutine]
 if TYPE_CHECKING:
     from interactions import Client
 
-    ClientT = typing_extensions.TypeVar("ClientT", bound=Client, default=Client)
+    ClientT = typing_extensions.TypeVar("ClientT", bound=Client, default=Client, covariant=True)
 else:
     ClientT = TypeVar("ClientT")
 

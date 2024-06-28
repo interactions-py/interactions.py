@@ -205,12 +205,15 @@ class Intents(DiscordIntFlag):  # type: ignore
     GUILD_SCHEDULED_EVENTS = 1 << 16
     AUTO_MODERATION_CONFIGURATION = 1 << 20
     AUTO_MODERATION_EXECUTION = 1 << 21
+    GUILD_MESSAGE_POLLS = 1 << 24
+    DIRECT_MESSAGE_POLLS = 1 << 25
 
     # Shortcuts/grouping/aliases
     MESSAGES = GUILD_MESSAGES | DIRECT_MESSAGES
     REACTIONS = GUILD_MESSAGE_REACTIONS | DIRECT_MESSAGE_REACTIONS
     TYPING = GUILD_MESSAGE_TYPING | DIRECT_MESSAGE_TYPING
     AUTO_MOD = AUTO_MODERATION_CONFIGURATION | AUTO_MODERATION_EXECUTION
+    POLLS = GUILD_MESSAGE_POLLS | DIRECT_MESSAGE_POLLS
 
     PRIVILEGED = GUILD_PRESENCES | GUILD_MEMBERS | MESSAGE_CONTENT
     NON_PRIVILEGED = AntiFlag(PRIVILEGED)
@@ -233,14 +236,17 @@ class Intents(DiscordIntFlag):  # type: ignore
         guild_voice_states=False,
         guild_presences=False,
         guild_messages=False,
+        guild_message_polls=False,
         guild_message_reactions=False,
         guild_message_typing=False,
         direct_messages=False,
+        direct_message_polls=False,
         direct_message_reactions=False,
         direct_message_typing=False,
         message_content=False,
         guild_scheduled_events=False,
         messages=False,
+        polls=False,
         reactions=False,
         typing=False,
         privileged=False,
