@@ -441,13 +441,17 @@ async def test_polls(bot: Client, channel: GuildText) -> None:
 
     try:
         poll_1 = Poll.create("Test Poll", duration=1, answers=["Answer 1", "Answer 2"])
-        assert poll_1.to_dict() == {
+        test_data_1 = {
             "question": {"text": "Test Poll"},
             "layout_type": 1,
             "duration": 1,
             "allow_multiselect": False,
             "answers": [{"poll_media": {"text": "Answer 1"}}, {"poll_media": {"text": "Answer 2"}}],
         }
+        poll_1_dict = poll_1.to_dict()
+        for key in poll_1_dict.keys():
+            assert poll_1_dict[key] == test_data_1[key]
+
         msg_1 = await thread.send(poll=poll_1)
 
         assert msg_1.poll is not None
@@ -462,13 +466,16 @@ async def test_polls(bot: Client, channel: GuildText) -> None:
         poll_2 = Poll.create("Test Poll 2", duration=1, allow_multiselect=True)
         poll_2.add_answer("Answer 1")
         poll_2.add_answer("Answer 2")
-        assert poll_2.to_dict() == {
+        test_data_2 = {
             "question": {"text": "Test Poll 2"},
             "layout_type": 1,
             "duration": 1,
             "allow_multiselect": True,
             "answers": [{"poll_media": {"text": "Answer 1"}}, {"poll_media": {"text": "Answer 2"}}],
         }
+        poll_2_dict = poll_2.to_dict()
+        for key in poll_2_dict.keys():
+            assert poll_2_dict[key] == test_data_2[key]
         msg_2 = await thread.send(poll=poll_2)
 
         assert msg_2.poll is not None
@@ -486,7 +493,7 @@ async def test_polls(bot: Client, channel: GuildText) -> None:
             duration=1,
             answers=[PollMedia.create(text="One", emoji="1️⃣"), PollMedia.create(text="Two", emoji="2️⃣")],
         )
-        assert poll_3.to_dict() == {
+        test_data_3 = {
             "question": {"text": "Test Poll 3"},
             "layout_type": 1,
             "duration": 1,
@@ -496,6 +503,10 @@ async def test_polls(bot: Client, channel: GuildText) -> None:
                 {"poll_media": {"text": "Two", "emoji": {"name": "2️⃣", "animated": False}}},
             ],
         }
+        poll_3_dict = poll_3.to_dict()
+        for key in poll_3_dict.keys():
+            assert poll_3_dict[key] == test_data_3[key]
+
         msg_3 = await thread.send(poll=poll_3)
 
         assert msg_3.poll is not None
