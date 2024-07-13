@@ -346,7 +346,7 @@ class BaseInteractionContext(BaseContext[ClientT]):
 
     @property
     def command(self) -> InteractionCommand:
-        return self.client._interaction_lookup[self._command_name]
+        return self.client._interaction_lookup.get(self._command_name)
 
     @property
     def expires_at(self) -> Timestamp:
