@@ -345,7 +345,7 @@ class BaseInteractionContext(BaseContext[ClientT]):
         return Permissions(0)
 
     @property
-    def command(self) -> InteractionCommand:
+    def command(self) -> typing.Optional[InteractionCommand]:
         return self.client._interaction_lookup.get(self._command_name)
 
     @property
