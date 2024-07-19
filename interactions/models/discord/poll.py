@@ -86,7 +86,7 @@ class PollResults(DictSerializationMixin):
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class Poll(DictSerializationMixin):
-    question: PollMedia = attrs.field(repr=False)
+    question: PollMedia = attrs.field(repr=False, converter=PollMedia.from_dict)
     """The question of the poll. Only text media is supported."""
     answers: list[PollAnswer] = attrs.field(repr=False, factory=list, converter=PollAnswer.from_list)
     """Each of the answers available in the poll, up to 10."""

@@ -99,7 +99,7 @@ class MessageEvents(EventMixinTemplate):
                 event.data["channel_id"],
                 event.data["message_id"],
                 event.data["user_id"],
-                event.data["option"],
+                event.data["answer_id"],
             )
         )
 
@@ -118,6 +118,6 @@ class MessageEvents(EventMixinTemplate):
                 event.data["channel_id"],
                 event.data["message_id"],
                 event.data["user_id"],
-                event.data["option"],
+                event.data["answer_id"],
             )
         )

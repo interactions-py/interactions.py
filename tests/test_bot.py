@@ -3,7 +3,7 @@ import logging
 import os
 from asyncio import AbstractEventLoop
 from contextlib import suppress
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
 import pytest_asyncio
@@ -33,6 +33,8 @@ from interactions import (
     ParagraphText,
     Message,
     GuildVoice,
+    Poll,
+    PollMedia,
 )
 from interactions.models.discord.asset import Asset
 from interactions.models.discord.components import ActionRow, Button, StringSelectMenu
@@ -426,6 +428,95 @@ async def test_components(bot: Client, channel: GuildText) -> None:
         )
 
         Modal(ParagraphText(label="test", value="test value, press send"), title="Test Modal")
+
+    finally:
+        with suppress(interactions.errors.NotFound):
+            await thread.delete()
+
+
+@pytest.mark.asyncio
+async def test_polls(bot: Client, channel: GuildText) -> None:
+    msg = await channel.send("Polls Tests")
+    thread = await msg.create_thread("Test Thread")
+
+    try:
+        poll_1 = Poll.create("Test Poll", duration=1, answers=["Answer 1", "Answer 2"])
+        test_data_1 = {
+            "question": {"text": "Test Poll"},
+            "layout_type": 1,
+            "duration": 1,
+            "allow_multiselect": False,
+            "answers": [{"poll_media": {"text": "Answer 1"}}, {"poll_media": {"text": "Answer 2"}}],
+        }
+        poll_1_dict = poll_1.to_dict()
+        for key in poll_1_dict.keys():
+            assert poll_1_dict[key] == test_data_1[key]
+
+        msg_1 = await thread.send(poll=poll_1)
+
+        assert msg_1.poll is not None
+        assert msg_1.poll.question.to_dict() == PollMedia(text="Test Poll").to_dict()
+        assert msg_1.poll.expiry <= msg_1.created_at + timedelta(hours=1, minutes=1)
+        poll_1_answer_medias = [poll_answer.poll_media.to_dict() for poll_answer in msg_1.poll.answers]
+        assert poll_1_answer_medias == [
+            PollMedia.create(text="Answer 1").to_dict(),
+            PollMedia.create(text="Answer 2").to_dict(),
+        ]
+
+        poll_2 = Poll.create("Test Poll 2", duration=1, allow_multiselect=True)
+        poll_2.add_answer("Answer 1")
+        poll_2.add_answer("Answer 2")
+        test_data_2 = {
+            "question": {"text": "Test Poll 2"},
+            "layout_type": 1,
+            "duration": 1,
+            "allow_multiselect": True,
+            "answers": [{"poll_media": {"text": "Answer 1"}}, {"poll_media": {"text": "Answer 2"}}],
+        }
+        poll_2_dict = poll_2.to_dict()
+        for key in poll_2_dict.keys():
+            assert poll_2_dict[key] == test_data_2[key]
+        msg_2 = await thread.send(poll=poll_2)
+
+        assert msg_2.poll is not None
+        assert msg_2.poll.question.to_dict() == PollMedia(text="Test Poll 2").to_dict()
+        assert msg_2.poll.expiry <= msg_2.created_at + timedelta(hours=1, minutes=1)
+        assert msg_2.poll.allow_multiselect
+        poll_2_answer_medias = [poll_answer.poll_media.to_dict() for poll_answer in msg_2.poll.answers]
+        assert poll_2_answer_medias == [
+            PollMedia.create(text="Answer 1").to_dict(),
+            PollMedia.create(text="Answer 2").to_dict(),
+        ]
+
+        poll_3 = Poll.create(
+            "Test Poll 3",
+            duration=1,
+            answers=[PollMedia.create(text="One", emoji="1️⃣"), PollMedia.create(text="Two", emoji="2️⃣")],
+        )
+        test_data_3 = {
+            "question": {"text": "Test Poll 3"},
+            "layout_type": 1,
+            "duration": 1,
+            "allow_multiselect": False,
+            "answers": [
+                {"poll_media": {"text": "One", "emoji": {"name": "1️⃣", "animated": False}}},
+                {"poll_media": {"text": "Two", "emoji": {"name": "2️⃣", "animated": False}}},
+            ],
+        }
+        poll_3_dict = poll_3.to_dict()
+        for key in poll_3_dict.keys():
+            assert poll_3_dict[key] == test_data_3[key]
+
+        msg_3 = await thread.send(poll=poll_3)
+
+        assert msg_3.poll is not None
+        assert msg_3.poll.question.to_dict() == PollMedia(text="Test Poll 3").to_dict()
+        assert msg_3.poll.expiry <= msg_3.created_at + timedelta(hours=1, minutes=1)
+        poll_3_answer_medias = [poll_answer.poll_media.to_dict() for poll_answer in msg_3.poll.answers]
+        assert poll_3_answer_medias == [
+            PollMedia.create(text="One", emoji="1️⃣").to_dict(),
+            PollMedia.create(text="Two", emoji="2️⃣").to_dict(),
+        ]
 
     finally:
         with suppress(interactions.errors.NotFound):
