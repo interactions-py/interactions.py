@@ -196,8 +196,7 @@ class Webhook(DiscordObject, SendMixin):
         avatar_url: str | None = None,
         wait: bool = False,
         thread: "Snowflake_Type" = None,
-        thread_name: Optional[str] = None
-        **kwargs,
+        thread_name: Optional[str] = None**kwargs,
     ) -> Optional["Message"]:
         """
         Send a message as this webhook.
