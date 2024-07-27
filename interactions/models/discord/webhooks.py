@@ -231,9 +231,11 @@ class Webhook(DiscordObject, SendMixin):
 
         if not content and not embeds and not embed and not files and not file and not stickers:
             raise EmptyMessageException("You cannot send a message without any content, embeds, files, or stickers")
-        
+
         if thread is not None and thread_name is not None:
-            raise ValueError("You cannot create a thread and send the message to another thread with a webhook at the same time!")
+            raise ValueError(
+                "You cannot create a thread and send the message to another thread with a webhook at the same time!"
+            )
 
         if suppress_embeds:
             if isinstance(flags, int):
