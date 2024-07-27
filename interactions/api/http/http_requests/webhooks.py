@@ -138,7 +138,7 @@ class WebhookRequests:
             payload: The JSON payload for the message
             wait: Waits for server confirmation of message send before response
             thread_id: Send a message to the specified thread. Note that this cannot be used with `thread_name`
-            thread_name: Create a thread with this name. Note that this cannot be used with `thread_id`
+            thread_name: Create a thread with this name. Note that this is only valid for forum channel and cannot be used with `thread_id`
             files: The files to send with this message
 
         Returns:
