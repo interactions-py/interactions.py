@@ -163,4 +163,4 @@ class CronTrigger(BaseTrigger):
         self.tz = tz
 
     def next_fire(self) -> datetime | None:
-        return croniter(self.cron, datetime.now(tz=self.tz)).next(datetime)
+        return croniter(self.cron, self.last_call_time.astimezone(self.tz)).next(datetime)
