@@ -350,7 +350,7 @@ class VoiceGateway(WebsocketClient):
         self.timestamp += encoder.samples_per_frame
 
     async def send_heartbeat(self) -> None:
-        await self.send_json({"op": OP.HEARTBEAT, "d": random.uniform(0.0, 1.0)})
+        await self.send_json({"op": OP.HEARTBEAT, "d": random.getrandbits(64)})
         self.logger.debug("❤ Voice Connection is sending Heartbeat")
 
     async def _identify(self) -> None:
