@@ -81,6 +81,27 @@ class HybridManager:
             return
 
         cmd = callback
+
+        if not cmd.callback or cmd._dummy_base:
+            if cmd.group_name:
+                if not (group := self.client.prefixed.get_command(f"{cmd.name} {cmd.group_name}")):
+                    group = base_subcommand_generator(
+                        str(cmd.group_name),
+                        list(_values_wrapper(cmd.group_name.to_locale_dict())) + cmd.aliases,
+                        str(cmd.group_name),
+                        group=True,
+                    )
+                    self.client.prefixed.commands[str(cmd.name)].add_command(group)
+            elif not (base := self.client.prefixed.commands.get(str(cmd.name))):
+                base = base_subcommand_generator(
+                    str(cmd.name),
+                    list(_values_wrapper(cmd.name.to_locale_dict())) + cmd.aliases,
+                    str(cmd.name),
+                    group=False,
+                )
+                self.client.prefixed.add_command(base)
+            return
+
         prefixed_transform = slash_to_prefixed(cmd)
 
         if self.use_slash_command_msg:
