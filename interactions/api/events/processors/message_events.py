@@ -95,11 +95,11 @@ class MessageEvents(EventMixinTemplate):
         """
         self.dispatch(
             events.MessagePollVoteAdd(
+                event.data.get("user_id"),
+                event.data.get("channel_id"),
+                event.data.get("message_id"),
+                event.data.get("answer_id"),
                 event.data.get("guild_id", None),
-                event.data["channel_id"],
-                event.data["message_id"],
-                event.data["user_id"],
-                event.data["answer_id"],
             )
         )
 
@@ -114,10 +114,10 @@ class MessageEvents(EventMixinTemplate):
         """
         self.dispatch(
             events.MessagePollVoteRemove(
+                event.data.get("user_id"),
+                event.data.get("channel_id"),
+                event.data.get("message_id"),
+                event.data.get("answer_id"),
                 event.data.get("guild_id", None),
-                event.data["channel_id"],
-                event.data["message_id"],
-                event.data["user_id"],
-                event.data["answer_id"],
             )
         )
