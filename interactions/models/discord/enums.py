@@ -448,6 +448,7 @@ class EmbedType(Enum):
     LINK = "link"
     AUTOMOD_MESSAGE = "auto_moderation_message"
     AUTOMOD_NOTIFICATION = "auto_moderation_notification"
+    POLL_RESULT = "poll_result"
 
 
 class MessageActivityType(CursedIntEnum):
