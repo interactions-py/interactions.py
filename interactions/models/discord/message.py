@@ -275,7 +275,7 @@ class MessageInteractionMetadata(DiscordObject):
     @property
     def user(self) -> "models.User":
         """Get the user associated with this interaction."""
-        return self.client.get_user(self.user_id)
+        return self.client.get_user(self._user_id)
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
