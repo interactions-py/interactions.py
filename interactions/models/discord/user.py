@@ -71,6 +71,11 @@ class BaseUser(DiscordObject, _SendDMMixin):
         return data
 
     @property
+    def name(self) -> str:
+        """Alias for display_name."""
+        return self.display_name
+
+    @property
     def tag(self) -> str:
         """Returns the user's Discord tag."""
         if self.discriminator == "0":
@@ -389,6 +394,11 @@ class Member(DiscordObject, _SendDMMixin):
         if name in self.__class__._user_ref:
             return getattr(self.user, name)
         raise AttributeError(f"Neither `User` or `Member` have attribute {name}")
+
+    @property
+    def name(self) -> str:
+        """Alias for display_name."""
+        return self.display_name
 
     @property
     def nickname(self) -> str:
