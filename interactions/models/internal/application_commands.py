@@ -288,6 +288,8 @@ class InteractionCommand(BaseCommand):
     def to_dict(self) -> dict:
         data = super().to_dict()
 
+        data["name_localizations"] = self.name.to_locale_dict()
+
         if self.default_member_permissions is not None:
             data["default_member_permissions"] = str(int(self.default_member_permissions))
         else:
