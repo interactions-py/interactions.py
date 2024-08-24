@@ -1,4 +1,5 @@
 import asyncio
+from collections import defaultdict
 import inspect
 import re
 import typing
@@ -1468,9 +1469,9 @@ def application_commands_to_dict(  # noqa: C901
     `Client.interactions` should be the variable passed to this
 
     """
-    cmd_bases = {}  # {cmd_base: [commands]}
+    cmd_bases: defaultdict[str, list[InteractionCommand]] = defaultdict(list)  # {cmd_base: [commands]}
     """A store of commands organised by their base command"""
-    output = {}
+    output: defaultdict["Snowflake_Type", list[dict]] = defaultdict(list)
     """The output dictionary"""
 
     def squash_subcommand(subcommands: List) -> Dict:
@@ -1516,9 +1517,6 @@ def application_commands_to_dict(  # noqa: C901
     for _scope, cmds in commands.items():
         for cmd in cmds.values():
             cmd_name = str(cmd.name)
-            if cmd_name not in cmd_bases:
-                cmd_bases[cmd_name] = [cmd]
-                continue
             if cmd not in cmd_bases[cmd_name]:
                 cmd_bases[cmd_name].append(cmd)
 
@@ -1558,15 +1556,14 @@ def application_commands_to_dict(  # noqa: C901
                 cmd.nsfw = nsfw
             # end validation of attributes
             cmd_data = squash_subcommand(cmd_list)
+
+            for s in scopes:
+                output[s].append(cmd_data)
         else:
-            scopes = cmd_list[0].scopes
-            cmd_data = cmd_list[0].to_dict()
-        for s in scopes:
-            if s not in output:
-                output[s] = [cmd_data]
-                continue
-            output[s].append(cmd_data)
-    return output
+            for cmd in cmd_list:
+                for s in cmd.scopes:
+                    output[s].append(cmd.to_dict())
+    return dict(output)
 
 
 def _compare_commands(local_cmd: dict, remote_cmd: dict) -> bool:
