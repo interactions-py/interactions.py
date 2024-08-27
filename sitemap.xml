@@ -2,517 +2,517 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://interactions-py.github.io/interactions.py/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/changelog/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/AutoShardClient/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/Client/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/const/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/errors/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/monopage/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/utils/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/API_Communication/HTTP/HTTP_client/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/API_Communication/HTTP/Supported_Endpoints/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/API_Communication/gateway/connection_state/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/API_Communication/gateway/gateway/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/API_Communication/voice/audio/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/API_Communication/voice/player/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/API_Communication/voice/recorder/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/API_Communication/voice/voice_gateway/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/events/discord/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/events/internal/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/debug_ext/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/jurigged/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/paginators/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/hybrid_commands/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/hybrid_commands/context/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/hybrid_commands/hybrid_slash/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/hybrid_commands/manager/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/prefixed_commands/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/prefixed_commands/command/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/prefixed_commands/context/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/prefixed_commands/help/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/prefixed_commands/manager/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/ext/prefixed_commands/utils/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/activity/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/application/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/asset/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/base/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/channel/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/color/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/components/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/embed/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/emoji/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/entitlement/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/enums/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/file/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/guild/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/invite/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/message/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/modals/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/poll/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/reaction/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/role/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/scheduled_event/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/snowflake/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/stage_instance/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/sticker/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/team/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/thread/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/timestamp/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/user/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/voice_state/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Discord/webhooks/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/active_voice_state/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/annotations/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/application_commands/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/auto_defer/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/checks/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/command/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/context/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/converters/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/cooldowns/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/extension/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/listener/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/localisation/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/protocols/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/tasks/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Internal/wait/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Misc/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/API%20Reference/API%20Reference/models/Misc/iterator/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/01%20Getting%20Started/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/02%20Creating%20Your%20Bot/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/03%20Creating%20Commands/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/04%20Context%20Menus/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/05%20Components/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/06%20Modals/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/08%20Converters/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/10%20Events/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/20%20Extensions/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/22%20Live%20Patching/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/23%20Voice/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/24%20Localisation/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/25%20Error%20Tracking/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/26%20Prefixed%20Commands/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/30%20Pagination/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/40%20Tasks/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/80%20Sharding/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/90%20Example/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/97%20Migration%20From%20D.py/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/98%20Migration%20from%204.X/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://interactions-py.github.io/interactions.py/Guides/99%202.x%20Migration_NAFF/</loc>
-         <lastmod>2024-06-28</lastmod>
+         <lastmod>2024-08-27</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
