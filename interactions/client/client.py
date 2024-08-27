@@ -1489,6 +1489,9 @@ class Client(
         elif not isinstance(func, BaseCommand):
             raise TypeError("Invalid command type")
 
+        for hook in self._add_command_hook:
+            hook(func)
+
         if not func.callback:
             # for group = SlashCommand(...) usage
             return
@@ -1498,9 +1501,6 @@ class Client(
             self.logger.debug(f"Added callback: {f'{ext.name}.' if ext else ''}{func.callback.func.__name__}")
         else:
             self.logger.debug(f"Added callback: {func.callback.__name__}")
-
-        for hook in self._add_command_hook:
-            hook(func)
 
         self.dispatch(CallbackAdded(callback=func, extension=func.extension if hasattr(func, "extension") else None))
 

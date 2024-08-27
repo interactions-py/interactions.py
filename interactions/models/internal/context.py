@@ -296,7 +296,7 @@ class BaseInteractionContext(BaseContext[ClientT]):
         instance.guild_locale = payload.get("guild_locale", instance.locale)
         instance._context_type = payload.get("type", 0)
         instance.resolved = Resolved.from_dict(client, payload["data"].get("resolved", {}), payload.get("guild_id"))
-        instance.entitlements = Entitlement.from_list(payload["entitlements"], client)
+        instance.entitlements = Entitlement.from_list(payload.get("entitlements", []), client)
         instance.context = ContextType(payload["context"]) if payload.get("context") else None
         instance.authorizing_integration_owners = {
             IntegrationType(int(integration_type)): Snowflake(owner_id)
@@ -345,8 +345,8 @@ class BaseInteractionContext(BaseContext[ClientT]):
         return Permissions(0)
 
     @property
-    def command(self) -> InteractionCommand:
-        return self.client._interaction_lookup[self._command_name]
+    def command(self) -> typing.Optional[InteractionCommand]:
+        return self.client._interaction_lookup.get(self._command_name)
 
     @property
     def expires_at(self) -> Timestamp:

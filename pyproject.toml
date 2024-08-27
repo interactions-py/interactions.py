@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "interactions.py"
-version = "5.13.1"
+version = "5.13.2"
 description = "Easy, simple, scalable and modular: a Python API wrapper for interactions."
 authors = ["LordOfPolls <dev@lordofpolls.com>"]
 
@@ -93,13 +93,11 @@ exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
 
 [tool.coverage.run]
 omit = ["tests/*"]
+source = ["interactions"]
 
 [build-system]
 requires = ["setuptools", "tomli"]
 build-backend = "setuptools.build_meta"
-
-[tools.coverage.run]
-source = ["interactions"]
 
 [tool.pytest.ini_options]
 addopts = "-l -ra --durations=2 --junitxml=TestResults.xml"
