@@ -399,6 +399,7 @@ class MessageType(CursedIntEnum):
     GUILD_INCIDENT_REPORT_RAID = 38
     GUILD_INCIDENT_REPORT_FALSE_ALARM = 39
     PURCHASE_NOTIFICATION = 44
+    POLL_RESULT = 46
 
     @classmethod
     def deletable(cls) -> Tuple["MessageType", ...]:
@@ -434,6 +435,7 @@ class MessageType(CursedIntEnum):
             cls.GUILD_INCIDENT_REPORT_RAID,
             cls.GUILD_INCIDENT_REPORT_FALSE_ALARM,
             cls.PURCHASE_NOTIFICATION,
+            cls.POLL_RESULT
         )
 
 
