@@ -435,7 +435,7 @@ class MessageType(CursedIntEnum):
             cls.GUILD_INCIDENT_REPORT_RAID,
             cls.GUILD_INCIDENT_REPORT_FALSE_ALARM,
             cls.PURCHASE_NOTIFICATION,
-            cls.POLL_RESULT
+            cls.POLL_RESULT,
         )
 
 
