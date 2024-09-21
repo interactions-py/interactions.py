@@ -223,7 +223,7 @@ class GatewayClient(WebsocketClient):
                 return None
 
             case "GUILD_MEMBERS_CHUNK":
-                _ = asyncio.create_task(self._process_member_chunk(data.copy()))
+                _ = asyncio.create_task(self._process_member_chunk(data.copy()))  # noqa: RUF006
 
             case _:
                 # the above events are "special", and are handled by the gateway itself, the rest can be dispatched
