@@ -1607,6 +1607,84 @@ class GuildCategory(GuildChannel):
             reason=reason,
         )
 
+    async def create_forum_channel(
+        self,
+        name: str,
+        topic: Absent[Optional[str]] = MISSING,
+        position: Absent[Optional[int]] = MISSING,
+        permission_overwrites: Absent[
+            Union[dict, PermissionOverwrite, List[Union[dict, PermissionOverwrite]]]
+        ] = MISSING,
+        bitrate: int = 64000,
+        user_limit: int = 0,
+        reason: Absent[Optional[str]] = MISSING,
+    ) -> "GuildForum":
+        """
+        Create a guild forum channel within this category.
+
+        Args:
+            name: The name of the channel
+            topic: The topic of the channel
+            position: The position of the channel in the channel list
+            permission_overwrites: Permission overwrites to apply to the channel
+            bitrate: The bitrate of this channel, only for voice
+            user_limit: The max users that can be in this channel, only for voice
+            reason: The reason for creating this channel
+
+        Returns:
+            The newly created forum channel.
+
+        """
+        return await self.create_channel(
+            channel_type=ChannelType.GUILD_FORUM,
+            name=name,
+            topic=topic,
+            position=position,
+            permission_overwrites=permission_overwrites,
+            bitrate=bitrate,
+            user_limit=user_limit,
+            reason=reason,
+        )
+
+    async def create_media_channel(
+        self,
+        name: str,
+        topic: Absent[Optional[str]] = MISSING,
+        position: Absent[Optional[int]] = MISSING,
+        permission_overwrites: Absent[
+            Union[dict, PermissionOverwrite, List[Union[dict, PermissionOverwrite]]]
+        ] = MISSING,
+        bitrate: int = 64000,
+        user_limit: int = 0,
+        reason: Absent[Optional[str]] = MISSING,
+    ) -> "GuildMedia":
+        """
+        Create a guild media channel within this category.
+
+        Args:
+            name: The name of the channel
+            topic: The topic of the channel
+            position: The position of the channel in the channel list
+            permission_overwrites: Permission overwrites to apply to the channel
+            bitrate: The bitrate of this channel, only for voice
+            user_limit: The max users that can be in this channel, only for voice
+            reason: The reason for creating this channel
+
+        Returns:
+            The newly created media channel.
+
+        """
+        return await self.create_channel(
+            channel_type=ChannelType.GUILD_MEDIA,
+            name=name,
+            topic=topic,
+            position=position,
+            permission_overwrites=permission_overwrites,
+            bitrate=bitrate,
+            user_limit=user_limit,
+            reason=reason,
+        )
+
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class GuildNews(GuildChannel, MessageableMixin, InvitableMixin, ThreadableMixin, WebhookMixin):
