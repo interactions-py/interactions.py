@@ -33,6 +33,7 @@ from interactions.client.const import AsyncCallable, GLOBAL_SCOPE
 from interactions.client.utils.serializer import no_export_meta
 from interactions.client.utils.misc_utils import maybe_coroutine, get_object_name
 from interactions.client.errors import BadArgument
+from interactions.client import get_logger
 from interactions.ext.prefixed_commands import PrefixedCommand, PrefixedContext
 from interactions.models.internal.converters import _LiteralConverter, CONSUME_REST_MARKER
 
@@ -371,7 +372,7 @@ def slash_to_prefixed(cmd: HybridSlashCommand) -> _HybridToPrefixedCommand:  # n
 
         if option.autocomplete and not cmd._silence_autocomplete_errors:
             # there isn't much we can do here
-            raise ValueError("Autocomplete is unsupported in hybrid commands.")
+            get_logger().warning("Autocomplete is unsupported in hybrid commands.")
 
         name = option.argument_name or str(option.name)
         annotation = inspect.Parameter.empty
