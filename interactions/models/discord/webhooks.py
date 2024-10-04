@@ -196,6 +196,7 @@ class Webhook(DiscordObject, SendMixin):
         avatar_url: str | None = None,
         wait: bool = False,
         thread: "Snowflake_Type" = None,
+        thread_name: Optional[str] = None,
         **kwargs,
     ) -> Optional["Message"]:
         """
@@ -218,7 +219,8 @@ class Webhook(DiscordObject, SendMixin):
             username: The username to use
             avatar_url: The url of an image to use as the avatar
             wait: Waits for confirmation of delivery. Set this to True if you intend to edit the message
-            thread: Send this webhook to a thread channel
+            thread: Send this webhook to a thread channel. Note that this cannot be used with `thread_name` set
+            thread_name: Create a thread with `thread_name` with this webhook. Note that this is only valid for forum channel and cannot be used with `thread` set
 
         Returns:
             New message object that was sent if `wait` is set to True
@@ -229,6 +231,11 @@ class Webhook(DiscordObject, SendMixin):
 
         if not content and not embeds and not embed and not files and not file and not stickers:
             raise EmptyMessageException("You cannot send a message without any content, embeds, files, or stickers")
+
+        if thread is not None and thread_name is not None:
+            raise ValueError(
+                "You cannot create a thread and send the message to another thread with a webhook at the same time!"
+            )
 
         if suppress_embeds:
             if isinstance(flags, int):
@@ -256,6 +263,7 @@ class Webhook(DiscordObject, SendMixin):
             message_payload,
             wait,
             to_optional_snowflake(thread),
+            thread_name,
             files=files or file,
         )
         if message_data:
