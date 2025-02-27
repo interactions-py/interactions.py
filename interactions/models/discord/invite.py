@@ -95,7 +95,7 @@ class Invite(ClientObject):
             data["stage_instance"] = StageInstance.from_dict(data, client)
 
         if "target_application" in data:
-            app_data = data['target_application']
+            app_data = data["target_application"]
             data["target_application"] = Application.from_dict(app_data, client)
 
         if "target_event_id" in data:
