@@ -328,6 +328,9 @@ class Member(DiscordObject, _SendDMMixin):
         metadata=docs("Whether the user has **not** passed guild's membership screening requirements"),
     )
     guild_avatar: "Asset" = attrs.field(repr=False, default=None, metadata=docs("The user's guild avatar"))
+    guild_banner: Optional["Asset"] = attrs.field(
+        repr=False, default=None, metadata=docs("The user's guild banner, if any")
+    )
     communication_disabled_until: Optional["Timestamp"] = attrs.field(
         default=None,
         converter=optional_c(timestamp_converter),
@@ -372,6 +375,12 @@ class Member(DiscordObject, _SendDMMixin):
                     f"[DEBUG NEEDED - REPORT THIS] Incomplete dictionary has been passed to member object: {e}"
                 )
                 raise
+        if data.get("banner"):
+            data["guild_banner"] = Asset.from_path_hash(
+                client,
+                f"guilds/{data['guild_id']}/users/{data['id']}/banners/{{}}",
+                data.pop("banner", None),
+            )
 
         data["role_ids"] = data.pop("roles", [])
 
@@ -439,6 +448,11 @@ class Member(DiscordObject, _SendDMMixin):
     def avatar_url(self) -> str:
         """The users avatar url."""
         return self.display_avatar.url
+
+    @property
+    def banner(self) -> Optional["Asset"]:
+        """The user's banner, if any, will return `guild_banner` if one is set, otherwise will return user banner."""
+        return self.guild_banner or self.user.banner
 
     @property
     def premium(self) -> bool:
