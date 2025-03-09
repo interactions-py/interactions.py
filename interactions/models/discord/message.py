@@ -1074,6 +1074,9 @@ def process_message_payload(
                 flags = 0
             flags |= MessageFlags.IS_COMPONENTS_V2
 
+            if content or embeds:
+                raise ValueError("Cannot send content or embeds with v2 components")
+
     if stickers:
         stickers = [to_snowflake(sticker) for sticker in stickers]
     allowed_mentions = process_allowed_mentions(allowed_mentions)
