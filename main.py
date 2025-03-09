@@ -3,6 +3,8 @@ import logging
 import os
 import uuid
 
+from interactions.models.internal.context import SlashContext
+
 from thefuzz import process
 
 import interactions
@@ -67,6 +69,48 @@ async def components(ctx):
         "Buttons",
         components=[interactions.Button(label="test", style=ButtonStyle.PRIMARY)],
     )
+
+
+@slash_command("v2")
+async def v2(ctx: SlashContext):
+    from interactions.models.discord.components import (
+        SectionComponent,
+        Button,
+        TextDisplayComponent,
+        ContainerComponent,
+        ButtonStyle,
+        ActionRow,
+        SeparatorComponent,
+        ThumbnailComponent,
+        UnfurledMediaItem,
+    )
+
+    components = [
+        SectionComponent(
+            components=[
+                TextDisplayComponent("This is some"),
+                TextDisplayComponent("Text"),
+            ],
+            accessory=Button(style=ButtonStyle.PRIMARY, label="Click me"),
+        ),
+        TextDisplayComponent("Hello World"),
+        ContainerComponent(
+            ActionRow(
+                Button(style=ButtonStyle.RED, label="Red Button"), Button(style=ButtonStyle.GREEN, label="Green Button")
+            ),
+            SeparatorComponent(divider=True),
+            TextDisplayComponent("👀"),
+        ),
+        SectionComponent(
+            components=[
+                TextDisplayComponent("This one has a thumbnail"),
+            ],
+            accessory=ThumbnailComponent(
+                UnfurledMediaItem("https://avatars.githubusercontent.com/u/98242689?s=200&v=4")
+            ),
+        ),
+    ]
+    await ctx.send(components=components)
 
 
 @slash_command("record", description="Record audio in your voice channel")
