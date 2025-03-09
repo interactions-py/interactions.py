@@ -816,7 +816,7 @@ class SectionComponent(BaseComponent):
     @classmethod
     def from_dict(cls, data: dict) -> "SectionComponent":
         return cls(
-            components=TextDisplayComponent.from_list(data["components"]), accessory=Button.from_dict(data["accessory"])
+            components=[BaseComponent.from_dict_factory(component) for component in data["components"]], accessory=BaseComponent.from_dict_factory(data["accessory"])  # type: ignore
         )
 
     def __repr__(self) -> str:
