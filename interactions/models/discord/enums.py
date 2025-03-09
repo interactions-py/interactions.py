@@ -719,6 +719,22 @@ class ComponentType(CursedIntEnum):
         return self.value in self.v2_component_types()
 
 
+class UnfurledMediaItemLoadingState(CursedIntEnum):
+    """The loading state of an unfurled media item."""
+
+    UNKNOWN = 0
+    LOADING = 1
+    SUCCESS = 2
+    FAILED = 3
+
+
+class SeparatorSpacingSize(CursedIntEnum):
+    """The size of the spacing in a separator component."""
+
+    SMALL = 1
+    LARGE = 2
+
+
 class IntegrationType(CursedIntEnum):
     """The types of installation contexts supported by discord."""
 
