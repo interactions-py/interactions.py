@@ -1256,7 +1256,7 @@ class Client(
         async def _check(event: events.Component) -> bool:
             ctx: ComponentContext = event.ctx
             # if custom_ids is empty or there is a match
-            wanted_message = not message_ids or ctx.message.id in (
+            wanted_message = not message_ids or ctx.message_id in (
                 [message_ids] if isinstance(message_ids, int) else message_ids
             )
             wanted_component = not custom_ids or ctx.custom_id in custom_ids
