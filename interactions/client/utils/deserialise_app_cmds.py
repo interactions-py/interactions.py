@@ -41,7 +41,9 @@ def deserialize_app_cmds(data: list[dict]) -> list["InteractionCommand"]:
         cmd_dict["scopes"] = [cmd_dict.pop("guild_id", const.GLOBAL_SCOPE)]
 
         del cmd_dict["version"]
-        del cmd_dict["default_permission"]
+        if hasattr(cmd_dict, "default_permission"):
+            del cmd_dict["default_permission"]
+
         cmd = command_mapping[cmd_type](**cmd_dict)  # type: ignore
 
         if options:
