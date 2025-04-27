@@ -16,31 +16,40 @@ from interactions.models.discord.enums import (
     ButtonStyle,
     ChannelType,
     ComponentType,
-    UnfurledMediaItemLoadingState,
     SeparatorSpacingSize,
+    UnfurledMediaItemLoadingState,
 )
 
 if TYPE_CHECKING:
     import interactions.models.discord
 
 __all__ = (
-    "BaseComponent",
-    "InteractiveComponent",
     "ActionRow",
-    "Button",
+    "BaseComponent",
     "BaseSelectMenu",
+    "Button",
+    "ChannelSelectMenu",
+    "ContainerComponent",
+    "DefaultableSelectMenu",
+    "FileComponent",
+    "get_components_ids",
+    "InteractiveComponent",
+    "MediaGalleryComponent",
+    "MediaGalleryItem",
+    "MentionableSelectMenu",
+    "process_components",
+    "RoleSelectMenu",
+    "SectionComponent",
+    "SelectDefaultValues",
+    "SeparatorComponent",
+    "spread_to_rows",
     "StringSelectMenu",
     "StringSelectOption",
-    "UserSelectMenu",
-    "RoleSelectMenu",
-    "MentionableSelectMenu",
-    "ChannelSelectMenu",
-    "process_components",
-    "spread_to_rows",
-    "get_components_ids",
+    "TextDisplayComponent",
+    "ThumbnailComponent",
     "TYPE_COMPONENT_MAPPING",
-    "SelectDefaultValues",
-    "DefaultableSelectMenu",
+    "UnfurledMediaItem",
+    "UserSelectMenu",
 )
 
 
