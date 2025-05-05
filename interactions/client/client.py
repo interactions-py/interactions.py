@@ -1216,8 +1216,8 @@ class Client(
         messages: Optional[Union[Message, int, list]] = None,
         components: Optional[
             Union[
-                List[List[Union["BaseComponent", dict]]],
-                List[Union["BaseComponent", dict]],
+                Sequence[Sequence[Union["BaseComponent", dict]]],
+                Sequence[Union["BaseComponent", dict]],
                 "BaseComponent",
                 dict,
             ]

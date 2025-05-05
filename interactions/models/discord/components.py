@@ -1,7 +1,7 @@
 import contextlib
 import uuid
 from abc import abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Union, TYPE_CHECKING
+from typing import Any, Dict, Iterator, List, Optional, Sequence, Union, TYPE_CHECKING
 
 import attrs
 import discord_typings
@@ -1113,7 +1113,7 @@ def spread_to_rows(*components: Union[ActionRow, Button, StringSelectMenu], max_
     return ActionRow.split_components(*components, count_per_row=max_in_row)
 
 
-def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) -> Iterator[str]:
+def get_components_ids(component: Union[str, dict, list, InteractiveComponent, Sequence]) -> Iterator[str]:
     """
     Creates a generator with the `custom_id` of a component or list of components.
 
