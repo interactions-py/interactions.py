@@ -131,7 +131,7 @@ EventT = TypeVar("EventT", bound=BaseEvent)
 __all__ = ("Client",)
 
 # see https://discord.com/developers/docs/topics/gateway#list-of-intents
-_INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
+_INTENT_EVENTS: dict[Type[BaseEvent], list[Intents]] = {
     # Intents.GUILDS
     events.GuildJoin: [Intents.GUILDS],
     events.GuildLeft: [Intents.GUILDS],

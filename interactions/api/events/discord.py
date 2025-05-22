@@ -373,12 +373,12 @@ class MemberAdd(GuildEvent):
 
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=False)
-class MemberRemove(MemberAdd):
+class MemberRemove(GuildEvent):
     """Dispatched when a member is removed from a guild."""
 
     member: Union["Member", "User"] = attrs.field(
         repr=False,
-        metadata=docs("The member who was added, can be user if the member is not cached"),
+        metadata=docs("The member who was removed, can be user if the member is not cached"),
     )
 
 
