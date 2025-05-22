@@ -41,7 +41,7 @@ class ConnectionState:
     gateway_url: str = MISSING
     """The URL that the gateway should connect to."""
 
-    gateway_started: asyncio.Event = asyncio.Event()
+    gateway_started: asyncio.Event = attrs.field(factory=asyncio.Event)
     """Event to check if the gateway has been started."""
 
     _shard_task: asyncio.Task | None = None

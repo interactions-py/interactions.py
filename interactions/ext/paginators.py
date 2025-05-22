@@ -40,7 +40,7 @@ class Timeout:
     """The paginator that this timeout is associated with."""
     run: bool = attrs.field(repr=False, default=True)
     """Whether or not this timeout is currently running."""
-    ping: asyncio.Event = asyncio.Event()
+    ping: asyncio.Event = attrs.field(factory=asyncio.Event)
     """The event that is used to wait the paginator action."""
 
     async def __call__(self) -> None:

@@ -114,7 +114,6 @@ target-version = "py310"
 output-format = "concise" # set to full if you want to see the source of the error/warning
 
 [tool.ruff.lint]
-ignore-init-module-imports = true
 task-tags = ["TODO", "FIXME", "XXX", "HACK", "REVIEW", "NOTE"]
 select = ["E", "F", "B", "Q", "RUF", "D", "ANN", "RET", "C"]
 ignore = [
