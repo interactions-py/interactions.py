@@ -1,7 +1,7 @@
 import contextlib
 import uuid
 from abc import abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Union, TYPE_CHECKING
+from typing import Any, Dict, Iterator, List, Optional, Sequence, Union, TYPE_CHECKING
 
 import attrs
 import discord_typings
@@ -12,30 +12,77 @@ from interactions.client.const import ACTION_ROW_MAX_ITEMS, MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.models.discord.base import DiscordObject
 from interactions.models.discord.emoji import PartialEmoji, process_emoji
-from interactions.models.discord.enums import ButtonStyle, ChannelType, ComponentType
+from interactions.models.discord.enums import (
+    ButtonStyle,
+    ChannelType,
+    ComponentType,
+    SeparatorSpacingSize,
+    UnfurledMediaItemLoadingState,
+)
 
 if TYPE_CHECKING:
     import interactions.models.discord
 
 __all__ = (
-    "BaseComponent",
-    "InteractiveComponent",
     "ActionRow",
-    "Button",
+    "BaseComponent",
     "BaseSelectMenu",
+    "Button",
+    "ChannelSelectMenu",
+    "ContainerComponent",
+    "DefaultableSelectMenu",
+    "FileComponent",
+    "get_components_ids",
+    "InteractiveComponent",
+    "MediaGalleryComponent",
+    "MediaGalleryItem",
+    "MentionableSelectMenu",
+    "process_components",
+    "RoleSelectMenu",
+    "SectionComponent",
+    "SelectDefaultValues",
+    "SeparatorComponent",
+    "spread_to_rows",
     "StringSelectMenu",
     "StringSelectOption",
-    "UserSelectMenu",
-    "RoleSelectMenu",
-    "MentionableSelectMenu",
-    "ChannelSelectMenu",
-    "process_components",
-    "spread_to_rows",
-    "get_components_ids",
+    "TextDisplayComponent",
+    "ThumbnailComponent",
     "TYPE_COMPONENT_MAPPING",
-    "SelectDefaultValues",
-    "DefaultableSelectMenu",
+    "UnfurledMediaItem",
+    "UserSelectMenu",
 )
+
+
+class UnfurledMediaItem(DictSerializationMixin):
+    """A basic object for making media items."""
+
+    url: str
+    proxy_url: Optional[str] = None
+    height: Optional[int] = None
+    width: Optional[int] = None
+    content_type: Optional[str] = None
+    loading_state: Optional[UnfurledMediaItemLoadingState] = None
+
+    def __init__(self, url: str):
+        self.url = url
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "UnfurledMediaItem":
+        item = cls(data["url"])
+        item.proxy_url = data.get("proxy_url")
+        item.height = data.get("height")
+        item.width = data.get("width")
+        item.content_type = data.get("content_type")
+        item.loading_state = (
+            UnfurledMediaItemLoadingState(data.get("loading_state")) if data.get("loading_state") else None
+        )
+        return item
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} url={self.url}>"
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"url": self.url}
 
 
 class BaseComponent(DictSerializationMixin):
@@ -48,6 +95,7 @@ class BaseComponent(DictSerializationMixin):
     """
 
     type: ComponentType
+    id: Optional[int] = None
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} type={self.type}>"
@@ -763,6 +811,227 @@ class ChannelSelectMenu(DefaultableSelectMenu):
         }
 
 
+class SectionComponent(BaseComponent):
+    components: "list[TextDisplayComponent]"
+    accessory: "Button | ThumbnailComponent"
+
+    def __init__(
+        self, *, components: "list[TextDisplayComponent] | None" = None, accessory: "Button | ThumbnailComponent"
+    ):
+        self.components = components or []
+        self.accessory = accessory
+        self.type = ComponentType.SECTION
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "SectionComponent":
+        return cls(
+            components=[BaseComponent.from_dict_factory(component) for component in data["components"]], accessory=BaseComponent.from_dict_factory(data["accessory"])  # type: ignore
+        )
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} components={self.components} accessory={self.accessory}>"
+
+    def to_dict(self) -> dict:
+        return {
+            "type": self.type.value,
+            "components": [c.to_dict() for c in self.components],
+            "accessory": self.accessory.to_dict(),
+        }
+
+
+class TextDisplayComponent(BaseComponent):
+    content: str
+
+    def __init__(self, content: str):
+        self.content = content
+        self.type = ComponentType.TEXT_DISPLAY
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "TextDisplayComponent":
+        return cls(data["content"])
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} style={self.content}>"
+
+    def to_dict(self) -> dict:
+        return {
+            "type": self.type.value,
+            "content": self.content,
+        }
+
+
+class ThumbnailComponent(BaseComponent):
+    media: UnfurledMediaItem
+    description: Optional[str] = None
+    spoiler: bool = False
+
+    def __init__(self, media: UnfurledMediaItem, *, description: Optional[str] = None, spoiler: bool = False):
+        self.media = media
+        self.description = description
+        self.spoiler = spoiler
+        self.type = ComponentType.THUMBNAIL
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "ThumbnailComponent":
+        return cls(
+            media=UnfurledMediaItem.from_dict(data["media"]),
+            description=data.get("description"),
+            spoiler=data.get("spoiler", False),
+        )
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} media={self.media} description={self.description} spoiler={self.spoiler}>"
+
+    def to_dict(self) -> dict:
+        return {
+            "type": self.type.value,
+            "media": self.media.to_dict(),
+            "description": self.description,
+            "spoiler": self.spoiler,
+        }
+
+
+class MediaGalleryItem(DictSerializationMixin):
+    media: UnfurledMediaItem
+    description: Optional[str] = None
+    spoiler: bool = False
+
+    def __init__(self, media: UnfurledMediaItem, *, description: Optional[str] = None, spoiler: bool = False):
+        self.media = media
+        self.description = description
+        self.spoiler = spoiler
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "MediaGalleryItem":
+        return cls(
+            media=UnfurledMediaItem.from_dict(data["media"]),
+            description=data.get("description"),
+            spoiler=data.get("spoiler", False),
+        )
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} media={self.media} description={self.description} spoiler={self.spoiler}>"
+
+    def to_dict(self) -> dict:
+        return {
+            "media": self.media.to_dict(),
+            "description": self.description,
+            "spoiler": self.spoiler,
+        }
+
+
+class MediaGalleryComponent(BaseComponent):
+    items: list[MediaGalleryItem]
+
+    def __init__(self, items: list[MediaGalleryItem] | None = None):
+        self.items = items or []
+        self.type = ComponentType.MEDIA_GALLERY
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "MediaGalleryComponent":
+        return cls([MediaGalleryItem.from_dict(item) for item in data["items"]])
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} items={self.items}>"
+
+    def to_dict(self) -> dict:
+        return {
+            "type": self.type.value,
+            "items": [item.to_dict() for item in self.items],
+        }
+
+
+class FileComponent(BaseComponent):
+    file: UnfurledMediaItem
+    spoiler: bool = False
+
+    def __init__(self, file: UnfurledMediaItem, *, spoiler: bool = False):
+        self.file = file
+        self.spoiler = spoiler
+        self.type = ComponentType.FILE
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "FileComponent":
+        return cls(file=UnfurledMediaItem.from_dict(data["file"]), spoiler=data.get("spoiler", False))
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} file={self.file} spoiler={self.spoiler}>"
+
+    def to_dict(self) -> dict:
+        return {
+            "type": self.type.value,
+            "file": self.file.to_dict(),
+            "spoiler": self.spoiler,
+        }
+
+
+class SeparatorComponent(BaseComponent):
+    divider: bool = False
+    spacing: SeparatorSpacingSize = SeparatorSpacingSize.SMALL
+
+    def __init__(self, *, divider: bool = False, spacing: SeparatorSpacingSize | int = SeparatorSpacingSize.SMALL):
+        self.divider = divider
+        self.spacing = SeparatorSpacingSize(spacing)
+        self.type = ComponentType.SEPARATOR
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "SeparatorComponent":
+        return cls(divider=data.get("divider", False), spacing=data.get("spacing", SeparatorSpacingSize.SMALL))
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} divider={self.divider} spacing={self.spacing}>"
+
+    def to_dict(self) -> dict:
+        return {
+            "type": self.type.value,
+            "divider": self.divider,
+            "spacing": self.spacing,
+        }
+
+
+class ContainerComponent(BaseComponent):
+    components: list[
+        ActionRow | SectionComponent | TextDisplayComponent | MediaGalleryComponent | FileComponent | SeparatorComponent
+    ]
+    accent_color: Optional[int] = None
+    spoiler: bool = False
+
+    def __init__(
+        self,
+        *components: ActionRow
+        | SectionComponent
+        | TextDisplayComponent
+        | MediaGalleryComponent
+        | FileComponent
+        | SeparatorComponent,
+        accent_color: Optional[int] = None,
+        spoiler: bool = False,
+    ):
+        self.components = list(components)
+        self.accent_color = accent_color
+        self.spoiler = spoiler
+        self.type = ComponentType.CONTAINER
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "ContainerComponent":
+        return cls(
+            *[BaseComponent.from_dict_factory(component) for component in data["components"]],
+            accent_color=data.get("accent_color"),
+            spoiler=data.get("spoiler", False),
+        )
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} type={self.type} components={self.components} accent_color={self.accent_color} spoiler={self.spoiler}>"
+
+    def to_dict(self) -> dict:
+        return {
+            "type": self.type.value,
+            "components": [component.to_dict() for component in self.components],
+            "accent_color": self.accent_color,
+            "spoiler": self.spoiler,
+        }
+
+
 def process_components(
     components: Optional[
         Union[
@@ -806,6 +1075,7 @@ def process_components(
 
         if all(isinstance(c, list) for c in components):
             # list of lists... actionRow-less sending
+            # note: we're assuming if someone passes a list of lists, they mean to use v1 components
             return [ActionRow(*row).to_dict() for row in components]
 
         if all(issubclass(type(c), InteractiveComponent) for c in components):
@@ -815,6 +1085,9 @@ def process_components(
         if all(isinstance(c, ActionRow) for c in components):
             # we have a list of action rows
             return [action_row.to_dict() for action_row in components]
+
+        # assume just a list of components
+        return [c if isinstance(c, dict) else c.to_dict() for c in components]
 
     raise ValueError(f"Invalid components: {components}")
 
@@ -840,7 +1113,7 @@ def spread_to_rows(*components: Union[ActionRow, Button, StringSelectMenu], max_
     return ActionRow.split_components(*components, count_per_row=max_in_row)
 
 
-def get_components_ids(component: Union[str, dict, list, InteractiveComponent]) -> Iterator[str]:
+def get_components_ids(component: Union[str, dict, list, InteractiveComponent, Sequence]) -> Iterator[str]:
     """
     Creates a generator with the `custom_id` of a component or list of components.
 
@@ -880,4 +1153,11 @@ TYPE_COMPONENT_MAPPING = {
     ComponentType.CHANNEL_SELECT: ChannelSelectMenu,
     ComponentType.ROLE_SELECT: RoleSelectMenu,
     ComponentType.MENTIONABLE_SELECT: MentionableSelectMenu,
+    ComponentType.SECTION: SectionComponent,
+    ComponentType.TEXT_DISPLAY: TextDisplayComponent,
+    ComponentType.THUMBNAIL: ThumbnailComponent,
+    ComponentType.MEDIA_GALLERY: MediaGalleryComponent,
+    ComponentType.FILE: FileComponent,
+    ComponentType.SEPARATOR: SeparatorComponent,
+    ComponentType.CONTAINER: ContainerComponent,
 }

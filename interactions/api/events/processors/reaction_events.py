@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 import interactions.api.events as events
-from interactions.models import PartialEmoji, Reaction
+from interactions.models import PartialEmoji, Reaction, Message, Permissions
 
 from ._template import EventMixinTemplate, Processor
 
@@ -12,6 +12,29 @@ __all__ = ("ReactionEvents",)
 
 
 class ReactionEvents(EventMixinTemplate):
+    async def _check_message_fetch_permissions(self, channel_id: str, guild_id: str | None) -> bool:
+        """
+        Check if the bot has permissions to fetch a message in the given channel.
+
+        Args:
+            channel_id: The ID of the channel to check
+            guild_id: The ID of the guild, if any
+
+        Returns:
+            bool: True if the bot has permission to fetch messages, False otherwise
+
+        """
+        if not guild_id:  # DMs always have permission
+            return True
+
+        channel = await self.cache.fetch_channel(channel_id)
+        if not channel:
+            return False
+
+        bot_member = channel.guild.me
+        ctx_perms = channel.permissions_for(bot_member)
+        return Permissions.READ_MESSAGE_HISTORY in ctx_perms
+
     async def _handle_message_reaction_change(self, event: "RawGatewayEvent", add: bool) -> None:
         if member := event.data.get("member"):
             author = self.cache.place_member_data(event.data.get("guild_id"), member)
@@ -53,11 +76,27 @@ class ReactionEvents(EventMixinTemplate):
                 message.reactions.append(reaction)
 
         else:
-            message = await self.cache.fetch_message(event.data.get("channel_id"), event.data.get("message_id"))
-            for r in message.reactions:
-                if r.emoji == emoji:
-                    reaction = r
-                    break
+            guild_id = event.data.get("guild_id")
+            channel_id = event.data.get("channel_id")
+
+            if await self._check_message_fetch_permissions(channel_id, guild_id):
+                message = await self.cache.fetch_message(channel_id, event.data.get("message_id"))
+                for r in message.reactions:
+                    if r.emoji == emoji:
+                        reaction = r
+                        break
+
+            if not message:  # otherwise construct skeleton message with no reactions
+                message = Message.from_dict(
+                    {
+                        "id": event.data.get("message_id"),
+                        "channel_id": channel_id,
+                        "guild_id": guild_id,
+                        "reactions": [],
+                    },
+                    self,
+                )
+
         if add:
             self.dispatch(events.MessageReactionAdd(message=message, emoji=emoji, author=author, reaction=reaction))
         else:

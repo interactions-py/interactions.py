@@ -550,6 +550,7 @@ class GlobalCache:
             data = await self._client.http.create_dm(user_id)
             channel = self.place_channel_data(data)
             channel_id = channel.id
+            self.place_dm_channel_id(user_id, channel_id)
         return channel_id
 
     async def fetch_dm_channel(self, user_id: "Snowflake_Type", *, force: bool = False) -> "DM":

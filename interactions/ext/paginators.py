@@ -122,7 +122,7 @@ class Paginator:
     )
     """The emoji to use for the next button"""
     last_button_emoji: Optional[Union["PartialEmoji", dict, str]] = attrs.field(
-        repr=False, default="⏩", metadata=export_converter(process_emoji)
+        repr=False, default="⏭️", metadata=export_converter(process_emoji)
     )
     """The emoji to use for the last button"""
     callback_button_emoji: Optional[Union["PartialEmoji", dict, str]] = attrs.field(

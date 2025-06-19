@@ -128,6 +128,39 @@ def ensure_attributes(target_object) -> None:
 
 
 @pytest.mark.asyncio
+async def test_reaction_events(bot: Client, guild: Guild) -> None:
+    """
+    Tests reaction event handling on an uncached message.
+
+    Requires manual setup:
+    1. Set TARGET_CHANNEL_ID environment variable to a valid channel ID.
+    2. A user must add a reaction to the test message within 60 seconds.
+    """
+    # Skip test if target channel not provided
+    target_channel_id = os.environ.get("BOT_TEST_CHANNEL_ID")
+    if not target_channel_id:
+        pytest.skip("Set TARGET_CHANNEL_ID to run this test")
+
+    # Get channel and post test message
+    channel = await bot.fetch_channel(target_channel_id)
+    test_msg = await channel.send("Reaction Event Test - React with ✅ within 60 seconds")
+
+    try:
+        # simulate uncached state
+        bot.cache.delete_message(message_id=test_msg.id, channel_id=test_msg.channel.id)
+
+        # wait for user to react with checkmark
+        reaction_event = await bot.wait_for(
+            "message_reaction_add", timeout=60, checks=lambda e: e.message.id == test_msg.id and str(e.emoji) == "✅"
+        )
+
+        assert reaction_event.message.id == test_msg.id
+        assert reaction_event.emoji.name == "✅"
+    finally:
+        await test_msg.delete()
+
+
+@pytest.mark.asyncio
 async def test_channels(bot: Client, guild: Guild) -> None:
     channels = [
         guild_category := await guild.create_category("_test_category"),

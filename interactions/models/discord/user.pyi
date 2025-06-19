@@ -116,6 +116,7 @@ class Member(FakeUserMixin):
     premium_since: Optional["Timestamp"]
     pending: Optional[bool]
     guild_avatar: Asset
+    guild_banner: Optional[Asset]
     communication_disabled_until: Optional["Timestamp"]
     _guild_id: Snowflake_Type
     _role_ids: List["Snowflake_Type"]
@@ -142,6 +143,8 @@ class Member(FakeUserMixin):
     def display_avatar(self) -> Asset: ...
     @property
     def avatar_url(self) -> str: ...
+    @property
+    def banner(self) -> Optional[Asset]: ...
     @property
     def premium(self) -> bool: ...
     @property

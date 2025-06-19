@@ -1901,6 +1901,10 @@ class ThreadChannel(BaseChannel, MessageableMixin, WebhookMixin):
         return self._client.cache.get_channel(self.parent_id)
 
     @property
+    def nsfw(self) -> bool:
+        return self.parent_channel.nsfw
+
+    @property
     def parent_message(self) -> Optional["Message"]:
         """The message this thread is a child of."""
         return self._client.cache.get_message(self.parent_id, self.id)
