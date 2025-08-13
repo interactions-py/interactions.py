@@ -158,6 +158,10 @@ class GatewayClient(WebsocketClient):
             seq = msg.get("s")
             event = msg.get("t")
 
+            if op == MISSING:
+                # Internal no-op, ignore it.
+                continue
+
             if seq:
                 self.sequence = seq
 
