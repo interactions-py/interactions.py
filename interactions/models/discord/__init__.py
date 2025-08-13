@@ -166,7 +166,7 @@ from .message import (
     process_message_payload,
     process_message_reference,
 )
-from .modal import InputText, Modal, ParagraphText, ShortText, TextStyles
+from .modal import InputText, Modal, ParagraphText, ShortText, TextStyles, LabelComponent
 from .onboarding import Onboarding, OnboardingPrompt, OnboardingPromptOption
 from .poll import PollMedia, PollAnswer, PollAnswerCount, PollResults, Poll
 from .reaction import Reaction, ReactionUsers
@@ -297,6 +297,7 @@ __all__ = (
     "InvitableMixin",
     "Invite",
     "InviteTargetType",
+    "LabelComponent",
     "MFALevel",
     "MaterialColors",
     "MaterialColours",

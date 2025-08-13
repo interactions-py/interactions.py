@@ -726,6 +726,8 @@ class ComponentType(CursedIntEnum):
     """Separator component for visual separation"""
     CONTAINER = 17
     """Container component for grouping together other components"""
+    LABEL = 18
+    """Label component for modals"""
 
     # TODO: this is hacky, is there a better way to do this?
     @staticmethod
