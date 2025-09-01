@@ -54,7 +54,18 @@ __all__ = (
 
 
 class UnfurledMediaItem(DictSerializationMixin):
-    """A basic object for making media items."""
+    """
+    A basic object for making media items.
+
+    Attributes:
+        url str: The source url of the media.
+        proxy_url Optional[str]: A proxied url of the media. Only present when provided by Discord.
+        height Optional[int]: The height of the media. Only present when provided by Discord.
+        width Optional[int]: The width of the media. Only present when provided by Discord.
+        content_type Optional[str]: The content type of the media. Only present when provided by Discord.
+        loading_state Optional[UnfurledMediaItemLoadingState]: The loading state of the media.
+
+    """
 
     url: str
     proxy_url: Optional[str] = None
@@ -569,12 +580,12 @@ class StringSelectMenu(BaseSelectMenu):
 
     Attributes:
         options List[dict]: The choices in the select, max 25.
-        custom_id str: A developer-defined identifier for the button, max 100 characters.
+        custom_id str: A developer-defined identifier for the select, max 100 characters.
         placeholder str: The custom placeholder text to show if nothing is selected, max 100 characters.
         min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
         max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
 
     """
 
@@ -630,12 +641,13 @@ class UserSelectMenu(DefaultableSelectMenu):
     Represents a user select component.
 
     Attributes:
-        custom_id str: A developer-defined identifier for the button, max 100 characters.
         placeholder str: The custom placeholder text to show if nothing is selected, max 100 characters.
         min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
         max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
+        custom_id str: A developer-defined identifier for the select, max 100 characters.
+        default_values list[BaseUser, Member, SelectDefaultValues]: A list of default values to pre-select in the select.
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
 
     """
 
@@ -650,8 +662,6 @@ class UserSelectMenu(DefaultableSelectMenu):
             list[
                 Union[
                     "interactions.models.discord.BaseUser",
-                    "interactions.models.discord.Role",
-                    "interactions.models.discord.BaseChannel",
                     "interactions.models.discord.Member",
                     SelectDefaultValues,
                 ],
@@ -674,15 +684,16 @@ class UserSelectMenu(DefaultableSelectMenu):
 
 class RoleSelectMenu(DefaultableSelectMenu):
     """
-    Represents a user select component.
+    Represents a role select component.
 
     Attributes:
-        custom_id str: A developer-defined identifier for the button, max 100 characters.
         placeholder str: The custom placeholder text to show if nothing is selected, max 100 characters.
         min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
         max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
+        custom_id str: A developer-defined identifier for the select, max 100 characters.
+        default_values list[Role, SelectDefaultValues]: A list of default values to pre-select in the select.
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
 
     """
 
@@ -697,10 +708,7 @@ class RoleSelectMenu(DefaultableSelectMenu):
         default_values: (
             list[
                 Union[
-                    "interactions.models.discord.BaseUser",
                     "interactions.models.discord.Role",
-                    "interactions.models.discord.BaseChannel",
-                    "interactions.models.discord.Member",
                     SelectDefaultValues,
                 ],
             ]
@@ -720,6 +728,20 @@ class RoleSelectMenu(DefaultableSelectMenu):
 
 
 class MentionableSelectMenu(DefaultableSelectMenu):
+    """
+    Represents a mentional select component, which includes users, roles, and channels.
+
+    Attributes:
+        placeholder str: The custom placeholder text to show if nothing is selected, max 100 characters.
+        min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
+        max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
+        custom_id str: A developer-defined identifier for the select, max 100 characters.
+        default_values list[BaseUser, Role, BaseChannel, Member, SelectDefaultValues]: A list of default values to pre-select in the select.
+        disabled bool: Disable the select and make it not intractable, default false.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+
+    """
+
     def __init__(
         self,
         *,
@@ -754,6 +776,20 @@ class MentionableSelectMenu(DefaultableSelectMenu):
 
 
 class ChannelSelectMenu(DefaultableSelectMenu):
+    """
+    Represents a chanel select component.
+
+    Attributes:
+        placeholder str: The custom placeholder text to show if nothing is selected, max 100 characters.
+        min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
+        max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
+        custom_id str: A developer-defined identifier for the select, max 100 characters.
+        default_values list[BaseChannel, SelectDefaultValues]: A list of default values to pre-select in the select.
+        disabled bool: Disable the select and make it not intractable, default false.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+
+    """
+
     def __init__(
         self,
         *,
@@ -766,10 +802,7 @@ class ChannelSelectMenu(DefaultableSelectMenu):
         default_values: (
             list[
                 Union[
-                    "interactions.models.discord.BaseUser",
-                    "interactions.models.discord.Role",
                     "interactions.models.discord.BaseChannel",
-                    "interactions.models.discord.Member",
                     SelectDefaultValues,
                 ],
             ]
@@ -812,6 +845,16 @@ class ChannelSelectMenu(DefaultableSelectMenu):
 
 
 class SectionComponent(BaseComponent):
+    """
+    A top-level layout component that allows you to join text contextually with an accessory.
+
+    Attributes:
+        components list[TextDisplayComponent]: The text components to include in this section.
+        accessory Button | ThumbnailComponent: The accessory to include in this section.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+
+    """
+
     components: "list[TextDisplayComponent]"
     accessory: "Button | ThumbnailComponent"
 
@@ -840,6 +883,15 @@ class SectionComponent(BaseComponent):
 
 
 class TextDisplayComponent(BaseComponent):
+    """
+    A top-level content component that allows you to add text to your message.
+
+    Attributes:
+        content str: Text that will be displayed, similar to a message.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+
+    """
+
     content: str
 
     def __init__(self, content: str):
@@ -861,6 +913,17 @@ class TextDisplayComponent(BaseComponent):
 
 
 class ThumbnailComponent(BaseComponent):
+    """
+    A content component that is a small image only usable as an accessory in a section.
+
+    Attributes:
+        media UnfurledMediaItem: The media item to display as a thumbnail.
+        description Optional[str]: An optional description to show below the thumbnail.
+        spoiler bool: Whether the thumbnail should be marked as a spoiler, default false.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+
+    """
+
     media: UnfurledMediaItem
     description: Optional[str] = None
     spoiler: bool = False
@@ -892,6 +955,17 @@ class ThumbnailComponent(BaseComponent):
 
 
 class MediaGalleryItem(DictSerializationMixin):
+    """
+    A basic object for displaying a media attachment.
+
+    Attributes:
+        media UnfurledMediaItem: The media item to display in the gallery.
+        description Optional[str]: An optional description to show below the media.
+        spoiler bool: Whether the media should be marked as a spoiler, default false.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+
+    """
+
     media: UnfurledMediaItem
     description: Optional[str] = None
     spoiler: bool = False
@@ -921,6 +995,15 @@ class MediaGalleryItem(DictSerializationMixin):
 
 
 class MediaGalleryComponent(BaseComponent):
+    """
+    A top-level content component that allows you to display 1-10 media attachments in an organized gallery format.
+
+    Attributes:
+        items list[MediaGalleryItem]: A list of media gallery items to display, max 10.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+
+    """
+
     items: list[MediaGalleryItem]
 
     def __init__(self, items: list[MediaGalleryItem] | None = None):
@@ -942,6 +1025,16 @@ class MediaGalleryComponent(BaseComponent):
 
 
 class FileComponent(BaseComponent):
+    """
+    A top-level component that allows you to display an uploaded file in a component.
+
+    Attributes:
+        file UnfurledMediaItem: The media item to display as a file.
+        spoiler bool: Whether the file should be marked as a spoiler, default false.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+
+    """
+
     file: UnfurledMediaItem
     spoiler: bool = False
 
@@ -966,6 +1059,16 @@ class FileComponent(BaseComponent):
 
 
 class SeparatorComponent(BaseComponent):
+    """
+    A top-level layout component that adds vertical padding and visual division between other components.
+
+    Attributes:
+        divider bool: Whether this is a divider, which adds a horizontal line, default false.
+        spacing SeparatorSpacingSize | int: The amount of vertical space to add, default SeparatorSpacingSize.SMALL.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+
+    """
+
     divider: bool = False
     spacing: SeparatorSpacingSize = SeparatorSpacingSize.SMALL
 
@@ -990,6 +1093,17 @@ class SeparatorComponent(BaseComponent):
 
 
 class ContainerComponent(BaseComponent):
+    """
+    A top-level layout component. Containers are visually distinct from surrounding components and have an optional customizable color bar.
+
+    Attributes:
+        components list[ActionRow | SectionComponent | TextDisplayComponent | MediaGalleryComponent | FileComponent | SeparatorComponent]: The components to include in this container.
+        accent_color Optional[int]: The color of the container, as a hex value, default None.
+        spoiler bool: Whether the container should be marked as a spoiler, default false.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+
+    """
+
     components: list[
         ActionRow | SectionComponent | TextDisplayComponent | MediaGalleryComponent | FileComponent | SeparatorComponent
     ]
