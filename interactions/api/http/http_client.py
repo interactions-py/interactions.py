@@ -250,6 +250,17 @@ class HTTPClient(
             logger = constants.get_logger()
         self.logger = logger
 
+    @property
+    def closed(self) -> bool:
+        """
+        Returns whether the session is closed.
+
+        Returns:
+            True if the session is closed, False otherwise.
+
+        """
+        return self.__session is None or self.__session.closed
+
     def get_ratelimit(self, route: Route) -> BucketLock:
         """
         Get a route's rate limit bucket.

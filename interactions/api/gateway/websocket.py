@@ -164,7 +164,7 @@ class WebsocketClient:
         serialized = FastJson.dumps(data)
         await self.send(serialized, bypass)
 
-    async def receive(self, force: bool = False) -> str:  # noqa: C901
+    async def receive(self, force: bool = False) -> dict:  # noqa: C901
         """
         Receive a full event payload from the WebSocket.
 
@@ -208,6 +208,14 @@ class WebsocketClient:
                     # is possible after all we can just wait for the event to be set.
                     await self._closed.wait()
                 else:
+                    if self.state.client.http.closed:
+                        # On aiohttp>=3.12.4, the aiohttp WebSocket client will always send a session
+                        # close message when the underlying HTTP connection is closed. We want to
+                        # ignore this to keep the behavior consistent with previous versions
+                        # of Python, so we return this to indicate that no message was received.
+                        # https://github.com/interactions-py/interactions.py/issues/1778
+                        return {"op": const.MISSING}
+
                     # This is an odd corner-case where the underlying socket connection was closed
                     # unexpectedly without communicating the WebSocket closing handshake. We'll have
                     # to reconnect ourselves.
