@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Sequence, cast, overload
+from typing import TYPE_CHECKING, Any, Optional, Sequence, cast, overload
 
 import discord_typings
 
@@ -490,6 +490,17 @@ class ChannelRequests(CanRequest):
         """
         result = await self.request(Route("GET", "/channels/{channel_id}/pins", channel_id=channel_id))
         return cast(list[discord_typings.MessageData], result)
+
+    async def paginate_pinned_messages(
+        self,
+        channel_id: "Snowflake_Type",
+        limit: int = 50,
+        before: "Snowflake_Type | None" = None,
+    ) -> dict[str, Any]:
+        return await self.request(
+            Route("GET", "/channels/{channel_id}/messages/pins", channel_id=channel_id),
+            params=dict_filter_none({"before": before, "limit": limit}),
+        )
 
     async def create_stage_instance(
         self,

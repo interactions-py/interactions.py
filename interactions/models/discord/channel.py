@@ -164,6 +164,43 @@ class ArchivedForumPosts(AsyncIterator):
         raise QueueEmpty
 
 
+class ChannelPins(AsyncIterator):
+    def __init__(self, channel: "BaseChannel", limit: int = 50, before: Snowflake_Type = None) -> None:
+        self.channel: "BaseChannel" = channel
+        self.before: Snowflake_Type = before
+        self._more: bool = True
+        super().__init__(limit)
+
+        if self.before:
+            self.last = self.before
+
+    @property
+    def get_limit(self) -> int:
+        """Get how the maximum number of items that should be retrieved."""
+        return min(self._limit - len(self._retrieved_objects), 50) if self._limit else 50
+
+    async def fetch(self) -> list["Message"]:
+        if self._more:
+            expected = self.get_limit
+
+            rcv = await self.channel._client.http.paginate_pinned_messages(
+                self.channel.id,
+                limit=expected,
+                before=to_snowflake(self.last) if self.last else None,
+            )
+            messages = [
+                self.channel._client.cache.place_message_data({"pinned_at": data["pinned_at"], **data["message"]})
+                for data in rcv["items"]
+            ]
+
+            if not rcv:
+                raise QueueEmpty
+
+            self._more = rcv.get("has_more", False)
+            return messages
+        raise QueueEmpty
+
+
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class PermissionOverwrite(SnowflakeObject, DictSerializationMixin):
     """
@@ -366,8 +403,38 @@ class MessageableMixin(SendMixin):
             A list of messages fetched.
 
         """
-        messages_data = await self._client.http.get_pinned_messages(self.id)
-        return [self._client.cache.place_message_data(message_data) for message_data in messages_data]
+        return await ChannelPins(self, limit=0).flatten()
+
+    async def pinned_messages(
+        self,
+        limit: int = 50,
+        before: Snowflake_Type = None,
+    ) -> ChannelPins:
+        """
+        Get an async iterator for the pinned messages in this channel.
+
+        Args:
+            limit: The maximum number of messages to return (set to 0 for no limit), max 50
+            before: get messages before this message ID
+
+        ??? Hint "Example Usage:"
+            ```python
+            async for message in channel.pinned_messages(limit=0):
+                if message.author.id == 174918559539920897:
+                    print("Found author's message")
+                    # ...
+                    break
+            ```
+            or
+            ```python
+            messages = await channel.pinned_messages(limit=50).flatten()
+            ```
+
+        Returns:
+            ChannelPins (AsyncIterator)
+
+        """
+        return ChannelPins(self, limit=limit, before=before)
 
     async def delete_messages(
         self,

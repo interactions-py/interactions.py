@@ -103,30 +103,51 @@ class MessageRequests(CanRequest):
         )
         return cast(discord_typings.MessageData, result)
 
-    async def pin_message(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type") -> None:
+    async def pin_message(
+        self,
+        channel_id: "Snowflake_Type",
+        message_id: "Snowflake_Type",
+        reason: str | None = None,
+    ) -> None:
         """
         Pin a message to a channel.
 
         Args:
             channel_id: Channel to pin message to
             message_id: Message to pin
+            reason: The reason for this action
 
         """
         await self.request(
-            Route("PUT", "/channels/{channel_id}/pins/{message_id}", channel_id=channel_id, message_id=message_id)
+            Route(
+                "PUT", "/channels/{channel_id}/messages/pins/{message_id}", channel_id=channel_id, message_id=message_id
+            ),
+            reason=reason,
         )
 
-    async def unpin_message(self, channel_id: "Snowflake_Type", message_id: "Snowflake_Type") -> None:
+    async def unpin_message(
+        self,
+        channel_id: "Snowflake_Type",
+        message_id: "Snowflake_Type",
+        reason: str | None = None,
+    ) -> None:
         """
         Unpin a message to a channel.
 
         Args:
             channel_id: Channel to unpin message to
             message_id: Message to unpin
+            reason: The reason for this action
 
         """
         await self.request(
-            Route("DELETE", "/channels/{channel_id}/pins/{message_id}", channel_id=channel_id, message_id=message_id)
+            Route(
+                "DELETE",
+                "/channels/{channel_id}/messages/pins/{message_id}",
+                channel_id=channel_id,
+                message_id=message_id,
+            ),
+            reason=reason,
         )
 
     async def edit_message(
