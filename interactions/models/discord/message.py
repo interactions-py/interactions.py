@@ -941,7 +941,7 @@ class Message(BaseMessage):
             reason: The optional reason for pinning this message
 
         """
-        await self._client.http.pin_message(self._channel_id, self.id)
+        await self._client.http.pin_message(self._channel_id, self.id, reason)
         self.pinned = True
 
     async def unpin(self, reason: str | None = None) -> None:
@@ -952,7 +952,7 @@ class Message(BaseMessage):
             reason: The optional reason for unpinning this message
 
         """
-        await self._client.http.unpin_message(self._channel_id, self.id)
+        await self._client.http.unpin_message(self._channel_id, self.id, reason)
         self.pinned = False
 
     async def publish(self) -> None:
