@@ -368,7 +368,7 @@ class BaseSelectMenu(InteractiveComponent):
         min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
         max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
         required bool: Whether this select menu is required to be filled out or not in modals.
 
     """
@@ -593,7 +593,7 @@ class StringSelectMenu(BaseSelectMenu):
         min_values Optional[int]: The minimum number of items that must be chosen. (default 1, min 0, max 25)
         max_values Optional[int]: The maximum number of items that can be chosen. (default 1, max 25)
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
         required bool: Whether this select menu is required to be filled out or not in modals.
 
     """
@@ -659,7 +659,7 @@ class UserSelectMenu(DefaultableSelectMenu):
         custom_id str: A developer-defined identifier for the select, max 100 characters.
         default_values list[BaseUser, Member, SelectDefaultValues]: A list of default values to pre-select in the select.
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
         required bool: Whether this select menu is required to be filled out or not in modals.
 
     """
@@ -708,7 +708,7 @@ class RoleSelectMenu(DefaultableSelectMenu):
         custom_id str: A developer-defined identifier for the select, max 100 characters.
         default_values list[Role, SelectDefaultValues]: A list of default values to pre-select in the select.
         disabled bool: Disable the select and make it not intractable, default false.
-        type Union[ComponentType, int]: The action role type number defined by discord. This cannot be modified.
+        type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
         required bool: Whether this select menu is required to be filled out or not in modals.
 
     """
@@ -757,6 +757,7 @@ class MentionableSelectMenu(DefaultableSelectMenu):
         default_values list[BaseUser, Role, BaseChannel, Member, SelectDefaultValues]: A list of default values to pre-select in the select.
         disabled bool: Disable the select and make it not intractable, default false.
         type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+        required bool: Whether this select menu is required to be filled out or not in modals.
 
     """
 
@@ -807,6 +808,7 @@ class ChannelSelectMenu(DefaultableSelectMenu):
         default_values list[BaseChannel, SelectDefaultValues]: A list of default values to pre-select in the select.
         disabled bool: Disable the select and make it not intractable, default false.
         type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
+        required bool: Whether this select menu is required to be filled out or not in modals.
 
     """
 
