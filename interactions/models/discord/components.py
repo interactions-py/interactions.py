@@ -1110,6 +1110,7 @@ class ContainerComponent(
         type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
 
     """
+
     accent_color: Optional[int] = None
     spoiler: bool = False
 
