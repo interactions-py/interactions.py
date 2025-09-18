@@ -8,7 +8,16 @@ import discord_typings
 from interactions.client.const import MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import dict_filter, dict_filter_none
-from interactions.models.discord.components import ComponentType, BaseComponent, StringSelectMenu
+from interactions.models.discord.components import (
+    ChannelSelectMenu,
+    ComponentType,
+    BaseComponent,
+    BaseSelectMenu,
+    MentionableSelectMenu,
+    RoleSelectMenu,
+    StringSelectMenu,
+    UserSelectMenu,
+)
 from interactions.models.internal.application_commands import CallbackType
 
 __all__ = ("InputText", "Modal", "ParagraphText", "ShortText", "TextStyles", "LabelComponent")
@@ -129,12 +138,23 @@ class ParagraphText(InputText):
 
 
 class LabelComponent(BaseComponent):
+    """
+    A top-level layout component that wraps modal components with text as a label and optional description.
+
+    Attributes:
+        label: The text label for the component.
+        description: An optional description for the component.
+        component: The component to be wrapped, either an InputText or a select menu.
+        type: The type of the component, always ComponentType.LABEL.
+
+    """
+
     def __init__(
         self,
         *,
         label: str,
         description: Optional[str] = None,
-        component: StringSelectMenu | InputText,
+        component: BaseSelectMenu | InputText,
     ):
         self.label = label
         self.component = component
@@ -160,7 +180,11 @@ class LabelComponent(BaseComponent):
                 data["component"],
                 alternate_mapping={
                     ComponentType.INPUT_TEXT: InputText,
+                    ComponentType.CHANNEL_SELECT: ChannelSelectMenu,
                     ComponentType.STRING_SELECT: StringSelectMenu,
+                    ComponentType.USER_SELECT: UserSelectMenu,
+                    ComponentType.ROLE_SELECT: RoleSelectMenu,
+                    ComponentType.MENTIONABLE_SELECT: MentionableSelectMenu,
                 },
             ),
         )
