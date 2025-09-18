@@ -134,7 +134,7 @@ class RangeConverter(Converter[float | int]):
 
     async def convert(self, ctx: BaseContext, argument: str) -> float | int:
         try:
-            converted: float | int = await maybe_coroutine(self.number_convert, ctx, argument)
+            converted: float | int = await maybe_coroutine(self.number_convert, argument)
 
             if self.min_value and converted < self.min_value:
                 raise BadArgument(f'Value "{argument}" is less than {self.min_value}.')
