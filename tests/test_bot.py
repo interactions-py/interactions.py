@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import random
 from asyncio import AbstractEventLoop
 from contextlib import suppress
 from datetime import datetime, timedelta
@@ -77,7 +78,7 @@ async def bot(github_commit) -> Client:
     gw = asyncio.create_task(bot.start_gateway())
 
     await bot._ready.wait()
-    bot.suffix = github_commit
+    bot.suffix = github_commit + " - " + hex(random.randint(0, 255))[2:]
     log.info(f"Logged in as {bot.user} ({bot.user.id}) -- {bot.suffix}")
 
     yield bot
