@@ -1,7 +1,9 @@
+from collections import UserList
 import contextlib
 import uuid
 from abc import abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Sequence, Union, TYPE_CHECKING
+from typing import Any, Dict, Iterator, List, Optional, Sequence, Union, TYPE_CHECKING, overload
+from typing_extensions import Self
 
 import attrs
 import discord_typings
@@ -1092,7 +1094,12 @@ class SeparatorComponent(BaseComponent):
         }
 
 
-class ContainerComponent(BaseComponent):
+class ContainerComponent(
+    BaseComponent,
+    UserList[
+        ActionRow | SectionComponent | TextDisplayComponent | MediaGalleryComponent | FileComponent | SeparatorComponent
+    ],
+):
     """
     A top-level layout component. Containers are visually distinct from surrounding components and have an optional customizable color bar.
 
@@ -1104,9 +1111,6 @@ class ContainerComponent(BaseComponent):
 
     """
 
-    components: list[
-        ActionRow | SectionComponent | TextDisplayComponent | MediaGalleryComponent | FileComponent | SeparatorComponent
-    ]
     accent_color: Optional[int] = None
     spoiler: bool = False
 
@@ -1121,13 +1125,86 @@ class ContainerComponent(BaseComponent):
         accent_color: Optional[int] = None,
         spoiler: bool = False,
     ):
-        self.components = list(components)
+        self.data = list(components)
         self.accent_color = accent_color
         self.spoiler = spoiler
         self.type = ComponentType.CONTAINER
 
+    @property
+    def components(
+        self,
+    ) -> list[
+        ActionRow | SectionComponent | TextDisplayComponent | MediaGalleryComponent | FileComponent | SeparatorComponent
+    ]:
+        return self.data
+
+    @components.setter
+    def components(
+        self,
+        value: list[
+            ActionRow
+            | SectionComponent
+            | TextDisplayComponent
+            | MediaGalleryComponent
+            | FileComponent
+            | SeparatorComponent
+        ],
+    ) -> None:
+        self.data = value
+
+    @overload
+    def __getitem__(
+        self, i: int
+    ) -> (
+        ActionRow | SectionComponent | TextDisplayComponent | MediaGalleryComponent | FileComponent | SeparatorComponent
+    ): ...
+
+    @overload
+    def __getitem__(self, i: slice) -> Self: ...
+
+    def __getitem__(
+        self, i: int | slice
+    ) -> (
+        Self
+        | ActionRow
+        | SectionComponent
+        | TextDisplayComponent
+        | MediaGalleryComponent
+        | FileComponent
+        | SeparatorComponent
+    ):
+        if isinstance(i, slice):
+            return self.__class__(*self.data[i], accent_color=self.accent_color, spoiler=self.spoiler)
+        return self.data[i]
+
+    def __add__(self, other: Any) -> Self:
+        if isinstance(other, ContainerComponent):
+            return self.__class__(*(self.data + other.data), accent_color=self.accent_color, spoiler=self.spoiler)
+        if isinstance(other, UserList):
+            return self.__class__(*(self.data + other.data), accent_color=self.accent_color, spoiler=self.spoiler)
+        if isinstance(other, type(self.data)):
+            return self.__class__(*(self.data + other), accent_color=self.accent_color, spoiler=self.spoiler)
+        return self.__class__(*(self.data + list(other)), accent_color=self.accent_color, spoiler=self.spoiler)
+
+    def __radd__(self, other: Any) -> Self:
+        if isinstance(other, ContainerComponent):
+            return self.__class__(*(self.data + other.data), accent_color=other.accent_color, spoiler=other.spoiler)
+        if isinstance(other, UserList):
+            return self.__class__(*(other.data + self.data), accent_color=self.accent_color, spoiler=self.spoiler)
+        if isinstance(other, type(self.data)):
+            return self.__class__(*(other + self.data), accent_color=self.accent_color, spoiler=self.spoiler)
+        return self.__class__(*(list(other) + self.data), accent_color=self.accent_color, spoiler=self.spoiler)
+
+    def __mul__(self, n: int) -> Self:
+        return self.__class__(*(self.data * n), accent_color=self.accent_color, spoiler=self.spoiler)
+
+    __rmul__ = __mul__
+
+    def copy(self) -> Self:
+        return self.__class__(*self.data, accent_color=self.accent_color, spoiler=self.spoiler)
+
     @classmethod
-    def from_dict(cls, data: dict) -> "ContainerComponent":
+    def from_dict(cls, data: dict) -> Self:
         return cls(
             *[BaseComponent.from_dict_factory(component) for component in data["components"]],
             accent_color=data.get("accent_color"),
