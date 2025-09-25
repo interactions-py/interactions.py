@@ -260,6 +260,9 @@ from .models import (
     PollLayoutType,
     PollMedia,
     PollResults,
+    PrefixedCommand,
+    prefixed_command,
+    PrefixedCommandParameter,
     PremiumTier,
     PremiumType,
     process_allowed_mentions,
@@ -375,9 +378,6 @@ from .models import (
     WebhookMixin,
     WebhookTypes,
     WebSocketOPCode,
-    PrefixedCommand,
-    prefixed_command,
-    PrefixedCommandParameter,
     when_mentioned,
     when_mentioned_or,
 )
@@ -632,6 +632,9 @@ __all__ = (
     "PollLayoutType",
     "PollMedia",
     "PollResults",
+    "PrefixedCommand",
+    "prefixed_command",
+    "PrefixedCommandParameter",
     "PREMIUM_GUILD_LIMITS",
     "PremiumTier",
     "PremiumType",
@@ -762,9 +765,6 @@ __all__ = (
     "WebSocketOPCode",
     "when_mentioned",
     "when_mentioned_or",
-    "PrefixedCommand",
-    "prefixed_command",
-    "PrefixedCommandParameter",
 )
 
 if "discord" in sys.modules:
