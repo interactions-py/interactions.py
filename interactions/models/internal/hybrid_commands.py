@@ -3,41 +3,37 @@ import inspect
 from typing import Any, Callable, List, Optional, Union, TYPE_CHECKING, Awaitable, Annotated, get_origin, get_args
 
 import attrs
-from interactions import (
-    BaseContext,
-    Converter,
-    ConsumeRest,
-    NoArgumentConverter,
-    Attachment,
-    SlashCommandChoice,
-    OptionType,
-    BaseChannelConverter,
-    ChannelType,
-    BaseChannel,
-    MemberConverter,
-    UserConverter,
-    RoleConverter,
-    SlashCommand,
-    SlashContext,
-    Absent,
-    LocalisedName,
-    LocalisedDesc,
-    MISSING,
-    SlashCommandOption,
-    Snowflake_Type,
-    Permissions,
-    ContextType,
-    IntegrationType,
-)
-from interactions.client.const import AsyncCallable, GLOBAL_SCOPE
+from interactions.client.const import AsyncCallable, GLOBAL_SCOPE, Absent, MISSING
 from interactions.client.utils.serializer import no_export_meta
 from interactions.client.utils.misc_utils import maybe_coroutine, get_object_name
 from interactions.client.errors import BadArgument
-from interactions.ext.prefixed_commands import PrefixedCommand, PrefixedContext
-from interactions.models.internal.converters import _LiteralConverter, CONSUME_REST_MARKER
+from interactions.models.discord.enums import ContextType, IntegrationType, ChannelType, Permissions
+from interactions.models.discord.snowflake import Snowflake_Type
+from interactions.models.discord.message import Attachment
+from interactions.models.discord.channel import BaseChannel
+from interactions.models.internal.application_commands import (
+    SlashCommandChoice,
+    SlashCommandOption,
+    OptionType,
+    SlashCommand,
+    LocalisedName,
+    LocalisedDesc,
+)
+from interactions.models.internal.prefixed_commands import PrefixedCommand
+from interactions.models.internal.converters import (
+    _LiteralConverter,
+    CONSUME_REST_MARKER,
+    RoleConverter,
+    Converter,
+    NoArgumentConverter,
+    BaseChannelConverter,
+    MemberConverter,
+    UserConverter,
+    ConsumeRest,
+)
 
 if TYPE_CHECKING:
-    from .context import HybridContext
+    from interactions.models.internal.context import HybridContext, PrefixedContext, BaseContext, SlashContext
 
 __all__ = ("HybridSlashCommand", "hybrid_slash_command", "hybrid_slash_subcommand")
 
@@ -82,12 +78,12 @@ class BasicConverter(Converter):
     def __init__(self, type_to_convert: Any) -> None:
         self.type_to_convert = type_to_convert
 
-    async def convert(self, ctx: BaseContext, arg: str) -> Any:
+    async def convert(self, ctx: "BaseContext", arg: str) -> Any:
         return self.type_to_convert(arg)
 
 
 class BoolConverter(Converter):
-    async def convert(self, ctx: BaseContext, argument: str) -> bool:
+    async def convert(self, ctx: "BaseContext", argument: str) -> bool:
         lowered = argument.lower()
         if lowered in {"yes", "y", "true", "t", "1", "enable", "on"}:
             return True
@@ -114,7 +110,7 @@ class ChoicesConverter(_LiteralConverter):
         self.values = {str(arg): str for arg in names}
         self.choice_values = {str(c.name): c.value for c in standardized_choices}
 
-    async def convert(self, ctx: BaseContext, argument: str) -> Any:
+    async def convert(self, ctx: "BaseContext", argument: str) -> Any:
         val = await super().convert(ctx, argument)
         return self.choice_values[val]
 
@@ -132,7 +128,7 @@ class RangeConverter(Converter[float | int]):
 
         self.number_convert = int if number_type == OptionType.INTEGER else float
 
-    async def convert(self, ctx: BaseContext, argument: str) -> float | int:
+    async def convert(self, ctx: "BaseContext", argument: str) -> float | int:
         try:
             converted: float | int = await maybe_coroutine(self.number_convert, argument)
 
@@ -157,7 +153,7 @@ class StringLengthConverter(Converter[str]):
         self.min_length = min_length
         self.max_length = max_length
 
-    async def convert(self, ctx: BaseContext, argument: str) -> str:
+    async def convert(self, ctx: "BaseContext", argument: str) -> str:
         if self.min_length and len(argument) < self.min_length:
             raise BadArgument(f'The string "{argument}" is shorter than {self.min_length} character(s).')
         elif self.max_length and len(argument) > self.max_length:  # noqa: RET506
@@ -178,7 +174,7 @@ class HackyUnionConverter(Converter):
     def __init__(self, *converters: type[Converter]) -> None:
         self.converters = converters
 
-    async def convert(self, ctx: BaseContext, arg: str) -> Any:
+    async def convert(self, ctx: "BaseContext", arg: str) -> Any:
         for converter in self.converters:
             try:
                 return await converter().convert(ctx, arg)
@@ -201,7 +197,7 @@ class ChainConverter(Converter):
         self.second_converter = second_converter
         self.name_of_cmd = name_of_cmd
 
-    async def convert(self, ctx: BaseContext, arg: str) -> Any:
+    async def convert(self, ctx: "BaseContext", arg: str) -> Any:
         first = await self.first_converter.convert(ctx, arg)
         return await maybe_coroutine(self.second_converter, ctx, first)
 
@@ -250,8 +246,8 @@ class HybridSlashCommand(SlashCommand):
     _dummy_base: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
     _silence_autocomplete_errors: bool = attrs.field(repr=False, default=False, metadata=no_export_meta)
 
-    async def __call__(self, context: SlashContext, *args, **kwargs) -> None:
-        new_ctx = context.client.hybrid.hybrid_context.from_slash_context(context)
+    async def __call__(self, context: "SlashContext", *args, **kwargs) -> None:
+        new_ctx = context.client.hybrid_context.from_slash_context(context)
         await super().__call__(new_ctx, *args, **kwargs)
 
     def group(
@@ -321,8 +317,8 @@ class HybridSlashCommand(SlashCommand):
 
 @attrs.define(eq=False, order=False, hash=False, kw_only=True)
 class _HybridToPrefixedCommand(PrefixedCommand):
-    async def __call__(self, context: PrefixedContext, *args, **kwargs) -> None:
-        new_ctx = context.client.hybrid.hybrid_context.from_prefixed_context(context)
+    async def __call__(self, context: "PrefixedContext", *args, **kwargs) -> None:
+        new_ctx = context.client.hybrid_context.from_prefixed_context(context)
         await super().__call__(new_ctx, *args, **kwargs)
 
 
@@ -457,6 +453,31 @@ def base_subcommand_generator(
         ignore_extra=False,
         inspect_signature=inspect.Signature(None),  # type: ignore
     )
+
+
+def add_use_slash_command_message(
+    prefixed_cmd: "_HybridToPrefixedCommand", slash_cmd: "HybridSlashCommand"
+) -> "_HybridToPrefixedCommand":
+    if prefixed_cmd.has_binding:
+
+        def wrap_old_callback(func: Callable) -> Any:
+            async def _msg_callback(self, ctx: PrefixedContext, *args, **kwargs):
+                await ctx.reply(f"This command has been updated. Please use {slash_cmd.mention(ctx.guild_id)} instead.")
+                await func(ctx, *args, **kwargs)
+
+            return _msg_callback
+
+    else:
+
+        def wrap_old_callback(func: Callable) -> Any:
+            async def _msg_callback(ctx: PrefixedContext, *args, **kwargs):
+                await ctx.reply(f"This command has been updated. Please use {slash_cmd.mention(ctx.guild_id)} instead.")
+                await func(ctx, *args, **kwargs)
+
+            return _msg_callback
+
+    prefixed_cmd.callback = wrap_old_callback(prefixed_cmd.callback)
+    return prefixed_cmd
 
 
 def hybrid_slash_command(

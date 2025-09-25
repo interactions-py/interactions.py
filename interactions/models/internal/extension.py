@@ -164,7 +164,7 @@ class Extension:
         """Get the listeners from this Extension."""
         return self._listeners
 
-    def drop(self) -> None:
+    def drop(self) -> None:  # noqa: C901
         """Called when this Extension is being removed."""
         for func in self._commands:
             if isinstance(func, models.ModalCommand):
@@ -187,6 +187,9 @@ class Extension:
                 for scope in func.scopes:
                     if self.bot.interactions_by_scope.get(scope):
                         self.bot.interactions_by_scope[scope].pop(func.resolved_name, [])
+
+                if isinstance(func, models.HybridSlashCommand):
+                    self.bot.remove_prefixed_command(func.resolved_name, delete_parent_if_empty=True)
             elif isinstance(func, models.PrefixedCommand):
                 self.bot.remove_prefixed_command(func.qualified_name)
 

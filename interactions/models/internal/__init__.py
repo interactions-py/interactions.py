@@ -57,6 +57,7 @@ from .context import (
     ModalContext,
     Resolved,
     SlashContext,
+    HybridContext,
 )
 from .converters import (
     BaseChannelConverter,
@@ -108,6 +109,7 @@ from .prefixed_commands import (
     PrefixedCommand,
     prefixed_command,
 )
+from .hybrid_commands import HybridSlashCommand, hybrid_slash_command, hybrid_slash_subcommand
 from .protocols import Converter
 from .extension import Extension
 from .wait import Wait
@@ -172,6 +174,10 @@ __all__ = (
     "has_any_role",
     "has_id",
     "has_role",
+    "HybridContext",
+    "HybridSlashCommand",
+    "hybrid_slash_command",
+    "hybrid_slash_subcommand",
     "IDConverter",
     "integration_types",
     "InteractionCommand",

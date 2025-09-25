@@ -113,6 +113,13 @@ from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.callback import CallbackObject
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.prefixed_commands import PrefixedCommand, when_mentioned
+from interactions.models.internal.hybrid_commands import (
+    _values_wrapper,
+    base_subcommand_generator,
+    HybridSlashCommand,
+    add_use_slash_command_message,
+    slash_to_prefixed,
+)
 from interactions.models.internal.context import (
     BaseContext,
     PrefixedContext,
@@ -122,6 +129,7 @@ from interactions.models.internal.context import (
     ComponentContext,
     AutocompleteContext,
     ContextMenuContext,
+    HybridContext,
 )
 from interactions.models.internal.listener import Listener
 from interactions.models.internal.tasks import Task
@@ -260,6 +268,7 @@ class Client(
 
         default_prefix: The default prefix to use. Defaults to `None`.
         generate_prefixes: An asynchronous function that takes in a `Client` and `Message` object and returns either a string or an iterable of strings.
+        use_slash_command_msg: If enabled, will send out a message encouraging users to use the slash command equivalent whenever they use the prefixed command version of a hybrid command.
 
         auto_defer: AutoDefer: A system to automatically defer commands after a set duration
         prefixed_context: Type[PrefixedContext]: The object too instantiate for Prefixed Context
@@ -267,6 +276,7 @@ class Client(
         component_context: Type[ComponentContext]: The object to instantiate for Component Context
         autocomplete_context: Type[AutocompleteContext]: The object to instantiate for Autocomplete Context
         modal_context: Type[ModalContext]: The object to instantiate for Modal Context
+        hybrid_context: Type[HybridContext]: The object to instantiate for Hybrid Context
 
         total_shards: The total number of shards in use
         shard_id: The zero based int ID of this shard
@@ -331,6 +341,8 @@ class Client(
                 Coroutine[Any, Any, str | list[str]],
             ]
         ] = None,
+        hybrid_context: type[BaseContext] = HybridContext,
+        use_slash_command_msg: bool = False,
         proxy_url: str | None = None,
         proxy_auth: BasicAuth | tuple[str, str] | None = None,
         token: str | None = None,
@@ -372,6 +384,7 @@ class Client(
         """A system to automatically defer commands after a set duration"""
         self.intents = intents if isinstance(intents, Intents) else Intents(intents)
         self.default_prefix = default_prefix
+        self.use_slash_command_msg = use_slash_command_msg
 
         if (
             default_prefix or (generate_prefixes and generate_prefixes != when_mentioned)
@@ -414,6 +427,8 @@ class Client(
         """The object to instantiate for Slash Context"""
         self.context_menu_context: Type[BaseContext[Self]] = context_menu_context
         """The object to instantiate for Context Menu Context"""
+        self.hybrid_context: Type[BaseContext[Self]] = hybrid_context
+        """The object to instantiate for Hybrid Context"""
 
         self.token: str | None = token
 
@@ -1536,6 +1551,74 @@ class Client(
         """
         self._global_autocompletes[callback.option_name] = callback
 
+    def add_hybrid_command(self, callback: HybridSlashCommand):
+        """
+        Add a hybrid command to the client.
+
+        Args:
+            callback: The hybrid command to add
+
+        """
+        if not callback.callback or callback._dummy_base:
+            return
+
+        cmd = callback
+
+        if not cmd.callback or cmd._dummy_base:
+            if cmd.group_name:
+                if not (group := self.get_prefixed_command(f"{cmd.name} {cmd.group_name}")):
+                    group = base_subcommand_generator(
+                        str(cmd.group_name),
+                        list(_values_wrapper(cmd.group_name.to_locale_dict())) + cmd.aliases,
+                        str(cmd.group_name),
+                        group=True,
+                    )
+                    self.prefixed_commands[str(cmd.name)].add_command(group)
+            elif not (base := self.prefixed_commands.get(str(cmd.name))):
+                base = base_subcommand_generator(
+                    str(cmd.name),
+                    list(_values_wrapper(cmd.name.to_locale_dict())) + cmd.aliases,
+                    str(cmd.name),
+                    group=False,
+                )
+                self.add_command(base)
+            return
+
+        prefixed_transform = slash_to_prefixed(cmd)
+
+        if self.use_slash_command_msg:
+            prefixed_transform = add_use_slash_command_message(prefixed_transform, cmd)
+
+        if cmd.is_subcommand:
+            base = None
+            if not (base := self.prefixed_commands.get(str(cmd.name))):
+                base = base_subcommand_generator(
+                    str(cmd.name),
+                    list(_values_wrapper(cmd.name.to_locale_dict())),
+                    str(cmd.name),
+                    group=False,
+                )
+                self.add_command(base)
+
+            if cmd.group_name:  # group command
+                group = None
+                if not (group := base.subcommands.get(str(cmd.group_name))):
+                    group = base_subcommand_generator(
+                        str(cmd.group_name),
+                        list(_values_wrapper(cmd.group_name.to_locale_dict())),
+                        str(cmd.group_name),
+                        group=True,
+                    )
+                    base.add_command(group)
+                base = group
+
+            # since this is added *after* the base command has been added to the bot, we need to run
+            # this function ourselves
+            prefixed_transform._parse_parameters()
+            base.add_command(prefixed_transform)
+        else:
+            self.add_command(prefixed_transform)
+
     def add_command(self, func: Callable) -> None:
         """
         Add a command to the client.
@@ -1548,6 +1631,8 @@ class Client(
             self.add_modal_callback(func)
         elif isinstance(func, ComponentCommand):
             self.add_component_callback(func)
+        elif isinstance(func, HybridSlashCommand):
+            self.add_hybrid_command(func)
         elif isinstance(func, InteractionCommand):
             self.add_interaction(func)
         elif isinstance(func, PrefixedCommand):
