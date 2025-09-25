@@ -27,7 +27,7 @@ from interactions.models.discord.emoji import process_emoji, PartialEmoji
 
 if TYPE_CHECKING:
     from interactions import Client
-    from interactions.ext.prefixed_commands.context import PrefixedContext
+    from interactions.models.internal.context import PrefixedContext
 
 __all__ = ("Paginator",)
 
