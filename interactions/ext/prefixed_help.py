@@ -63,7 +63,7 @@ class PrefixedHelpCommand:
             self.logger.warning("Replacing existing help command.")
             del self.client.prefixed_commands["help"]
 
-        self.client.prefixed.add_command(self._cmd)  # type: ignore
+        self.client.add_command(self._cmd)
 
     async def send_help(self, ctx: PrefixedContext, cmd_name: str | None) -> None:
         """
