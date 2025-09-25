@@ -61,6 +61,7 @@ from interactions.client.errors import (
 )
 from interactions.client.smart_cache import GlobalCache
 from interactions.client.utils import NullCache, FastJson
+from interactions.client.utils.input_utils import get_args, get_first_word
 from interactions.client.utils.misc_utils import get_event_name, wrap_partial
 from interactions.client.utils.serializer import to_image_data
 from interactions.models import (
@@ -111,8 +112,10 @@ from interactions.models.internal.application_commands import (
 from interactions.models.internal.auto_defer import AutoDefer
 from interactions.models.internal.callback import CallbackObject
 from interactions.models.internal.command import BaseCommand
+from interactions.models.internal.prefixed_commands import PrefixedCommand, when_mentioned
 from interactions.models.internal.context import (
     BaseContext,
+    PrefixedContext,
     InteractionContext,
     SlashContext,
     ModalContext,
@@ -255,7 +258,11 @@ class Client(
         send_command_tracebacks: Automatically send uncaught tracebacks if a command throws an exception
         send_not_ready_messages: Send a message to the user if they try to use a command before the client is ready
 
+        default_prefix: The default prefix to use. Defaults to `None`.
+        generate_prefixes: An asynchronous function that takes in a `Client` and `Message` object and returns either a string or an iterable of strings.
+
         auto_defer: AutoDefer: A system to automatically defer commands after a set duration
+        prefixed_context: Type[PrefixedContext]: The object too instantiate for Prefixed Context
         interaction_context: Type[InteractionContext]: InteractionContext: The object to instantiate for Interaction Context
         component_context: Type[ComponentContext]: The object to instantiate for Component Context
         autocomplete_context: Type[AutocompleteContext]: The object to instantiate for Autocomplete Context
@@ -316,6 +323,14 @@ class Client(
         status: Status = Status.ONLINE,
         sync_ext: bool = True,
         sync_interactions: bool = True,
+        prefixed_context: Type[BaseContext] = PrefixedContext,
+        default_prefix: Optional[str | list[str]] = None,
+        generate_prefixes: Optional[
+            Callable[
+                [Self, Message],
+                Coroutine[Any, Any, str | list[str]],
+            ]
+        ] = None,
         proxy_url: str | None = None,
         proxy_auth: BasicAuth | tuple[str, str] | None = None,
         token: str | None = None,
@@ -356,6 +371,23 @@ class Client(
         self.auto_defer = auto_defer
         """A system to automatically defer commands after a set duration"""
         self.intents = intents if isinstance(intents, Intents) else Intents(intents)
+        self.default_prefix = default_prefix
+
+        if (
+            default_prefix or (generate_prefixes and generate_prefixes != when_mentioned)
+        ) and Intents.MESSAGE_CONTENT not in self.intents:
+            self.logger.warning(
+                "Prefixed commands will not work since the required intent is not set -> Requires:"
+                f" {Intents.MESSAGE_CONTENT.__repr__()} or usage of the default mention prefix as the prefix"
+            )
+
+        if default_prefix is None and generate_prefixes is None:
+            # by default, use mentioning the bot as the prefix
+            generate_prefixes = when_mentioned
+
+        self.generate_prefixes = (  # type: ignore
+            generate_prefixes if generate_prefixes is not None else self.generate_prefixes
+        )
 
         # resources
         if isinstance(proxy_auth, tuple):
@@ -368,6 +400,8 @@ class Client(
         """The HTTP client to use when interacting with discord endpoints"""
 
         # context factories
+        self.prefixed_context: Type[BaseContext[Self]] = prefixed_context
+        """The object to instantiate for Prefixed Context"""
         self.interaction_context: Type[BaseContext[Self]] = interaction_context
         """The object to instantiate for Interaction Context"""
         self.component_context: Type[BaseContext[Self]] = component_context
@@ -417,6 +451,8 @@ class Client(
         self._app: Absent[Application] = MISSING
 
         # collections
+        self.prefixed_commands: Dict[str, PrefixedCommand] = {}
+        """A dictionary of registered prefixed commands: `{name: command}`"""
         self.interactions_by_scope: Dict["Snowflake_Type", Dict[str, InteractionCommand]] = {}
         """A dictionary of registered application commands: `{scope: [commands]}`"""
         self._interaction_lookup: dict[str, InteractionCommand] = {}
@@ -1364,6 +1400,28 @@ class Client(
                 c_listener for c_listener in self.listeners[listener.event] if not c_listener.is_default_listener
             ]
 
+    def add_prefixed_command(self, command: PrefixedCommand) -> None:
+        """
+        Add a prefixed command to the client.
+
+        Args:
+            command: The command to add.
+
+        """
+        if command.is_subcommand:
+            raise ValueError("You cannot add subcommands to the client - add the base command instead.")
+
+        command._parse_parameters()
+
+        if self.prefixed_commands.get(command.name):
+            raise ValueError(f"Duplicate command! Multiple commands share the name/alias: {command.name}.")
+        self.prefixed_commands[command.name] = command
+
+        for alias in command.aliases:
+            if self.prefixed_commands.get(alias):
+                raise ValueError(f"Duplicate command! Multiple commands share the name/alias: {alias}.")
+            self.prefixed_commands[alias] = command
+
     def add_interaction(self, command: InteractionCommand) -> bool:
         """
         Add a slash command to the client.
@@ -1492,6 +1550,8 @@ class Client(
             self.add_component_callback(func)
         elif isinstance(func, InteractionCommand):
             self.add_interaction(func)
+        elif isinstance(func, PrefixedCommand):
+            self.add_prefixed_command(func)
         elif isinstance(func, Listener):
             self.add_listener(func)
         elif isinstance(func, GlobalAutoComplete):
@@ -1891,6 +1951,105 @@ class Client(
                 interaction_id=data["id"],
             )
 
+    @Listener.create("raw_message_create", is_default_listener=True)
+    async def _dispatch_prefixed_commands(self, event: RawGatewayEvent) -> None:  # noqa: C901
+        """Determine if a prefixed command is being triggered, and dispatch it."""
+        # don't waste time processing this if there are no prefixed commands
+        if not self.prefixed_commands:
+            return
+
+        data = event.data
+
+        # many bots will not have the message content intent, and so will not have content
+        # for most messages. since there's nothing for prefixed commands to work off of,
+        # we might as well not waste time
+        if not data.get("content"):
+            return
+
+        # webhooks and users labeled with the bot property are bots, and should be ignored
+        if data.get("webhook_id") or data["author"].get("bot", False):
+            return
+
+        # now, we've done the basic filtering out, but everything from here on out relies
+        # on a proper message object, so now we either hope its already in the cache or wait
+        # on the processor
+
+        # first, let's check the cache...
+        message = self.cache.get_message(int(data["channel_id"]), int(data["id"]))
+
+        # this huge if statement basically checks if the message hasn't been fully processed by
+        # the processor yet, which would mean that these fields aren't fully filled
+        if message and (
+            (not message._guild_id and event.data.get("guild_id"))
+            or (message._guild_id and not message.guild)
+            or not message.channel
+        ):
+            message = None
+
+        # if we didn't get a message, then we know we should wait for the message create event
+        if not message:
+            try:
+                # i think 2 seconds is a very generous timeout limit
+                msg_event: events.MessageCreate = await self.wait_for(
+                    events.MessageCreate, checks=lambda e: int(e.message.id) == int(data["id"]), timeout=2
+                )
+                message = msg_event.message
+            except TimeoutError:
+                return
+
+        if not message.content:
+            return
+
+        # here starts the actual prefixed command parsing part
+        prefixes: str | Iterable[str] = await self.generate_prefixes(self, message)
+
+        if isinstance(prefixes, str):
+            # its easier to treat everything as if it may be an iterable
+            # rather than building a special case for this
+            prefixes = (prefixes,)  # type: ignore
+
+        prefix_used = next(
+            (prefix for prefix in prefixes if message.content.startswith(prefix)),
+            None,
+        )
+        if not prefix_used:
+            return
+
+        context = self.prefixed_context.from_message(self, message)
+        context.prefix = prefix_used
+
+        content_parameters = message.content.removeprefix(prefix_used).strip()
+        command: "Self | PrefixedCommand" = self  # yes, this is a hack
+
+        while True:
+            first_word: str = get_first_word(content_parameters)  # type: ignore
+            if isinstance(command, PrefixedCommand):
+                new_command = command.subcommands.get(first_word)
+            else:
+                new_command = command.prefixed_commands.get(first_word)
+            if not new_command or not new_command.enabled:
+                break
+
+            command = new_command
+            content_parameters = content_parameters.removeprefix(first_word).strip()
+
+        if not isinstance(command, PrefixedCommand) or not command.enabled:
+            return
+
+        context.command = command
+        context.content_parameters = content_parameters.strip()
+        context.args = get_args(context.content_parameters)
+        try:
+            if self.pre_run_callback:
+                await self.pre_run_callback(context)
+            await command(context)
+            if self.post_run_callback:
+                await self.post_run_callback(context)
+        except Exception as e:
+            self.dispatch(events.CommandError(ctx=context, error=e))
+        finally:
+            self.dispatch(events.CommandCompletion(ctx=context))
+
     async def _run_slash_command(self, command: SlashCommand, ctx: "InteractionContext") -> Any:
         """Overrideable method that executes slash commands, can be used to wrap callback execution"""
         return await command(ctx, **ctx.kwargs)
@@ -2045,6 +2204,111 @@ class Client(
         finally:
             if completion_callback:
                 self.dispatch(completion_callback(ctx=ctx))
+
+    async def generate_prefixes(self, client: Self, msg: Message) -> str | list[str]:
+        """
+        Generates a list of prefixes a prefixed command can have based on the client and message.
+
+        This can be overwritten by passing a function to generate_prefixes on initialization.
+
+        Args:
+            client: The client instance.
+            msg: The message sent.
+
+        Returns:
+            The prefix(es) to check for.
+
+        """
+        return self.default_prefix
+
+    def get_prefixed_command(self, name: str) -> Optional[PrefixedCommand]:
+        """
+        Gets a prefixed command by the name/alias specified.
+
+        This function is able to resolve subcommands - fully qualified names can be used.
+        For example, passing in ``foo bar`` would get the subcommand ``bar`` from the
+        command ``foo``.
+
+        Args:
+            name: The name of the command to search for.
+
+        Returns:
+            The command object, if found.
+
+        """
+        if " " not in name:
+            return self.prefixed_commands.get(name)
+
+        names = name.split()
+        if not names:
+            return None
+
+        cmd = self.prefixed_commands.get(names[0])
+        if not cmd:
+            return cmd
+
+        for name in names[1:]:
+            try:
+                cmd = cmd.subcommands[name]
+            except (AttributeError, KeyError):
+                return None
+
+        return cmd
+
+    def _remove_cmd_and_aliases(self, name: str) -> None:
+        if cmd := self.prefixed_commands.pop(name, None):
+            if cmd.extension:
+                with contextlib.suppress(ValueError):
+                    cmd.extension._commands.remove(cmd)
+
+            for alias in cmd.aliases:
+                self.prefixed_commands.pop(alias, None)
+
+    def remove_prefixed_command(self, name: str, delete_parent_if_empty: bool = False) -> Optional[PrefixedCommand]:
+        """
+        Removes a prefixed command if it exists.
+
+        If an alias is specified, only the alias will be removed.
+        This function is able to resolve subcommands - fully qualified names can be used.
+        For example, passing in ``foo bar`` would delete the subcommand ``bar``
+        from the command ``foo``.
+
+        Args:
+            name: The command to remove.
+            delete_parent_if_empty: Should the parent command be deleted if it \
+                ends up having no subcommands after deleting the command specified? \
+                Defaults to `False`.
+
+        Returns:
+            The command that was removed, if one was. If the command was not found,
+            this function returns `None`.
+
+        """
+        command = self.get_prefixed_command(name)
+
+        if command is None:
+            return None
+
+        if name in command.aliases:
+            command.aliases.remove(name)
+            return command
+
+        if command.parent:
+            command.parent.remove_command(command.name)
+        else:
+            self._remove_cmd_and_aliases(command.name)
+
+        if delete_parent_if_empty:
+            while command.parent is not None and not command.parent.subcommands:
+                if command.parent.parent:
+                    _new_cmd = command.parent
+                    command.parent.parent.remove_command(command.parent.name)
+                    command = _new_cmd
+                else:
+                    self._remove_cmd_and_aliases(command.parent.name)
+                    break
+
+        return command
 
     @Listener.create("disconnect", is_default_listener=True)
     async def _disconnect(self) -> None:

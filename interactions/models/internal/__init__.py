@@ -49,6 +49,7 @@ from .command import BaseCommand, check, cooldown, max_concurrency
 from .context import (
     AutocompleteContext,
     BaseContext,
+    PrefixedContext,
     BaseInteractionContext,
     ComponentContext,
     ContextMenuContext,
@@ -100,6 +101,13 @@ from .cooldowns import (
     TokenBucketSystem,
 )
 from .listener import listen, Listener
+from .prefixed_commands import (
+    when_mentioned,
+    when_mentioned_or,
+    PrefixedCommandParameter,
+    PrefixedCommand,
+    prefixed_command,
+)
 from .protocols import Converter
 from .extension import Extension
 from .wait import Wait
@@ -189,6 +197,10 @@ __all__ = (
     "OptionType",
     "OrTrigger",
     "PartialEmojiConverter",
+    "PrefixedContext",
+    "PrefixedCommandParameter",
+    "PrefixedCommand",
+    "prefixed_command",
     "Resolved",
     "RoleConverter",
     "slash_attachment_option",
@@ -217,4 +229,6 @@ __all__ = (
     "UserConverter",
     "VoiceChannelConverter",
     "Wait",
+    "when_mentioned",
+    "when_mentioned_or",
 )

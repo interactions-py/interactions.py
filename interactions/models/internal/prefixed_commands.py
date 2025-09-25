@@ -21,7 +21,9 @@ from typing_extensions import Self
 from interactions.client.const import MISSING, T
 from interactions.client.errors import BadArgument
 from interactions.client.utils.input_utils import _quotes
+from interactions.client.utils.attr_utils import docs
 from interactions.client.utils.misc_utils import get_object_name, maybe_coroutine
+from interactions.models.discord.message import Message
 from interactions.models.internal.command import BaseCommand
 from interactions.models.internal.converters import (
     _LiteralConverter,
@@ -31,12 +33,14 @@ from interactions.models.internal.converters import (
     MODEL_TO_CONVERTER,
 )
 from interactions.models.internal.protocols import Converter
-from ...client.utils.attr_utils import docs
 
 if TYPE_CHECKING:
-    from .context import PrefixedContext
+    from interactions.models.internal.context import PrefixedContext
+    from interactions.client.client import Client
 
 __all__ = (
+    "when_mentioned",
+    "when_mentioned_or",
     "PrefixedCommandParameter",
     "PrefixedCommand",
     "prefixed_command",
@@ -44,6 +48,41 @@ __all__ = (
 
 
 _STARTING_QUOTES = frozenset(_quotes.keys())
+
+
+async def when_mentioned(bot: Client, _) -> list[str]:
+    """
+    Returns a list of the bot's mentions.
+
+    Returns:
+        A list of the bot's possible mentions.
+
+    """
+    return [f"<@{bot.user.id}> ", f"<@!{bot.user.id}> "]  # type: ignore
+
+
+def when_mentioned_or(
+    *prefixes: str,
+) -> Callable[[Client, Message], typing.Coroutine[Any, Any, list[str]]]:
+    """
+    Returns a list of the bot's mentions plus whatever prefixes are provided.
+
+    This is intended to be used with initializing prefixed commands. If you wish to use
+    it in your own function, you will need to do something similar to
+    `await when_mentioned_or(*prefixes)(bot, msg)`.
+
+    Args:
+        prefixes: Prefixes to include alongside mentions.
+
+    Returns:
+        A list of the bot's mentions plus whatever prefixes are provided.
+
+    """
+
+    async def _new_mention(bot: Client, _) -> list[str]:
+        return (await when_mentioned(bot, _)) + list(prefixes)
+
+    return _new_mention
 
 
 class PrefixedCommandParameter:
@@ -349,10 +388,10 @@ class PrefixedCommand(BaseCommand):
     )
     help: Optional[str] = attrs.field(repr=False, metadata=docs("The long help text for the command."), default=None)
     brief: Optional[str] = attrs.field(repr=False, metadata=docs("The short help text for the command."), default=None)
-    parent: Optional["PrefixedCommand"] = attrs.field(
+    parent: Optional["Self"] = attrs.field(
         repr=False, metadata=docs("The parent command, if applicable."), default=None
     )
-    subcommands: dict[str, "PrefixedCommand"] = attrs.field(
+    subcommands: dict[str, "Self"] = attrs.field(
         repr=False, metadata=docs("A dict of all subcommands for the command."), factory=dict
     )
     _usage: Optional[str] = attrs.field(repr=False, default=None)

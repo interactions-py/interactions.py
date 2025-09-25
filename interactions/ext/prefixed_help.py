@@ -3,12 +3,11 @@ from logging import Logger
 
 import attrs
 
-from interactions import Embed, get_logger
+from interactions import Embed, get_logger, Client
 from interactions.ext.paginators import Paginator
 from interactions.models.discord.color import BrandColors, Color
-from .command import prefixed_command, PrefixedCommand
-from .context import PrefixedContext
-from .manager import PrefixedInjectedClient
+from interactions.models.internal.prefixed_commands import prefixed_command, PrefixedCommand
+from interactions.models.internal.context import PrefixedContext
 
 __all__ = ("PrefixedHelpCommand",)
 
@@ -17,7 +16,7 @@ __all__ = ("PrefixedHelpCommand",)
 class PrefixedHelpCommand:
     """A help command for all prefixed commands in a bot."""
 
-    client: "PrefixedInjectedClient" = attrs.field()
+    client: "Client" = attrs.field()
     """The client to use for the help command."""
 
     show_hidden: bool = attrs.field(default=False, kw_only=True)
@@ -60,9 +59,9 @@ class PrefixedHelpCommand:
             self._cmd.callback = functools.partial(self._cmd.callback, self)
 
         # replace existing help command if found
-        if "help" in self.client.prefixed.commands:
+        if "help" in self.client.prefixed_commands:
             self.logger.warning("Replacing existing help command.")
-            del self.client.prefixed.commands["help"]
+            del self.client.prefixed_commands["help"]
 
         self.client.prefixed.add_command(self._cmd)  # type: ignore
 
@@ -128,7 +127,7 @@ class PrefixedHelpCommand:
         """
         out: dict[str, PrefixedCommand] = {}
 
-        for cmd in frozenset(self.client.prefixed.commands.values()):
+        for cmd in frozenset(self.client.prefixed_commands.values()):
             if not cmd.enabled and not self.show_disabled:
                 continue
 

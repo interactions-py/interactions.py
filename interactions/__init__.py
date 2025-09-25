@@ -375,6 +375,11 @@ from .models import (
     WebhookMixin,
     WebhookTypes,
     WebSocketOPCode,
+    PrefixedCommand,
+    prefixed_command,
+    PrefixedCommandParameter,
+    when_mentioned,
+    when_mentioned_or,
 )
 from .api import events
 from . import ext
@@ -755,6 +760,11 @@ __all__ = (
     "WebhookMixin",
     "WebhookTypes",
     "WebSocketOPCode",
+    "when_mentioned",
+    "when_mentioned_or",
+    "PrefixedCommand",
+    "prefixed_command",
+    "PrefixedCommandParameter",
 )
 
 if "discord" in sys.modules:

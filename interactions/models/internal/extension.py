@@ -187,6 +187,9 @@ class Extension:
                 for scope in func.scopes:
                     if self.bot.interactions_by_scope.get(scope):
                         self.bot.interactions_by_scope[scope].pop(func.resolved_name, [])
+            elif isinstance(func, models.PrefixedCommand):
+                self.bot.remove_prefixed_command(func.qualified_name)
+
         for func in self.listeners:
             self.bot.listeners[func.event].remove(func)
 

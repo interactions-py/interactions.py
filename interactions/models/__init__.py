@@ -302,6 +302,9 @@ from .internal import (
     OptionType,
     OrTrigger,
     PartialEmojiConverter,
+    PrefixedCommandParameter,
+    PrefixedCommand,
+    prefixed_command,
     Resolved,
     RoleConverter,
     slash_attachment_option,
@@ -330,6 +333,8 @@ from .internal import (
     UserConverter,
     VoiceChannelConverter,
     Wait,
+    when_mentioned,
+    when_mentioned_or,
 )
 from .misc import AsyncIterator, Typing
 
@@ -550,6 +555,9 @@ __all__ = (
     "PollLayoutType",
     "PollMedia",
     "PollResults",
+    "PrefixedCommandParameter",
+    "PrefixedCommand",
+    "prefixed_command",
     "PremiumTier",
     "PremiumType",
     "process_allowed_mentions",
@@ -665,4 +673,6 @@ __all__ = (
     "WebhookMixin",
     "WebhookTypes",
     "WebSocketOPCode",
+    "when_mentioned",
+    "when_mentioned_or",
 )
