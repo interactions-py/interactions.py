@@ -171,7 +171,7 @@ class User(BaseUser):
         if any(field in data for field in ("banner", "accent_color", "avatar_decoration")):
             data["_fetched"] = True
 
-        if "banner" in data:
+        if data.get("banner", None):
             data["banner"] = Asset.from_path_hash(client, f"banners/{data['id']}/{{}}", data["banner"])
 
         if data.get("premium_type", None) is None:

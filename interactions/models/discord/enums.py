@@ -606,6 +606,10 @@ class Permissions(DiscordIntFlag):  # type: ignore
     """Allows for sending audio messages"""
     SEND_POLLS = 1 << 49
     """Allows sending polls"""
+    USE_EXTERNAL_APPS = 1 << 50
+    """Allows user-installed applications to send public responses"""
+    PIN_MESSAGES = 1 << 51
+    """Allows for pinning messages"""
 
     # Shortcuts/grouping/aliases
     REQUIRES_MFA = (

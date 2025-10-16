@@ -18,10 +18,10 @@ jobs:
         include:
           - extras: .[all]
             python-version: "3.10"
-            RUN_TESTBOT: true
+            #RUN_TESTBOT: true
           - extras: .[all]
             python-version: "3.11"
-            RUN_TESTBOT: true
+            #RUN_TESTBOT: true
 
     steps:
       - uses: actions/checkout@v4

@@ -19,7 +19,6 @@ jobs:
           key: ${{ github.ref }}
           path: .cache
       - run: pip install -e .[docs]
-      - run: pip install git+https://${GH_TOKEN}@github.com/squidfunk/mkdocs-material-insiders.git
       - run: mkdocs gh-deploy
 env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
