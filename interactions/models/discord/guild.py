@@ -711,7 +711,7 @@ class Guild(BaseGuild):
                 s = time.monotonic()
 
         total_time = time.perf_counter() - start_time
-        self.chunk_cache = []
+        self._chunk_cache = []
         self.logger.info(f"Cached members for {self.id} in {total_time:.2f} seconds")
         self.chunked.set()
 
