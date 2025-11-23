@@ -119,7 +119,7 @@ class TTLCache(OrderedDict[KT, TTLItem[VT]]):
 
         timestamp = time.monotonic()
         while True:
-            key, item = self._first_item()
+            _, item = self._first_item()
             if item.is_expired(timestamp):
                 self._expire_first()
             else:
