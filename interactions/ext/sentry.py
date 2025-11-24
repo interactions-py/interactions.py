@@ -23,7 +23,7 @@ except ModuleNotFoundError:
 
 from interactions import Client, Extension, listen
 
-__all__ = ("setup", "default_sentry_filter")
+__all__ = ("default_sentry_filter", "setup")
 
 
 def default_sentry_filter(event: dict[str, Any], hint: dict[str, Any]) -> Optional[dict[str, Any]]:
@@ -37,7 +37,7 @@ def default_sentry_filter(event: dict[str, Any], hint: dict[str, Any]) -> Option
                 return None
 
     if "exc_info" in hint:
-        exc_type, exc_value, tb = hint["exc_info"]
+        _, exc_value, _ = hint["exc_info"]
         if isinstance(exc_value, KeyboardInterrupt):
             #  We don't need to report a ctrl+c
             return None
