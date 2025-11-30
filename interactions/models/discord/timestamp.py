@@ -163,3 +163,6 @@ class Timestamp(datetime):
 
     def __str__(self) -> str:
         return self.format()
+
+    def __int__(self) -> int:
+        return int(self.timestamp())
