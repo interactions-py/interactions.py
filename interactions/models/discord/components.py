@@ -1231,7 +1231,7 @@ def process_components(
             BaseComponent,
             Dict,
         ]
-    ]
+    ],
 ) -> List[Dict]:
     """
     Process the passed components into a format discord will understand.
