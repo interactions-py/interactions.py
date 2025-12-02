@@ -2683,7 +2683,7 @@ class GuildMedia(GuildForum): ...
 
 
 def process_permission_overwrites(
-    overwrites: Union[dict, PermissionOverwrite, List[Union[dict, PermissionOverwrite]]]
+    overwrites: Union[dict, PermissionOverwrite, List[Union[dict, PermissionOverwrite]]],
 ) -> List[dict]:
     """
     Processes a permission overwrite lists into format for sending to discord.

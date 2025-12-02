@@ -175,7 +175,7 @@ def get_file_mimetype(file_data: bytes) -> str:
         return "application/json"
     if file_data.startswith((b"GIF87a", b"GIF89a")):
         return "image/gif"
-    if file_data.startswith(b"\x89PNG\x0D\x0A\x1A\x0A"):
+    if file_data.startswith(b"\x89PNG\x0d\x0a\x1a\x0a"):
         return "image/png"
     if file_data.startswith(b"\xff\xd8\xff"):
         return "image/jpeg"

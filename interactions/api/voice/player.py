@@ -135,7 +135,7 @@ class Player(threading.Thread):
                     self.state.ws.send_packet(data, self._encoder, needs_encode=self.current_audio.needs_encode)
                 elif self.current_audio.locked_stream or not self.current_audio.audio_complete:
                     # if more audio is expected
-                    self.state.ws.send_packet(b"\xF8\xFF\xFE", self._encoder, needs_encode=False)
+                    self.state.ws.send_packet(b"\xf8\xff\xfe", self._encoder, needs_encode=False)
                 else:
                     break
 

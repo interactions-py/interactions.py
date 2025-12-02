@@ -982,7 +982,7 @@ def process_allowed_mentions(allowed_mentions: Optional[Union[AllowedMentions, d
 
 
 def process_message_reference(
-    message_reference: Optional[Union[MessageReference, Message, dict, "Snowflake_Type"]]
+    message_reference: Optional[Union[MessageReference, Message, dict, "Snowflake_Type"]],
 ) -> Optional[dict]:
     """
     Process mention references into a dictionary.
