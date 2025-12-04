@@ -1165,8 +1165,8 @@ class Client(
         self,
         messages: Union[Message, int, list],
         components: Union[
-            List[List[Union["BaseComponent", dict]]],
-            List[Union["BaseComponent", dict]],
+            Sequence[Sequence[Union["BaseComponent", dict]]],
+            Sequence[Union["BaseComponent", dict]],
             "BaseComponent",
             dict,
         ],
@@ -1179,8 +1179,8 @@ class Client(
         self,
         *,
         components: Union[
-            List[List[Union["BaseComponent", dict]]],
-            List[Union["BaseComponent", dict]],
+            Sequence[Sequence[Union["BaseComponent", dict]]],
+            Sequence[Union["BaseComponent", dict]],
             "BaseComponent",
             dict,
         ],
@@ -1193,8 +1193,8 @@ class Client(
         self,
         messages: None,
         components: Union[
-            List[List[Union["BaseComponent", dict]]],
-            List[Union["BaseComponent", dict]],
+            Sequence[Sequence[Union["BaseComponent", dict]]],
+            Sequence[Union["BaseComponent", dict]],
             "BaseComponent",
             dict,
         ],
@@ -1661,7 +1661,7 @@ class Client(
         self,
         cmd_scope: "Snowflake_Type",
         delete_cmds: bool,
-        local_cmds_json: Dict["Snowflake_Type", List[Dict[str, Any]]],
+        local_cmds_json: Dict["Snowflake_Type", Sequence[Dict[str, Any]]],
     ) -> None:
         """
         Sync a single scope.
@@ -1746,7 +1746,7 @@ class Client(
         return sync_payload, sync_needed_flag
 
     async def _sync_commands_with_discord(
-        self, sync_payload: List[Dict[str, Any]], cmd_scope: "Snowflake_Type"
+        self, sync_payload: Sequence[Dict[str, Any]], cmd_scope: "Snowflake_Type"
     ) -> None:
         """
         Sync the commands with discord.
