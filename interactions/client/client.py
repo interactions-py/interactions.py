@@ -158,9 +158,9 @@ _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
     events.BanCreate: [Intents.GUILD_MODERATION],
     events.BanRemove: [Intents.GUILD_MODERATION],
     events.GuildAuditLogEntryCreate: [Intents.GUILD_MODERATION],
-    # Intents.GUILD_EMOJIS_AND_STICKERS
-    events.GuildEmojisUpdate: [Intents.GUILD_EMOJIS_AND_STICKERS],
-    events.GuildStickersUpdate: [Intents.GUILD_EMOJIS_AND_STICKERS],
+    # Intents.GUILD_EXPRESSIONS
+    events.GuildEmojisUpdate: [Intents.GUILD_EXPRESSIONS],
+    events.GuildStickersUpdate: [Intents.GUILD_EXPRESSIONS],
     # Intents.GUILD_INTEGRATIONS
     events.IntegrationCreate: [Intents.GUILD_INTEGRATIONS],
     events.IntegrationDelete: [Intents.GUILD_INTEGRATIONS],
