@@ -191,7 +191,7 @@ class Intents(DiscordIntFlag):  # type: ignore
     GUILDS = 1 << 0
     GUILD_MEMBERS = 1 << 1
     GUILD_MODERATION = 1 << 2
-    GUILD_EMOJIS_AND_STICKERS = 1 << 3
+    GUILD_EXPRESSIONS = 1 << 3
     GUILD_INTEGRATIONS = 1 << 4
     GUILD_WEBHOOKS = 1 << 5
     GUILD_INVITES = 1 << 6
@@ -211,6 +211,8 @@ class Intents(DiscordIntFlag):  # type: ignore
     DIRECT_MESSAGE_POLLS = 1 << 25
 
     # Shortcuts/grouping/aliases
+    GUILD_EMOJIS_AND_STICKERS = GUILD_EXPRESSIONS
+
     MESSAGES = GUILD_MESSAGES | DIRECT_MESSAGES
     REACTIONS = GUILD_MESSAGE_REACTIONS | DIRECT_MESSAGE_REACTIONS
     TYPING = GUILD_MESSAGE_TYPING | DIRECT_MESSAGE_TYPING
@@ -321,7 +323,7 @@ class UserFlags(DiscordIntFlag):  # type: ignore
 
 
 class ApplicationFlags(DiscordIntFlag):  # type: ignore
-    """Flags an application can have."""
+    """Flags an application (bot) can have."""
 
     # Flags defined by the Discord API
     GATEWAY_PRESENCE = 1 << 12
@@ -333,9 +335,15 @@ class ApplicationFlags(DiscordIntFlag):  # type: ignore
     GATEWAY_GUILD_MEMBERS_LIMITED = 1 << 15
     """Using members intent, without verification"""
     VERIFICATION_PENDING_GUILD_LIMIT = 1 << 16
-    """Bot has hit guild limit, and has not been successfully verified"""
+    """Application has hit guild limit, and has not been successfully verified"""
     EMBEDDED = 1 << 17
     """Application is a voice channel activity (ie YouTube Together)"""
+    GATEWAY_MESSAGE_CONTENT = 1 << 18
+    """Verified to use message content intent"""
+    GATEWAY_MESSAGE_CONTENT_LIMITED = 1 << 19
+    """Using message content intent, without verification"""
+    APPLICATION_COMMAND_BADGE = 1 << 23
+    """Application has registered global application commands (interaction commands)"""
 
 
 class TeamMembershipState(CursedIntEnum):
@@ -610,6 +618,8 @@ class Permissions(DiscordIntFlag):  # type: ignore
     """Allows user-installed applications to send public responses"""
     PIN_MESSAGES = 1 << 51
     """Allows for pinning messages"""
+    BYPASS_SLOWMODE = 1 << 52
+    """Allows for bypassing slowmode restrictions (applications are not affected by slowmode)"""
 
     # Shortcuts/grouping/aliases
     REQUIRES_MFA = (
@@ -765,6 +775,8 @@ class CommandType(CursedIntEnum):
     """A UI-based command that shows up when you right click or tap on a user"""
     MESSAGE = 3
     """A UI-based command that shows up when you right click or tap on a message"""
+    PRIMARY_ENTRY_POINT = 4
+    """A UI-based command that represents the primary way to invoke an app's Activity"""
 
 
 class InteractionType(CursedIntEnum):
@@ -774,7 +786,10 @@ class InteractionType(CursedIntEnum):
     APPLICATION_COMMAND = 2
     MESSAGE_COMPONENT = 3
     AUTOCOMPLETE = 4
-    MODAL_RESPONSE = 5
+    MODAL_SUBMIT = 5
+
+    MODAL_RESPONSE = MODAL_SUBMIT
+    """Alias for :attr:`MODAL_SUBMIT`"""
 
 
 class InteractionPermissionTypes(CursedIntEnum):
@@ -913,6 +928,10 @@ class SystemChannelFlags(DiscordIntFlag):
     """Suppress server setup tips"""
     SUPPRESS_JOIN_NOTIFICATION_REPLIES = 1 << 3
     """Hide member join sticker reply buttons"""
+    SUPPRESS_ROLE_SUBSCRIPTION_PURCHASE_NOTIFICATIONS = 1 << 4
+    """Suppress role subscription purchase and renewal notifications"""
+    SUPPRESS_ROLE_SUBSCRIPTION_PURCHASE_NOTIFICATION_REPLIES = 1 << 5
+    """Hide role subscription sticker reply buttons"""
 
     # Special members
     NONE = 0
@@ -1096,32 +1115,44 @@ class AuditLogEventType(CursedIntEnum):
     THREAD_UPDATE = 111
     THREAD_DELETE = 112
     APPLICATION_COMMAND_PERMISSION_UPDATE = 121
+    SOUNDBOARD_SOUND_CREATE = 130
+    SOUNDBOARD_SOUND_UPDATE = 131
+    SOUNDBOARD_SOUND_DELETE = 132
     AUTO_MODERATION_RULE_CREATE = 140
     AUTO_MODERATION_RULE_UPDATE = 141
     AUTO_MODERATION_RULE_DELETE = 142
     AUTO_MODERATION_BLOCK_MESSAGE = 143
     AUTO_MODERATION_FLAG_TO_CHANNEL = 144
     AUTO_MODERATION_USER_COMMUNICATION_DISABLED = 145
-    AUTO_MODERATION_QUARANTINE = 146
+    AUTO_MODERATION_QUARANTINE_USER = 146
     CREATOR_MONETIZATION_REQUEST_CREATED = 150
     CREATOR_MONETIZATION_TERMS_ACCEPTED = 151
     ROLE_PROMPT_CREATE = 160
     ROLE_PROMPT_UPDATE = 161
     ROLE_PROMPT_DELETE = 162
-    ON_BOARDING_QUESTION_CREATE = 163
-    ON_BOARDING_QUESTION_UPDATE = 164
+    ONBOARDING_PROMPT_CREATE = 163
+    ONBOARDING_PROMPT_UPDATE = 164
+    ONBOARDING_PROMPT_DELETE = 165
+    ONBOARDING_CREATE = 166
     ONBOARDING_UPDATE = 167
     GUILD_HOME_FEATURE_ITEM = 171
     GUILD_HOME_FEATURE_ITEM_UPDATE = 172
     BLOCKED_PHISHING_LINK = 180
-    SERVER_GUIDE_CREATE = 190
-    SERVER_GUIDE_UPDATE = 191
+    HOME_SETTINGS_CREATE = 190
+    HOME_SETTINGS_UPDATE = 191
     VOICE_CHANNEL_STATUS_CREATE = 192
     VOICE_CHANNEL_STATUS_DELETE = 193
     CLYDE_AI_PROFILE_UPDATE = 194
     GUILD_SCHEDULED_EVENT_EXCEPTION_CREATE = 200
     GUILD_SCHEDULED_EVENT_EXCEPTION_UPDATE = 201
     GUILD_SCHEDULED_EVENT_EXCEPTION_DELETE = 202
+
+    AUTO_MODERATION_QUARANTINE = AUTO_MODERATION_QUARANTINE_USER
+    ON_BOARDING_QUESTION_CREATE = ONBOARDING_PROMPT_CREATE
+    ON_BOARDING_QUESTION_UPDATE = ONBOARDING_PROMPT_UPDATE
+    ON_BOARDING_QUESTION_DELETE = ONBOARDING_PROMPT_DELETE
+    SERVER_GUIDE_CREATE = HOME_SETTINGS_CREATE
+    SERVER_GUIDE_UPDATE = HOME_SETTINGS_UPDATE
 
 
 class AutoModTriggerType(CursedIntEnum):
@@ -1156,6 +1187,12 @@ class MemberFlags(DiscordIntFlag):
     COMPLETED_ONBOARDING = 1 << 1
     BYPASSES_VERIFICATION = 1 << 2
     STARTED_ONBOARDING = 1 << 3
+    IS_GUEST = 1 << 4
+    STARTED_HOME_ACTIONS = 1 << 5
+    COMPLETED_HOME_ACTIONS = 1 << 6
+    AUTOMOD_QUARANTINED_USERNAME = 1 << 7
+    DM_SETTINGS_UPSELL_ACKNOWLEDGED = 1 << 9
+    AUTOMOD_QUARANTINED_GUILD_TAG = 1 << 10
 
 
 class StickerTypes(CursedIntEnum):
@@ -1180,8 +1217,11 @@ class ForumLayoutType(CursedIntEnum):
     """The layout of a forum channel."""
 
     NOT_SET = 0
-    LIST = 1
-    GALLERY = 2
+    LIST_VIEW = 1
+    GALLERY_VIEW = 2
+
+    LIST = LIST_VIEW
+    GALLERY = GALLERY_VIEW
 
 
 class ForumSortOrder(CursedIntEnum):

@@ -158,9 +158,9 @@ _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
     events.BanCreate: [Intents.GUILD_MODERATION],
     events.BanRemove: [Intents.GUILD_MODERATION],
     events.GuildAuditLogEntryCreate: [Intents.GUILD_MODERATION],
-    # Intents.GUILD_EMOJIS_AND_STICKERS
-    events.GuildEmojisUpdate: [Intents.GUILD_EMOJIS_AND_STICKERS],
-    events.GuildStickersUpdate: [Intents.GUILD_EMOJIS_AND_STICKERS],
+    # Intents.GUILD_EXPRESSIONS
+    events.GuildEmojisUpdate: [Intents.GUILD_EXPRESSIONS],
+    events.GuildStickersUpdate: [Intents.GUILD_EXPRESSIONS],
     # Intents.GUILD_INTEGRATIONS
     events.IntegrationCreate: [Intents.GUILD_INTEGRATIONS],
     events.IntegrationDelete: [Intents.GUILD_INTEGRATIONS],
@@ -1843,7 +1843,7 @@ class Client(
                 cls = self.component_context.from_dict(self, data)
             case InteractionType.AUTOCOMPLETE:
                 cls = self.autocomplete_context.from_dict(self, data)
-            case InteractionType.MODAL_RESPONSE:
+            case InteractionType.MODAL_SUBMIT:
                 cls = self.modal_context.from_dict(self, data)
             case InteractionType.APPLICATION_COMMAND:
                 if data["data"].get("target_id"):
@@ -1988,7 +1988,7 @@ class Client(
             if component_type == ComponentType.STRING_SELECT:
                 self.dispatch(events.Select(ctx))
 
-        elif interaction_data["type"] == InteractionType.MODAL_RESPONSE:
+        elif interaction_data["type"] == InteractionType.MODAL_SUBMIT:
             ctx = await self.get_context(interaction_data)
             self.dispatch(events.ModalCompletion(ctx=ctx))
 

@@ -386,10 +386,12 @@ class ContextMenu(InteractionCommand):
         if not isinstance(value, CommandType):
             if value not in CommandType.__members__.values():
                 raise ValueError("Context Menu type not recognised, please consult the docs.")
-        elif value == CommandType.CHAT_INPUT:
+        if value == CommandType.CHAT_INPUT:
             raise ValueError(
                 "The CHAT_INPUT type is basically slash commands. Please use the @slash_command() " "decorator instead."
             )
+        if value == CommandType.PRIMARY_ENTRY_POINT:
+            raise ValueError("Context Menu does not support PRIMARY_ENTRY_POINT, which is an Activity entry point.")
 
     def to_dict(self) -> dict:
         data = super().to_dict()
