@@ -1,7 +1,7 @@
 import struct
 import secrets
 
-__all__ = ("Encryption", "Decryption")
+__all__ = ("Decryption", "Encryption")
 
 from abc import ABC, abstractmethod
 
@@ -26,10 +26,8 @@ class Crypt(ABC):
         "xsalsa20_poly1305_lite",
         "xsalsa20_poly1305_suffix",
         "xsalsa20_poly1305",
-        
-
         "aead_xchacha20_poly1305_rtpsize",
-        "aead_aes256_gcm_rtpsize"
+        "aead_aes256_gcm_rtpsize",
     )
 
     def __init__(self, secret_key) -> None:
@@ -83,7 +81,7 @@ class Encryption(Crypt):
         nonce[:4] = struct.pack(">I", self._xsalsa20_poly1305_lite_nonce)
 
         self._xsalsa20_poly1305_lite_nonce += 1
-        if self._xsalsa20_poly1305_lite_nonce > 2 ** 32:
+        if self._xsalsa20_poly1305_lite_nonce > 2**32:
             self._xsalsa20_poly1305_lite_nonce = 0
 
         return header + self.box.encrypt(bytes(data), bytes(nonce)).ciphertext + nonce[:4]
