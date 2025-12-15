@@ -197,7 +197,12 @@ class VoiceGateway(WebsocketClient):
                 self.logger.info(f"Voice connection established; using {data['mode']}")
                 self.selected_mode = data["mode"]
                 self.secret = data["secret_key"]
-                self.encryptor = Encryption(self.secret)
+                try:
+                    self.encryptor = Encryption(self.secret)
+                    self.logger.debug(f"Encryption initialized successfully for mode {data['mode']}")
+                except Exception as e:
+                    self.logger.error(f"Failed to initialize encryption: {e}", exc_info=True)
+                    raise
                 self.ready.set()
                 if self.cond:
                     with self.cond:

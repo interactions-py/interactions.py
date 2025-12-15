@@ -36,6 +36,7 @@ pre-commit = { version = "*", optional = true }
 
 [tool.poetry.group.voice.dependencies]
 PyNaCl = "^1.5.0,<1.6"
+cryptography = "46.0.3"
 
 [tool.poetry.group.speedup.dependencies]
 aiodns = "*"
