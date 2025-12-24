@@ -580,26 +580,34 @@ class Permissions(DiscordIntFlag):  # type: ignore
     """Allows management and editing of roles"""
     MANAGE_WEBHOOKS = 1 << 29
     """Allows management and editing of webhooks"""
+    MANAGE_GUILD_EXPRESSIONS = 1 << 30
+    """Allows for editing and deleting emojis, stickers, and soundboard sounds of any user"""
     MANAGE_EMOJIS_AND_STICKERS = 1 << 30
-    """Allows management and editing of emojis and stickers"""
+    """Allows for editing and deleting emojis, stickers, and soundboard sounds of any user. Alias to MANAGE_GUILD_EXPRESSIONS"""
     USE_APPLICATION_COMMANDS = 1 << 31
     """Allows members to use application commands, including slash commands and context menu commands"""
     REQUEST_TO_SPEAK = 1 << 32
     """Allows for requesting to speak in stage channels. (This permission is under active development and may be changed or removed.)"""
     MANAGE_EVENTS = 1 << 33
-    """Allows for creating, editing, and deleting scheduled events"""
+    """Allows for editing and deleting scheduled events of any user"""
     MANAGE_THREADS = 1 << 34
     """Allows for deleting and archiving threads, and viewing all private threads"""
+    CREATE_PUBLIC_THREADS = 1 << 35
+    """Allows for creating public and announcement threads"""
     USE_PUBLIC_THREADS = 1 << 35
-    """	Allows for creating public and announcement threads"""
-    USE_PRIVATE_THREADS = 1 << 36
+    """Allows for creating public and announcement threads. Alias of CREATE_PUBLIC_THREADS"""
+    CREATE_PRIVATE_THREADS = 1 << 36
     """Allows for creating private threads"""
+    USE_PRIVATE_THREADS = 1 << 36
+    """Allows for creating private threads. Alias of CREATE_PRIVATE_THREADS"""
     USE_EXTERNAL_STICKERS = 1 << 37
     """Allows the usage of custom stickers from other servers"""
     SEND_MESSAGES_IN_THREADS = 1 << 38
     """Allows for sending messages in threads"""
-    START_EMBEDDED_ACTIVITIES = 1 << 39
+    USE_EMBEDDED_ACTIVITIES = 1 << 39
     """Allows for using Activities (applications with the `EMBEDDED` flag) in a voice channel"""
+    START_EMBEDDED_ACTIVITIES = 1 << 39
+    """Allows for using Activities (applications with the `EMBEDDED` flag) in a voice channel. Alias of USE_EMBEDDED_ACTIVITIES"""
     MODERATE_MEMBERS = 1 << 40
     """Allows for timing out users to prevent them from sending or reacting to messages in chat and threads, and from speaking in voice and stage channels"""
     VIEW_CREATOR_MONETIZATION_ANALYTICS = 1 << 41
@@ -607,7 +615,9 @@ class Permissions(DiscordIntFlag):  # type: ignore
     USE_SOUNDBOARD = 1 << 42
     """Allows for using the soundboard in a voice channel"""
     CREATE_GUILD_EXPRESSIONS = 1 << 43
-    """Allows for creating emojis, stickers, and soundboard sounds"""
+    """Allows for creating emojis, stickers, and soundboard sounds, and editing and deleting those of the current user"""
+    CREATE_EVENTS = 1 << 44
+    """Allows for creating scheduled events, and editing and deleting those of the current user"""
     USE_EXTERNAL_SOUNDS = 1 << 45
     """Allows the usage of custom sounds from other servers"""
     SEND_VOICE_MESSAGES = 1 << 46
@@ -631,9 +641,10 @@ class Permissions(DiscordIntFlag):  # type: ignore
         | MANAGE_MESSAGES
         | MANAGE_ROLES
         | MANAGE_WEBHOOKS
-        | MANAGE_EMOJIS_AND_STICKERS
+        | MANAGE_GUILD_EXPRESSIONS
         | MANAGE_THREADS
         | MODERATE_MEMBERS
+        | VIEW_CREATOR_MONETIZATION_ANALYTICS
     )
     USE_SLASH_COMMANDS = USE_APPLICATION_COMMANDS
     """Legacy alias for :attr:`USE_APPLICATION_COMMANDS`"""
