@@ -8,7 +8,6 @@ from tests.utils import generate_dummy_context
 from discord_typings import UserData
 import pytest
 
-
 __all__ = ()
 
 
