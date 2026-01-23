@@ -20,7 +20,7 @@ from interactions.models.discord.components import (
 )
 from interactions.models.internal.application_commands import CallbackType
 
-__all__ = ("InputText", "LabelComponent", "Modal", "ParagraphText", "ShortText", "TextStyles")
+__all__ = ("FileUploadComponent", "InputText", "LabelComponent", "Modal", "ParagraphText", "ShortText", "TextStyles")
 
 T = TypeVar("T", bound="InputText")
 
@@ -137,6 +137,46 @@ class ParagraphText(InputText):
         )
 
 
+class FileUploadComponent(BaseComponent):
+    """
+    An interactive component that allows users to upload files in modals.
+
+    Attributes:
+        custom_id: A unique identifier for the component.
+        min_value: The minimum number of files that can be uploaded.
+        max_value: The maximum number of files that can be uploaded.
+        required: Whether the file upload is required.
+
+    """
+
+    def __init__(self, custom_id: Optional[str] = None, min_value: int = 1, max_value: int = 1, required: bool = True):
+        self.custom_id = custom_id or str(uuid.uuid4())
+        self.min_value = min_value
+        self.max_value = max_value
+        self.required = required
+        self.type = ComponentType.FILE_UPLOAD
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "type": self.type,
+                "custom_id": self.custom_id,
+                "min_value": self.min_value,
+                "max_value": self.max_value,
+                "required": self.required,
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            custom_id=data.get("custom_id"),
+            min_value=data.get("min_value"),
+            max_value=data.get("max_value"),
+            required=data.get("required", True),
+        )
+
+
 class LabelComponent(BaseComponent):
     """
     A top-level layout component that wraps modal components with text as a label and optional description.
@@ -144,7 +184,7 @@ class LabelComponent(BaseComponent):
     Attributes:
         label: The text label for the component.
         description: An optional description for the component.
-        component: The component to be wrapped, either an InputText or a select menu.
+        component: The component to be wrapped.
         type: The type of the component, always ComponentType.LABEL.
 
     """
@@ -154,7 +194,7 @@ class LabelComponent(BaseComponent):
         *,
         label: str,
         description: Optional[str] = None,
-        component: BaseSelectMenu | InputText,
+        component: BaseSelectMenu | InputText | FileUploadComponent,
     ):
         self.label = label
         self.component = component
@@ -185,6 +225,7 @@ class LabelComponent(BaseComponent):
                     ComponentType.USER_SELECT: UserSelectMenu,
                     ComponentType.ROLE_SELECT: RoleSelectMenu,
                     ComponentType.MENTIONABLE_SELECT: MentionableSelectMenu,
+                    ComponentType.FILE_UPLOAD: FileUploadComponent,
                 },
             ),
         )

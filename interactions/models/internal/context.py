@@ -984,6 +984,15 @@ class ModalContext(InteractionContext[ClientT]):
                                 values[i] = channel
 
                     instance.responses[held_component["custom_id"]] = values
+                elif held_component["type"] == ComponentType.FILE_UPLOAD:
+                    values = held_component["values"]
+
+                    for i, value in enumerate(held_component["values"]):
+                        if re.match(r"\d{17,}", value):
+                            if resolved := instance.resolved.get(Snowflake(value)):
+                                values[i] = resolved
+
+                    instance.responses[held_component["custom_id"]] = values
                 else:
                     raise ValueError(f"Unknown component type in modal: {held_component['type']}")
 

@@ -728,6 +728,8 @@ class ComponentType(CursedIntEnum):
     """Container component for grouping together other components"""
     LABEL = 18
     """Label component for modals"""
+    FILE_UPLOAD = 19
+    """File upload component for modals"""
 
     # TODO: this is hacky, is there a better way to do this?
     @staticmethod
