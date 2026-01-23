@@ -20,7 +20,7 @@ from interactions.models.discord.components import (
 )
 from interactions.models.internal.application_commands import CallbackType
 
-__all__ = ("InputText", "Modal", "ParagraphText", "ShortText", "TextStyles", "LabelComponent")
+__all__ = ("InputText", "LabelComponent", "Modal", "ParagraphText", "ShortText", "TextStyles")
 
 T = TypeVar("T", bound="InputText")
 
