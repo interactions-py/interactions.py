@@ -34,7 +34,7 @@ class InputText(DictSerializationMixin):
     def __init__(
         self,
         *,
-        label: str,
+        label: Optional[str] = MISSING,
         style: Union[TextStyles, int],
         custom_id: Optional[str] = MISSING,
         placeholder: Optional[str] = MISSING,
@@ -79,7 +79,7 @@ class InputText(DictSerializationMixin):
             cls = ParagraphText
 
         return cls(
-            label=data["label"],
+            label=data.get("label", MISSING),
             custom_id=data["custom_id"],
             placeholder=data["placeholder"],
             value=data["value"],
@@ -93,7 +93,7 @@ class ShortText(InputText):
     def __init__(
         self,
         *,
-        label: str,
+        label: Optional[str] = MISSING,
         custom_id: Optional[str] = MISSING,
         placeholder: Optional[str] = MISSING,
         value: Optional[str] = MISSING,
@@ -117,7 +117,7 @@ class ParagraphText(InputText):
     def __init__(
         self,
         *,
-        label: str,
+        label: Optional[str] = MISSING,
         custom_id: Optional[str] = MISSING,
         placeholder: Optional[str] = MISSING,
         value: Optional[str] = MISSING,
