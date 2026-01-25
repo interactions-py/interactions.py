@@ -17,6 +17,7 @@ from interactions.models.discord.components import (
     RoleSelectMenu,
     StringSelectMenu,
     UserSelectMenu,
+    TextDisplayComponent,
 )
 from interactions.models.internal.application_commands import CallbackType
 
@@ -234,12 +235,12 @@ class LabelComponent(BaseComponent):
 class Modal:
     def __init__(
         self,
-        *components: InputText | LabelComponent,
+        *components: InputText | LabelComponent | TextDisplayComponent,
         title: str,
         custom_id: Optional[str] = None,
     ) -> None:
         self.title: str = title
-        self.components: list[InputText | LabelComponent] = list(components)
+        self.components: list[InputText | LabelComponent | TextDisplayComponent] = list(components)
         self.custom_id: str = custom_id or str(uuid.uuid4())
 
         self.type = CallbackType.MODAL
@@ -250,7 +251,7 @@ class Modal:
         for component in self.components:
             if isinstance(component, InputText):
                 dict_components.append({"type": ComponentType.ACTION_ROW, "components": [component.to_dict()]})
-            elif isinstance(component, LabelComponent):
+            elif isinstance(component, (LabelComponent, TextDisplayComponent)):
                 dict_components.append(component.to_dict())
             else:
                 # backwards compatibility behavior, remove in v6
