@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Sequence, cast
 
 import discord_typings
 
@@ -84,7 +84,7 @@ class InteractionRequests(CanRequest):
         )
 
     async def overwrite_application_commands(
-        self, app_id: "Snowflake_Type", data: list[dict], guild_id: "Snowflake_Type"
+        self, app_id: "Snowflake_Type", data: Sequence[dict], guild_id: "Snowflake_Type"
     ) -> list[discord_typings.ApplicationCommandData]:  # todo type "data"
         """
         Take a list of commands and overwrite the existing command list within the given scope
