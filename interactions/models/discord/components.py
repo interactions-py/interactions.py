@@ -13,6 +13,7 @@ from interactions.models.discord.snowflake import Snowflake, Snowflake_Type
 from interactions.client.const import ACTION_ROW_MAX_ITEMS, MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.models.discord.base import DiscordObject
+from interactions.models.discord.color import Color, process_color
 from interactions.models.discord.emoji import PartialEmoji, process_emoji
 from interactions.models.discord.enums import (
     ButtonStyle,
@@ -861,8 +862,14 @@ class SectionComponent(BaseComponent):
     accessory: "Button | ThumbnailComponent"
 
     def __init__(
-        self, *, components: "list[TextDisplayComponent] | None" = None, accessory: "Button | ThumbnailComponent"
+        self,
+        *,
+        components: "list[TextDisplayComponent] | TextDisplayComponent | None" = None,
+        accessory: "Button | ThumbnailComponent",
     ):
+        if isinstance(components, TextDisplayComponent):
+            components = [components]
+
         self.components = components or []
         self.accessory = accessory
         self.type = ComponentType.SECTION
@@ -930,8 +937,8 @@ class ThumbnailComponent(BaseComponent):
     description: Optional[str] = None
     spoiler: bool = False
 
-    def __init__(self, media: UnfurledMediaItem, *, description: Optional[str] = None, spoiler: bool = False):
-        self.media = media
+    def __init__(self, media: UnfurledMediaItem | str, *, description: Optional[str] = None, spoiler: bool = False):
+        self.media = media if isinstance(media, UnfurledMediaItem) else UnfurledMediaItem(url=media)
         self.description = description
         self.spoiler = spoiler
         self.type = ComponentType.THUMBNAIL
@@ -972,8 +979,8 @@ class MediaGalleryItem(DictSerializationMixin):
     description: Optional[str] = None
     spoiler: bool = False
 
-    def __init__(self, media: UnfurledMediaItem, *, description: Optional[str] = None, spoiler: bool = False):
-        self.media = media
+    def __init__(self, media: UnfurledMediaItem | str, *, description: Optional[str] = None, spoiler: bool = False):
+        self.media = media if isinstance(media, UnfurledMediaItem) else UnfurledMediaItem(url=media)
         self.description = description
         self.spoiler = spoiler
 
@@ -1008,8 +1015,8 @@ class MediaGalleryComponent(BaseComponent):
 
     items: list[MediaGalleryItem]
 
-    def __init__(self, items: list[MediaGalleryItem] | None = None):
-        self.items = items or []
+    def __init__(self, items: list[MediaGalleryItem | str] | None = None):
+        self.items = [i if isinstance(i, MediaGalleryItem) else MediaGalleryItem(i) for i in items] if items else []
         self.type = ComponentType.MEDIA_GALLERY
 
     @classmethod
@@ -1040,8 +1047,8 @@ class FileComponent(BaseComponent):
     file: UnfurledMediaItem
     spoiler: bool = False
 
-    def __init__(self, file: UnfurledMediaItem, *, spoiler: bool = False):
-        self.file = file
+    def __init__(self, file: UnfurledMediaItem | str, *, spoiler: bool = False):
+        self.file = file if isinstance(file, UnfurledMediaItem) else UnfurledMediaItem(url=file)
         self.spoiler = spoiler
         self.type = ComponentType.FILE
 
@@ -1105,7 +1112,7 @@ class ContainerComponent(
 
     Attributes:
         components list[ActionRow | SectionComponent | TextDisplayComponent | MediaGalleryComponent | FileComponent | SeparatorComponent]: The components to include in this container.
-        accent_color Optional[int]: The color of the container, as a hex value, default None.
+        accent_color Optional[int]: The color of the container as an integer value, default None.
         spoiler bool: Whether the container should be marked as a spoiler, default false.
         type Union[ComponentType, int]: The type of component, as defined by discord. This cannot be modified.
 
@@ -1122,11 +1129,11 @@ class ContainerComponent(
         | MediaGalleryComponent
         | FileComponent
         | SeparatorComponent,
-        accent_color: Optional[int] = None,
+        accent_color: Optional[int | str | Color] = None,
         spoiler: bool = False,
     ):
         self.data = list(components)
-        self.accent_color = accent_color
+        self.accent_color = process_color(accent_color)
         self.spoiler = spoiler
         self.type = ComponentType.CONTAINER
 
