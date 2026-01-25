@@ -96,6 +96,7 @@ class Task:
 
     async def _task_loop(self, *args, **kwargs) -> None:
         """The main task loop to fire the task at the specified time based on triggers configured."""
+        running = set()
         while not self._stop.is_set():
             fire_time = self.trigger.next_fire()
             if fire_time is None:
@@ -107,7 +108,9 @@ class Task:
             if future in done:
                 return None
 
-            self._fire(fire_time, *args, **kwargs)
+            task = self._fire(fire_time, *args, **kwargs)
+            running.add(task)
+            task.add_done_callback(running.discard)
 
     def start(self, *args, **kwargs) -> None:
         """Start this task."""
