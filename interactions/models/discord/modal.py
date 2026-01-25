@@ -271,7 +271,7 @@ class Modal:
             },
         }
 
-    def add_components(self, *components: InputText | LabelComponent) -> None:
+    def add_components(self, *components: InputText | LabelComponent | TextDisplayComponent) -> None:
         """
         Add components to the modal.
 
