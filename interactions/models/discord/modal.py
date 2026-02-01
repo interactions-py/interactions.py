@@ -10,7 +10,6 @@ from interactions.client.mixins.serialization import DictSerializationMixin
 from interactions.client.utils import dict_filter, dict_filter_none
 from interactions.models.discord.components import (
     ChannelSelectMenu,
-    ComponentType,
     BaseComponent,
     BaseSelectMenu,
     MentionableSelectMenu,
@@ -19,6 +18,7 @@ from interactions.models.discord.components import (
     UserSelectMenu,
     TextDisplayComponent,
 )
+from interactions.models.discord.enums import ComponentType
 from interactions.models.internal.application_commands import CallbackType
 
 __all__ = ("FileUploadComponent", "InputText", "LabelComponent", "Modal", "ParagraphText", "ShortText", "TextStyles")
