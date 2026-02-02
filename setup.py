@@ -8,7 +8,7 @@ with open("pyproject.toml", "rb") as f:
     pyproject = tomli.load(f)
 
 extras_require = {
-    "voice": ["PyNaCl>=1.5.0,<1.6"],
+    "voice": ["PyNaCl>=1.5.0,<1.6", "cryptography>=46.0.3"],
     "speedup": ["aiodns", "orjson", "Brotli", "faust-cchardet", "uvloop; sys_platform != 'win32'"],
     "sentry": ["sentry-sdk"],
     "jurigged": ["jurigged"],

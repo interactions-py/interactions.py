@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional, Union
 if TYPE_CHECKING:
     from interactions.models.discord.snowflake import Snowflake_Type, Snowflake
 
-__all__ = ("TimestampStyles", "Timestamp")
+__all__ = ("Timestamp", "TimestampStyles")
 
 DISCORD_EPOCH = 1420070400000
 
@@ -163,3 +163,6 @@ class Timestamp(datetime):
 
     def __str__(self) -> str:
         return self.format()
+
+    def __int__(self) -> int:
+        return int(self.timestamp())

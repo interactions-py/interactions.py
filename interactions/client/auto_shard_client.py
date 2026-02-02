@@ -140,7 +140,7 @@ class AutoShardedClient(Client):
         """
         connection_data = event.data
         expected_guilds = {to_snowflake(guild["id"]) for guild in connection_data["guilds"]}
-        shard_id, total_shards = connection_data["shard"]
+        shard_id, _ = connection_data["shard"]
         connection_state = next((state for state in self._connection_states if state.shard_id == shard_id), None)
 
         if expected_guilds:

@@ -37,8 +37,8 @@ if TYPE_CHECKING:
     from .context import PrefixedContext
 
 __all__ = (
-    "PrefixedCommandParameter",
     "PrefixedCommand",
+    "PrefixedCommandParameter",
     "prefixed_command",
 )
 
@@ -54,17 +54,17 @@ class PrefixedCommandParameter:
     """
 
     __slots__ = (
-        "name",
-        "default",
-        "type",
-        "kind",
-        "converters",
-        "greedy",
-        "union",
-        "variable",
         "consume_rest",
         "consume_rest_class",
+        "converters",
+        "default",
+        "greedy",
+        "kind",
+        "name",
         "no_argument",
+        "type",
+        "union",
+        "variable",
     )
 
     name: str
@@ -232,9 +232,9 @@ def _get_converter(anno: type, name: str) -> Callable[["PrefixedContext", str], 
                 ValueError(f"{get_object_name(anno)} for {name} has 0 arguments, which is unsupported.")
             case _:
                 ValueError(f"{get_object_name(anno)} for {name} has more than 2 arguments, which is unsupported.")
-    elif anno == bool:
+    elif anno is bool:
         return lambda ctx, arg: _convert_to_bool(arg)
-    elif anno == inspect._empty:
+    elif anno is inspect._empty:
         return lambda ctx, arg: str(arg)
     else:
         return lambda ctx, arg: anno(arg)
@@ -524,7 +524,7 @@ class PrefixedCommand(BaseCommand):
                     cmd_param.default = default
                 cmd_param.greedy = True
 
-            if typing.get_origin(anno) == tuple:
+            if typing.get_origin(anno) is tuple:
                 if cmd_param.optional:
                     # there's a lot of parser ambiguities here, so i'd rather not
                     raise ValueError("Variable arguments cannot have default values or be Optional.")

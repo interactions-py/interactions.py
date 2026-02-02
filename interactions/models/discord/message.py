@@ -57,19 +57,19 @@ if TYPE_CHECKING:
     from interactions.client import Client
 
 __all__ = (
+    "AllowedMentions",
     "Attachment",
+    "BaseMessage",
     "ChannelMention",
+    "Message",
     "MessageActivity",
-    "MessageReference",
     "MessageInteraction",
     "MessageInteractionMetadata",
-    "AllowedMentions",
-    "BaseMessage",
-    "Message",
+    "MessageReference",
     "MessageType",
     "process_allowed_mentions",
-    "process_message_reference",
     "process_message_payload",
+    "process_message_reference",
 )
 
 channel_mention = re.compile(r"<#(?P<id>[0-9]{17,})>")
@@ -615,7 +615,7 @@ class Message(BaseMessage):
         return data
 
     @property
-    def system_content(self) -> Optional[str]:
+    def system_content(self) -> Optional[str]:  # noqa: C901
         """Content for system messages. (boosts, welcomes, etc)"""
         match self.type:
             case MessageType.USER_PREMIUM_GUILD_SUBSCRIPTION:
@@ -982,7 +982,7 @@ def process_allowed_mentions(allowed_mentions: Optional[Union[AllowedMentions, d
 
 
 def process_message_reference(
-    message_reference: Optional[Union[MessageReference, Message, dict, "Snowflake_Type"]]
+    message_reference: Optional[Union[MessageReference, Message, dict, "Snowflake_Type"]],
 ) -> Optional[dict]:
     """
     Process mention references into a dictionary.

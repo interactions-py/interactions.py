@@ -53,36 +53,36 @@ if TYPE_CHECKING:
     from interactions import Client
 
 __all__ = (
-    "application_commands_to_dict",
-    "auto_defer",
     "CallbackType",
-    "component_callback",
     "ComponentCommand",
-    "contexts",
-    "context_menu",
-    "user_context_menu",
-    "message_context_menu",
     "ContextMenu",
-    "global_autocomplete",
     "GlobalAutoComplete",
-    "integration_types",
     "InteractionCommand",
     "LocalisedDesc",
     "LocalisedName",
     "LocalizedDesc",
     "LocalizedName",
-    "modal_callback",
     "ModalCommand",
     "OptionType",
-    "slash_command",
-    "slash_default_member_permission",
-    "slash_option",
     "SlashCommand",
     "SlashCommandChoice",
     "SlashCommandOption",
     "SlashCommandParameter",
+    "application_commands_to_dict",
+    "auto_defer",
+    "component_callback",
+    "context_menu",
+    "contexts",
+    "global_autocomplete",
+    "integration_types",
+    "message_context_menu",
+    "modal_callback",
+    "slash_command",
+    "slash_default_member_permission",
+    "slash_option",
     "subcommand",
     "sync_needed",
+    "user_context_menu",
 )
 
 
@@ -386,10 +386,12 @@ class ContextMenu(InteractionCommand):
         if not isinstance(value, CommandType):
             if value not in CommandType.__members__.values():
                 raise ValueError("Context Menu type not recognised, please consult the docs.")
-        elif value == CommandType.CHAT_INPUT:
+        if value == CommandType.CHAT_INPUT:
             raise ValueError(
                 "The CHAT_INPUT type is basically slash commands. Please use the @slash_command() " "decorator instead."
             )
+        if value == CommandType.PRIMARY_ENTRY_POINT:
+            raise ValueError("Context Menu does not support PRIMARY_ENTRY_POINT, which is an Activity entry point.")
 
     def to_dict(self) -> dict:
         data = super().to_dict()

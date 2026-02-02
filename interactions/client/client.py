@@ -158,9 +158,9 @@ _INTENT_EVENTS: dict[BaseEvent, list[Intents]] = {
     events.BanCreate: [Intents.GUILD_MODERATION],
     events.BanRemove: [Intents.GUILD_MODERATION],
     events.GuildAuditLogEntryCreate: [Intents.GUILD_MODERATION],
-    # Intents.GUILD_EMOJIS_AND_STICKERS
-    events.GuildEmojisUpdate: [Intents.GUILD_EMOJIS_AND_STICKERS],
-    events.GuildStickersUpdate: [Intents.GUILD_EMOJIS_AND_STICKERS],
+    # Intents.GUILD_EXPRESSIONS
+    events.GuildEmojisUpdate: [Intents.GUILD_EXPRESSIONS],
+    events.GuildStickersUpdate: [Intents.GUILD_EXPRESSIONS],
     # Intents.GUILD_INTEGRATIONS
     events.IntegrationCreate: [Intents.GUILD_INTEGRATIONS],
     events.IntegrationDelete: [Intents.GUILD_INTEGRATIONS],
@@ -1165,8 +1165,8 @@ class Client(
         self,
         messages: Union[Message, int, list],
         components: Union[
-            List[List[Union["BaseComponent", dict]]],
-            List[Union["BaseComponent", dict]],
+            Sequence[Sequence[Union["BaseComponent", dict]]],
+            Sequence[Union["BaseComponent", dict]],
             "BaseComponent",
             dict,
         ],
@@ -1179,8 +1179,8 @@ class Client(
         self,
         *,
         components: Union[
-            List[List[Union["BaseComponent", dict]]],
-            List[Union["BaseComponent", dict]],
+            Sequence[Sequence[Union["BaseComponent", dict]]],
+            Sequence[Union["BaseComponent", dict]],
             "BaseComponent",
             dict,
         ],
@@ -1193,8 +1193,8 @@ class Client(
         self,
         messages: None,
         components: Union[
-            List[List[Union["BaseComponent", dict]]],
-            List[Union["BaseComponent", dict]],
+            Sequence[Sequence[Union["BaseComponent", dict]]],
+            Sequence[Union["BaseComponent", dict]],
             "BaseComponent",
             dict,
         ],
@@ -1661,7 +1661,7 @@ class Client(
         self,
         cmd_scope: "Snowflake_Type",
         delete_cmds: bool,
-        local_cmds_json: Dict["Snowflake_Type", List[Dict[str, Any]]],
+        local_cmds_json: Dict["Snowflake_Type", Sequence[Dict[str, Any]]],
     ) -> None:
         """
         Sync a single scope.
@@ -1746,7 +1746,7 @@ class Client(
         return sync_payload, sync_needed_flag
 
     async def _sync_commands_with_discord(
-        self, sync_payload: List[Dict[str, Any]], cmd_scope: "Snowflake_Type"
+        self, sync_payload: Sequence[Dict[str, Any]], cmd_scope: "Snowflake_Type"
     ) -> None:
         """
         Sync the commands with discord.
@@ -1843,7 +1843,7 @@ class Client(
                 cls = self.component_context.from_dict(self, data)
             case InteractionType.AUTOCOMPLETE:
                 cls = self.autocomplete_context.from_dict(self, data)
-            case InteractionType.MODAL_RESPONSE:
+            case InteractionType.MODAL_SUBMIT:
                 cls = self.modal_context.from_dict(self, data)
             case InteractionType.APPLICATION_COMMAND:
                 if data["data"].get("target_id"):
@@ -1988,7 +1988,7 @@ class Client(
             if component_type == ComponentType.STRING_SELECT:
                 self.dispatch(events.Select(ctx))
 
-        elif interaction_data["type"] == InteractionType.MODAL_RESPONSE:
+        elif interaction_data["type"] == InteractionType.MODAL_SUBMIT:
             ctx = await self.get_context(interaction_data)
             self.dispatch(events.ModalCompletion(ctx=ctx))
 

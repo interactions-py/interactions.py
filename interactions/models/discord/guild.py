@@ -60,21 +60,21 @@ if TYPE_CHECKING:
     from interactions.client.client import Client
 
 __all__ = (
-    "GuildBan",
-    "BulkBanResponse",
-    "BaseGuild",
-    "GuildWelcome",
-    "GuildPreview",
-    "Guild",
-    "GuildTemplate",
-    "GuildWelcomeChannel",
-    "GuildIntegration",
-    "GuildWidgetSettings",
-    "GuildWidget",
+    "AuditLog",
     "AuditLogChange",
     "AuditLogEntry",
-    "AuditLog",
     "AuditLogHistory",
+    "BaseGuild",
+    "BulkBanResponse",
+    "Guild",
+    "GuildBan",
+    "GuildIntegration",
+    "GuildPreview",
+    "GuildTemplate",
+    "GuildWelcome",
+    "GuildWelcomeChannel",
+    "GuildWidget",
+    "GuildWidgetSettings",
 )
 
 
@@ -711,7 +711,7 @@ class Guild(BaseGuild):
                 s = time.monotonic()
 
         total_time = time.perf_counter() - start_time
-        self.chunk_cache = []
+        self._chunk_cache = []
         self.logger.info(f"Cached members for {self.id} in {total_time:.2f} seconds")
         self.chunked.set()
 
