@@ -377,6 +377,11 @@ from .models import (
     WebhookMixin,
     WebhookTypes,
     WebSocketOPCode,
+    RadioGroupOption,
+    RadioGroupComponent,
+    CheckboxGroupOption,
+    CheckboxGroupComponent,
+    CheckboxComponent,
 )
 from .api import events
 from . import ext
@@ -469,6 +474,9 @@ __all__ = (
     "ChannelMention",
     "ChannelSelectMenu",
     "ChannelType",
+    "CheckboxComponent",
+    "CheckboxGroupComponent",
+    "CheckboxGroupOption",
     "Client",
     "ClientT",
     "ClientUser",
@@ -619,6 +627,8 @@ __all__ = (
     "PollResults",
     "PremiumTier",
     "PremiumType",
+    "RadioGroupComponent",
+    "RadioGroupOption",
     "Reaction",
     "ReactionUsers",
     "Resolved",

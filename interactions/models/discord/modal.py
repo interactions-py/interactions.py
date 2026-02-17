@@ -21,7 +21,20 @@ from interactions.models.discord.components import (
 from interactions.models.discord.enums import ComponentType
 from interactions.models.internal.application_commands import CallbackType
 
-__all__ = ("FileUploadComponent", "InputText", "LabelComponent", "Modal", "ParagraphText", "ShortText", "TextStyles")
+__all__ = (
+    "CheckboxComponent",
+    "CheckboxGroupComponent",
+    "CheckboxGroupOption",
+    "FileUploadComponent",
+    "InputText",
+    "LabelComponent",
+    "Modal",
+    "ParagraphText",
+    "RadioGroupComponent",
+    "RadioGroupOption",
+    "ShortText",
+    "TextStyles",
+)
 
 T = TypeVar("T", bound="InputText")
 
@@ -180,6 +193,255 @@ class FileUploadComponent(BaseComponent):
         )
 
 
+class RadioGroupOption:
+    """
+    Represents an option in a radio group component.
+
+    Attributes:
+        label: The text label for the option.
+        value: The value associated with the option.
+        description: An optional description for the option.
+        default: Whether this option is the default selection.
+
+    """
+
+    __slots__ = ("default", "description", "label", "value")
+
+    def __init__(
+        self,
+        *,
+        label: str,
+        value: str,
+        description: Optional[str] = None,
+        default: bool = False,
+    ):
+        self.label = label
+        self.value = value
+        self.description = description
+        self.default = default
+
+    def __repr__(self) -> str:
+        return f"RadioGroupOption(label={self.label!r}, value={self.value!r}, description={self.description!r}, default={self.default!r})"
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "label": self.label,
+                "value": self.value,
+                "description": self.description,
+                "default": self.default,
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            label=data["label"],
+            value=data["value"],
+            description=data.get("description"),
+            default=data.get("default", False),
+        )
+
+
+class RadioGroupComponent(BaseComponent):
+    """
+    A radio group component for modals.
+
+    Attributes:
+        options: A list of options for the radio group.
+        custom_id: A unique identifier for the component.
+        required: Whether the radio group is required.
+
+    """
+
+    def __init__(
+        self,
+        *options: RadioGroupOption | dict | str,
+        custom_id: Optional[str] = None,
+        required: bool = True,
+    ):
+        self.custom_id = custom_id or str(uuid.uuid4())
+        self.required = required
+        self.type = ComponentType.RADIO_GROUP
+        self.options: list[RadioGroupOption] = []
+
+        for option in options:
+            if isinstance(option, RadioGroupOption):
+                self.options.append(option)
+            elif isinstance(option, dict):
+                self.options.append(RadioGroupOption.from_dict(option))
+            elif isinstance(option, str):
+                self.options.append(RadioGroupOption(label=option, value=option))
+            else:
+                raise ValueError(f"Invalid option type: {type(option)}")
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "type": self.type,
+                "custom_id": self.custom_id,
+                "required": self.required,
+                "options": [option.to_dict() for option in self.options],
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            *[RadioGroupOption.from_dict(option) for option in data.get("options", [])],
+            custom_id=data["custom_id"],
+            required=data.get("required", True),
+        )
+
+
+class CheckboxGroupOption:
+    """
+    Represents an option in a checkbox group component.
+
+    Attributes:
+        label: The text label for the option.
+        value: The value associated with the option.
+        description: An optional description for the option.
+        default: Whether this option is the default selection.
+
+    """
+
+    __slots__ = ("default", "description", "label", "value")
+
+    def __init__(
+        self,
+        *,
+        label: str,
+        value: str,
+        description: Optional[str] = None,
+        default: bool = False,
+    ):
+        self.label = label
+        self.value = value
+        self.description = description
+        self.default = default
+
+    def __repr__(self) -> str:
+        return f"CheckboxGroupOption(label={self.label!r}, value={self.value!r}, description={self.description!r}, default={self.default!r})"
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "label": self.label,
+                "value": self.value,
+                "description": self.description,
+                "default": self.default,
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            label=data["label"],
+            value=data["value"],
+            description=data.get("description"),
+            default=data.get("default", False),
+        )
+
+
+class CheckboxGroupComponent(BaseComponent):
+    """
+    A checkbox group component for modals.
+
+    Attributes:
+        options: A list of options for the checkbox group.
+        custom_id: A unique identifier for the component.
+        min_values: The minimum number of options that must be selected. Defaults to 1.
+        max_values: The maximum number of options that can be selected. Defaults to however many options are provided.
+        required: Whether the checkbox group is required. Defaults to True.
+
+    """
+
+    def __init__(
+        self,
+        *options: CheckboxGroupOption | dict | str,
+        custom_id: Optional[str] = None,
+        min_values: int = 1,
+        max_values: Optional[int] = None,
+        required: bool = True,
+    ):
+        self.custom_id = custom_id or str(uuid.uuid4())
+        self.min_values = min_values
+        self.max_values = max_values
+        self.required = required
+        self.type = ComponentType.CHECKBOX_GROUP
+        self.options: list[CheckboxGroupOption] = []
+
+        for option in options:
+            if isinstance(option, CheckboxGroupOption):
+                self.options.append(option)
+            elif isinstance(option, dict):
+                self.options.append(CheckboxGroupOption.from_dict(option))
+            elif isinstance(option, str):
+                self.options.append(CheckboxGroupOption(label=option, value=option))
+            else:
+                raise ValueError(f"Invalid option type: {type(option)}")
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "type": self.type,
+                "custom_id": self.custom_id,
+                "min_values": self.min_values,
+                "max_values": self.max_values,
+                "required": self.required,
+                "options": [option.to_dict() for option in self.options],
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            *[CheckboxGroupOption.from_dict(option) for option in data.get("options", [])],
+            custom_id=data["custom_id"],
+            min_values=data.get("min_values", 1),
+            max_values=data.get("max_values"),
+            required=data.get("required", True),
+        )
+
+
+class CheckboxComponent(BaseComponent):
+    """
+    A checkbox component for modals. Compared to CheckboxGroup, this component represents a single checkbox that can be toggled on or off.
+
+    Attributes:
+        custom_id: A unique identifier for the component.
+        default: Whether the checkbox is checked by default. Defaults to False.
+
+    """
+
+    def __init__(
+        self,
+        *,
+        custom_id: Optional[str] = None,
+        default: bool = False,
+    ):
+        self.custom_id = custom_id or str(uuid.uuid4())
+        self.default = default
+        self.type = ComponentType.CHECKBOX
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "type": self.type,
+                "custom_id": self.custom_id,
+                "default": self.default,
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            custom_id=data["custom_id"],
+            default=data.get("default", False),
+        )
+
+
 class LabelComponent(BaseComponent):
     """
     A top-level layout component that wraps modal components with text as a label and optional description.
@@ -197,7 +459,14 @@ class LabelComponent(BaseComponent):
         *,
         label: str,
         description: Optional[str] = None,
-        component: BaseSelectMenu | InputText | FileUploadComponent,
+        component: (
+            BaseSelectMenu
+            | InputText
+            | FileUploadComponent
+            | RadioGroupComponent
+            | CheckboxGroupComponent
+            | CheckboxComponent
+        ),
     ):
         self.label = label
         self.component = component
@@ -229,6 +498,9 @@ class LabelComponent(BaseComponent):
                     ComponentType.ROLE_SELECT: RoleSelectMenu,
                     ComponentType.MENTIONABLE_SELECT: MentionableSelectMenu,
                     ComponentType.FILE_UPLOAD: FileUploadComponent,
+                    ComponentType.RADIO_GROUP: RadioGroupComponent,
+                    ComponentType.CHECKBOX_GROUP: CheckboxGroupComponent,
+                    ComponentType.CHECKBOX: CheckboxComponent,
                 },
             ),
         )

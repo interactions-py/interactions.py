@@ -166,7 +166,20 @@ from .message import (
     process_message_payload,
     process_message_reference,
 )
-from .modal import InputText, Modal, ParagraphText, ShortText, TextStyles, LabelComponent, FileUploadComponent
+from .modal import (
+    InputText,
+    Modal,
+    ParagraphText,
+    ShortText,
+    TextStyles,
+    LabelComponent,
+    FileUploadComponent,
+    RadioGroupOption,
+    RadioGroupComponent,
+    CheckboxGroupOption,
+    CheckboxGroupComponent,
+    CheckboxComponent,
+)
 from .onboarding import Onboarding, OnboardingPrompt, OnboardingPromptOption
 from .poll import PollMedia, PollAnswer, PollAnswerCount, PollResults, Poll
 from .reaction import Reaction, ReactionUsers
@@ -240,6 +253,9 @@ __all__ = (
     "ChannelMention",
     "ChannelSelectMenu",
     "ChannelType",
+    "CheckboxComponent",
+    "CheckboxGroupComponent",
+    "CheckboxGroupOption",
     "ClientUser",
     "Color",
     "Colour",
@@ -337,6 +353,8 @@ __all__ = (
     "PollResults",
     "PremiumTier",
     "PremiumType",
+    "RadioGroupComponent",
+    "RadioGroupOption",
     "Reaction",
     "ReactionUsers",
     "Role",

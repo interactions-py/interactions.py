@@ -943,9 +943,13 @@ class ModalContext(InteractionContext[ClientT]):
             elif component["type"] == ComponentType.LABEL:
                 held_component = component["component"]
 
-                if held_component["type"] == ComponentType.INPUT_TEXT:
+                if held_component["type"] in {
+                    ComponentType.INPUT_TEXT,
+                    ComponentType.RADIO_GROUP,
+                    ComponentType.CHECKBOX,
+                }:
                     instance.responses[held_component["custom_id"]] = held_component["value"]
-                elif held_component["type"] == ComponentType.STRING_SELECT:
+                elif held_component["type"] in {ComponentType.STRING_SELECT, ComponentType.CHECKBOX_GROUP}:
                     instance.responses[held_component["custom_id"]] = held_component["values"]
                 elif held_component["type"] in (
                     ComponentType.USER_SELECT,
