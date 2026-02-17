@@ -164,8 +164,8 @@ class FileUploadComponent(BaseComponent):
             {
                 "type": self.type,
                 "custom_id": self.custom_id,
-                "min_values": self.min_value,
-                "max_values": self.max_value,
+                "min_values": self.min_values,
+                "max_values": self.max_values,
                 "required": self.required,
             }
         )
