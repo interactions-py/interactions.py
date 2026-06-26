@@ -1,4 +1,3 @@
-import asyncio
 from collections import defaultdict
 import inspect
 import re
@@ -765,7 +764,7 @@ class SlashCommand(InteractionCommand):
         """A decorator to declare a coroutine as an option autocomplete."""
 
         def wrapper(call: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
-            if not asyncio.iscoroutinefunction(call):
+            if not inspect.iscoroutinefunction(call):
                 raise TypeError("autocomplete must be coroutine")
             self.autocomplete_callbacks[option_name] = call
 
@@ -811,7 +810,7 @@ class SlashCommand(InteractionCommand):
         def wrapper(call: Callable[..., Coroutine]) -> "SlashCommand":
             nonlocal sub_cmd_name, sub_cmd_description
 
-            if not asyncio.iscoroutinefunction(call):
+            if not inspect.iscoroutinefunction(call):
                 raise TypeError("Subcommand must be coroutine")
 
             if sub_cmd_description is MISSING:
@@ -940,7 +939,7 @@ def global_autocomplete(option_name: str) -> Callable[[AsyncCallable], GlobalAut
     """
 
     def decorator(func: Callable) -> GlobalAutoComplete:
-        if not asyncio.iscoroutinefunction(func):
+        if not inspect.iscoroutinefunction(func):
             raise TypeError("Autocomplete functions must be coroutines")
         return GlobalAutoComplete(option_name, func)
 
@@ -992,7 +991,7 @@ def slash_command(
     """
 
     def wrapper(func: AsyncCallable) -> SlashCommand:
-        if not asyncio.iscoroutinefunction(func):
+        if not inspect.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
         perm = default_member_permissions
@@ -1076,7 +1075,7 @@ def subcommand(
     """
 
     def wrapper(func: AsyncCallable) -> SlashCommand:
-        if not asyncio.iscoroutinefunction(func):
+        if not inspect.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
         _name = name
@@ -1136,7 +1135,7 @@ def context_menu(
     """
 
     def wrapper(func: AsyncCallable) -> ContextMenu:
-        if not asyncio.iscoroutinefunction(func):
+        if not inspect.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
         perm = default_member_permissions
@@ -1255,7 +1254,7 @@ def component_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable]
     def wrapper(func: AsyncCallable) -> ComponentCommand:
         resolved_custom_id = custom_id or [func.__name__]
 
-        if not asyncio.iscoroutinefunction(func):
+        if not inspect.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
         return ComponentCommand(
@@ -1288,7 +1287,7 @@ def modal_callback(*custom_id: str | re.Pattern) -> Callable[[AsyncCallable], Mo
     def wrapper(func: AsyncCallable) -> ModalCommand:
         resolved_custom_id = custom_id or [func.__name__]
 
-        if not asyncio.iscoroutinefunction(func):
+        if not inspect.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
         return ModalCommand(name=f"ModalCallback::{resolved_custom_id}", callback=func, listeners=resolved_custom_id)

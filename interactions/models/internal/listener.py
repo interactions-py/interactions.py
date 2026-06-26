@@ -1,4 +1,3 @@
-import asyncio
 import inspect
 from typing import Callable
 
@@ -75,7 +74,7 @@ class Listener(CallbackObject):
         """
 
         def wrapper(coro: AsyncCallable) -> "Listener":
-            if not asyncio.iscoroutinefunction(coro):
+            if not inspect.iscoroutinefunction(coro):
                 raise TypeError("Listener must be a coroutine")
 
             name = event_name
