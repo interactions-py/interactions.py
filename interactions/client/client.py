@@ -703,9 +703,16 @@ class Client(
             event: The error event object
 
         """
+        if getattr(event.ctx, "editing_origin", False):
+            send = event.ctx.edit_origin
+        else:
+            send = event.ctx.send
+
         match event.error:
             case errors.CommandOnCooldown():
-                await event.ctx.send(
+                await send(
+                    content="",
+                    embeds=[],
                     components=[
                         ContainerComponent(
                             TextDisplayComponent(
@@ -714,10 +721,12 @@ class Client(
                             ),
                             accent_color=BrandColors.FUCHSIA,
                         )
-                    ]
+                    ],
                 )
             case errors.MaxConcurrencyReached():
-                await event.ctx.send(
+                await send(
+                    content="",
+                    embeds=[],
                     components=[
                         ContainerComponent(
                             TextDisplayComponent(
@@ -725,24 +734,28 @@ class Client(
                             ),
                             accent_color=BrandColors.FUCHSIA,
                         )
-                    ]
+                    ],
                 )
             case errors.CommandCheckFailure():
-                await event.ctx.send(
+                await send(
+                    content="",
+                    embeds=[],
                     components=[
                         ContainerComponent(
                             TextDisplayComponent("You do not have permission to run this command!"),
                             accent_color=BrandColors.YELLOW,
                         )
-                    ]
+                    ],
                 )
             case errors.BadArgument():
-                await event.ctx.send(
+                await send(
+                    content="",
+                    embeds=[],
                     components=[
                         ContainerComponent(
                             TextDisplayComponent(f"Argument error: {event.error!s}"), accent_color=BrandColors.FUCHSIA
                         )
-                    ]
+                    ],
                 )
             case _:
                 if self.send_command_tracebacks:
@@ -750,14 +763,16 @@ class Client(
                     if self.http.token is not None:
                         out = out.replace(self.http.token, "[REDACTED TOKEN]")
                     out_len = 4000 - len(type(event.error).__name__) - 20
-                    await event.ctx.send(
+                    await send(
+                        content="",
+                        embeds=[],
                         components=[
                             ContainerComponent(
                                 TextDisplayComponent(f"## Error: {type(event.error).__name__}"),
                                 TextDisplayComponent(f"```\n{out[:out_len]}```"),
                                 accent_color=BrandColors.RED,
                             )
-                        ]
+                        ],
                     )
 
     @Listener.create(is_default_listener=True)
