@@ -31,6 +31,7 @@ from typing import (
     cast,
     overload,
 )
+from functools import partial
 
 from aiohttp import BasicAuth
 
@@ -703,8 +704,10 @@ class Client(
             event: The error event object
 
         """
-        if getattr(event.ctx, "editing_origin", False):
+        if getattr(event.ctx, "editing_origin", False):  # ComponentContext
             send = event.ctx.edit_origin
+        elif getattr(event.ctx, "edit_origin", False) is True:  # ModalContext
+            send = partial(event.ctx.edit, event.ctx.message_id)
         else:
             send = event.ctx.send
 
