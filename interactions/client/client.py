@@ -676,15 +676,21 @@ class Client(
             error: The exception itself
 
         """
-        out = traceback.format_exception(error)
-
         if isinstance(error, HTTPException):
             # HTTPException's are of 3 known formats, we can parse them for human readable errors
             with contextlib.suppress(Exception):
                 out = [str(error)]
-        get_logger().error(
-            "Ignoring exception in {}:{}{}".format(source, "\n" if len(out) > 1 else " ", "".join(out)),
-        )
+        else:
+            out = traceback.format_exception(error)
+
+        if isinstance(error, errors.CommandException):
+            get_logger().info(
+                "User error in {}: {}: {}".format(source, type(error).__name__, str(error)),
+            )
+        else:
+            get_logger().error(
+                "Ignoring exception in {}:{}{}".format(source, "\n" if len(out) > 1 else " ", "".join(out)),
+            )
 
     async def default_error_send(self, event: events.Error) -> None:
         """
