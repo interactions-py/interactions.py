@@ -538,7 +538,7 @@ There are a few pre-made checks for you to use, and you can simply create your o
         await ctx.send("Your username starts with an 'a'!", ephemeral=True)
     ```
 
-When multiple checks are used, *all* checks must pass for the command to be executed.
+When multiple checks are used, *all* checks must pass for the command to be executed. When a check fails, the command error `CommandCheckFailure` is raised, with a message to the user that the user "does not have permission to run this command."
 
 ## Avoid Redefining Options
 
