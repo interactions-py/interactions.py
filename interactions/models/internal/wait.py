@@ -1,4 +1,5 @@
-from asyncio import Future, iscoroutinefunction
+from asyncio import Future
+from inspect import iscoroutinefunction
 from typing import Callable, Optional, Union, Awaitable
 
 __all__ = ("Wait",)

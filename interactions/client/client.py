@@ -451,7 +451,7 @@ class Client(
 
         # callbacks
         if global_pre_run_callback:
-            if asyncio.iscoroutinefunction(global_pre_run_callback):
+            if inspect.iscoroutinefunction(global_pre_run_callback):
                 self.pre_run_callback: Callable[..., Coroutine] = global_pre_run_callback
             else:
                 raise TypeError("Callback must be a coroutine")
@@ -459,7 +459,7 @@ class Client(
             self.pre_run_callback = MISSING
 
         if global_post_run_callback:
-            if asyncio.iscoroutinefunction(global_post_run_callback):
+            if inspect.iscoroutinefunction(global_post_run_callback):
                 self.post_run_callback: Callable[..., Coroutine] = global_post_run_callback
             else:
                 raise TypeError("Callback must be a coroutine")
@@ -1267,7 +1267,7 @@ class Client(
             )
             wanted_component = not custom_ids or ctx.custom_id in custom_ids
             if wanted_message and wanted_component:
-                if asyncio.iscoroutinefunction(check):
+                if inspect.iscoroutinefunction(check):
                     return bool(check is None or await check(event))
                 return bool(check is None or check(event))
             return False
