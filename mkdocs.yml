@@ -96,7 +96,8 @@ extra_javascript:
 plugins:
   - search
   - awesome-pages
-  - autorefs
+  - autorefs:
+      resolve_closest: True
   - git-revision-date-localized:
       fallback_to_build_date: true
       enable_creation_date: true
@@ -108,14 +109,14 @@ plugins:
       enable_inventory: true
       handlers:
         python:
-          selection:
+          options:
             inherited_members: True
             filters:
               - "!^_"
-          rendering:
-            members_order: source
+            members_order: alphabetical
             show_bases: True
             show_root_toc_entry: False
+            show_symbol_type_toc: True
             group_by_category: True
             heading_level: 3
             show_if_no_docstring: True
