@@ -1,6 +1,7 @@
 import asyncio
 import textwrap
 import uuid
+from functools import partial
 from typing import Callable, Coroutine, List, Optional, Sequence, TYPE_CHECKING, Union
 
 import attrs
@@ -38,6 +39,8 @@ class Timeout:
         repr=False,
     )
     """The paginator that this timeout is associated with."""
+    edit: Callable[..., Coroutine] = attrs.field(repr=False, default=None)
+    """A coroutine that edits the current paginator message."""
     run: bool = attrs.field(repr=False, default=True)
     """Whether or not this timeout is currently running."""
     ping: asyncio.Event = attrs.field(factory=asyncio.Event)
@@ -49,7 +52,7 @@ class Timeout:
                 await asyncio.wait_for(self.ping.wait(), timeout=self.paginator.timeout_interval)
             except asyncio.TimeoutError:
                 if self.paginator.message:
-                    await self.paginator.message.edit(components=self.paginator.create_components(True))
+                    await self.edit(components=self.paginator.create_components(True))
                 return
             else:
                 self.ping.clear()
@@ -378,8 +381,15 @@ class Paginator:
         self._message = await ctx.send(**self.to_dict(), **kwargs)
         self._author_id = ctx.author.id
 
+        if hasattr(ctx, "token"):  # SlashContext
+            edit = ctx.edit
+        elif hasattr(ctx, "_prefixed_ctx"):  # HybridContext
+            edit = partial(ctx.edit, message=self._message)
+        else:  # PrefixedContext
+            edit = self._message.edit
+
         if self.timeout_interval > 1:
-            self._timeout_task = Timeout(self)
+            self._timeout_task = Timeout(self, edit)
             _ = asyncio.create_task(self._timeout_task())  # noqa: RUF006
 
         return self._message
@@ -399,8 +409,15 @@ class Paginator:
         self._message = await ctx.reply(**self.to_dict(), **kwargs)
         self._author_id = ctx.author.id
 
+        if hasattr(ctx, "token"):  # SlashContext
+            edit = ctx.edit
+        elif hasattr(ctx, "_prefixed_ctx"):  # HybridContext
+            edit = partial(ctx.edit, message=self._message)
+        else:  # PrefixedContext
+            edit = self._message.edit
+
         if self.timeout_interval > 1:
-            self._timeout_task = Timeout(self)
+            self._timeout_task = Timeout(self, edit)
             _ = asyncio.create_task(self._timeout_task())  # noqa: RUF006
 
         return self._message
