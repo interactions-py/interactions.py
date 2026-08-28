@@ -249,10 +249,13 @@ class Intents(DiscordIntFlag):  # type: ignore
         direct_message_typing=False,
         message_content=False,
         guild_scheduled_events=False,
+        auto_moderation_configuration=False,
+        auto_moderation_execution=False,
         messages=False,
         polls=False,
         reactions=False,
         typing=False,
+        auto_mod=False,
         privileged=False,
         non_privileged=False,
         default=False,
@@ -726,6 +729,16 @@ class ComponentType(CursedIntEnum):
     """Separator component for visual separation"""
     CONTAINER = 17
     """Container component for grouping together other components"""
+    LABEL = 18
+    """Label component for modals"""
+    FILE_UPLOAD = 19
+    """File upload component for modals"""
+    RADIO_GROUP = 21
+    """Radio group component for modals"""
+    CHECKBOX_GROUP = 22
+    """Checkbox group component for modals"""
+    CHECKBOX = 23
+    """Checkbox component for modals"""
 
     # TODO: this is hacky, is there a better way to do this?
     @staticmethod
