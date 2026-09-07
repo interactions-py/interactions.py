@@ -643,7 +643,6 @@ __all__ = (
     "has_role",
     "integration_types",
     "is_owner",
-    "is_owner",
     "listen",
     "max_concurrency",
     "message_context_menu",
