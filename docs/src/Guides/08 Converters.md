@@ -73,7 +73,7 @@ async def upper(ctx: PrefixedContext, to_upper: UpperConverter):
 
 ## Discord Model Converters
 
-There are `Converter`s that represent some Discord models that you can subclass from. These are largely useful for prefixed commands, but you may find a use for them elsewhere.
+There are `Converter`s that represent some Discord models that you can subclass from. These are largely useful for prefixed commands, but you may find a use for them elsewhere. For these converters, if the conversion fails due to user error, the error `BadArgument` is raised, with a message indicating the bad argument.
 
 A table of objects and their respective converter is as follows:
 

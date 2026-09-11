@@ -925,7 +925,7 @@ class ComponentContext(InteractionContext[ClientT], ModalMixin):
 
 
 class ModalContext(InteractionContext[ClientT]):
-    responses: dict[str, str]
+    responses: dict[str, typing.Any]
     """The responses of the modal. The key is the `custom_id` of the component."""
     custom_id: str
     """The developer defined custom ID of this modal"""
@@ -933,11 +933,73 @@ class ModalContext(InteractionContext[ClientT]):
     """Whether to edit the original message instead of sending a new one."""
 
     @classmethod
-    def from_dict(cls, client: "ClientT", payload: dict) -> Self:
+    def from_dict(cls, client: "ClientT", payload: dict) -> Self:  # noqa: C901
         instance = super().from_dict(client, payload)
-        instance.responses = {
-            comp["components"][0]["custom_id"]: comp["components"][0]["value"] for comp in payload["data"]["components"]
-        }
+        instance.responses = {}
+
+        for component in payload["data"]["components"]:
+            if component["type"] == ComponentType.ACTION_ROW:
+                instance.responses[component["components"][0]["custom_id"]] = component["components"][0]["value"]
+            elif component["type"] == ComponentType.LABEL:
+                held_component = component["component"]
+
+                if held_component["type"] in {
+                    ComponentType.INPUT_TEXT,
+                    ComponentType.RADIO_GROUP,
+                    ComponentType.CHECKBOX,
+                }:
+                    instance.responses[held_component["custom_id"]] = held_component["value"]
+                elif held_component["type"] in {ComponentType.STRING_SELECT, ComponentType.CHECKBOX_GROUP}:
+                    instance.responses[held_component["custom_id"]] = held_component["values"]
+                elif held_component["type"] in (
+                    ComponentType.USER_SELECT,
+                    ComponentType.CHANNEL_SELECT,
+                    ComponentType.ROLE_SELECT,
+                    ComponentType.MENTIONABLE_SELECT,
+                ):
+                    searches = {
+                        "users": held_component["type"]
+                        in (ComponentType.USER_SELECT, ComponentType.MENTIONABLE_SELECT),
+                        "members": instance.guild_id
+                        and held_component["type"] in (ComponentType.USER_SELECT, ComponentType.MENTIONABLE_SELECT),
+                        "channels": held_component["type"]
+                        in (ComponentType.CHANNEL_SELECT, ComponentType.MENTIONABLE_SELECT),
+                        "roles": instance.guild_id
+                        and held_component["type"] in (ComponentType.ROLE_SELECT, ComponentType.MENTIONABLE_SELECT),
+                    }
+
+                    values = held_component["values"]
+
+                    for i, value in enumerate(held_component["values"]):
+                        if re.match(r"\d{17,}", value):
+                            key = Snowflake(value)
+
+                            if resolved := instance.resolved.get(key):
+                                values[i] = resolved
+                            elif searches["members"] and (
+                                member := instance.client.cache.get_member(instance.guild_id, key)
+                            ):
+                                values[i] = member
+                            elif searches["users"] and (user := instance.client.cache.get_user(key)):
+                                values[i] = user
+                            elif searches["roles"] and (role := instance.client.cache.get_role(key)):
+                                values[i] = role
+                            elif searches["channels"] and (channel := instance.client.cache.get_channel(key)):
+                                values[i] = channel
+
+                    instance.responses[held_component["custom_id"]] = values
+                elif held_component["type"] == ComponentType.FILE_UPLOAD:
+                    values = held_component["values"]
+
+                    for i, value in enumerate(held_component["values"]):
+                        if re.match(r"\d{17,}", value):
+                            if resolved := instance.resolved.get(Snowflake(value)):
+                                values[i] = resolved
+
+                    instance.responses[held_component["custom_id"]] = values
+                else:
+                    raise ValueError(f"Unknown component type in modal: {held_component['type']}")
+
         instance.kwargs = instance.responses
         instance.custom_id = payload["data"]["custom_id"]
         instance.edit_origin = False

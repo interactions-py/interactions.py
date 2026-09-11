@@ -28,8 +28,10 @@ from typing import (
     Awaitable,
     Tuple,
     TypeVar,
+    cast,
     overload,
 )
+from functools import partial
 
 from aiohttp import BasicAuth
 
@@ -46,7 +48,6 @@ from interactions.client.const import (
     Missing,
     MISSING,
     Absent,
-    EMBED_MAX_DESC_LENGTH,
     get_logger,
     AsyncCallable,
 )
@@ -89,13 +90,19 @@ from interactions.models import (
 )
 from interactions.models import Wait
 from interactions.models.discord.color import BrandColors
-from interactions.models.discord.components import get_components_ids, BaseComponent
+from interactions.models.discord.components import (
+    get_components_ids,
+    BaseComponent,
+    ContainerComponent,
+    TextDisplayComponent,
+)
 from interactions.models.discord.embed import Embed
 from interactions.models.discord.entitlement import Entitlement
 from interactions.models.discord.enums import (
     ComponentType,
     Intents,
     InteractionType,
+    IntegrationType,
     Status,
     MessageFlags,
 )
@@ -296,6 +303,7 @@ class Client(
         component_context: Type[BaseContext] = ComponentContext,
         context_menu_context: Type[BaseContext] = ContextMenuContext,
         debug_scope: Absent["Snowflake_Type"] = MISSING,
+        default_integration_types: Absent[list[IntegrationType]] = MISSING,
         delete_unused_application_cmds: bool = False,
         disable_dm_commands: bool = False,
         enforce_interaction_perms: bool = True,
@@ -356,6 +364,9 @@ class Client(
         self.auto_defer = auto_defer
         """A system to automatically defer commands after a set duration"""
         self.intents = intents if isinstance(intents, Intents) else Intents(intents)
+        self.default_integration_types = cast(list[IntegrationType], default_integration_types) or [
+            IntegrationType.GUILD_INSTALL
+        ]
 
         # resources
         if isinstance(proxy_auth, tuple):
@@ -445,7 +456,7 @@ class Client(
 
         # callbacks
         if global_pre_run_callback:
-            if asyncio.iscoroutinefunction(global_pre_run_callback):
+            if inspect.iscoroutinefunction(global_pre_run_callback):
                 self.pre_run_callback: Callable[..., Coroutine] = global_pre_run_callback
             else:
                 raise TypeError("Callback must be a coroutine")
@@ -453,7 +464,7 @@ class Client(
             self.pre_run_callback = MISSING
 
         if global_post_run_callback:
-            if asyncio.iscoroutinefunction(global_post_run_callback):
+            if inspect.iscoroutinefunction(global_post_run_callback):
                 self.post_run_callback: Callable[..., Coroutine] = global_post_run_callback
             else:
                 raise TypeError("Callback must be a coroutine")
@@ -666,15 +677,106 @@ class Client(
             error: The exception itself
 
         """
-        out = traceback.format_exception(error)
-
         if isinstance(error, HTTPException):
             # HTTPException's are of 3 known formats, we can parse them for human readable errors
             with contextlib.suppress(Exception):
                 out = [str(error)]
-        get_logger().error(
-            "Ignoring exception in {}:{}{}".format(source, "\n" if len(out) > 1 else " ", "".join(out)),
-        )
+        else:
+            out = traceback.format_exception(error)
+
+        if isinstance(error, errors.CommandException):
+            get_logger().info(
+                "User error in {}: {}: {}".format(source, type(error).__name__, str(error)),
+            )
+        else:
+            get_logger().error(
+                "Ignoring exception in {}:{}{}".format(source, "\n" if len(out) > 1 else " ", "".join(out)),
+            )
+
+    async def default_error_send(self, event: events.Error) -> None:
+        """
+        Send a default error message.
+
+        By default, this function is called on CommandError, ComponentError, or ModalError. Listen to the respective
+        events to overwrite this behaviour.
+
+        Args:
+            event: The error event object
+
+        """
+        if getattr(event.ctx, "editing_origin", False):  # ComponentContext
+            send = event.ctx.edit_origin
+        elif getattr(event.ctx, "edit_origin", False) is True:  # ModalContext
+            send = partial(event.ctx.edit, event.ctx.message_id)
+        else:
+            send = event.ctx.send
+
+        match event.error:
+            case errors.CommandOnCooldown():
+                await send(
+                    content="",
+                    embeds=[],
+                    components=[
+                        ContainerComponent(
+                            TextDisplayComponent(
+                                "This command is on cooldown!\n"
+                                f"Please try again in {int(event.error.cooldown.get_cooldown_time())} seconds"
+                            ),
+                            accent_color=BrandColors.FUCHSIA,
+                        )
+                    ],
+                )
+            case errors.MaxConcurrencyReached():
+                await send(
+                    content="",
+                    embeds=[],
+                    components=[
+                        ContainerComponent(
+                            TextDisplayComponent(
+                                "This command has reached its maximum concurrent usage!\nPlease try again shortly."
+                            ),
+                            accent_color=BrandColors.FUCHSIA,
+                        )
+                    ],
+                )
+            case errors.CommandCheckFailure():
+                await send(
+                    content="",
+                    embeds=[],
+                    components=[
+                        ContainerComponent(
+                            TextDisplayComponent("You do not have permission to run this command!"),
+                            accent_color=BrandColors.YELLOW,
+                        )
+                    ],
+                )
+            case errors.BadArgument():
+                await send(
+                    content="",
+                    embeds=[],
+                    components=[
+                        ContainerComponent(
+                            TextDisplayComponent(f"Argument error: {event.error!s}"), accent_color=BrandColors.FUCHSIA
+                        )
+                    ],
+                )
+            case _:
+                if self.send_command_tracebacks:
+                    out = "".join(traceback.format_exception(event.error))
+                    if self.http.token is not None:
+                        out = out.replace(self.http.token, "[REDACTED TOKEN]")
+                    out_len = 4000 - len(type(event.error).__name__) - 20
+                    await send(
+                        content="",
+                        embeds=[],
+                        components=[
+                            ContainerComponent(
+                                TextDisplayComponent(f"## Error: {type(event.error).__name__}"),
+                                TextDisplayComponent(f"```\n{out[:out_len]}```"),
+                                accent_color=BrandColors.RED,
+                            )
+                        ],
+                    )
 
     @Listener.create(is_default_listener=True)
     async def on_error(self, event: events.Error) -> None:
@@ -708,41 +810,7 @@ class Client(
             )
         )
         with contextlib.suppress(errors.LibraryException):
-            if isinstance(event.error, errors.CommandOnCooldown):
-                await event.ctx.send(
-                    embeds=Embed(
-                        description=(
-                            "This command is on cooldown!\n"
-                            f"Please try again in {int(event.error.cooldown.get_cooldown_time())} seconds"
-                        ),
-                        color=BrandColors.FUCHSIA,
-                    )
-                )
-            elif isinstance(event.error, errors.MaxConcurrencyReached):
-                await event.ctx.send(
-                    embeds=Embed(
-                        description="This command has reached its maximum concurrent usage!\nPlease try again shortly.",
-                        color=BrandColors.FUCHSIA,
-                    )
-                )
-            elif isinstance(event.error, errors.CommandCheckFailure):
-                await event.ctx.send(
-                    embeds=Embed(
-                        description="You do not have permission to run this command!",
-                        color=BrandColors.YELLOW,
-                    )
-                )
-            elif self.send_command_tracebacks:
-                out = "".join(traceback.format_exception(event.error))
-                if self.http.token is not None:
-                    out = out.replace(self.http.token, "[REDACTED TOKEN]")
-                await event.ctx.send(
-                    embeds=Embed(
-                        title=f"Error: {type(event.error).__name__}",
-                        color=BrandColors.RED,
-                        description=f"```\n{out[:EMBED_MAX_DESC_LENGTH - 8]}```",
-                    )
-                )
+            await self.default_error_send(event)
 
     @Listener.create(is_default_listener=True)
     async def on_command_completion(self, event: events.CommandCompletion) -> None:
@@ -775,6 +843,8 @@ class Client(
                 ctx=event.ctx,
             )
         )
+        with contextlib.suppress(errors.LibraryException):
+            await self.default_error_send(event)
 
     @Listener.create(is_default_listener=True)
     async def on_component_completion(self, event: events.ComponentCompletion) -> None:
@@ -846,6 +916,8 @@ class Client(
                 ctx=event.ctx,
             )
         )
+        with contextlib.suppress(errors.LibraryException):
+            await self.default_error_send(event)
 
     @Listener.create(is_default_listener=True)
     async def on_modal_completion(self, event: events.ModalCompletion) -> None:
@@ -1261,7 +1333,7 @@ class Client(
             )
             wanted_component = not custom_ids or ctx.custom_id in custom_ids
             if wanted_message and wanted_component:
-                if asyncio.iscoroutinefunction(check):
+                if inspect.iscoroutinefunction(check):
                     return bool(check is None or await check(event))
                 return bool(check is None or check(event))
             return False
@@ -1364,7 +1436,7 @@ class Client(
                 c_listener for c_listener in self.listeners[listener.event] if not c_listener.is_default_listener
             ]
 
-    def add_interaction(self, command: InteractionCommand) -> bool:
+    def add_interaction(self, command: InteractionCommand) -> bool:  # noqa: C901
         """
         Add a slash command to the client.
 
@@ -1377,6 +1449,9 @@ class Client(
 
         if self.disable_dm_commands:
             command.dm_permission = False
+
+        if not command.integration_types:
+            command.integration_types = list(self.default_integration_types)
 
         # for SlashCommand objs without callback (like objects made to hold group info etc)
         if command.callback is None:
