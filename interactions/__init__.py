@@ -729,8 +729,6 @@ __all__ = (
     "has_role",
     "integration_types",
     "is_owner",
-    "is_owner",
-    "kwarg_spam",
     "kwarg_spam",
     "listen",
     "logger_name",
