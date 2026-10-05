@@ -24,7 +24,6 @@ __all__ = (
     "Embed",
     "EmbedAttachment",
     "EmbedAuthor",
-    "EmbedAuthor",
     "EmbedField",
     "EmbedFooter",
     "EmbedProvider",
