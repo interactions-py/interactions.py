@@ -106,6 +106,7 @@ class BucketLock:
 
     def __init__(self, header: CIMultiDictProxy | None = None) -> None:
         self._semaphore: asyncio.Semaphore | None = None
+        self._semaphore_limit: int | None = None
         if header is None:
             self.bucket_hash: str | None = None
             self.limit: int = self.DEFAULT_LIMIT
@@ -147,8 +148,11 @@ class BucketLock:
             self.delta = self.DEFAULT_DELTA
             self.remaining = self.DEFAULT_REMAINING  # we can assume that we can make another request right away
 
-        if self._semaphore is None or self._semaphore._value != self.limit:
+        if self._semaphore is None or self._semaphore_limit != self.limit:
+            # Only replace the semaphore when the limit itself changed. Comparing against the free slot count
+            # replaced it whenever a request was in flight, and requests queued on the old one were never woken.
             self._semaphore = asyncio.Semaphore(self.limit)
+            self._semaphore_limit = self.limit
 
     async def acquire(self) -> None:
         """Acquires the semaphore."""
