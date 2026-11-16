@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import asyncio
+import inspect
 import typing
 from typing import (
     Annotated,
@@ -239,21 +239,21 @@ class BaseCommand(DictSerializationMixin, CallbackObject):
 
     def error(self, call: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
         """A decorator to declare a coroutine as one that will be run upon an error."""
-        if not asyncio.iscoroutinefunction(call):
+        if not inspect.iscoroutinefunction(call):
             raise TypeError("Error handler must be coroutine")
         self.error_callback = call
         return call
 
     def pre_run(self, call: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
         """A decorator to declare a coroutine as one that will be run before the command."""
-        if not asyncio.iscoroutinefunction(call):
+        if not inspect.iscoroutinefunction(call):
             raise TypeError("pre_run must be coroutine")
         self.pre_run_callback = call
         return call
 
     def post_run(self, call: Callable[..., Coroutine]) -> Callable[..., Coroutine]:
         """A decorator to declare a coroutine as one that will be run after the command has."""
-        if not asyncio.iscoroutinefunction(call):
+        if not inspect.iscoroutinefunction(call):
             raise TypeError("post_run must be coroutine")
         self.post_run_callback = call
         return call

@@ -23,7 +23,7 @@ extras_require["docs"] = extras_require["all"] + [
     "mkdocs-minify-plugin",
     "mkdocs-git-committers-plugin-2",
     "mkdocs-git-revision-date-localized-plugin",
-    "griffe==0.25",
+    "griffe",
 ]
 extras_require["tests"] = [
     "pytest",

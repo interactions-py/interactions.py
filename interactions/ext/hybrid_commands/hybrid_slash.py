@@ -1,4 +1,3 @@
-import asyncio
 import inspect
 from typing import Any, Callable, List, Optional, Union, TYPE_CHECKING, Awaitable, Annotated, get_origin, get_args
 
@@ -291,7 +290,7 @@ class HybridSlashCommand(SlashCommand):
         def wrapper(call: AsyncCallable) -> "HybridSlashCommand":
             nonlocal sub_cmd_name, sub_cmd_description
 
-            if not asyncio.iscoroutinefunction(call):
+            if not inspect.iscoroutinefunction(call):
                 raise TypeError("Subcommand must be coroutine")
 
             if sub_cmd_description is MISSING:
@@ -518,7 +517,7 @@ def hybrid_slash_command(
     """
 
     def wrapper(func: AsyncCallable) -> HybridSlashCommand:
-        if not asyncio.iscoroutinefunction(func):
+        if not inspect.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
         perm = default_member_permissions
@@ -608,7 +607,7 @@ def hybrid_slash_subcommand(
     """
 
     def wrapper(func: AsyncCallable) -> HybridSlashCommand:
-        if not asyncio.iscoroutinefunction(func):
+        if not inspect.iscoroutinefunction(func):
             raise ValueError("Commands must be coroutines")
 
         _name = name

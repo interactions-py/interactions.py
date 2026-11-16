@@ -540,6 +540,9 @@ There are a few pre-made checks for you to use, and you can simply create your o
 
 When multiple checks are used, *all* checks must pass for the command to be executed.
 
+???+ note
+    If a check fails, the command error `CommandCheckFailure` is raised, with a message to the user that the user "does not have permission to run this command."
+
 ## Avoid Redefining Options
 
 If you have multiple commands that all use the same option, it might be both annoying and bad programming to redefine it multiple times.
@@ -588,6 +591,7 @@ By default, if an error occurs in a command, interactions.py will send the error
 
 - Send an appropriate error message to the user, if the error is meant to be shown to the user (IE cooldown or check errors).
 - Log the error and, if `send_command_tracebacks` is enabled in your Client (which it is by default), send the error as a response to the command.
+    - If `send_command_tracebacks` is disabled, no response is sent and the command would not respond.
 
 To override this for a single command, you can use the `@error` decorator every command has:
 
@@ -604,8 +608,7 @@ async def on_command_error(error: Exception, ctx: SlashContext):
 ???+ note
     If you wish for an error handler for a group of commands, you may wish to check out [Extensions](20 Extensions.md), which allows you both to group commands together and add error handlers to the group.
 
-If you want error handling for all commands, you can override the default error listener and define your own.
-Any error from any command will trigger `CommandError` - note that this includes errors from context menus and (if enabled) prefixed commands.
+If you want error handling for all commands, you can override the default error listener and define your own. Generally, command errors will trigger `CommandError`. Note that this includes errors from context menus and (if enabled) prefixed commands.
 
 In this example, we are logging the error and responding to the interaction if not done so yet:
 ```python

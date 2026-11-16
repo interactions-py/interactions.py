@@ -319,6 +319,8 @@ class CommandCheckFailure(CommandException):
         self.check: Callable[..., Coroutine] = check
         self.ctx = context
 
+        super().__init__(f"Command check `{check.__name__}` failed.")
+
 
 class BadArgument(CommandException):
     """A prefixed command encountered an invalid argument."""

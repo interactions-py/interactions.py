@@ -1,16 +1,40 @@
 import uuid
 from enum import IntEnum
 from typing import Union, Optional, Any, TypeVar
+from typing_extensions import Self
 
 import discord_typings
 
 from interactions.client.const import MISSING
 from interactions.client.mixins.serialization import DictSerializationMixin
-from interactions.client.utils import dict_filter
-from interactions.models.discord.components import ComponentType
+from interactions.client.utils import dict_filter, dict_filter_none
+from interactions.models.discord.components import (
+    ChannelSelectMenu,
+    BaseComponent,
+    BaseSelectMenu,
+    MentionableSelectMenu,
+    RoleSelectMenu,
+    StringSelectMenu,
+    UserSelectMenu,
+    TextDisplayComponent,
+)
+from interactions.models.discord.enums import ComponentType
 from interactions.models.internal.application_commands import CallbackType
 
-__all__ = ("InputText", "Modal", "ParagraphText", "ShortText", "TextStyles")
+__all__ = (
+    "CheckboxComponent",
+    "CheckboxGroupComponent",
+    "CheckboxGroupOption",
+    "FileUploadComponent",
+    "InputText",
+    "LabelComponent",
+    "Modal",
+    "ParagraphText",
+    "RadioGroupComponent",
+    "RadioGroupOption",
+    "ShortText",
+    "TextStyles",
+)
 
 T = TypeVar("T", bound="InputText")
 
@@ -24,7 +48,7 @@ class InputText(DictSerializationMixin):
     def __init__(
         self,
         *,
-        label: str,
+        label: Optional[str] = MISSING,
         style: Union[TextStyles, int],
         custom_id: Optional[str] = MISSING,
         placeholder: Optional[str] = MISSING,
@@ -62,14 +86,14 @@ class InputText(DictSerializationMixin):
         )
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> T:
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         if data["style"] == TextStyles.SHORT:
             cls = ShortText
         elif data["style"] == TextStyles.PARAGRAPH:
             cls = ParagraphText
 
         return cls(
-            label=data["label"],
+            label=data.get("label", MISSING),
             custom_id=data["custom_id"],
             placeholder=data["placeholder"],
             value=data["value"],
@@ -83,7 +107,7 @@ class ShortText(InputText):
     def __init__(
         self,
         *,
-        label: str,
+        label: Optional[str] = MISSING,
         custom_id: Optional[str] = MISSING,
         placeholder: Optional[str] = MISSING,
         value: Optional[str] = MISSING,
@@ -107,7 +131,7 @@ class ParagraphText(InputText):
     def __init__(
         self,
         *,
-        label: str,
+        label: Optional[str] = MISSING,
         custom_id: Optional[str] = MISSING,
         placeholder: Optional[str] = MISSING,
         value: Optional[str] = MISSING,
@@ -127,36 +151,401 @@ class ParagraphText(InputText):
         )
 
 
+class FileUploadComponent(BaseComponent):
+    """
+    An interactive component that allows users to upload files in modals.
+
+    Attributes:
+        custom_id: A unique identifier for the component.
+        min_values: The minimum number of files that can be uploaded.
+        max_values: The maximum number of files that can be uploaded.
+        required: Whether the file upload is required.
+
+    """
+
+    def __init__(
+        self, custom_id: Optional[str] = None, min_values: int = 1, max_values: int = 1, required: bool = True
+    ):
+        self.custom_id = custom_id or str(uuid.uuid4())
+        self.min_values = min_values
+        self.max_values = max_values
+        self.required = required
+        self.type = ComponentType.FILE_UPLOAD
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "type": self.type,
+                "custom_id": self.custom_id,
+                "min_values": self.min_values,
+                "max_values": self.max_values,
+                "required": self.required,
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            custom_id=data.get("custom_id"),
+            min_values=data.get("min_values"),
+            max_values=data.get("max_values"),
+            required=data.get("required", True),
+        )
+
+
+class RadioGroupOption:
+    """
+    Represents an option in a radio group component.
+
+    Attributes:
+        label: The text label for the option.
+        value: The value associated with the option.
+        description: An optional description for the option.
+        default: Whether this option is the default selection.
+
+    """
+
+    __slots__ = ("default", "description", "label", "value")
+
+    def __init__(
+        self,
+        *,
+        label: str,
+        value: str,
+        description: Optional[str] = None,
+        default: bool = False,
+    ):
+        self.label = label
+        self.value = value
+        self.description = description
+        self.default = default
+
+    def __repr__(self) -> str:
+        return f"RadioGroupOption(label={self.label!r}, value={self.value!r}, description={self.description!r}, default={self.default!r})"
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "label": self.label,
+                "value": self.value,
+                "description": self.description,
+                "default": self.default,
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            label=data["label"],
+            value=data["value"],
+            description=data.get("description"),
+            default=data.get("default", False),
+        )
+
+
+class RadioGroupComponent(BaseComponent):
+    """
+    A radio group component for modals.
+
+    Attributes:
+        options: A list of options for the radio group.
+        custom_id: A unique identifier for the component.
+        required: Whether the radio group is required.
+
+    """
+
+    def __init__(
+        self,
+        *options: RadioGroupOption | dict | str,
+        custom_id: Optional[str] = None,
+        required: bool = True,
+    ):
+        self.custom_id = custom_id or str(uuid.uuid4())
+        self.required = required
+        self.type = ComponentType.RADIO_GROUP
+        self.options: list[RadioGroupOption] = []
+
+        for option in options:
+            if isinstance(option, RadioGroupOption):
+                self.options.append(option)
+            elif isinstance(option, dict):
+                self.options.append(RadioGroupOption.from_dict(option))
+            elif isinstance(option, str):
+                self.options.append(RadioGroupOption(label=option, value=option))
+            else:
+                raise ValueError(f"Invalid option type: {type(option)}")
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "type": self.type,
+                "custom_id": self.custom_id,
+                "required": self.required,
+                "options": [option.to_dict() for option in self.options],
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            *[RadioGroupOption.from_dict(option) for option in data.get("options", [])],
+            custom_id=data["custom_id"],
+            required=data.get("required", True),
+        )
+
+
+class CheckboxGroupOption:
+    """
+    Represents an option in a checkbox group component.
+
+    Attributes:
+        label: The text label for the option.
+        value: The value associated with the option.
+        description: An optional description for the option.
+        default: Whether this option is the default selection.
+
+    """
+
+    __slots__ = ("default", "description", "label", "value")
+
+    def __init__(
+        self,
+        *,
+        label: str,
+        value: str,
+        description: Optional[str] = None,
+        default: bool = False,
+    ):
+        self.label = label
+        self.value = value
+        self.description = description
+        self.default = default
+
+    def __repr__(self) -> str:
+        return f"CheckboxGroupOption(label={self.label!r}, value={self.value!r}, description={self.description!r}, default={self.default!r})"
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "label": self.label,
+                "value": self.value,
+                "description": self.description,
+                "default": self.default,
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            label=data["label"],
+            value=data["value"],
+            description=data.get("description"),
+            default=data.get("default", False),
+        )
+
+
+class CheckboxGroupComponent(BaseComponent):
+    """
+    A checkbox group component for modals.
+
+    Attributes:
+        options: A list of options for the checkbox group.
+        custom_id: A unique identifier for the component.
+        min_values: The minimum number of options that must be selected. Defaults to 1.
+        max_values: The maximum number of options that can be selected. Defaults to however many options are provided.
+        required: Whether the checkbox group is required. Defaults to True.
+
+    """
+
+    def __init__(
+        self,
+        *options: CheckboxGroupOption | dict | str,
+        custom_id: Optional[str] = None,
+        min_values: int = 1,
+        max_values: Optional[int] = None,
+        required: bool = True,
+    ):
+        self.custom_id = custom_id or str(uuid.uuid4())
+        self.min_values = min_values
+        self.max_values = max_values
+        self.required = required
+        self.type = ComponentType.CHECKBOX_GROUP
+        self.options: list[CheckboxGroupOption] = []
+
+        for option in options:
+            if isinstance(option, CheckboxGroupOption):
+                self.options.append(option)
+            elif isinstance(option, dict):
+                self.options.append(CheckboxGroupOption.from_dict(option))
+            elif isinstance(option, str):
+                self.options.append(CheckboxGroupOption(label=option, value=option))
+            else:
+                raise ValueError(f"Invalid option type: {type(option)}")
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "type": self.type,
+                "custom_id": self.custom_id,
+                "min_values": self.min_values,
+                "max_values": self.max_values,
+                "required": self.required,
+                "options": [option.to_dict() for option in self.options],
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            *[CheckboxGroupOption.from_dict(option) for option in data.get("options", [])],
+            custom_id=data["custom_id"],
+            min_values=data.get("min_values", 1),
+            max_values=data.get("max_values"),
+            required=data.get("required", True),
+        )
+
+
+class CheckboxComponent(BaseComponent):
+    """
+    A checkbox component for modals. Compared to CheckboxGroup, this component represents a single checkbox that can be toggled on or off.
+
+    Attributes:
+        custom_id: A unique identifier for the component.
+        default: Whether the checkbox is checked by default. Defaults to False.
+
+    """
+
+    def __init__(
+        self,
+        *,
+        custom_id: Optional[str] = None,
+        default: bool = False,
+    ):
+        self.custom_id = custom_id or str(uuid.uuid4())
+        self.default = default
+        self.type = ComponentType.CHECKBOX
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "type": self.type,
+                "custom_id": self.custom_id,
+                "default": self.default,
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            custom_id=data["custom_id"],
+            default=data.get("default", False),
+        )
+
+
+class LabelComponent(BaseComponent):
+    """
+    A top-level layout component that wraps modal components with text as a label and optional description.
+
+    Attributes:
+        label: The text label for the component.
+        description: An optional description for the component.
+        component: The component to be wrapped.
+        type: The type of the component, always ComponentType.LABEL.
+
+    """
+
+    def __init__(
+        self,
+        *,
+        label: str,
+        description: Optional[str] = None,
+        component: (
+            BaseSelectMenu
+            | InputText
+            | FileUploadComponent
+            | RadioGroupComponent
+            | CheckboxGroupComponent
+            | CheckboxComponent
+        ),
+    ):
+        self.label = label
+        self.component = component
+        self.description = description
+        self.type = ComponentType.LABEL
+
+    def to_dict(self) -> dict:
+        return dict_filter_none(
+            {
+                "type": self.type,
+                "label": self.label,
+                "description": self.description,
+                "component": self.component.to_dict() if hasattr(self.component, "to_dict") else self.component,
+            }
+        )
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        return cls(
+            label=data["label"],
+            description=data.get("description"),
+            component=BaseComponent.from_dict_factory(
+                data["component"],
+                alternate_mapping={
+                    ComponentType.INPUT_TEXT: InputText,
+                    ComponentType.CHANNEL_SELECT: ChannelSelectMenu,
+                    ComponentType.STRING_SELECT: StringSelectMenu,
+                    ComponentType.USER_SELECT: UserSelectMenu,
+                    ComponentType.ROLE_SELECT: RoleSelectMenu,
+                    ComponentType.MENTIONABLE_SELECT: MentionableSelectMenu,
+                    ComponentType.FILE_UPLOAD: FileUploadComponent,
+                    ComponentType.RADIO_GROUP: RadioGroupComponent,
+                    ComponentType.CHECKBOX_GROUP: CheckboxGroupComponent,
+                    ComponentType.CHECKBOX: CheckboxComponent,
+                },
+            ),
+        )
+
+
 class Modal:
     def __init__(
         self,
-        *components: InputText,
+        *components: InputText | LabelComponent | TextDisplayComponent,
         title: str,
         custom_id: Optional[str] = None,
     ) -> None:
         self.title: str = title
-        self.components: list[InputText] = list(components)
+        self.components: list[InputText | LabelComponent | TextDisplayComponent] = list(components)
         self.custom_id: str = custom_id or str(uuid.uuid4())
 
         self.type = CallbackType.MODAL
 
     def to_dict(self) -> discord_typings.ModalInteractionData:
+        dict_components: list[dict] = []
+
+        for component in self.components:
+            if isinstance(component, InputText):
+                dict_components.append({"type": ComponentType.ACTION_ROW, "components": [component.to_dict()]})
+            elif isinstance(component, (LabelComponent, TextDisplayComponent)):
+                dict_components.append(component.to_dict())
+            else:
+                # backwards compatibility behavior, remove in v6
+                dict_components.append(
+                    {
+                        "type": ComponentType.ACTION_ROW,
+                        "components": [component],
+                    }
+                )
+
         return {
             "type": self.type,
             "data": {
                 "title": self.title,
                 "custom_id": self.custom_id,
-                "components": [
-                    {
-                        "type": ComponentType.ACTION_ROW,
-                        "components": [c.to_dict() if hasattr(c, "to_dict") else c],
-                    }
-                    for c in self.components
-                ],
+                "components": dict_components,
             },
         }
 
-    def add_components(self, *components: InputText) -> None:
+    def add_components(self, *components: InputText | LabelComponent | TextDisplayComponent) -> None:
         """
         Add components to the modal.
 

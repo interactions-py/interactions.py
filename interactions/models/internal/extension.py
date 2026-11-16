@@ -1,4 +1,3 @@
-import asyncio
 import inspect
 import typing
 from typing import Awaitable, Dict, List, TYPE_CHECKING, Callable, Coroutine, Optional
@@ -225,7 +224,7 @@ class Extension:
             coroutine: The coroutine to use as a check
 
         """
-        if not asyncio.iscoroutinefunction(coroutine):
+        if not inspect.iscoroutinefunction(coroutine):
             raise TypeError("Check must be a coroutine")
 
         if not self.extension_checks:
@@ -253,7 +252,7 @@ class Extension:
             coroutine: The coroutine to run
 
         """
-        if not asyncio.iscoroutinefunction(coroutine):
+        if not inspect.iscoroutinefunction(coroutine):
             raise TypeError("Callback must be a coroutine")
 
         if not self.extension_prerun:
@@ -277,7 +276,7 @@ class Extension:
             coroutine: The coroutine to run
 
         """
-        if not asyncio.iscoroutinefunction(coroutine):
+        if not inspect.iscoroutinefunction(coroutine):
             raise TypeError("Callback must be a coroutine")
 
         if not self.extension_postrun:
@@ -297,7 +296,7 @@ class Extension:
             coroutine: The coroutine to run
 
         """
-        if not asyncio.iscoroutinefunction(coroutine):
+        if not inspect.iscoroutinefunction(coroutine):
             raise TypeError("Callback must be a coroutine")
 
         if self.extension_error:

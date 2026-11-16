@@ -1,5 +1,14 @@
 enum-tools[sphinx]
 furo
+mkdocs>=1.6,<2
+mkdocs-autorefs
+mkdocs-awesome-pages-plugin
+mkdocs-git-committers-plugin-2
+mkdocs-git-revision-date-localized-plugin
+mkdocs-material
+mkdocs-minify-plugin
+mkdocstrings
+mkdocstrings-python
 Sphinx
 sphinx-copybutton
 sphinx-hoverxref
