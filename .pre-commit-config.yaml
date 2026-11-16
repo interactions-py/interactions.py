@@ -51,7 +51,7 @@ repos:
 #        types: [file, python]
 
 default_language_version:
-  python: python3.10
+  python: python3.11
 ci:
   autoupdate_branch: "unstable"
   autofix_prs: true

@@ -27,9 +27,9 @@
 
 
 ## Python Compatibility
-<!-- Testing 3.11 is not strictly required, but it would be nice if you could confirm that it works. -->
-- [ ] I've ensured my code works on Python `3.10.x`
+<!-- Testing 3.14 is not strictly required, but it would be nice if you could confirm that it works. -->
 - [ ] I've ensured my code works on Python `3.11.x`
+- [ ] I've ensured my code works on Python `3.14.x`
 
 
 ## Checklist
