@@ -13,14 +13,15 @@ jobs:
           - .[voice]
           - .[all]
         python-version:
-          - "3.10"
           - "3.11"
+          - "3.12"
+          - "3.14"
         include:
           - extras: .[all]
-            python-version: "3.10"
+            python-version: "3.11"
             #RUN_TESTBOT: true
           - extras: .[all]
-            python-version: "3.11"
+            python-version: "3.12"
             #RUN_TESTBOT: true
 
     steps:
