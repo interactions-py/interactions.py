@@ -48,7 +48,7 @@ class EntitlementRequests(CanRequest):
             "after": to_optional_snowflake(after),
             "limit": limit,
             "guild_id": to_optional_snowflake(guild_id),
-            "exclude_ended": exclude_ended,
+            "exclude_ended": int(exclude_ended) if exclude_ended is not None else None,
         }
         params = dict_filter_none(params)
 
