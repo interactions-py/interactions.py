@@ -971,6 +971,10 @@ class ChannelFlags(DiscordIntFlag):
     """This thread was created by Clyde"""
     HIDE_MEDIA_DOWNLOAD_OPTIONS = 1 << 15
     """when set hides the embedded media download options. Available only for media channels"""
+    CHANNEL_OBFUSCATED = 1 << 17
+    """This channel's metadata has been obfuscated because the current user cannot view it"""
+    IS_SPOILER_CHANNEL = 1 << 21
+    """This channel is a Spoiler Channel i.e. users must opt in to view its contents. Can be set on all textual guild channels and voice channels."""
 
     # Special members
     NONE = 0
