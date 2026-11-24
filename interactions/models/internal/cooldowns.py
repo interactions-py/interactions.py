@@ -53,7 +53,9 @@ class Buckets(IntEnum):
         if self is Buckets.MEMBER:
             return (context.guild_id, context.author.id) if context.guild_id else context.author.id
         if self is Buckets.CATEGORY:
-            return await context.channel.parent_id if context.channel.parent else context.channel.id
+            # threads use the category of the channel they are in
+            channel = getattr(context.channel, "parent_channel", None) or context.channel
+            return getattr(channel, "parent_id", None) or channel.id
         if self is Buckets.ROLE:
             return context.author.top_role.id if context.guild_id else context.channel.id
         return context.author.id
