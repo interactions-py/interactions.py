@@ -522,7 +522,7 @@ class PartialEmojiConverter(IDConverter[PartialEmoji]):
             PartialEmoji: The converted object.
 
         """
-        if match := re.match(r"<a?:[a-zA-Z0-9\_]{1,32}:([0-9]{15,})>$", argument):
+        if match := re.match(r"<(a)?:([a-zA-Z0-9\_]{1,32}):([0-9]{15,})>$", argument):
             emoji_animated = bool(match[1])
             emoji_name = match[2]
             emoji_id = int(match[3])
