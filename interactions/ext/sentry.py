@@ -7,7 +7,7 @@ Optionally takes a filter function that will be called before sending the event 
 
 import functools
 import logging
-from typing import Any, Callable, Optional
+from typing import Any, Callable, ContextManager, Optional
 
 from interactions.api.events.internal import Error
 from interactions.client.const import get_logger
@@ -24,6 +24,12 @@ except ModuleNotFoundError:
 from interactions import Client, Extension, listen
 
 __all__ = ("default_sentry_filter", "setup")
+
+
+def _new_scope() -> ContextManager[Any]:
+    """Return a scope that only applies inside its ``with`` block."""
+    # configure_scope() and push_scope() were removed in sentry-sdk 3; new_scope() exists since 2.0
+    return (getattr(sentry_sdk, "new_scope", None) or sentry_sdk.push_scope)()
 
 
 def default_sentry_filter(event: dict[str, Any], hint: dict[str, Any]) -> Optional[dict[str, Any]]:
@@ -58,7 +64,7 @@ class SentryExtension(Extension):
 
     @listen(disable_default_listeners=False)
     async def on_error(self, event: Error) -> None:
-        with sentry_sdk.configure_scope() as scope:
+        with _new_scope() as scope:
             scope.set_tag("source", event.source)
             if event.ctx:
                 scope.set_context(
@@ -78,7 +84,7 @@ class HookedTask(Task):
     """We're subclassing purely for the type hinting.  The following method will be transplanted onto Task."""
 
     def on_error_sentry_hook(self: Task, error: Exception) -> None:
-        with sentry_sdk.configure_scope() as scope:
+        with _new_scope() as scope:
             if isinstance(self.callback, functools.partial):
                 scope.set_tag("task", self.callback.func.__name__)
             else:
